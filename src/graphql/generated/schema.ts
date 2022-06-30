@@ -16,7 +16,7 @@ export type Scalars = {
   Instant: any;
 };
 
-export type Album = {
+export type Album = ReviewEntity & {
   __typename?: 'Album';
   albumGroup?: Maybe<Scalars['String']>;
   albumType: Scalars['String'];
@@ -32,7 +32,7 @@ export type Album = {
   tracks?: Maybe<Array<Track>>;
 };
 
-export type Artist = {
+export type Artist = ReviewEntity & {
   __typename?: 'Artist';
   albums?: Maybe<Array<Album>>;
   externalUrls: Array<KvStringString>;
@@ -127,7 +127,7 @@ export type PaginationInput = {
   from?: Scalars['Int'];
 };
 
-export type Playlist = {
+export type Playlist = ReviewEntity & {
   __typename?: 'Playlist';
   collaborative: Scalars['Boolean'];
   description: Scalars['String'];
@@ -178,7 +178,7 @@ export type Review = {
   comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Instant'];
   creator: User;
-  entity?: Maybe<ReviewEntity>;
+  entity: ReviewEntity;
   entityId: Scalars['String'];
   entityType: EntityType;
   id: Scalars['ID'];
@@ -186,7 +186,11 @@ export type Review = {
   reviewName: Scalars['String'];
 };
 
-export type ReviewEntity = Album | Artist | Playlist | Track;
+export type ReviewEntity = {
+  externalUrls: Array<KvStringString>;
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
 
 export type SearchResult = {
   __typename?: 'SearchResult';
@@ -207,7 +211,7 @@ export type SpotifyProfile = {
   uri: Scalars['String'];
 };
 
-export type Track = {
+export type Track = ReviewEntity & {
   __typename?: 'Track';
   album?: Maybe<Album>;
   artists?: Maybe<Array<Artist>>;
@@ -252,19 +256,69 @@ export type CreateReviewMutationVariables = Exact<{
 
 export type CreateReviewMutation = { __typename?: 'Mutations', createReview?: { __typename?: 'Review', entityType: EntityType, id: string } | null };
 
-export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity?: { __typename?: 'Album', id: string, name: string, images: Array<string>, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, images: Array<string> } | { __typename?: 'Playlist', id: string, name: string, images: Array<string> } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null }> | null } | null };
-
-export type ReviewQueryVariables = Exact<{
+export type DetailedReviewQueryVariables = Exact<{
   reviewId: Scalars['ID'];
 }>;
 
 
-export type ReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, displayName?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string } | null } } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, displayName?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string } | null } } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } } | null };
+
+export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
+export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+
+export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+
+type ReviewEntityOverview_Album_Fragment = { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
+
+type ReviewEntityOverview_Artist_Fragment = { __typename?: 'Artist', images: Array<string>, id: string, name: string };
+
+type ReviewEntityOverview_Playlist_Fragment = { __typename?: 'Playlist', images: Array<string>, id: string, name: string };
+
+type ReviewEntityOverview_Track_Fragment = { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
+
+export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
+
+export const ReviewEntityOverviewFragmentDoc = gql`
+    fragment ReviewEntityOverview on ReviewEntity {
+  id
+  name
+  ... on Album {
+    images
+    artists {
+      name
+      id
+    }
+  }
+  ... on Artist {
+    images
+  }
+  ... on Playlist {
+    images
+  }
+  ... on Track {
+    album {
+      images
+    }
+    artists {
+      name
+      id
+    }
+  }
+}
+    `;
+export const ReviewOverviewFragmentDoc = gql`
+    fragment ReviewOverview on Review {
+  reviewName
+  id
+  entityType
+  entityId
+  entity {
+    ...ReviewEntityOverview
+  }
+}
+    ${ReviewEntityOverviewFragmentDoc}`;
 export const CreateReviewDocument = gql`
     mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
@@ -299,86 +353,8 @@ export function useCreateReviewMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateReviewMutationHookResult = ReturnType<typeof useCreateReviewMutation>;
 export type CreateReviewMutationResult = Apollo.MutationResult<CreateReviewMutation>;
 export type CreateReviewMutationOptions = Apollo.BaseMutationOptions<CreateReviewMutation, CreateReviewMutationVariables>;
-export const ProfileAndReviewsDocument = gql`
-    query ProfileAndReviews {
-  user {
-    id
-    spotifyProfile {
-      id
-      displayName
-      images
-      numFollowers
-    }
-    reviews {
-      reviewName
-      id
-      entityType
-      entityId
-      entity {
-        ... on Album {
-          id
-          name
-          images
-          artists {
-            name
-            id
-          }
-        }
-        ... on Artist {
-          id
-          name
-          images
-        }
-        ... on Playlist {
-          id
-          name
-          images
-        }
-        ... on Track {
-          id
-          name
-          album {
-            images
-          }
-          artists {
-            name
-            id
-          }
-        }
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useProfileAndReviewsQuery__
- *
- * To run a query within a React component, call `useProfileAndReviewsQuery` and pass it any options that fit your needs.
- * When your component renders, `useProfileAndReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useProfileAndReviewsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useProfileAndReviewsQuery(baseOptions?: Apollo.QueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
-      }
-export function useProfileAndReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
-        }
-export type ProfileAndReviewsQueryHookResult = ReturnType<typeof useProfileAndReviewsQuery>;
-export type ProfileAndReviewsLazyQueryHookResult = ReturnType<typeof useProfileAndReviewsLazyQuery>;
-export type ProfileAndReviewsQueryResult = Apollo.QueryResult<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>;
-export const ReviewDocument = gql`
-    query Review($reviewId: ID!) {
+export const DetailedReviewDocument = gql`
+    query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
     reviewName
     id
@@ -476,29 +452,72 @@ export const ReviewDocument = gql`
     `;
 
 /**
- * __useReviewQuery__
+ * __useDetailedReviewQuery__
  *
- * To run a query within a React component, call `useReviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useDetailedReviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDetailedReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useReviewQuery({
+ * const { data, loading, error } = useDetailedReviewQuery({
  *   variables: {
  *      reviewId: // value for 'reviewId'
  *   },
  * });
  */
-export function useReviewQuery(baseOptions: Apollo.QueryHookOptions<ReviewQuery, ReviewQueryVariables>) {
+export function useDetailedReviewQuery(baseOptions: Apollo.QueryHookOptions<DetailedReviewQuery, DetailedReviewQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ReviewQuery, ReviewQueryVariables>(ReviewDocument, options);
+        return Apollo.useQuery<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, options);
       }
-export function useReviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReviewQuery, ReviewQueryVariables>) {
+export function useDetailedReviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DetailedReviewQuery, DetailedReviewQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ReviewQuery, ReviewQueryVariables>(ReviewDocument, options);
+          return Apollo.useLazyQuery<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, options);
         }
-export type ReviewQueryHookResult = ReturnType<typeof useReviewQuery>;
-export type ReviewLazyQueryHookResult = ReturnType<typeof useReviewLazyQuery>;
-export type ReviewQueryResult = Apollo.QueryResult<ReviewQuery, ReviewQueryVariables>;
+export type DetailedReviewQueryHookResult = ReturnType<typeof useDetailedReviewQuery>;
+export type DetailedReviewLazyQueryHookResult = ReturnType<typeof useDetailedReviewLazyQuery>;
+export type DetailedReviewQueryResult = Apollo.QueryResult<DetailedReviewQuery, DetailedReviewQueryVariables>;
+export const ProfileAndReviewsDocument = gql`
+    query ProfileAndReviews {
+  user {
+    id
+    spotifyProfile {
+      id
+      displayName
+      images
+      numFollowers
+    }
+    reviews {
+      ...ReviewOverview
+    }
+  }
+}
+    ${ReviewOverviewFragmentDoc}`;
+
+/**
+ * __useProfileAndReviewsQuery__
+ *
+ * To run a query within a React component, call `useProfileAndReviewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProfileAndReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProfileAndReviewsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useProfileAndReviewsQuery(baseOptions?: Apollo.QueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
+      }
+export function useProfileAndReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
+        }
+export type ProfileAndReviewsQueryHookResult = ReturnType<typeof useProfileAndReviewsQuery>;
+export type ProfileAndReviewsLazyQueryHookResult = ReturnType<typeof useProfileAndReviewsLazyQuery>;
+export type ProfileAndReviewsQueryResult = Apollo.QueryResult<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>;

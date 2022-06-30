@@ -1,16 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { gql } from '@apollo/client'
-import { EntityType, useCreateReviewMutation } from 'graphql/generated'
+import { useMemo, useState } from 'react'
+import { EntityType, useCreateReviewMutation } from 'graphql/generated/schema'
 import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-
-gql`
-mutation CreateReview($input: CreateReviewInput!) {
-    createReview(input: $input) {
-        entityType
-        id
-    }
-}
-`
 
 export default function CreateReview() {
     const [name, setReviewName] = useState("")

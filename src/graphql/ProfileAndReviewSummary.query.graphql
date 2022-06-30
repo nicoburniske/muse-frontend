@@ -1,0 +1,51 @@
+query ProfileAndReviews {
+    user {
+      id
+    spotifyProfile {
+      id
+      displayName
+      images
+      numFollowers
+    }
+    reviews {
+      ...ReviewOverview
+    }
+  }
+}
+
+fragment ReviewOverview on Review {
+  reviewName
+  id
+  entityType
+  entityId
+  entity {
+    ...ReviewEntityOverview 
+  }
+}
+
+fragment ReviewEntityOverview on ReviewEntity {
+  id
+  name
+  ... on Album {
+    images
+    artists {
+        name
+        id
+    } 
+  }
+  ... on Artist {
+    images 
+  }
+  ... on Playlist {
+    images
+  }
+  ... on Track {
+    album {
+        images
+    }
+    artists {
+        name
+        id
+    }
+  }
+}

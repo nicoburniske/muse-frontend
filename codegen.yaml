@@ -2,12 +2,22 @@ schema:
   - http://localhost:8883/api/graphql:
       headers:
         Authorization: YourAuthorizationHere 
-documents: './src/**/*.tsx'
+documents: './src/**/*.graphql'
 generates:
-  ./src/graphql/generated.ts:
+  ./src/graphql/generated/schema.ts:
     plugins:
       - typescript
-      - typescript-operations
+      - typescript-operations:
+        config:
+          flattenGeneratedTypes: true
+          flattenGeneratedTypesIncludeFragments: true
+          dedupeFragments: true
       - typescript-react-apollo
     config:
       fetcher: fetch
+  #  Needed for using fragments in interfaces/unions.
+  ./src/graphql/generated/fragmentTypes.ts:
+    plugins:
+      - fragment-matcher
+    config:
+      useExplicitTyping: true

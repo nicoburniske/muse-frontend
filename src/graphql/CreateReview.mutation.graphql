@@ -1,0 +1,6 @@
+mutation CreateReview($input: CreateReviewInput!) {
+    createReview(input: $input) {
+        entityType
+        id
+    }
+}

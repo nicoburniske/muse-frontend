@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
+import PossibleTypesResultData from 'graphql/generated/fragmentTypes';
 import App from './App'
 
 const queryClient = new QueryClient()
@@ -12,7 +13,7 @@ const link = createHttpLink({
 })
 
 const clientGraphQL = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({possibleTypes: PossibleTypesResultData.possibleTypes}),
   link
 });
 

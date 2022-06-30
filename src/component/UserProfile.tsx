@@ -1,8 +1,7 @@
 
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useProfileAndReviewsQuery } from 'graphql/generated'
+import { ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -15,56 +14,6 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { Box, Button, CardActionArea } from '@mui/material';
-
-gql`query ProfileAndReviews {
-    user {
-        id
-      spotifyProfile {
-        id
-        displayName
-        images
-        numFollowers
-      }
-      reviews {
-        reviewName
-        id
-        entityType
-        entityId
-        entity {
-          ... on Album {
-            id
-            name
-            images
-            artists {
-              name
-              id
-            }
-          }
-          ... on Artist {
-            id
-            name
-            images
-          }
-          ... on Playlist {
-            id
-            name
-            images
-          }
-          ... on Track {
-            id
-            name
-            album {
-              images
-            }
-            artists {
-              name
-              id
-            }
-          }
-        }
-      }
-    }
-  }`
 
 function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
   let result = [];
@@ -108,23 +57,31 @@ export default function UserProfile() {
     </TableContainer>
   )
 
-  const createCard = (data) => {
-    const imageUrl = data?.entity?.images?.[0] ?? data?.entity?.album?.images?.[0]
+  const getNameAndImage = (data: ReviewEntityOverviewFragment): [string, string] => {
+    if ("images" in data) {
+      return [data.name, data.images?.[0]]
+    } else {
+      return [data.name, data.album?.images?.[0] ?? ""]
+    }
+  }
+
+  const createCard = (data: ReviewOverviewFragment) => {
+    const [entityName, image] = getNameAndImage(data.entity) 
     return (
-      <Card key={data?.reviewId}>
+      <Card key={data.id}>
         <CardActionArea>
           <CardMedia
             component="img"
-            image={imageUrl}
+            image={image}
           />
         </CardActionArea>
         <CardContent>
           <Typography
             variant="h5">
-            {data?.reviewName}
+            {data.reviewName}
           </Typography>
           <Typography>
-            {data?.entityType} Review: {data?.entity?.name}
+            {data.entityType} Review: {entityName}
           </Typography>
         </CardContent>
       </Card>
