@@ -1,0 +1,13 @@
+schema:
+  - http://localhost:8883/api/graphql:
+      headers:
+        Authorization: YourAuthorizationHere 
+documents: './src/**/*.tsx'
+generates:
+  ./src/graphql/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      fetcher: fetch
