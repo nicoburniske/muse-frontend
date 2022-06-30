@@ -23,8 +23,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-query": "^3.39.1",
-    "vite-tsconfig-paths": "^3.5.0",
-    "wretch": "^1.7.10"
+    "vite-tsconfig-paths": "^3.5.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

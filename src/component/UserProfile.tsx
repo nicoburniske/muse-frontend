@@ -14,7 +14,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Box, CardActionArea } from '@mui/material';
+import { Box, Button, CardActionArea } from '@mui/material';
 
 gql`query ProfileAndReviews {
     user {
@@ -71,7 +71,8 @@ function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
   for (let i = 0; i < data.length; i += n) result.push(data.slice(i, i + n));
   return result;
 };
-const TILES_PER_ROW = 3
+
+const TILES_PER_ROW = 4
 
 export default function UserProfile() {
   const { data, error, loading } = useProfileAndReviewsQuery()
@@ -107,8 +108,6 @@ export default function UserProfile() {
     </TableContainer>
   )
 
-
-
   const createCard = (data) => {
     const imageUrl = data?.entity?.images?.[0] ?? data?.entity?.album?.images?.[0]
     return (
@@ -131,7 +130,6 @@ export default function UserProfile() {
       </Card>
     )
   }
-
 
   const createGrid = () => {
     const grouped = groupByN(TILES_PER_ROW, reviews)
@@ -169,7 +167,7 @@ export default function UserProfile() {
       <div>
         <div> Welcome {userDisplayname} </div>
         <div> You have {numReviews} reviews! </div>
-        <button onClick={toggleTable} > Toggle Table / Cards </button>
+        <Button onClick={toggleTable} > Toggle Table / Cards </Button>
         <div>{
           renderTable ?
             createTable()

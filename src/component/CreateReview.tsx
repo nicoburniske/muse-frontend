@@ -6,6 +6,7 @@ import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, TextFiel
 gql`
 mutation CreateReview($input: CreateReviewInput!) {
     createReview(input: $input) {
+        entityType
         id
     }
 }
@@ -21,9 +22,8 @@ export default function CreateReview() {
     const convertedEntityId = useMemo(() => {
         const start = entityId.lastIndexOf("/")
         if (start !== -1) {
-        console.log("EYYY")
-            const index = entityId.lastIndexOf("?") 
-            const last  = index === -1 ? entityId.length : index
+            const index = entityId.lastIndexOf("?")
+            const last = index === -1 ? entityId.length : index
             return entityId.substring(start + 1, last)
         } else {
             return entityId
@@ -34,6 +34,11 @@ export default function CreateReview() {
 
     const getErrorMessage = () =>
         <Alert severity="warning"> {error?.graphQLErrors.map(e => `${e.message} ${e.extensions.message}`).join(", ")}</Alert >
+
+    const getSuccessMessage = () => {
+        const entityType = data?.createReview?.entityType?.toString()
+        return <Alert> {`Created ${entityType} review!`} </Alert >
+    }
 
     const canSubmit = useMemo(() => !loading && name.length > 0 && entityId.length > 0, [loading, name, entityId])
 
@@ -78,8 +83,12 @@ export default function CreateReview() {
             >
                 Create Review
             </Button>
-            {error ?
-                getErrorMessage()
+            { /*TODO clean this up*/}
+            {error ? getErrorMessage()
+                : null
+            }
+            {data ?
+                getSuccessMessage()
                 : null
             }
         </Box>

@@ -250,7 +250,7 @@ export type CreateReviewMutationVariables = Exact<{
 }>;
 
 
-export type CreateReviewMutation = { __typename?: 'Mutations', createReview?: { __typename?: 'Review', id: string } | null };
+export type CreateReviewMutation = { __typename?: 'Mutations', createReview?: { __typename?: 'Review', entityType: EntityType, id: string } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -268,6 +268,7 @@ export type ReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Rev
 export const CreateReviewDocument = gql`
     mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
+    entityType
     id
   }
 }
