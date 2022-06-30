@@ -131,7 +131,7 @@ export default function UserProfile() {
   const createGrid = () => {
     const grouped = groupByN(3, reviews)
     return (
-      <Box>
+      <Box p={2}>
         <Grid container spacing={1}>
           {
             grouped.map(row => (
