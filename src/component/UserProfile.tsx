@@ -66,6 +66,12 @@ gql`query ProfileAndReviews {
     }
   }`
 
+function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
+  let result = [];
+  for (let i = 0; i < data.length; i += n) result.push(data.slice(i, i + n));
+  return result;
+};
+const TILES_PER_ROW = 3
 
 export default function UserProfile() {
   const { data, error, loading } = useProfileAndReviewsQuery()
@@ -101,11 +107,7 @@ export default function UserProfile() {
     </TableContainer>
   )
 
-  function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
-    let result = [];
-    for (let i = 0; i < data.length; i += n) result.push(data.slice(i, i + n));
-    return result;
-  };
+
 
   const createCard = (data) => {
     const imageUrl = data?.entity?.images?.[0] ?? data?.entity?.album?.images?.[0]
@@ -113,13 +115,15 @@ export default function UserProfile() {
       <Card key={data?.reviewId}>
         <CardActionArea>
           <CardMedia
-            height="300"
-            width="300"
             component="img"
             image={imageUrl}
           />
         </CardActionArea>
         <CardContent>
+          <Typography
+            variant="h5">
+            {data?.reviewName}
+          </Typography>
           <Typography>
             {data?.entityType} Review: {data?.entity?.name}
           </Typography>
@@ -128,19 +132,22 @@ export default function UserProfile() {
     )
   }
 
+
   const createGrid = () => {
-    const grouped = groupByN(3, reviews)
+    const grouped = groupByN(TILES_PER_ROW, reviews)
     return (
       <Box p={2}>
         <Grid container spacing={1}>
           {
-            grouped.map(row => (
-              <Grid container spacing={1}>
-                {row.map(review =>
-                  <Grid item key={review.id}>{createCard(review)}</Grid>
-                )}
-              </Grid>
-            ))
+            grouped.map(row => {
+              const hash = row.reduce((acc, r) => acc + r.id, "")
+              return (
+                <Grid container spacing={3} key={hash}>
+                  {row.map(review =>
+                    <Grid item xs={3} key={review.id}>{createCard(review)}</Grid>
+                  )}
+                </Grid>)
+            })
           }
         </Grid>
       </Box>
@@ -158,7 +165,6 @@ export default function UserProfile() {
       </div>
     )
   } else {
-
     return (
       <div>
         <div> Welcome {userDisplayname} </div>
@@ -170,9 +176,7 @@ export default function UserProfile() {
             : createGrid()
         }
         </div>
-
       </div>
     )
-
   }
 }

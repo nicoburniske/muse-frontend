@@ -62,6 +62,22 @@ export type Comment = {
   updatedAt: Scalars['Instant'];
 };
 
+export type CreateCommentInput = {
+  comment?: InputMaybe<Scalars['String']>;
+  entityId: Scalars['String'];
+  entityType: EntityType;
+  parentCommentId?: InputMaybe<Scalars['Int']>;
+  rating?: InputMaybe<Scalars['Int']>;
+  reviewId: Scalars['ID'];
+};
+
+export type CreateReviewInput = {
+  entityId: Scalars['String'];
+  entityType: EntityType;
+  isPublic: Scalars['Boolean'];
+  name: Scalars['String'];
+};
+
 export enum EntityType {
   Album = 'Album',
   Artist = 'Artist',
@@ -88,34 +104,22 @@ export type Mutations = {
 
 
 export type MutationsCreateCommentArgs = {
-  comment?: InputMaybe<Scalars['String']>;
-  entityId: Scalars['String'];
-  entityType: EntityType;
-  parentCommentId?: InputMaybe<Scalars['Int']>;
-  rating?: InputMaybe<Scalars['Int']>;
-  reviewId: Scalars['ID'];
+  input: CreateCommentInput;
 };
 
 
 export type MutationsCreateReviewArgs = {
-  entityId: Scalars['String'];
-  entityType: EntityType;
-  isPublic: Scalars['Boolean'];
-  name: Scalars['String'];
+  input: CreateReviewInput;
 };
 
 
 export type MutationsUpdateCommentArgs = {
-  comment?: InputMaybe<Scalars['String']>;
-  commentId: Scalars['Int'];
-  rating?: InputMaybe<Scalars['Int']>;
+  input: UpdateCommentInput;
 };
 
 
 export type MutationsUpdateReviewArgs = {
-  isPublic: Scalars['Boolean'];
-  name: Scalars['String'];
-  reviewId: Scalars['ID'];
+  input: UpdateReviewInput;
 };
 
 export type PaginationInput = {
@@ -222,12 +226,31 @@ export type Track = {
   uri: Scalars['String'];
 };
 
+export type UpdateCommentInput = {
+  comment?: InputMaybe<Scalars['String']>;
+  commentId: Scalars['Int'];
+  rating?: InputMaybe<Scalars['Int']>;
+};
+
+export type UpdateReviewInput = {
+  isPublic: Scalars['Boolean'];
+  name: Scalars['String'];
+  reviewId: Scalars['ID'];
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['String'];
   reviews?: Maybe<Array<Review>>;
   spotifyProfile?: Maybe<SpotifyProfile>;
 };
+
+export type CreateReviewMutationVariables = Exact<{
+  input: CreateReviewInput;
+}>;
+
+
+export type CreateReviewMutation = { __typename?: 'Mutations', createReview?: { __typename?: 'Review', id: string } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -242,6 +265,39 @@ export type ReviewQueryVariables = Exact<{
 export type ReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, displayName?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string } | null } } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null } | null };
 
 
+export const CreateReviewDocument = gql`
+    mutation CreateReview($input: CreateReviewInput!) {
+  createReview(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateReviewMutationFn = Apollo.MutationFunction<CreateReviewMutation, CreateReviewMutationVariables>;
+
+/**
+ * __useCreateReviewMutation__
+ *
+ * To run a mutation, you first call `useCreateReviewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateReviewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createReviewMutation, { data, loading, error }] = useCreateReviewMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateReviewMutation(baseOptions?: Apollo.MutationHookOptions<CreateReviewMutation, CreateReviewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, options);
+      }
+export type CreateReviewMutationHookResult = ReturnType<typeof useCreateReviewMutation>;
+export type CreateReviewMutationResult = Apollo.MutationResult<CreateReviewMutation>;
+export type CreateReviewMutationOptions = Apollo.BaseMutationOptions<CreateReviewMutation, CreateReviewMutationVariables>;
 export const ProfileAndReviewsDocument = gql`
     query ProfileAndReviews {
   user {
