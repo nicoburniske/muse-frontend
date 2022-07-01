@@ -261,14 +261,24 @@ export type DetailedReviewQueryVariables = Exact<{
 }>;
 
 
-export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, displayName?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string } | null } } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, track: { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } } | null };
+
+export type UserIdAndDisplayNameFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null };
+
+export type DetailedTrackFragment = { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
+
+export type DetailedPlaylistFragment = { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, track: { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null };
+
+export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null };
+
+export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
 
-export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
 
 type ReviewEntityOverview_Album_Fragment = { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
@@ -280,6 +290,97 @@ type ReviewEntityOverview_Track_Fragment = { __typename?: 'Track', id: string, n
 
 export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
 
+export const UserIdAndDisplayNameFragmentDoc = gql`
+    fragment UserIdAndDisplayName on User {
+  id
+  spotifyProfile {
+    displayName
+  }
+}
+    `;
+export const DetailedTrackFragmentDoc = gql`
+    fragment DetailedTrack on Track {
+  id
+  name
+  durationMs
+  explicit
+  isPlayable
+  previewUrl
+  popularity
+  album {
+    images
+  }
+  artists {
+    name
+    id
+  }
+}
+    `;
+export const DetailedPlaylistFragmentDoc = gql`
+    fragment DetailedPlaylist on Playlist {
+  collaborative
+  description
+  id
+  images
+  name
+  owner {
+    ...UserIdAndDisplayName
+  }
+  tracks {
+    addedAt
+    addedBy {
+      ...UserIdAndDisplayName
+    }
+    track {
+      ...DetailedTrack
+    }
+  }
+  primaryColor
+  public
+}
+    ${UserIdAndDisplayNameFragmentDoc}
+${DetailedTrackFragmentDoc}`;
+export const DetailedAlbumFragmentDoc = gql`
+    fragment DetailedAlbum on Album {
+  albumGroup
+  albumType
+  genres
+  id
+  images
+  label
+  name
+  albumPopularity: popularity
+  releaseDate
+  artists {
+    id
+    name
+  }
+  tracks {
+    id
+    name
+    durationMs
+    explicit
+    isPlayable
+    previewUrl
+    popularity
+    artists {
+      id
+      name
+    }
+  }
+}
+    `;
+export const DetailedArtistFragmentDoc = gql`
+    fragment DetailedArtist on Artist {
+  numFollowers
+  genres
+  href
+  id
+  images
+  name
+  artistPopularity: popularity
+}
+    `;
 export const ReviewEntityOverviewFragmentDoc = gql`
     fragment ReviewEntityOverview on ReviewEntity {
   id
@@ -314,6 +415,7 @@ export const ReviewOverviewFragmentDoc = gql`
   id
   entityType
   entityId
+  createdAt
   entity {
     ...ReviewEntityOverview
   }
@@ -362,10 +464,7 @@ export const DetailedReviewDocument = gql`
     entityId
     createdAt
     creator {
-      id
-      displayName: spotifyProfile {
-        displayName
-      }
+      ...UserIdAndDisplayName
     }
     comments {
       id
@@ -375,10 +474,7 @@ export const DetailedReviewDocument = gql`
       parentCommentId
       commenterId
       commenter {
-        id
-        spotifyProfile {
-          displayName
-        }
+        ...UserIdAndDisplayName
       }
       comment
       rating
@@ -387,69 +483,25 @@ export const DetailedReviewDocument = gql`
     }
     entity {
       ... on Album {
-        albumGroup
-        albumType
-        genres
-        id
-        images
-        label
-        name
-        albumPopularity: popularity
-        releaseDate
-        artists {
-          id
-          name
-        }
-        tracks {
-          id
-          name
-          durationMs
-        }
+        ...DetailedAlbum
       }
       ... on Artist {
-        numFollowers
-        genres
-        href
-        id
-        images
-        name
-        artistPopularity: popularity
+        ...DetailedArtist
       }
       ... on Playlist {
-        collaborative
-        description
-        id
-        images
-        name
-        owner {
-          id
-          spotifyProfile {
-            id
-          }
-        }
-        primaryColor
-        public
+        ...DetailedPlaylist
       }
       ... on Track {
-        id
-        name
-        durationMs
-        explicit
-        isPlayable
-        previewUrl
-        popularity
-        album {
-          images
-        }
-        artists {
-          name
-          id
-        }
+        ...DetailedTrack
       }
     }
   }
 }
-    `;
+    ${UserIdAndDisplayNameFragmentDoc}
+${DetailedAlbumFragmentDoc}
+${DetailedArtistFragmentDoc}
+${DetailedPlaylistFragmentDoc}
+${DetailedTrackFragmentDoc}`;
 
 /**
  * __useDetailedReviewQuery__

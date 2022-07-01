@@ -18,6 +18,7 @@ fragment ReviewOverview on Review {
   id
   entityType
   entityId
+  createdAt
   entity {
     ...ReviewEntityOverview 
   }

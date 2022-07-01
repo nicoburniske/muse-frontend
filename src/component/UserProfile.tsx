@@ -2,18 +2,11 @@
 
 import { useState } from 'react'
 import { ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { Box, Button, CardActionArea } from '@mui/material';
+import {
+  Box, Button, CardActionArea, Paper, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Grid, Card, CardContent, CardMedia, Typography
+} from '@mui/material';
+
 
 function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
   let result = [];
@@ -21,7 +14,15 @@ function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
   return result;
 };
 
-const TILES_PER_ROW = 4
+const TILES_PER_ROW = 6
+
+function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
+  if ("images" in data) {
+    return [data.name, data.images?.[0]]
+  } else {
+    return [data.name, data.album?.images?.[0] ?? ""]
+  }
+}
 
 export default function UserProfile() {
   const { data, error, loading } = useProfileAndReviewsQuery()
@@ -33,13 +34,14 @@ export default function UserProfile() {
   const reviews = data?.user?.reviews ?? []
 
   const createTable = () => (
-    <TableContainer>
+    <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell> Review Name </TableCell>
             <TableCell> Entity Type </TableCell>
             <TableCell> Entity Name </TableCell>
+            <TableCell> Created At </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -49,6 +51,7 @@ export default function UserProfile() {
                 <TableCell>{review.reviewName}</TableCell>
                 <TableCell>{review.entityType}</TableCell>
                 <TableCell>{review?.entity?.name}</TableCell>
+                <TableCell>{new Date(review?.createdAt).toDateString()}</TableCell>
               </TableRow>
             ))
           }
@@ -57,16 +60,8 @@ export default function UserProfile() {
     </TableContainer>
   )
 
-  const getNameAndImage = (data: ReviewEntityOverviewFragment): [string, string] => {
-    if ("images" in data) {
-      return [data.name, data.images?.[0]]
-    } else {
-      return [data.name, data.album?.images?.[0] ?? ""]
-    }
-  }
-
   const createCard = (data: ReviewOverviewFragment) => {
-    const [entityName, image] = getNameAndImage(data.entity) 
+    const [entityName, image] = getNameAndImage(data.entity)
     return (
       <Card key={data.id}>
         <CardActionArea>
@@ -92,14 +87,14 @@ export default function UserProfile() {
     const grouped = groupByN(TILES_PER_ROW, reviews)
     return (
       <Box p={2}>
-        <Grid container spacing={1}>
+        <Grid container spacing={1} >
           {
             grouped.map(row => {
               const hash = row.reduce((acc, r) => acc + r.id, "")
               return (
                 <Grid container spacing={3} key={hash}>
                   {row.map(review =>
-                    <Grid item xs={3} key={review.id}>{createCard(review)}</Grid>
+                    <Grid item xs={2} key={review.id}>{createCard(review)}</Grid>
                   )}
                 </Grid>)
             })

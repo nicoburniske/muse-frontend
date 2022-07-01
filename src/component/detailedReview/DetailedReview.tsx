@@ -1,5 +1,3 @@
-
-
 import { useDetailedReviewQuery } from 'graphql/generated/schema';
 
 interface DetailedReviewProps {
@@ -10,7 +8,7 @@ function DetailedReview({ reviewId }: DetailedReviewProps) {
     variables: {
       reviewId
     },
-  });
+  })
   if (data) {
     const review = data.review
     const entity = data.review?.entity

@@ -6,10 +6,7 @@ query DetailedReview($reviewId: ID!) {
     entityId
     createdAt
     creator {
-      id
-      displayName: spotifyProfile {
-        displayName
-      }
+      ...UserIdAndDisplayName
     }
     comments {
       id
@@ -19,11 +16,8 @@ query DetailedReview($reviewId: ID!) {
       parentCommentId
       commenterId
       commenter {
-        id
-        spotifyProfile {
-          displayName
-        }
-      }
+         ...UserIdAndDisplayName 
+      } 
       comment
       rating
       entityId
@@ -31,65 +25,102 @@ query DetailedReview($reviewId: ID!) {
     }
     entity {
       ... on Album {
-        albumGroup
-        albumType
-        genres
-        id
-        images
-        label
-        name
-        albumPopularity: popularity
-        releaseDate
-        artists {
-          id
-          name
-        }
-        tracks {
-          id
-          name
-          durationMs
-        }
+        ...DetailedAlbum
       }
       ... on Artist {
-        numFollowers
-        genres
-        href
-        id
-        images
-        name
-        artistPopularity: popularity
+        ...DetailedArtist 
       }
       ... on Playlist {
-        collaborative
-        description
-        id
-        images
-        name
-        owner {
-          id
-          spotifyProfile {
-            id
-          }
-        }
-        primaryColor
-        public
+        ...DetailedPlaylist
       }
       ... on Track {
-        id
-        name
-        durationMs
-        explicit
-        isPlayable
-        previewUrl
-        popularity
-        album {
-          images
-        }
-        artists {
-          name
-          id
-        }
+        ...DetailedTrack
       }
     }
   }
+}
+
+fragment UserIdAndDisplayName on User {
+  id
+  spotifyProfile {
+    displayName
+  }
+}
+
+fragment DetailedTrack on Track {
+  id
+  name
+  durationMs
+  explicit
+  isPlayable
+  previewUrl
+  popularity
+  album {
+    images
+  }
+  artists {
+    name
+    id
+  } 
+}
+
+fragment DetailedPlaylist on Playlist {
+  collaborative
+  description
+  id
+  images
+  name
+  owner {
+    ...UserIdAndDisplayName
+  }
+  tracks {
+    addedAt
+    addedBy {
+      ...UserIdAndDisplayName
+    }
+    track {
+      ...DetailedTrack 
+    }
+  }
+  primaryColor
+  public
+}
+
+fragment DetailedAlbum on Album {
+  albumGroup
+  albumType
+  genres
+  id
+  images
+  label
+  name
+  albumPopularity: popularity
+  releaseDate
+  artists {
+    id
+    name
+  }
+  tracks {
+    id
+    name
+    durationMs
+    explicit
+    isPlayable
+    previewUrl
+    popularity
+    artists {
+      id
+      name
+    }
+  }
+}
+
+fragment DetailedArtist on Artist {
+  numFollowers
+  genres
+  href
+  id
+  images
+  name
+  artistPopularity: popularity
 }
