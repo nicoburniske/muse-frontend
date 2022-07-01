@@ -1,8 +1,27 @@
-import { useDetailedReviewQuery } from 'graphql/generated/schema';
+import { useDetailedReviewQuery } from 'graphql/generated/schema'
+import { useParams, useLocation } from "react-router-dom"
+import { Alert } from "@mui/material"
+import { useEffect } from 'react'
 
 interface DetailedReviewProps {
   reviewId: string
 }
+
+export default function DetailedReviewPage() {
+  const params = useParams()
+  useEffect(() => {
+    console.log(params)
+  }, [params])
+
+  if (params.reviewId) {
+
+  } else {
+    return (
+      <Alert severity="error"> Missing Review ID </Alert >
+    )
+  }
+}
+
 function DetailedReview({ reviewId }: DetailedReviewProps) {
   const { data, loading, error } = useDetailedReviewQuery({
     variables: {

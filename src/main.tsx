@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import PossibleTypesResultData from 'graphql/generated/fragmentTypes';
@@ -13,7 +14,7 @@ const link = createHttpLink({
 })
 
 const clientGraphQL = new ApolloClient({
-  cache: new InMemoryCache({possibleTypes: PossibleTypesResultData.possibleTypes}),
+  cache: new InMemoryCache({ possibleTypes: PossibleTypesResultData.possibleTypes }),
   link
 });
 
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={clientGraphQL}>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </ApolloProvider>
     </QueryClientProvider>
   </React.StrictMode>

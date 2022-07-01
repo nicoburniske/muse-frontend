@@ -1,12 +1,12 @@
 
 
 import { useState } from 'react'
+import { useNavigate } from "react-router-dom";
 import { ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import {
   Box, Button, CardActionArea, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Grid, Card, CardContent, CardMedia, Typography
 } from '@mui/material';
-
 
 function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
   let result = [];
@@ -15,6 +15,37 @@ function groupByN<T>(n: number, data: Array<T>): Array<Array<T>> {
 };
 
 const TILES_PER_ROW = 6
+
+interface CreateCardProps {
+  review: ReviewOverviewFragment
+}
+
+function CreateCard ({review}: CreateCardProps){
+  const [entityName, image] = getNameAndImage(review.entity)
+  const nav = useNavigate()
+  const linkToReviewPage = () => nav(`reviews/${review.id}`)
+  return (
+    <Card key={review.id}>
+      <CardActionArea
+      onClick={linkToReviewPage}
+      >
+        <CardMedia
+          component="img"
+          image={image}
+        />
+      </CardActionArea>
+      <CardContent>
+        <Typography
+          variant="h5">
+          {review.reviewName}
+        </Typography>
+        <Typography>
+          {review.entityType} Review: {entityName}
+        </Typography>
+      </CardContent>
+    </Card>
+  )
+}
 
 function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
   if ("images" in data) {
@@ -60,29 +91,6 @@ export default function UserProfile() {
     </TableContainer>
   )
 
-  const createCard = (data: ReviewOverviewFragment) => {
-    const [entityName, image] = getNameAndImage(data.entity)
-    return (
-      <Card key={data.id}>
-        <CardActionArea>
-          <CardMedia
-            component="img"
-            image={image}
-          />
-        </CardActionArea>
-        <CardContent>
-          <Typography
-            variant="h5">
-            {data.reviewName}
-          </Typography>
-          <Typography>
-            {data.entityType} Review: {entityName}
-          </Typography>
-        </CardContent>
-      </Card>
-    )
-  }
-
   const createGrid = () => {
     const grouped = groupByN(TILES_PER_ROW, reviews)
     return (
@@ -94,7 +102,9 @@ export default function UserProfile() {
               return (
                 <Grid container spacing={3} key={hash}>
                   {row.map(review =>
-                    <Grid item xs={2} key={review.id}>{createCard(review)}</Grid>
+                    <Grid item xs={2} key={review.id}>
+                      <CreateCard review={review}/>
+                    </Grid>
                   )}
                 </Grid>)
             })
