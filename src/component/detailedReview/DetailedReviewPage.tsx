@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedTrackFragment, useDetailedReviewQuery } from 'graphql/generated/schema'
+import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, useDetailedReviewQuery } from 'graphql/generated/schema'
 import { useParams, useLocation } from "react-router-dom"
 import { Alert, List, ListItem, ListItemButton, ListItemText } from "@mui/material"
 import { useEffect } from 'react'
@@ -40,6 +40,8 @@ function DetailedReview({ reviewId }: DetailedReviewProps) {
       default:
         return <Alert severity="warning"> Not implemented yet </Alert >
     }
+  } if (error) {
+    return <Alert severity="error"> Review Doesn't Exist </Alert >
   }
 }
 
@@ -57,7 +59,7 @@ function DetailedPlaylist({ playlist, comments }: DetailedPlaylistProps) {
   return (
     <List sx={{ bgcolor: 'background.paper' }}>
       {
-        tracks.map(t =>
+        tracks.map((t: DetailedPlaylistTrackFragment) =>
           <ListItem key={t.track.id}>
             <ListItemButton>
               <ListItemText primary={`${t.track.name} - ${t.track.artists?.map(a => a.name).join(", ")}`} />
