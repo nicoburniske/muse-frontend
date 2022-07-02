@@ -280,9 +280,9 @@ export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers: numb
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
 
-export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
 
 type ReviewEntityOverview_Album_Fragment = { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
@@ -442,6 +442,7 @@ export const ReviewOverviewFragmentDoc = gql`
   id
   entityType
   entityId
+  createdAt
   entity {
     ...ReviewEntityOverview
   }

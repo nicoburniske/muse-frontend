@@ -85,14 +85,12 @@ fragment DetailedPlaylist on Playlist {
 }
 
 fragment DetailedPlaylistTrack on PlaylistTrack {
-  tracks {
-    addedAt
-    addedBy {
-      ...UserIdAndDisplayName
-    }
-    track {
-      ...DetailedTrack 
-    }
+  addedAt
+  addedBy {
+    ...UserIdAndDisplayName
+  }
+  track {
+    ...DetailedTrack 
   }
 }
 
