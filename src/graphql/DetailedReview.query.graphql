@@ -9,19 +9,7 @@ query DetailedReview($reviewId: ID!) {
       ...UserIdAndDisplayName
     }
     comments {
-      id
-      reviewId
-      createdAt
-      updatedAt
-      parentCommentId
-      commenterId
-      commenter {
-         ...UserIdAndDisplayName 
-      } 
-      comment
-      rating
-      entityId
-      entityType
+      ...DetailedComment    
     }
     entity {
       ... on Album {
@@ -38,6 +26,22 @@ query DetailedReview($reviewId: ID!) {
       }
     }
   }
+}
+
+fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenterId
+  commenter {
+      ...UserIdAndDisplayName 
+  } 
+  comment
+  rating
+  entityId
+  entityType
 }
 
 fragment UserIdAndDisplayName on User {

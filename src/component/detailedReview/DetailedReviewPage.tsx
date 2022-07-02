@@ -1,4 +1,4 @@
-import { useDetailedReviewQuery } from 'graphql/generated/schema'
+import { DetailedPlaylistFragment, useDetailedReviewQuery } from 'graphql/generated/schema'
 import { useParams, useLocation } from "react-router-dom"
 import { Alert } from "@mui/material"
 import { useEffect } from 'react'
@@ -8,13 +8,10 @@ interface DetailedReviewProps {
 }
 
 export default function DetailedReviewPage() {
-  const params = useParams()
-  useEffect(() => {
-    console.log(params)
-  }, [params])
+  const {reviewId }= useParams()
 
-  if (params.reviewId) {
-
+  if (reviewId) {
+    return <DetailedReview reviewId={reviewId}/>
   } else {
     return (
       <Alert severity="error"> Missing Review ID </Alert >
@@ -29,15 +26,26 @@ function DetailedReview({ reviewId }: DetailedReviewProps) {
     },
   })
   if (data) {
+    console.log(data)
     const review = data.review
     const entity = data.review?.entity
     switch (entity?.__typename) {
-      case "Album":
-      case "Artist":
+      // case "Album":
+      // case "Artist":
       case "Playlist":
-      case "Track":
+        <DetailedPlaylist playlist={entity}/>
+      // case "Track":
       default:
         return "Error loading"
     }
   }
+}
+
+interface DetailedPlaylistProps {
+  playlist: DetailedPlaylistFragment
+  // comments: 
+}
+
+function DetailedPlaylist({playlist}: DetailedPlaylistProps) {
+  return null
 }
