@@ -78,6 +78,14 @@ fragment DetailedPlaylist on Playlist {
     ...UserIdAndDisplayName
   }
   tracks {
+    ...DetailedPlaylistTrack
+  }
+  primaryColor
+  public
+}
+
+fragment DetailedPlaylistTrack on PlaylistTrack {
+  tracks {
     addedAt
     addedBy {
       ...UserIdAndDisplayName
@@ -86,8 +94,6 @@ fragment DetailedPlaylist on Playlist {
       ...DetailedTrack 
     }
   }
-  primaryColor
-  public
 }
 
 fragment DetailedAlbum on Album {
