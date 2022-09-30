@@ -139,7 +139,7 @@ function DetailedComment({ reviewId, comment: detailedComment, updateComments }:
   return (
     <Box sx={{ width: "100%" }}>
       <Stack
-        spacing={2}
+        spacing={5}
         direction="row"
         justifyContent="space-between"
         alignItems="center"
@@ -187,18 +187,26 @@ interface CommentFormProps {
 function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps) {
   const [comment, setComment] = useState(initialValue)
   const isTextareaDisabled = comment.length === 0
+
   const submitAndReset = (event) => {
     event.preventDefault()
     onSubmit(comment)
     setComment("")
   }
+
+  const cancel = (event) => {
+    event.preventDefault()
+    onCancel()
+    setComment(initialValue)
+  }
+
   return (
     <Box>
       <TextField
         sx={{ p: "20px 0" }}
         multiline
         fullWidth
-        minRows={4}
+        minRows={8}
         id="outlined-multilined"
         placeholder="create a comment"
         value={comment}
@@ -218,6 +226,22 @@ function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps
       >
         {initialValue.length === 0 ? "create" : "update"}
       </Button>
+
+      <Button
+        sx={{
+          float: "right",
+          bgcolor: "custom.moderateBlue",
+          color: "neutral.white",
+          p: "8px 25px",
+          "&:hover": {
+            bgcolor: "custom.lightGrayishBlue",
+          },
+        }}
+        onClick={cancel}
+      >
+        cancel
+      </Button>
+
 
     </Box >
   )
