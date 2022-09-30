@@ -1,6 +1,6 @@
-import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery } from 'graphql/generated/schema'
+import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useUpdateCommentMutation } from 'graphql/generated/schema'
 import { useParams, useLocation } from "react-router-dom"
-import { Alert, Box, Button, CardMedia, List, ListItem, ListItemButton, ListItemText, Stack, TextField } from "@mui/material"
+import { Alert, Avatar, Box, Button, CardMedia, List, ListItem, ListItemButton, ListItemText, Stack, TextField, Typography } from "@mui/material"
 import { useEffect, useMemo, useState } from 'react'
 // import { FixedSizeList as List, ListChildComponentProps } from 'react-window'
 
@@ -114,26 +114,115 @@ interface DetailedCommentProps {
   updateComments: () => Promise<void>
 }
 
-function DetailedComment({ reviewId, comment, updateComments }: DetailedCommentProps) {
-  const [deleteComment, { data, error, loading }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: comment.id } } })
+function DetailedComment({ reviewId, comment: detailedComment, updateComments }: DetailedCommentProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [deleteComment, { data: dataDelete, error: errorError, loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
+  const [updateComment, { data: dataUpdate, error: errorUpdate, loading: loadingUpdate }] = useUpdateCommentMutation()
 
   const onDelete = async () => {
     await deleteComment()
     await updateComments()
   }
+  const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
+  const comment = detailedComment?.comment ?? "Failed to retrieve comment";
+  const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
+  const createdAt = new Date(detailedComment?.createdAt).toLocaleDateString()
 
+  const onUpdate = async (content: string) => {
+    const input = { reviewId, commentId: detailedComment.id, comment: content }
+    await updateComment({ variables: { input } })
+    await updateComments()
+    setIsEditing(false)
+  }
+
+  // TODO: need to consider which comments are owned by user.
   return (
-    <Stack direction="row" >
-      <ListItemText
-        key={comment.id}
-        primary={comment.comment}
-        secondary={comment.commenter?.spotifyProfile?.displayName ?? comment.commenter?.id} />
-      <Button
-        disabled={loading}
-        onClick={() => onDelete()}
-      > delete </Button>
-    </Stack>
+    <Box sx={{ width: "100%" }}>
+      <Stack
+        spacing={2}
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Stack spacing={2} direction="row" alignItems="center">
+          <Avatar src={avatar}></Avatar>
+          <Typography
+            fontWeight="bold"
+            sx={{ color: "neutral.darkBlue" }}
+          >
+            {commenterName}
+          </Typography>
+          <Typography sx={{ color: "neutral.grayishBlue" }}>
+            {createdAt}
+          </Typography>
+        </Stack>
+        <Stack direction="row" >
+          {isEditing ?
+            <CommentForm initialValue={comment} onSubmit={onUpdate} onCancel={() => setIsEditing(false)} />
+            :
+            <Stack
+              spacing={2}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <ListItemText primary={comment} />
+              <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
+              <Button disabled={loadingDelete} onClick={() => onDelete()}> delete </Button>
+            </Stack>
+          }
+        </Stack>
+      </Stack>
+    </Box>
   )
+}
+
+interface CommentFormProps {
+  initialValue?: string
+  onSubmit: (comment: string) => Promise<void>
+  onCancel: () => void
+}
+
+// TODO: integrate markdown here!
+function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps) {
+  const [comment, setComment] = useState(initialValue)
+  const isTextareaDisabled = comment.length === 0
+  const submitAndReset = (event) => {
+    event.preventDefault()
+    onSubmit(comment)
+    setComment("")
+  }
+  return (
+    <Box>
+      <TextField
+        sx={{ p: "20px 0" }}
+        multiline
+        fullWidth
+        minRows={4}
+        id="outlined-multilined"
+        placeholder="create a comment"
+        value={comment}
+        onChange={(e) => setComment(e.target.value as string)}
+      />
+      <Button
+        sx={{
+          float: "right",
+          bgcolor: "custom.moderateBlue",
+          color: "neutral.white",
+          p: "8px 25px",
+          "&:hover": {
+            bgcolor: "custom.lightGrayishBlue",
+          },
+        }}
+        onClick={submitAndReset}
+      >
+        {initialValue.length === 0 ? "create" : "update"}
+      </Button>
+
+    </Box >
+  )
+
+
 }
 
 function groupCommentsWithTracks(comments: DetailedCommentFragment[], tracks: DetailedPlaylistTrackFragment[]): [DetailedPlaylistFragment, DetailedCommentFragment[]][] {
@@ -169,9 +258,11 @@ function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, u
 
 
   useKeyPress({
-    targetKey: 'Enter', onKeyPress: () => {
-      if (comment.length > 0 && !loading) {
-        createComment()
+    targetKey: 'Enter', onKeyPress: async () => {
+      console.log("Something!!", loading, comment)
+      if ((comment.length > 0) && !loading) {
+        console.log("in dis bit")
+        await createComment()
       }
     }
   })
@@ -192,7 +283,7 @@ function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, u
       }
       {showComment &&
         <Stack direction="row" >
-          <TextField label="comment" onChange={e => setComment(e.target.value as string)} />
+          <TextField label="comment" value={comment} onChange={e => setComment(e.target.value as string)} />
           <Button
             disabled={!comment && !loading}
             onClick={() => createComment()}
