@@ -65,7 +65,7 @@ function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
 
 export default function UserProfile() {
   const { data, error, loading } = useProfileAndReviewsQuery()
-  const [renderTable, setRenderTable] = useState(true)
+  const [renderTable, setRenderTable] = useState(false)
   const toggleTable = () => setRenderTable(!renderTable)
 
   const userDisplayname = data?.user?.spotifyProfile?.displayName ?? data?.user?.id

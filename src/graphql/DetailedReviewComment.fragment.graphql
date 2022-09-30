@@ -6,7 +6,7 @@ fragment DetailedComment on Comment {
   parentCommentId
   commenterId
   commenter {
-      ...UserIdAndDisplayName 
+      ...UserWithSpotifyOverview 
   } 
   comment
   rating

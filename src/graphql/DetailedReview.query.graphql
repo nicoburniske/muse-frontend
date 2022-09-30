@@ -6,10 +6,7 @@ query DetailedReview($reviewId: ID!) {
     entityId
     createdAt
     creator {
-      ...UserIdAndDisplayName
-    }
-    comments {
-      ...DetailedComment    
+      ...UserWithSpotifyOverview
     }
     entity {
       ... on Album {
@@ -34,10 +31,11 @@ query DetailedReview($reviewId: ID!) {
   }
 }
 
-fragment UserIdAndDisplayName on User {
+fragment UserWithSpotifyOverview on User {
   id
   spotifyProfile {
     displayName
+    images
   }
 }
 
@@ -65,7 +63,7 @@ fragment DetailedPlaylist on Playlist {
   images
   name
   owner {
-    ...UserIdAndDisplayName
+    ...UserWithSpotifyOverview
   }
   tracks {
     ...DetailedPlaylistTrack
@@ -77,7 +75,7 @@ fragment DetailedPlaylist on Playlist {
 fragment DetailedPlaylistTrack on PlaylistTrack {
   addedAt
   addedBy {
-    ...UserIdAndDisplayName
+    ...UserWithSpotifyOverview
   }
   track {
     ...DetailedTrack 

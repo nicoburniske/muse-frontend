@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsLazyQuery, useDetailedReviewQuery } from 'graphql/generated/schema'
+import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery } from 'graphql/generated/schema'
 import { useParams, useLocation } from "react-router-dom"
 import { Alert, Box, Button, CardMedia, List, ListItem, ListItemButton, ListItemText, Stack, TextField } from "@mui/material"
 import { useEffect, useMemo, useState } from 'react'
@@ -20,21 +20,20 @@ export default function DetailedReviewPage() {
   }
 }
 
-function DetailedReview({ reviewId}: DetailedReviewProps) {
+function DetailedReview({ reviewId }: DetailedReviewProps) {
   const { data, loading, error, refetch } = useDetailedReviewQuery({
     variables: { reviewId },
     fetchPolicy: "cache-first",
     nextFetchPolicy: "cache-first"
   })
-  const [callFirstTime, { data: dataComments, loading: loadingComments, error: errorComments, called, refetch: refetchComments }] =
-    useDetailedReviewCommentsLazyQuery({ variables: { reviewId } })
+  // TODO: consider some streaming here? 
+  const { data: dataComments, loading: loadingComments, error: errorComments, refetch: refetchComments } = useDetailedReviewCommentsQuery({
+    variables: { reviewId },
+    fetchPolicy: "no-cache",
+    nextFetchPolicy: "no-cache"
+  })
 
-  // If comments have been refreshed explicity, use those, otherwise use the ones from the review.
-  const comments = useMemo(() => {
-    const commentsDirect = dataComments?.review?.comments
-    const commentsReview = data?.review?.comments
-    return commentsDirect ?? commentsReview ?? []
-  }, [dataComments, data, called])
+  const comments = dataComments?.review?.comments ?? []
 
   const updateComments = async () => {
     await refetchComments()
@@ -45,7 +44,6 @@ function DetailedReview({ reviewId}: DetailedReviewProps) {
     return <h1>Loading...</h1>
   } else if (data) {
     // TODO: include header that's common between Detailed components
-    // TODO: Create Comment Button? 
     const review = data.review
     const entity = data.review?.entity
     const usersShared = data.review?.collaborators?.map(u => u.user.id)
@@ -83,7 +81,6 @@ interface DetailedPlaylistProps {
 function DetailedPlaylist({ reviewId, playlist, comments: propComments, updateComments }: DetailedPlaylistProps) {
   const tracks = playlist.tracks ?? []
   const comments = useMemo(() => propComments, [propComments])
-  console.log("DETAILED COMMENT", comments.length)
 
   return (
     <Stack spacing={2} direction="row">
@@ -121,7 +118,6 @@ function DetailedComment({ reviewId, comment, updateComments }: DetailedCommentP
   const [deleteComment, { data, error, loading }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: comment.id } } })
 
   const onDelete = async () => {
-    console.log("Deleting comment", typeof updateComments)
     await deleteComment()
     await updateComments()
   }
@@ -155,8 +151,6 @@ function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, u
   const [showCommentButton, setShowCommentButton] = useState(false)
   const [showComment, setShowComment] = useState(false)
   const [comment, setComment] = useState("")
-  const enterPress = useKeyPress({ targetKey: "Enter" })
-
 
   const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
   // Sorted biggest to smallest.
@@ -171,15 +165,16 @@ function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, u
 
   // On successful comment creation, clear the comment box and refetch the review.
   const input = { comment, entityId: track.id, entityType: EntityType.Track, reviewId }
-  const [createComment, { data, error, loading, called }] = useCreateCommentMutation({ variables: { input }, onCompleted: resetStateAndUpdateComments})
+  const [createComment, { data, error, loading, called }] = useCreateCommentMutation({ variables: { input }, onCompleted: resetStateAndUpdateComments })
 
-  useEffect(() => {
-    if (enterPress && !loading) {
-      console.log("ENTER PRESSED")
-      createComment()
+
+  useKeyPress({
+    targetKey: 'Enter', onKeyPress: () => {
+      if (comment.length > 0 && !loading) {
+        createComment()
+      }
     }
-  }, [enterPress])
-
+  })
 
   return (
     <Stack
@@ -210,14 +205,17 @@ function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, u
 
 interface UseKeyPressProps {
   targetKey: String
+  onKeyPress: () => void
 }
+
 // Hook
-function useKeyPress({ targetKey }: UseKeyPressProps) {
+function useKeyPress({ targetKey, onKeyPress }: UseKeyPressProps) {
   // State for keeping track of whether key is pressed.
   const [keyPressed, setKeyPressed] = useState(false);
   // If pressed key is our target key then set to true
   function downHandler({ key }: KeyboardEvent) {
     if (key === targetKey) {
+      onKeyPress();
       setKeyPressed(true);
     }
   }
