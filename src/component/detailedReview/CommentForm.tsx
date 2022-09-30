@@ -10,7 +10,7 @@ export interface CommentFormProps {
 // TODO: integrate markdown here!
 export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps) {
     const [comment, setComment] = useState(initialValue)
-    const canSubmit = comment.length === 0
+    const canSubmit = comment.length !== 0
 
     const submitAndReset = (event) => {
         event.preventDefault()
