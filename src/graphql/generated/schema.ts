@@ -16,6 +16,11 @@ export type Scalars = {
   Instant: any;
 };
 
+export enum AccessLevel {
+  Collaborator = 'Collaborator',
+  Viewer = 'Viewer'
+}
+
 export type Album = ReviewEntity & {
   __typename?: 'Album';
   albumGroup?: Maybe<Scalars['String']>;
@@ -44,6 +49,12 @@ export type Artist = ReviewEntity & {
   numFollowers: Scalars['Int'];
   popularity: Scalars['Int'];
   topTracks?: Maybe<Array<Track>>;
+};
+
+export type Collaborator = {
+  __typename?: 'Collaborator';
+  accessLevel: AccessLevel;
+  user: User;
 };
 
 export type Comment = {
@@ -78,6 +89,15 @@ export type CreateReviewInput = {
   name: Scalars['String'];
 };
 
+export type DeleteCommentInput = {
+  commentId: Scalars['Int'];
+  reviewId: Scalars['ID'];
+};
+
+export type DeleteReviewInput = {
+  id: Scalars['ID'];
+};
+
 export enum EntityType {
   Album = 'Album',
   Artist = 'Artist',
@@ -98,6 +118,9 @@ export type Mutations = {
   __typename?: 'Mutations';
   createComment?: Maybe<Comment>;
   createReview?: Maybe<Review>;
+  deleteComment?: Maybe<Scalars['Boolean']>;
+  deleteReview?: Maybe<Scalars['Boolean']>;
+  shareReview?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Scalars['Boolean']>;
   updateReview?: Maybe<Scalars['Boolean']>;
 };
@@ -110,6 +133,21 @@ export type MutationsCreateCommentArgs = {
 
 export type MutationsCreateReviewArgs = {
   input: CreateReviewInput;
+};
+
+
+export type MutationsDeleteCommentArgs = {
+  input: DeleteCommentInput;
+};
+
+
+export type MutationsDeleteReviewArgs = {
+  input: DeleteReviewInput;
+};
+
+
+export type MutationsShareReviewArgs = {
+  input: ShareReviewInput;
 };
 
 
@@ -175,6 +213,7 @@ export type QueriesUserArgs = {
 
 export type Review = {
   __typename?: 'Review';
+  collaborators?: Maybe<Array<Collaborator>>;
   comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Instant'];
   creator: User;
@@ -198,6 +237,12 @@ export type SearchResult = {
   artists: Array<Artist>;
   playlists: Array<Playlist>;
   tracks: Array<Track>;
+};
+
+export type ShareReviewInput = {
+  access: AccessLevel;
+  reviewId: Scalars['ID'];
+  userId: Scalars['String'];
 };
 
 export type SpotifyProfile = {
@@ -234,6 +279,7 @@ export type UpdateCommentInput = {
   comment?: InputMaybe<Scalars['String']>;
   commentId: Scalars['Int'];
   rating?: InputMaybe<Scalars['Int']>;
+  reviewId: Scalars['ID'];
 };
 
 export type UpdateReviewInput = {
@@ -249,6 +295,13 @@ export type User = {
   spotifyProfile?: Maybe<SpotifyProfile>;
 };
 
+export type CreateCommentMutationVariables = Exact<{
+  input: CreateCommentInput;
+}>;
+
+
+export type CreateCommentMutation = { __typename?: 'Mutations', createComment?: { __typename?: 'Comment', id: number, createdAt: any, updatedAt: any } | null };
+
 export type CreateReviewMutationVariables = Exact<{
   input: CreateReviewInput;
 }>;
@@ -256,14 +309,19 @@ export type CreateReviewMutationVariables = Exact<{
 
 export type CreateReviewMutation = { __typename?: 'Mutations', createReview?: { __typename?: 'Review', entityType: EntityType, id: string } | null };
 
+export type DeleteCommentMutationVariables = Exact<{
+  input: DeleteCommentInput;
+}>;
+
+
+export type DeleteCommentMutation = { __typename?: 'Mutations', deleteComment?: boolean | null };
+
 export type DetailedReviewQueryVariables = Exact<{
   reviewId: Scalars['ID'];
 }>;
 
 
-export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, track: { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } } | null };
-
-export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: any, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null }, track: { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string } }> | null } | null };
 
 export type UserIdAndDisplayNameFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null };
 
@@ -276,6 +334,15 @@ export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', adde
 export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null };
 
 export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number };
+
+export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null };
+
+export type DetailedReviewCommentsQueryVariables = Exact<{
+  reviewId: Scalars['ID'];
+}>;
+
+
+export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null } | null } | null }> | null } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -302,23 +369,6 @@ export const UserIdAndDisplayNameFragmentDoc = gql`
   }
 }
     `;
-export const DetailedCommentFragmentDoc = gql`
-    fragment DetailedComment on Comment {
-  id
-  reviewId
-  createdAt
-  updatedAt
-  parentCommentId
-  commenterId
-  commenter {
-    ...UserIdAndDisplayName
-  }
-  comment
-  rating
-  entityId
-  entityType
-}
-    ${UserIdAndDisplayNameFragmentDoc}`;
 export const DetailedTrackFragmentDoc = gql`
     fragment DetailedTrack on Track {
   id
@@ -408,6 +458,23 @@ export const DetailedArtistFragmentDoc = gql`
   artistPopularity: popularity
 }
     `;
+export const DetailedCommentFragmentDoc = gql`
+    fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenterId
+  commenter {
+    ...UserIdAndDisplayName
+  }
+  comment
+  rating
+  entityId
+  entityType
+}
+    ${UserIdAndDisplayNameFragmentDoc}`;
 export const ReviewEntityOverviewFragmentDoc = gql`
     fragment ReviewEntityOverview on ReviewEntity {
   id
@@ -448,6 +515,41 @@ export const ReviewOverviewFragmentDoc = gql`
   }
 }
     ${ReviewEntityOverviewFragmentDoc}`;
+export const CreateCommentDocument = gql`
+    mutation CreateComment($input: CreateCommentInput!) {
+  createComment(input: $input) {
+    id
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type CreateCommentMutationFn = Apollo.MutationFunction<CreateCommentMutation, CreateCommentMutationVariables>;
+
+/**
+ * __useCreateCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCommentMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommentMutation, CreateCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, options);
+      }
+export type CreateCommentMutationHookResult = ReturnType<typeof useCreateCommentMutation>;
+export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>;
+export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<CreateCommentMutation, CreateCommentMutationVariables>;
 export const CreateReviewDocument = gql`
     mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
@@ -482,6 +584,37 @@ export function useCreateReviewMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateReviewMutationHookResult = ReturnType<typeof useCreateReviewMutation>;
 export type CreateReviewMutationResult = Apollo.MutationResult<CreateReviewMutation>;
 export type CreateReviewMutationOptions = Apollo.BaseMutationOptions<CreateReviewMutation, CreateReviewMutationVariables>;
+export const DeleteCommentDocument = gql`
+    mutation DeleteComment($input: DeleteCommentInput!) {
+  deleteComment(input: $input)
+}
+    `;
+export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutation, DeleteCommentMutationVariables>;
+
+/**
+ * __useDeleteCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, options);
+      }
+export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
+export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
+export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const DetailedReviewDocument = gql`
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
@@ -508,6 +641,12 @@ export const DetailedReviewDocument = gql`
       }
       ... on Track {
         ...DetailedTrack
+      }
+    }
+    collaborators {
+      accessLevel
+      user {
+        id
       }
     }
   }
@@ -546,6 +685,43 @@ export function useDetailedReviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type DetailedReviewQueryHookResult = ReturnType<typeof useDetailedReviewQuery>;
 export type DetailedReviewLazyQueryHookResult = ReturnType<typeof useDetailedReviewLazyQuery>;
 export type DetailedReviewQueryResult = Apollo.QueryResult<DetailedReviewQuery, DetailedReviewQueryVariables>;
+export const DetailedReviewCommentsDocument = gql`
+    query DetailedReviewComments($reviewId: ID!) {
+  review(id: $reviewId) {
+    comments {
+      ...DetailedComment
+    }
+  }
+}
+    ${DetailedCommentFragmentDoc}`;
+
+/**
+ * __useDetailedReviewCommentsQuery__
+ *
+ * To run a query within a React component, call `useDetailedReviewCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDetailedReviewCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDetailedReviewCommentsQuery({
+ *   variables: {
+ *      reviewId: // value for 'reviewId'
+ *   },
+ * });
+ */
+export function useDetailedReviewCommentsQuery(baseOptions: Apollo.QueryHookOptions<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, options);
+      }
+export function useDetailedReviewCommentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, options);
+        }
+export type DetailedReviewCommentsQueryHookResult = ReturnType<typeof useDetailedReviewCommentsQuery>;
+export type DetailedReviewCommentsLazyQueryHookResult = ReturnType<typeof useDetailedReviewCommentsLazyQuery>;
+export type DetailedReviewCommentsQueryResult = Apollo.QueryResult<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>;
 export const ProfileAndReviewsDocument = gql`
     query ProfileAndReviews {
   user {

@@ -1,0 +1,15 @@
+fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenterId
+  commenter {
+      ...UserIdAndDisplayName 
+  } 
+  comment
+  rating
+  entityId
+  entityType
+}

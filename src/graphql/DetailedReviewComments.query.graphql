@@ -1,0 +1,7 @@
+query DetailedReviewComments($reviewId: ID!) {
+  review(id: $reviewId) {
+    comments {
+      ...DetailedComment    
+    }
+  }
+}

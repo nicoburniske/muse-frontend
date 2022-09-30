@@ -25,23 +25,13 @@ query DetailedReview($reviewId: ID!) {
         ...DetailedTrack
       }
     }
+    collaborators {
+      accessLevel
+      user {
+        id
+      }
+    }
   }
-}
-
-fragment DetailedComment on Comment {
-  id
-  reviewId
-  createdAt
-  updatedAt
-  parentCommentId
-  commenterId
-  commenter {
-      ...UserIdAndDisplayName 
-  } 
-  comment
-  rating
-  entityId
-  entityType
 }
 
 fragment UserIdAndDisplayName on User {

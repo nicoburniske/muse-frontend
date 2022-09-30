@@ -18,6 +18,7 @@ const TILES_PER_ROW = 6
 
 interface CreateCardProps {
   review: ReviewOverviewFragment
+  size: Number
 }
 
 function CreateCard ({review}: CreateCardProps){
@@ -47,10 +48,17 @@ function CreateCard ({review}: CreateCardProps){
   )
 }
 
+// Example: Exhaustive type inferences!
+
+// There are two cases here. 
+// Entity types -> Track, Album, Artist, Playlist. 
+// 1. Track, Artist, and Playlist all have images on top level.
+// 2. Track has images INSIDE of its album.
 function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
   if ("images" in data) {
     return [data.name, data.images?.[0]]
   } else {
+    // this is a track.
     return [data.name, data.album?.images?.[0] ?? ""]
   }
 }
