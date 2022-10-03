@@ -1,6 +1,6 @@
 import { Alert, Box, Divider, Typography } from "@mui/material"
 import { useDetailedReviewCommentsQuery, useDetailedReviewQuery } from "graphql/generated/schema"
-import DetailedPlaylist from "component/detailedReview/DetailedPlaylistReview"
+import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 
 export interface DetailedReviewProps {
   reviewId: string

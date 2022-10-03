@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, ListItemText, Stack, Typography } from "@mui/material"
+import { Avatar, Box, Button, ListItemText, Modal, Stack, Typography } from "@mui/material"
 import { DetailedCommentFragment, useDeleteCommentMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useState } from "react"
 import { CommentForm } from "component/detailedReview/CommentForm"
@@ -30,6 +30,10 @@ export default function DetailedComment({ reviewId, comment: detailedComment, up
     setIsEditing(false)
   }
 
+  const onCancel = () => {
+    setIsEditing(false)
+  }
+
   // TODO: need to consider which comments are owned by user.
   return (
     <Box sx={{ width: "100%" }}>
@@ -52,20 +56,27 @@ export default function DetailedComment({ reviewId, comment: detailedComment, up
           </Typography>
         </Stack>
         <Stack direction="row" >
-          {isEditing ?
-            <CommentForm initialValue={comment} onSubmit={onUpdate} onCancel={() => setIsEditing(false)} />
-            :
-            <Stack
-              spacing={2}
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <ListItemText primary={comment} />
-              <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
-              <Button disabled={loadingDelete} onClick={() => onDelete()}> delete </Button>
-            </Stack>
-          }
+          <Modal
+            open={isEditing}
+            onClose={() => setIsEditing(false)}>
+            <div>
+              <CommentForm 
+                onSubmit={onUpdate} 
+                onCancel={onCancel} 
+                initialValue={comment}
+                />
+            </div>
+          </Modal>
+          <Stack
+            spacing={2}
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <ListItemText primary={comment} />
+            <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
+            <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
+          </Stack>
         </Stack>
       </Stack>
     </Box>

@@ -1,5 +1,5 @@
-import { Box, Button, TextField } from "@mui/material"
-import { useState } from "react"
+import { Box, Button, IconButton, TextField, Typography } from "@mui/material"
+import { useMemo, useState } from "react"
 
 export interface CommentFormProps {
     initialValue?: string
@@ -10,12 +10,15 @@ export interface CommentFormProps {
 // TODO: integrate markdown here!
 export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps) {
     const [comment, setComment] = useState(initialValue)
-    const canSubmit = comment.length !== 0
+    const canSubmit = useMemo(() => comment != initialValue, [comment, initialValue])
 
-    const submitAndReset = (event) => {
+    const submitAndReset = async (event) => {
         event.preventDefault()
-        onSubmit(comment)
-        setComment("")
+        try {
+            await onSubmit(comment)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const cancel = (event) => {
@@ -25,7 +28,10 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     }
 
     return (
-        <Box>
+        <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+                Comment
+            </Typography>
             <TextField
                 sx={{ p: "20px 0" }}
                 multiline
@@ -37,37 +43,39 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
                 onChange={(e) => setComment(e.target.value as string)}
             />
             <Button
-                sx={{
-                    float: "right",
-                    bgcolor: "custom.moderateBlue",
-                    color: "neutral.white",
-                    p: "8px 25px",
-                    "&:hover": {
-                        bgcolor: "custom.lightGrayishBlue",
-                    },
-                }}
+                sx={buttonStyle}
                 onClick={submitAndReset}
-                disabled={!canSubmit}
-            >
+                disabled={!canSubmit}>
                 {initialValue.length === 0 ? "create" : "update"}
             </Button>
-
             <Button
-                sx={{
-                    float: "right",
-                    bgcolor: "custom.moderateBlue",
-                    color: "neutral.white",
-                    p: "8px 25px",
-                    "&:hover": {
-                        bgcolor: "custom.lightGrayishBlue",
-                    },
-                }}
-                onClick={cancel}
-            >
+                sx={buttonStyle}
+                onClick={cancel}>
                 cancel
             </Button>
-
-
         </Box >
     )
+}
+
+
+const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
+
+const buttonStyle = {
+    float: "right",
+    bgcolor: "custom.moderateBlue",
+    color: "neutral.white",
+    p: "8px 25px",
+    "&:hover": {
+        bgcolor: "custom.lightGrayishBlue",
+    }
 }
