@@ -21,7 +21,7 @@ interface CreateCardProps {
   size: Number
 }
 
-function CreateCard ({review}: CreateCardProps){
+function CreateCard ({review, size}: CreateCardProps){
   const [entityName, image] = getNameAndImage(review.entity)
   const nav = useNavigate()
   const linkToReviewPage = () => nav(`reviews/${review.id}`)

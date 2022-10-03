@@ -1,4 +1,4 @@
-import { Button, CardMedia, ListItemText, Modal, Stack, TextField } from "@mui/material"
+import { Box, Button, CardMedia, ListItemText, Modal, Stack, TextField, Typography } from "@mui/material"
 import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation } from "graphql/generated/schema"
 import { useEffect, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
@@ -47,14 +47,31 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <Stack
             direction="row"
-            spacing={{ xs: 1, sm: 2, md: 4 }}
-            gridRow={5}
+            spacing={4}
+            alignItems="center"
+            justifyContent="space-between"
+            width="100%"
             onMouseEnter={() => setShowCommentButton(true)}
             onMouseLeave={() => setShowCommentButton(false)}
         >
-            <CardMedia component="img" image={image} sx={{ width: 1 / 8, height: 1 / 8 }} />
-            <ListItemText primary={track.name} secondary={artistNames} />
-
+            <CardMedia component="img" image={image} width={1/3} sx={{ width: 1 / 8, height: 1 / 8 }} />
+            <Box width={1/3}>
+                <Typography
+                    variant="body2"
+                    color="text.primary"
+                    display="block"
+                >
+                    {track.name}
+                </Typography>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    display="block"
+                >
+                    {artistNames}
+                </Typography>
+            </Box>
+            <Button variant="contained" size="medium" onClick={() => setShowComment(true)}> + </Button> 
             <Modal
                 open={showComment}
                 onClose={() => setShowComment(false)}>
@@ -62,7 +79,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                     <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
                 </div>
             </Modal>
-            <Button variant="contained" onClick={() => setShowComment(true)}> + </Button>
         </Stack>
     )
 }
