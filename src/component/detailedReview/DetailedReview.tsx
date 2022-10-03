@@ -50,7 +50,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const entity = data?.review?.entity?.name
   const eType = data?.review?.entity?.__typename 
 
-
   if (loading) {
     return <h1>Loading...</h1>
   } else if (data) {

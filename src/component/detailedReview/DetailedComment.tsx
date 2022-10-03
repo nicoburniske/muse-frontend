@@ -116,7 +116,7 @@ export default function DetailedComment({ reviewId, comment: detailedComment, ch
         </Stack>
       </Stack>
       {children.map(child =>
-        <DetailedComment key={child.id} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} />)}
+        <DetailedComment key={child.id} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} onClick={onClick} />)}
     </Box>
   )
 }

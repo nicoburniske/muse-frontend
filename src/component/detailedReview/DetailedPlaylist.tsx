@@ -37,7 +37,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     const onCommentClick = (commentId: number) => {
         const trackId = comments.find(c => c.id == commentId)?.entityId
         const trackIndex = tracks.findIndex(t => t.track.id == trackId)
-        if (trackIndex) {
+        if (trackIndex != null) {
             commentVirtuoso?.current?.scrollToIndex({
                 index: trackIndex,
             })
@@ -47,7 +47,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     const onTrackClick = (trackId: string) => {
         const commentId = comments.find(c => c.entityId == trackId)?.id
         const commentIndex = comments.findIndex(c => c.id == commentId)
-        if (commentIndex) {
+        if (commentIndex != null) {
             trackVirtuoso?.current?.scrollToIndex({
                 index: commentIndex,
             })
@@ -60,13 +60,11 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             spacing={2}
             direction="row"
             justifyContent="space-around"
-            maxWidth={"90%"}
         >
-            <Box width={"40%"}>
-                {/* to use non-document scrolling we will need to use material ui compatible list*/}
+            <Box width={"30%"}>
                 <Virtuoso
-                    useWindowScroll
                     data={tracks}
+                    style={{ height: '85vh' }}
                     ref={commentVirtuoso}
                     overscan={40}
                     totalCount={tracks.length}
