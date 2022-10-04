@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import PossibleTypesResultData from 'graphql/generated/fragmentTypes';
 import App from './App'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient()
 
@@ -23,7 +25,18 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={clientGraphQL}>
         <BrowserRouter>
-          <App />
+          <div>
+            <App />
+            <ToastContainer
+              position="bottom-center"
+              newestOnTop
+              autoClose={5000}
+              hideProgressBar={false}
+              closeOnClick={true}
+              pauseOnHover={true}
+              draggable={true}
+            />
+          </div>
         </BrowserRouter>
       </ApolloProvider>
     </QueryClientProvider>

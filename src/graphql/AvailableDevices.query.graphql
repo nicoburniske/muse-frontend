@@ -1,0 +1,15 @@
+query AvailableDevices {
+  availableDevices {
+    ...PlaybackDevice
+  }
+}
+
+fragment PlaybackDevice on PlaybackDevice {
+    id
+    isActive
+    isPrivateSession
+    isRestricted
+    name
+    type
+    volumePercent
+}

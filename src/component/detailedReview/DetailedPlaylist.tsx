@@ -3,7 +3,8 @@ import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrac
 import PlaylistTrack from "component/detailedReview/PlaylistTrack"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { Children, useEffect, useMemo, useRef, useState } from "react"
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
+import { useAtom } from "jotai"
+import { selectedTrack } from "state/Atoms"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
 export interface DetailedPlaylistProps {
@@ -14,14 +15,9 @@ export interface DetailedPlaylistProps {
 }
 
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
-// Consider two virutalized lists? 
 // when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments, updateComments }: DetailedPlaylistProps) {
-    const tracks = playlist.tracks ?? []
     const comments = useMemo(() => propComments, [propComments])
-    const commentVirtuoso = useRef<VirtuosoHandle>(null);
-    const trackVirtuoso = useRef<VirtuosoHandle>(null);
-
     const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
         const commentMap: Map<number, DetailedCommentFragment[]> = new Map()
@@ -34,26 +30,21 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
         return commentMap
     }, [comments])
 
+    const [,setSelectedTrack] = useAtom(selectedTrack)
+    const commentRefs = useRef<Map<number, HTMLLIElement>>(new Map())
+    const trackRefs = useRef<Map<string, HTMLLIElement>>(new Map())
+
+    // We want to find the track that the comment is applied to and scroll to it.
     const onCommentClick = (commentId: number) => {
         const trackId = comments.find(c => c.id == commentId)?.entityId
-        const trackIndex = tracks.findIndex(t => t.track.id == trackId)
-        if (trackIndex != null) {
-            commentVirtuoso?.current?.scrollToIndex({
-                index: trackIndex,
-            })
+        const track = trackId ? trackRefs.current.get(trackId) : undefined
+        if (track) {
+            setSelectedTrack(trackId)
+            track.scrollIntoView({ behavior: 'smooth' })
         }
     }
 
-    const onTrackClick = (trackId: string) => {
-        const commentId = comments.find(c => c.entityId == trackId)?.id
-        const commentIndex = comments.findIndex(c => c.id == commentId)
-        if (commentIndex != null) {
-            trackVirtuoso?.current?.scrollToIndex({
-                index: commentIndex,
-            })
-        }
-    }
-
+    const tracks = playlist.tracks ?? []
 
     return (
         <Stack
@@ -62,31 +53,33 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             justifyContent="space-around"
         >
             <Box width={"30%"}>
-                <Virtuoso
-                    data={tracks}
-                    style={{ height: '85vh' }}
-                    ref={commentVirtuoso}
-                    overscan={40}
-                    totalCount={tracks.length}
-                    itemContent={(index, t) =>
-                        <ListItem key={t.track.id}>
-                            <PlaylistTrack reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
-                        </ListItem>
-                    }>
-                </Virtuoso>
+                <List style={{ overflow: 'auto', height: '85vh' }}>
+                    {tracks.map(t =>
+                        <ListItem
+                            key={t.track.id}
+                            ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}
+                        >
+                            <PlaylistTrack playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
+                        </ListItem>)
+                    }
+                </List>
             </Box>
-            <Box width={"60%"}>
-                <List>
+            <Box width={"70%"}>
+                <List style={{ overflow: 'auto', height: '85vh', width: '100%' }}>
                     {
                         rootComments.map((c: DetailedCommentFragment) =>
-                            <DetailedComment
+                            <ListItem
                                 key={c.id}
-                                reviewId={reviewId}
-                                comment={c}
-                                updateComments={updateComments}
-                                children={childComments.get(c.id) ?? []}
-                                onClick={() => onCommentClick(c.id)}
-                            />
+                                ref={el => commentRefs.current.set(c.id, (el as HTMLLIElement))}
+                            >
+                                <DetailedComment
+                                    reviewId={reviewId}
+                                    comment={c}
+                                    updateComments={updateComments}
+                                    children={childComments.get(c.id) ?? []}
+                                    onClick={() => onCommentClick(c.id)}
+                                />
+                            </ListItem>
                         )
                     }
                 </List>

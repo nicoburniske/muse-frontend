@@ -1,0 +1,3 @@
+mutation StartPlayback($input: StartPlaybackInput!) {
+    startPlayback(input: $input) 
+}
