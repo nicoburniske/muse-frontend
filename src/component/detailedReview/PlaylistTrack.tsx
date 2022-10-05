@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, CardMedia, Modal, Stack, Typography } from "@mui/material"
-import { DetailedPlaylistTrackFragment, EntityType, PlaybackDeviceFragment, useAvailableDevicesQuery, useCreateCommentMutation, useStartPlaybackMutation } from "graphql/generated/schema"
-import { useState } from "react"
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription } from "graphql/generated/schema"
+import { useEffect, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 import { CommentForm } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
@@ -18,15 +18,8 @@ export interface PlaylistTrackProps {
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId, updateComments }: PlaylistTrackProps) {
     // We want to know what devices are available so we can start playback on the correct device.
-    const [devices, setDevices] = useState<PlaybackDeviceFragment[]>([])
-    useAvailableDevicesQuery({
-        onCompleted: (data) => {
-            const devices = (data?.availableDevices ?? [])
-            if (devices.length > 0) {
-                setDevices(devices)
-            }
-        }
-    })
+    const { data } = useAvailableDevicesSubscription()
+    const devices = data?.availableDevices
 
     // Only want to show comment button on hover.
     const [showCommentButton, setShowCommentButton] = useState(false)
@@ -39,7 +32,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const albumImage = track.album?.images?.at(-2)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
     const [isSelected,] = useAtom(selectedTrack)
-    const selectedStyle= (isSelected === track.id) ? {border: '1px dashed green'} : {}
+    const selectedStyle = (isSelected === track.id) ? { border: '1px dashed green' } : {}
 
     const resetStateAndUpdateComments = () => {
         setComment("")
@@ -48,20 +41,24 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     }
 
     // On successful comment creation, clear the comment box and refetch the review.
-    const [createComment, { data, error, loading, called }] = useCreateCommentMutation({ onCompleted: resetStateAndUpdateComments })
+    const [createComment, { error, loading, called }] = useCreateCommentMutation({ onCompleted: resetStateAndUpdateComments })
     const onSubmit = (comment: string) =>
         createComment({ variables: { input: { comment, entityId: track.id, entityType: EntityType.Track, reviewId } } })
             .then(() => { })
 
-    const handleError = (error: ApolloError) => {
+    const onPlayError = (error: ApolloError) => {
         toast.error(`Failed to start playback. Please start a playback session and try again.`)
+        // refetchDevices()
     }
-    const [playTrack] = useStartPlaybackMutation({ onError: handleError });
+
+    const onPlaySuccess = () => {
+        toast.success(`Successfully started playback`)
+    }
+    const [playTrack] = useStartPlaybackMutation({ onError: onPlayError, onCompleted: onPlaySuccess });
 
     const onPlayTrack = () => {
         // We only want to include device when one is not active.
-        // TODO: consider a fallback device?
-        const device = devices.some(d => d.isActive) ? null : devices[0]?.id
+        const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
         const inner = { entityId: track.id, entityType: EntityType.Track }
         const outer = { entityId: playlistId, entityType: EntityType.Playlist }
         playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })

@@ -1,4 +1,4 @@
-query AvailableDevices {
+subscription AvailableDevices {
   availableDevices {
     ...PlaybackDevice
   }

@@ -52,7 +52,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             direction="row"
             justifyContent="space-around"
         >
-            <Box width={"30%"}>
+            <Box width={"40%"}>
                 <List style={{ overflow: 'auto', height: '85vh' }}>
                     {tracks.map(t =>
                         <ListItem
@@ -64,7 +64,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                     }
                 </List>
             </Box>
-            <Box width={"70%"}>
+            <Box width={"60%"}>
                 <List style={{ overflow: 'auto', height: '85vh', width: '100%' }}>
                     {
                         rootComments.map((c: DetailedCommentFragment) =>
@@ -74,6 +74,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                             >
                                 <DetailedComment
                                     reviewId={reviewId}
+                                    playlistId={playlist.id}
                                     comment={c}
                                     updateComments={updateComments}
                                     children={childComments.get(c.id) ?? []}

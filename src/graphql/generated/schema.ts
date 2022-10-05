@@ -14,6 +14,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   Instant: any;
+  Long: number;
 };
 
 export enum AccessLevel {
@@ -132,6 +133,7 @@ export type Mutations = {
   createReview?: Maybe<Review>;
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
+  saveTracks?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
   startPlayback?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Scalars['Boolean']>;
@@ -159,6 +161,11 @@ export type MutationsDeleteReviewArgs = {
 };
 
 
+export type MutationsSaveTracksArgs = {
+  input: Array<Scalars['String']>;
+};
+
+
 export type MutationsShareReviewArgs = {
   input: ShareReviewInput;
 };
@@ -183,6 +190,15 @@ export type PaginationInput = {
   from?: Scalars['Int'];
 };
 
+export type PlaybackContext = {
+  __typename?: 'PlaybackContext';
+  externalUrls: Array<KvStringString>;
+  href: Scalars['String'];
+  metadata?: Maybe<Array<KvStringString>>;
+  type: Scalars['String'];
+  uri: Scalars['String'];
+};
+
 export type PlaybackDevice = {
   __typename?: 'PlaybackDevice';
   id: Scalars['String'];
@@ -192,6 +208,19 @@ export type PlaybackDevice = {
   name: Scalars['String'];
   type: Scalars['String'];
   volumePercent: Scalars['Int'];
+};
+
+export type PlaybackState = {
+  __typename?: 'PlaybackState';
+  context: PlaybackContext;
+  currentlyPlayingType: Scalars['String'];
+  device: PlaybackDevice;
+  isPlaying: Scalars['Boolean'];
+  item: Track;
+  progressMs: Scalars['Long'];
+  repeatState: Scalars['String'];
+  shuffleState: Scalars['Boolean'];
+  timestamp: Scalars['Long'];
 };
 
 export type Playlist = ReviewEntity & {
@@ -294,11 +323,23 @@ export type SpotifyProfile = {
 };
 
 export type StartPlaybackInput = {
+  /** If device id is specified, playback will be transferred to that device. Otherwise, playback will be executed on user's active device. */
   deviceId?: InputMaybe<Scalars['String']>;
   entityOffset?: InputMaybe<EntityOffsetInput>;
   positionMs?: InputMaybe<Scalars['Int']>;
   positionOffset?: InputMaybe<PositionOffsetInput>;
   uris?: InputMaybe<Array<Scalars['String']>>;
+};
+
+export type Subscriptions = {
+  __typename?: 'Subscriptions';
+  availableDevices?: Maybe<Array<PlaybackDevice>>;
+  nowPlaying?: Maybe<PlaybackState>;
+};
+
+
+export type SubscriptionsNowPlayingArgs = {
+  tickInterval: Scalars['Int'];
 };
 
 export type Track = ReviewEntity & {
@@ -341,10 +382,10 @@ export type User = {
   spotifyProfile?: Maybe<SpotifyProfile>;
 };
 
-export type AvailableDevicesQueryVariables = Exact<{ [key: string]: never; }>;
+export type AvailableDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AvailableDevicesQuery = { __typename?: 'Queries', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
+export type AvailableDevicesSubscription = { __typename?: 'Subscriptions', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
 
 export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
 
@@ -396,6 +437,20 @@ export type DetailedReviewCommentsQueryVariables = Exact<{
 
 
 export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null }> | null } | null };
+
+export type NowPlayingSubscriptionVariables = Exact<{
+  input: Scalars['Int'];
+}>;
+
+
+export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } } | null };
+
+export type NowPlayingOffsetSubscriptionVariables = Exact<{
+  input: Scalars['Int'];
+}>;
+
+
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item: { __typename?: 'Track', id: string, durationMs: number } } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -597,7 +652,7 @@ export const ReviewOverviewFragmentDoc = gql`
 }
     ${ReviewEntityOverviewFragmentDoc}`;
 export const AvailableDevicesDocument = gql`
-    query AvailableDevices {
+    subscription AvailableDevices {
   availableDevices {
     ...PlaybackDevice
   }
@@ -605,31 +660,26 @@ export const AvailableDevicesDocument = gql`
     ${PlaybackDeviceFragmentDoc}`;
 
 /**
- * __useAvailableDevicesQuery__
+ * __useAvailableDevicesSubscription__
  *
- * To run a query within a React component, call `useAvailableDevicesQuery` and pass it any options that fit your needs.
- * When your component renders, `useAvailableDevicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useAvailableDevicesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAvailableDevicesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useAvailableDevicesQuery({
+ * const { data, loading, error } = useAvailableDevicesSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useAvailableDevicesQuery(baseOptions?: Apollo.QueryHookOptions<AvailableDevicesQuery, AvailableDevicesQueryVariables>) {
+export function useAvailableDevicesSubscription(baseOptions?: Apollo.SubscriptionHookOptions<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AvailableDevicesQuery, AvailableDevicesQueryVariables>(AvailableDevicesDocument, options);
+        return Apollo.useSubscription<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>(AvailableDevicesDocument, options);
       }
-export function useAvailableDevicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AvailableDevicesQuery, AvailableDevicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AvailableDevicesQuery, AvailableDevicesQueryVariables>(AvailableDevicesDocument, options);
-        }
-export type AvailableDevicesQueryHookResult = ReturnType<typeof useAvailableDevicesQuery>;
-export type AvailableDevicesLazyQueryHookResult = ReturnType<typeof useAvailableDevicesLazyQuery>;
-export type AvailableDevicesQueryResult = Apollo.QueryResult<AvailableDevicesQuery, AvailableDevicesQueryVariables>;
+export type AvailableDevicesSubscriptionHookResult = ReturnType<typeof useAvailableDevicesSubscription>;
+export type AvailableDevicesSubscriptionResult = Apollo.SubscriptionResult<AvailableDevicesSubscription>;
 export const CreateCommentDocument = gql`
     mutation CreateComment($input: CreateCommentInput!) {
   createComment(input: $input) {
@@ -833,6 +883,91 @@ export function useDetailedReviewCommentsLazyQuery(baseOptions?: Apollo.LazyQuer
 export type DetailedReviewCommentsQueryHookResult = ReturnType<typeof useDetailedReviewCommentsQuery>;
 export type DetailedReviewCommentsLazyQueryHookResult = ReturnType<typeof useDetailedReviewCommentsLazyQuery>;
 export type DetailedReviewCommentsQueryResult = Apollo.QueryResult<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>;
+export const NowPlayingDocument = gql`
+    subscription NowPlaying($input: Int!) {
+  nowPlaying(tickInterval: $input) {
+    device {
+      id
+      name
+    }
+    shuffleState
+    timestamp
+    progressMs
+    item {
+      id
+      name
+      durationMs
+      isLiked
+      artists {
+        name
+      }
+      album {
+        name
+        id
+        images
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useNowPlayingSubscription__
+ *
+ * To run a query within a React component, call `useNowPlayingSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNowPlayingSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNowPlayingSubscription({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useNowPlayingSubscription(baseOptions: Apollo.SubscriptionHookOptions<NowPlayingSubscription, NowPlayingSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NowPlayingSubscription, NowPlayingSubscriptionVariables>(NowPlayingDocument, options);
+      }
+export type NowPlayingSubscriptionHookResult = ReturnType<typeof useNowPlayingSubscription>;
+export type NowPlayingSubscriptionResult = Apollo.SubscriptionResult<NowPlayingSubscription>;
+export const NowPlayingOffsetDocument = gql`
+    subscription NowPlayingOffset($input: Int!) {
+  nowPlaying(tickInterval: $input) {
+    timestamp
+    progressMs
+    item {
+      id
+      durationMs
+    }
+  }
+}
+    `;
+
+/**
+ * __useNowPlayingOffsetSubscription__
+ *
+ * To run a query within a React component, call `useNowPlayingOffsetSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNowPlayingOffsetSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNowPlayingOffsetSubscription({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useNowPlayingOffsetSubscription(baseOptions: Apollo.SubscriptionHookOptions<NowPlayingOffsetSubscription, NowPlayingOffsetSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NowPlayingOffsetSubscription, NowPlayingOffsetSubscriptionVariables>(NowPlayingOffsetDocument, options);
+      }
+export type NowPlayingOffsetSubscriptionHookResult = ReturnType<typeof useNowPlayingOffsetSubscription>;
+export type NowPlayingOffsetSubscriptionResult = Apollo.SubscriptionResult<NowPlayingOffsetSubscription>;
 export const ProfileAndReviewsDocument = gql`
     query ProfileAndReviews {
   user {

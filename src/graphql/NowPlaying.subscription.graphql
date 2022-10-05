@@ -1,0 +1,25 @@
+subscription NowPlaying($input: Int!) {
+    nowPlaying(tickInterval: $input) {         
+        device {
+            id
+            name
+        }
+        shuffleState
+        timestamp
+        progressMs
+        item {
+            id 
+            name
+            durationMs
+            isLiked
+            artists {
+                name
+            }
+            album {
+                name
+                id
+                images 
+            }
+        }
+    }
+}

@@ -1,12 +1,17 @@
-import { Alert, Box, Divider, Typography } from "@mui/material"
-import { useDetailedReviewCommentsQuery, useDetailedReviewQuery } from "graphql/generated/schema"
+import { Alert, Box, Divider, LinearProgress, Typography } from "@mui/material"
+import { useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useNowPlayingSubscription } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
-
 export interface DetailedReviewProps {
   reviewId: string
 }
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
+  const {data: nowPlaying, error: subErrors} = useNowPlayingSubscription({variables:{input:5}})
+  const {data: nowPlayingTime, error: subErrorsTime} = useNowPlayingOffsetSubscription({variables:{input:2}})
+  if (subErrors || subErrorsTime) {
+    console.error("Play errors", subErrors, subErrorsTime)
+  }
+
   const { data, loading, error, refetch } = useDetailedReviewQuery({
     variables: { reviewId },
     fetchPolicy: "cache-first",
@@ -48,13 +53,18 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
 
   const title = data?.review?.reviewName
   const entity = data?.review?.entity?.name
-  const eType = data?.review?.entity?.__typename 
+  const eType = data?.review?.entity?.__typename
+
+  const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
+  const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
+  const progress = currentPosition && totalDuration ? (currentPosition / totalDuration) * 100 : 0
 
   if (loading) {
     return <h1>Loading...</h1>
   } else if (data) {
     return (
-      < Box sx={{ width: '100%'}}>
+      < Box sx={{ width: '100%' }}>
+        <LinearProgress variant="determinate" value={progress} />
         <Typography variant="h4" gutterBottom>
           {title}
         </Typography>
