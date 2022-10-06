@@ -171,14 +171,16 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             alignItems="center"
           >
             {/* <ListItemText primary={comment} /> */}
-            <Markdown
-              children={comment}
-              options={{
-                overrides: {
-                  Stamp,
-                },
-              }}
-            />
+            <Typography>
+              <Markdown
+                children={comment}
+                options={{
+                  overrides: {
+                    Stamp,
+                  },
+                }}
+              />
+            </Typography>
             <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
             <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
             {/* For now we don't want to permit infinite nesting */}

@@ -5,7 +5,7 @@ import { useHotkeys } from "react-hotkeys-hook"
 import { CommentForm } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
-import { useAtom } from "jotai"
+import { useAtomValue} from "jotai"
 import { selectedTrack } from "state/Atoms"
 
 export interface PlaylistTrackProps {
@@ -31,8 +31,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     // Sorted biggest to smallest.
     const albumImage = track.album?.images?.at(-2)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
-    const [isSelected,] = useAtom(selectedTrack)
-    const selectedStyle = (isSelected === track.id) ? { border: '1px dashed green' } : {}
+    const isSelected = useAtomValue(selectedTrack) == track.id 
+    const selectedStyle = isSelected ? { border: '1px dashed green' } : {}
 
     const resetStateAndUpdateComments = () => {
         setComment("")

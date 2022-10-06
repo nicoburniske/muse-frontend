@@ -216,7 +216,7 @@ export type PlaybackState = {
   currentlyPlayingType: Scalars['String'];
   device: PlaybackDevice;
   isPlaying: Scalars['Boolean'];
-  item: Track;
+  item?: Maybe<Track>;
   progressMs: Scalars['Long'];
   repeatState: Scalars['String'];
   shuffleState: Scalars['Boolean'];
@@ -443,14 +443,14 @@ export type NowPlayingSubscriptionVariables = Exact<{
 }>;
 
 
-export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } } | null };
+export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
 
 export type NowPlayingOffsetSubscriptionVariables = Exact<{
   input: Scalars['Int'];
 }>;
 
 
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item: { __typename?: 'Track', id: string, durationMs: number } } | null };
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item?: { __typename?: 'Track', id: string, durationMs: number } | null } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 

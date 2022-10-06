@@ -6,7 +6,7 @@ export interface DetailedReviewProps {
 }
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
-  const {data: nowPlaying, error: subErrors} = useNowPlayingSubscription({variables:{input:5}})
+  const {data: nowPlaying, error: subErrors} = useNowPlayingSubscription({variables:{input:15}})
   const {data: nowPlayingTime, error: subErrorsTime} = useNowPlayingOffsetSubscription({variables:{input:2}})
   if (subErrors || subErrorsTime) {
     console.error("Play errors", subErrors, subErrorsTime)
@@ -21,7 +21,8 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const { data: dataComments, loading: loadingComments, error: errorComments, refetch: refetchComments } = useDetailedReviewCommentsQuery({
     variables: { reviewId },
     fetchPolicy: "no-cache",
-    nextFetchPolicy: "no-cache"
+    nextFetchPolicy: "no-cache",
+    pollInterval: 60 * 1000
   })
 
   const updateComments = async () => {

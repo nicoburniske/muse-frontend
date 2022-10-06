@@ -3,7 +3,7 @@ import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrac
 import PlaylistTrack from "component/detailedReview/PlaylistTrack"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { Children, useEffect, useMemo, useRef, useState } from "react"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { selectedTrack } from "state/Atoms"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
@@ -30,7 +30,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
         return commentMap
     }, [comments])
 
-    const [,setSelectedTrack] = useAtom(selectedTrack)
+    const setSelectedTrack = useSetAtom(selectedTrack)
     const commentRefs = useRef<Map<number, HTMLLIElement>>(new Map())
     const trackRefs = useRef<Map<string, HTMLLIElement>>(new Map())
 
