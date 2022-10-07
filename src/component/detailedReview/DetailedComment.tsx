@@ -119,77 +119,87 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const Stamp =
     ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
+  // <p>If a dog chews shoes whose shoes does he choose?</p>
+  // <div className="card-actions justify-end">
+  //   <button className="btn">Buy Now</button>
+  // </div>
 
   // TODO: need to consider which comments are owned by user.
   return (
-    <Box sx={commentStyle} onClick={onClick}>
-      <Stack
-        spacing={5}
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar src={avatar}></Avatar>
-          <Typography
-            fontWeight="bold"
-            sx={{ color: "neutral.darkBlue" }}
-          >
-            {commenterName}
-          </Typography>
-          <Typography sx={{ color: "neutral.grayishBlue" }}>
-            {createdAt}
-          </Typography>
-        </Stack>
-        <Stack direction="row" >
-          <Modal
-            open={isEditing}
-            onClose={() => setIsEditing(false)}>
-            <div>
-              <CommentForm
-                onSubmit={onUpdate}
-                onCancel={resetState}
-                initialValue={comment}
-              />
-            </div>
-          </Modal>
-          <Modal
-            open={isReplying}
-            onClose={() => setIsReplying(false)}>
-            <div>
-              <CommentForm
-                onSubmit={onReply}
-                onCancel={resetState}
-                initialValue={""}
-              />
-            </div>
-          </Modal>
-          <Stack
-            spacing={2}
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            {/* <ListItemText primary={comment} /> */}
-            <Typography>
-              <Markdown
-                children={comment}
-                options={{
-                  overrides: {
-                    Stamp,
-                  },
-                }}
-              />
-            </Typography>
-            <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
-            <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
-            {/* For now we don't want to permit infinite nesting */}
-            {isChild ? <div /> : <Button disabled={loadingReply} onClick={() => setIsReplying(true)}> reply </Button>}
+    // <div className="collapse">
+    // <input type="checkbox" className="peer" />
+    // <div className="collapse-title bg-primary text-primary-content peer-checked:text-secondary-content"> 
+    <div className="card w-200  bg-primary text-primary-content" onClick={onClick}>
+      <div className="card-body">
+
+        <h2 className="card-title"> {commenterName}</h2>
+        <div className="avatar">
+          <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            <img loading="lazy" src={avatar}></img>
+          </div>
+        </div>
+
+        <h2 className=""> {createdAt}</h2>
+
+        <Stack
+          spacing={5}
+          direction="row"
+          alignItems="center"
+        >
+          <Stack direction="row" >
+            <Modal
+              open={isEditing}
+              onClose={() => setIsEditing(false)}>
+              <div>
+                <CommentForm
+                  onSubmit={onUpdate}
+                  onCancel={resetState}
+                  initialValue={comment}
+                />
+              </div>
+            </Modal>
+            <Modal
+              open={isReplying}
+              onClose={() => setIsReplying(false)}>
+              <div>
+                <CommentForm
+                  onSubmit={onReply}
+                  onCancel={resetState}
+                  initialValue={""}
+                />
+              </div>
+            </Modal>
+            <Stack
+              spacing={2}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              {/* <ListItemText primary={comment} /> */}
+              <Typography>
+                <Markdown
+                  children={comment}
+                  options={{
+                    overrides: {
+                      Stamp,
+                    },
+                  }}
+                />
+              </Typography>
+              <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
+              <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
+              {/* For now we don't want to permit infinite nesting */}
+              {isChild ? <div /> : <Button disabled={loadingReply} onClick={() => setIsReplying(true)}> reply </Button>}
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
-      {children.map(child =>
-        <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} onClick={onClick} />)}
-    </Box>
+        {children.map(child =>
+          <div className="">
+            <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} onClick={onClick} />
+          </div>
+        )}
+
+      </div>
+    </div>
   )
 }

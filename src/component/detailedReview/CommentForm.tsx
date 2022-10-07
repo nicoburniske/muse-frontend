@@ -28,10 +28,8 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     }
 
     return (
-        <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-                Comment
-            </Typography>
+        <div className="flex flex-col" >
+            <div>Comment</div>
             <TextField
                 sx={{ p: "20px 0" }}
                 multiline
@@ -40,8 +38,12 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
                 id="outlined-multilined"
                 placeholder="create a comment"
                 value={comment}
-                onChange={(e) => setComment(e.target.value as string)}
             />
+            <input type="text" placeholder="create a comment" className="input input-bordered input-lg w-full max-w-xs h"
+                onChange={(e) => setComment(e.target.value as string)}
+                value={comment}
+            />
+
             <Button
                 sx={buttonStyle}
                 onClick={submitAndReset}
@@ -53,7 +55,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
                 onClick={cancel}>
                 cancel
             </Button>
-        </Box >
+        </div>
     )
 }
 

@@ -6,8 +6,8 @@ export interface DetailedReviewProps {
 }
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
-  const {data: nowPlaying, error: subErrors} = useNowPlayingSubscription({variables:{input:15}})
-  const {data: nowPlayingTime, error: subErrorsTime} = useNowPlayingOffsetSubscription({variables:{input:2}})
+  const { data: nowPlaying, error: subErrors } = useNowPlayingSubscription({ variables: { input: 15 } })
+  const { data: nowPlayingTime, error: subErrorsTime } = useNowPlayingOffsetSubscription({ variables: { input: 2 } })
   if (subErrors || subErrorsTime) {
     console.error("Play errors", subErrors, subErrorsTime)
   }
@@ -64,17 +64,14 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     return <h1>Loading...</h1>
   } else if (data) {
     return (
-      < Box sx={{ width: '100%' }}>
+      < div className="w-full p-1">
         <LinearProgress variant="determinate" value={progress} />
-        <Typography variant="h4" gutterBottom>
-          {title}
-        </Typography>
-        <Typography variant="h5" gutterBottom>
+        <h1 className="prose text-5xl underline">{title}</h1>
+        <h2 className="prose text-3xl">
           {`${eType} review: ${entity}`}
-        </Typography>
-        <Divider variant="middle" />
+        </h2>
         {getReviewContent()}
-      </Box >
+      </div>
     )
   }
   if (error) {

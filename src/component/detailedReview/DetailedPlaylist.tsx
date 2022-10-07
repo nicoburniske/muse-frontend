@@ -17,7 +17,12 @@ export interface DetailedPlaylistProps {
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments, updateComments }: DetailedPlaylistProps) {
-    const comments = useMemo(() => propComments, [propComments])
+    const comments = useMemo(() => {
+        console.log("Comments", propComments)
+        return propComments.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    }, [propComments])
+
+
     const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
         const commentMap: Map<number, DetailedCommentFragment[]> = new Map()
@@ -47,44 +52,37 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     const tracks = playlist.tracks ?? []
 
     return (
-        <Stack
-            spacing={2}
-            direction="row"
-            justifyContent="space-around"
+        <div
+            className=" flex flex-row w-full"
+            style={{ height: '85vh' }}
         >
-            <Box width={"40%"}>
-                <List style={{ overflow: 'auto', height: '85vh' }}>
-                    {tracks.map(t =>
-                        <ListItem
-                            key={t.track.id}
-                            ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}
+            {/*  */}
+            <div className="w-2/5 overflow-auto p-1" >
+                {tracks.map(t =>
+                    <div key={t.track.id} ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}>
+                        <PlaylistTrack
+                            playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
+                    </div>)
+                }
+            </div>
+            <div className="w-3/5 h-full overflow-auto p-1">
+                <div className="flex flex-col space-y-5 justify-end">
+                    {rootComments.map((c: DetailedCommentFragment) =>
+                        <div
+                            key={c.id}
+                            ref={el => commentRefs.current.set(c.id, (el as HTMLLIElement))}
                         >
-                            <PlaylistTrack playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
-                        </ListItem>)
-                    }
-                </List>
-            </Box>
-            <Box width={"60%"}>
-                <List style={{ overflow: 'auto', height: '85vh', width: '100%' }}>
-                    {
-                        rootComments.map((c: DetailedCommentFragment) =>
-                            <ListItem
-                                key={c.id}
-                                ref={el => commentRefs.current.set(c.id, (el as HTMLLIElement))}
-                            >
-                                <DetailedComment
-                                    reviewId={reviewId}
-                                    playlistId={playlist.id}
-                                    comment={c}
-                                    updateComments={updateComments}
-                                    children={childComments.get(c.id) ?? []}
-                                    onClick={() => onCommentClick(c.id)}
-                                />
-                            </ListItem>
-                        )
-                    }
-                </List>
-            </Box>
-        </Stack>
-    )
+                            <DetailedComment
+                                reviewId={reviewId}
+                                playlistId={playlist.id}
+                                comment={c}
+                                updateComments={updateComments}
+                                children={childComments.get(c.id) ?? []}
+                                onClick={() => onCommentClick(c.id)}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>)
 }

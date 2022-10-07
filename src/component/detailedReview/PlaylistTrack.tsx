@@ -5,7 +5,7 @@ import { useHotkeys } from "react-hotkeys-hook"
 import { CommentForm } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
-import { useAtomValue} from "jotai"
+import { useAtomValue } from "jotai"
 import { selectedTrack } from "state/Atoms"
 
 export interface PlaylistTrackProps {
@@ -24,14 +24,14 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     // Only want to show comment button on hover.
     const [showCommentButton, setShowCommentButton] = useState(false)
     // Comment modal.
-    const [showComment, setShowComment] = useState(false)
+    const [showCommentModal, setShowComment] = useState(false)
     const [comment, setComment] = useState("")
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
     // Sorted biggest to smallest.
     const albumImage = track.album?.images?.at(-2)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
-    const isSelected = useAtomValue(selectedTrack) == track.id 
+    const isSelected = useAtomValue(selectedTrack) == track.id
     const selectedStyle = isSelected ? { border: '1px dashed green' } : {}
 
     const resetStateAndUpdateComments = () => {
@@ -74,57 +74,108 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     }, [comment, loading])
 
     return (
-        <Box
-            sx={selectedStyle}
+        <div
+            style={selectedStyle}
+            className="card card-body flex flex-row items-center justify-around p-1 bg-base-100 shadow-xl"
+            onMouseEnter={() => setShowCommentButton(true)}
+            onMouseLeave={() => setShowCommentButton(false)}
         >
-            <Stack
-                direction="row"
-                spacing={4}
-                alignItems="center"
-                justifyContent="space-around"
-                width="100%"
-                onMouseEnter={() => setShowCommentButton(true)}
-                onMouseLeave={() => setShowCommentButton(false)}
-            >
-                <CardMedia
-                    component="img"
-                    onClick={() => onPlayTrack()}
-                    image={albumImage}
-                    width={1 / 3}
-                    sx={{ width: 1 / 8, height: 1 / 8 }} />
-                <Box width={1 / 3}>
-                    <Typography
-                        variant="body2"
-                        color="text.primary"
-                        display="block"
-                    >
-                        {track.name}
-                    </Typography>
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        display="block"
-                    >
-                        {artistNames}
-                    </Typography>
-                </Box>
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    display="block"
-                >
-                    {new Date(addedAt).toLocaleDateString()}
-                </Typography>
-                <Avatar src={avatarImage}></Avatar>
-                <Button disabled={!showCommentButton} variant="contained" size="medium" onClick={() => setShowComment(true)}> + </Button>
-                <Modal
-                    open={showComment}
-                    onClose={() => setShowComment(false)}>
-                    <div>
-                        <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+            <div className="avatar" onClick={() => onPlayTrack()}>
+                <div className="w-16 rounded">
+                    <img src={albumImage} />
+                </div>
+            </div>
+
+            <div className="flex flex-row w-3/6 justify-evenly	">
+                <div className="flex flex-col grow">
+                    <div className="p-0.5"> {track.name} </div>
+                    <div className="p-0.5 font-light"> {artistNames} </div>
+                </div>
+                <div className="p-1"> {new Date(addedAt).toLocaleDateString()} </div>
+            </div>
+
+            <div className="avatar" onClick={() => onPlayTrack()}>
+                <div className="w-12 h-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                    <img src={avatarImage} />
+                </div>
+            </div>
+            <button className="btn btn-primary" onClick={() => setShowComment(true)}> + </button>
+
+            {/* <label htmlFor="my-modal-5" className="btn modal-button"> + </label>
+            <input type="checkbox" id="my-modal-5" className="modal-toggle" />
+            <div className="modal">
+                <div className="modal-box w-11/12 max-w-5xl">
+                    <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+                    <div className="modal-action" onClick={() => setShowComment(false)}>
+                        <label htmlFor="my-modal-5" className="btn">create</label>
                     </div>
-                </Modal>
-            </Stack>
-        </Box>
+                </div>
+            </div> */}
+            <Modal2
+                open={showCommentModal}
+                onClose={() => setShowComment(false)}>
+                <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+            </Modal2>
+
+
+            {/* <Modal
+                open={showCommentModal}
+                onClose={() => setShowComment(false)}>
+                <div>
+                    <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+                </div>
+            </Modal> */}
+        </div >
     )
+}
+
+// components/Modal.js
+import { createPortal } from 'react-dom'
+interface ModalProps {
+    open: boolean
+    onClose: () => void
+    onSubmit?: () => void
+    children: JSX.Element
+}
+export function Modal2({ open, onClose, children }: ModalProps) {
+    function escHandler({ key }) {
+        if (key === 'Escape') {
+            onClose()
+        }
+    }
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.addEventListener('keydown', escHandler);
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('keydown', escHandler);
+            }
+        };
+    }, []);
+
+
+    if (typeof document !== 'undefined') {
+        return createPortal((
+            <div className={`fixed inset-0 ${open ? '' : 'pointer-events-none'}`}>
+                {/* backdrop */}
+                <div
+                    className={`fixed inset-0 bg-black ${open ? 'opacity-50' : 'pointer-events-none opacity-0'} transition-opacity duration-300 ease-in-out`}
+                    onClick={onClose}
+                />
+
+                {/* content */}
+                <div className={`fixed right-0 h-full bg-white shadow-lg w-full max-w-screen-sm p-4 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'} transition-opacity duration-300 ease-in-out`}>
+                    <div>
+                        <button onClick={onClose}>Click to close modal</button>
+                    </div>
+                    {children}
+                </div>
+            </div>
+        ), document.body)
+    } else {
+        return null
+    }
 }
