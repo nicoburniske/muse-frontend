@@ -1,0 +1,18 @@
+subscription ReviewUpdates($reviewId: ID!) {
+  reviewUpdates(reviewId: $reviewId) {
+    ... on DeletedComment {
+        reviewId
+        commentId
+    }
+    ... on UpdatedComment {
+        comment{
+            ...DetailedComment
+        }
+    }
+    ... on CreatedComment {
+        comment {
+            ...DetailedComment
+        }
+    }
+  }
+}

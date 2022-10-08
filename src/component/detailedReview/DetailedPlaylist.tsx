@@ -11,14 +11,12 @@ export interface DetailedPlaylistProps {
     reviewId: string
     playlist: DetailedPlaylistFragment
     comments: DetailedCommentFragment[]
-    updateComments: () => Promise<void>
 }
 
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
-export default function DetailedPlaylist({ reviewId, playlist, comments: propComments, updateComments }: DetailedPlaylistProps) {
+export default function DetailedPlaylist({ reviewId, playlist, comments: propComments}: DetailedPlaylistProps) {
     const comments = useMemo(() => {
-        console.log("Comments", propComments)
         return propComments.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     }, [propComments])
 
@@ -36,8 +34,8 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     }, [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrack)
-    const commentRefs = useRef<Map<number, HTMLLIElement>>(new Map())
-    const trackRefs = useRef<Map<string, HTMLLIElement>>(new Map())
+    const commentRefs = useRef(new Map<number, HTMLLIElement>())
+    const trackRefs = useRef(new Map<string, HTMLLIElement>())
 
     // We want to find the track that the comment is applied to and scroll to it.
     const onCommentClick = (commentId: number) => {
@@ -61,7 +59,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                 {tracks.map(t =>
                     <div key={t.track.id} ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}>
                         <PlaylistTrack
-                            playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
+                            playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} />
                     </div>)
                 }
             </div>
@@ -76,7 +74,6 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                                 reviewId={reviewId}
                                 playlistId={playlist.id}
                                 comment={c}
-                                updateComments={updateComments}
                                 children={childComments.get(c.id) ?? []}
                                 onClick={() => onCommentClick(c.id)}
                             />

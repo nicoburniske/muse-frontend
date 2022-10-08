@@ -97,6 +97,11 @@ export type CreateReviewInput = {
   name: Scalars['String'];
 };
 
+export type CreatedComment = {
+  __typename?: 'CreatedComment';
+  comment: Comment;
+};
+
 export type DeleteCommentInput = {
   commentId: Scalars['Int'];
   reviewId: Scalars['ID'];
@@ -104,6 +109,12 @@ export type DeleteCommentInput = {
 
 export type DeleteReviewInput = {
   id: Scalars['ID'];
+};
+
+export type DeletedComment = {
+  __typename?: 'DeletedComment';
+  commentId: Scalars['Int'];
+  reviewId: Scalars['ID'];
 };
 
 export type EntityOffsetInput = {
@@ -117,6 +128,11 @@ export enum EntityType {
   Playlist = 'Playlist',
   Track = 'Track'
 }
+
+export type GetPlaylistTracksInput = {
+  numTracks: Scalars['Int'];
+  playlistId: Scalars['String'];
+};
 
 /** A key-value pair of String and String */
 export type KvStringString = {
@@ -136,8 +152,8 @@ export type Mutations = {
   saveTracks?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
   startPlayback?: Maybe<Scalars['Boolean']>;
-  updateComment?: Maybe<Scalars['Boolean']>;
-  updateReview?: Maybe<Scalars['Boolean']>;
+  updateComment?: Maybe<Comment>;
+  updateReview?: Maybe<Review>;
 };
 
 
@@ -297,6 +313,8 @@ export type ReviewEntity = {
   uri: Scalars['String'];
 };
 
+export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment;
+
 export type SearchResult = {
   __typename?: 'SearchResult';
   albums: Array<Album>;
@@ -335,11 +353,23 @@ export type Subscriptions = {
   __typename?: 'Subscriptions';
   availableDevices?: Maybe<Array<PlaybackDevice>>;
   nowPlaying?: Maybe<PlaybackState>;
+  playlistTracks?: Maybe<PlaylistTrack>;
+  reviewUpdates?: Maybe<ReviewUpdate>;
 };
 
 
 export type SubscriptionsNowPlayingArgs = {
   tickInterval: Scalars['Int'];
+};
+
+
+export type SubscriptionsPlaylistTracksArgs = {
+  input: GetPlaylistTracksInput;
+};
+
+
+export type SubscriptionsReviewUpdatesArgs = {
+  reviewId: Scalars['ID'];
 };
 
 export type Track = ReviewEntity & {
@@ -373,6 +403,11 @@ export type UpdateReviewInput = {
   isPublic: Scalars['Boolean'];
   name: Scalars['String'];
   reviewId: Scalars['ID'];
+};
+
+export type UpdatedComment = {
+  __typename?: 'UpdatedComment';
+  comment: Comment;
 };
 
 export type User = {
@@ -469,6 +504,13 @@ type ReviewEntityOverview_Track_Fragment = { __typename?: 'Track', id: string, n
 
 export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
 
+export type ReviewUpdatesSubscriptionVariables = Exact<{
+  reviewId: Scalars['ID'];
+}>;
+
+
+export type ReviewUpdatesSubscription = { __typename?: 'Subscriptions', reviewUpdates?: { __typename?: 'CreatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null } } | { __typename?: 'DeletedComment', reviewId: string, commentId: number } | { __typename?: 'UpdatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null } } | null };
+
 export type StartPlaybackMutationVariables = Exact<{
   input: StartPlaybackInput;
 }>;
@@ -481,7 +523,7 @@ export type UpdateCommentMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCommentMutation = { __typename?: 'Mutations', updateComment?: boolean | null };
+export type UpdateCommentMutation = { __typename?: 'Mutations', updateComment?: { __typename?: 'Comment', id: number } | null };
 
 export const PlaybackDeviceFragmentDoc = gql`
     fragment PlaybackDevice on PlaybackDevice {
@@ -1011,6 +1053,49 @@ export function useProfileAndReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type ProfileAndReviewsQueryHookResult = ReturnType<typeof useProfileAndReviewsQuery>;
 export type ProfileAndReviewsLazyQueryHookResult = ReturnType<typeof useProfileAndReviewsLazyQuery>;
 export type ProfileAndReviewsQueryResult = Apollo.QueryResult<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>;
+export const ReviewUpdatesDocument = gql`
+    subscription ReviewUpdates($reviewId: ID!) {
+  reviewUpdates(reviewId: $reviewId) {
+    ... on DeletedComment {
+      reviewId
+      commentId
+    }
+    ... on UpdatedComment {
+      comment {
+        ...DetailedComment
+      }
+    }
+    ... on CreatedComment {
+      comment {
+        ...DetailedComment
+      }
+    }
+  }
+}
+    ${DetailedCommentFragmentDoc}`;
+
+/**
+ * __useReviewUpdatesSubscription__
+ *
+ * To run a query within a React component, call `useReviewUpdatesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useReviewUpdatesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReviewUpdatesSubscription({
+ *   variables: {
+ *      reviewId: // value for 'reviewId'
+ *   },
+ * });
+ */
+export function useReviewUpdatesSubscription(baseOptions: Apollo.SubscriptionHookOptions<ReviewUpdatesSubscription, ReviewUpdatesSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<ReviewUpdatesSubscription, ReviewUpdatesSubscriptionVariables>(ReviewUpdatesDocument, options);
+      }
+export type ReviewUpdatesSubscriptionHookResult = ReturnType<typeof useReviewUpdatesSubscription>;
+export type ReviewUpdatesSubscriptionResult = Apollo.SubscriptionResult<ReviewUpdatesSubscription>;
 export const StartPlaybackDocument = gql`
     mutation StartPlayback($input: StartPlaybackInput!) {
   startPlayback(input: $input)
@@ -1044,7 +1129,9 @@ export type StartPlaybackMutationResult = Apollo.MutationResult<StartPlaybackMut
 export type StartPlaybackMutationOptions = Apollo.BaseMutationOptions<StartPlaybackMutation, StartPlaybackMutationVariables>;
 export const UpdateCommentDocument = gql`
     mutation UpdateComment($input: UpdateCommentInput!) {
-  updateComment(input: $input)
+  updateComment(input: $input) {
+    id
+  }
 }
     `;
 export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;

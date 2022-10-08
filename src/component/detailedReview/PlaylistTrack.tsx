@@ -12,11 +12,10 @@ export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
-    updateComments: () => Promise<void>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId, updateComments }: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId}: PlaylistTrackProps) {
     // We want to know what devices are available so we can start playback on the correct device.
     const { data } = useAvailableDevicesSubscription()
     const devices = data?.availableDevices
@@ -34,14 +33,13 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const isSelected = useAtomValue(selectedTrack) == track.id
     const selectedStyle = isSelected ? { border: '1px dashed green' } : {}
 
-    const resetStateAndUpdateComments = () => {
+    const resetState = () => {
         setComment("")
         setShowComment(false)
-        updateComments()
     }
 
     // On successful comment creation, clear the comment box and refetch the review.
-    const [createComment, { error, loading, called }] = useCreateCommentMutation({ onCompleted: resetStateAndUpdateComments })
+    const [createComment, { error, loading, called }] = useCreateCommentMutation({ onCompleted: resetState })
     const onSubmit = (comment: string) =>
         createComment({ variables: { input: { comment, entityId: track.id, entityType: EntityType.Track, reviewId } } })
             .then(() => { })
@@ -101,30 +99,12 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
             </div>
             <button className="btn btn-primary" onClick={() => setShowComment(true)}> + </button>
 
-            {/* <label htmlFor="my-modal-5" className="btn modal-button"> + </label>
-            <input type="checkbox" id="my-modal-5" className="modal-toggle" />
-            <div className="modal">
-                <div className="modal-box w-11/12 max-w-5xl">
-                    <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
-                    <div className="modal-action" onClick={() => setShowComment(false)}>
-                        <label htmlFor="my-modal-5" className="btn">create</label>
-                    </div>
-                </div>
-            </div> */}
             <Modal2
                 open={showCommentModal}
                 onClose={() => setShowComment(false)}>
-                <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+                <CommentForm onSubmit={onSubmit} onCancel={resetState} />
             </Modal2>
 
-
-            {/* <Modal
-                open={showCommentModal}
-                onClose={() => setShowComment(false)}>
-                <div>
-                    <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
-                </div>
-            </Modal> */}
         </div >
     )
 }

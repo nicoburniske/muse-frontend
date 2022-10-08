@@ -11,7 +11,6 @@ export interface DetailedCommentProps {
   playlistId: string
   comment: DetailedCommentFragment
   children: DetailedCommentFragment[]
-  updateComments: () => Promise<void>
   onClick: () => void
 }
 
@@ -68,7 +67,7 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
     </Typography>)
 }
 
-export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, updateComments, onClick }: DetailedCommentProps) {
+export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
 
@@ -85,13 +84,11 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const onDelete = async () => {
     await deleteComment()
-    await updateComments()
   }
 
   const onUpdate = async (content: string) => {
     const input = { reviewId, commentId: detailedComment.id, comment: content }
     await updateComment({ variables: { input } })
-    await updateComments()
     resetState()
   }
 
@@ -101,7 +98,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       entityType: detailedComment.entityType, entityId: detailedComment.entityId
     }
     await replyComment({ variables: { input } })
-    await updateComments()
     resetState()
   }
 
@@ -119,10 +115,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const Stamp =
     ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
-  // <p>If a dog chews shoes whose shoes does he choose?</p>
-  // <div className="card-actions justify-end">
-  //   <button className="btn">Buy Now</button>
-  // </div>
 
   // TODO: need to consider which comments are owned by user.
   return (
@@ -194,8 +186,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           </Stack>
         </Stack>
         {children.map(child =>
-          <div className="">
-            <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} onClick={onClick} />
+          <div className="" key={child.id}>
+            <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
           </div>
         )}
 
