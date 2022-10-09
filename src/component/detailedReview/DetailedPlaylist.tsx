@@ -1,8 +1,7 @@
-import { Box, List, ListItem, Stack } from "@mui/material"
-import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment } from "graphql/generated/schema"
+import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/generated/schema"
 import PlaylistTrack from "component/detailedReview/PlaylistTrack"
 import DetailedComment from "component/detailedReview/DetailedComment"
-import { Children, useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef } from "react"
 import { useSetAtom } from "jotai"
 import { selectedTrack } from "state/Atoms"
 
@@ -15,7 +14,7 @@ export interface DetailedPlaylistProps {
 
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
-export default function DetailedPlaylist({ reviewId, playlist, comments: propComments}: DetailedPlaylistProps) {
+export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
     const comments = useMemo(() => {
         return propComments.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     }, [propComments])
@@ -55,7 +54,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             style={{ height: '85vh' }}
         >
             {/*  */}
-            <div className="w-2/5 overflow-auto p-1" >
+            <div className="w-2/5 overflow-auto p-1 space-y-2" >
                 {tracks.map(t =>
                     <div key={t.track.id} ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}>
                         <PlaylistTrack

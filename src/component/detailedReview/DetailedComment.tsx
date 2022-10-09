@@ -1,7 +1,6 @@
-import { Avatar, Box, Button, ListItemText, Modal, Stack, Typography } from "@mui/material"
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useState } from "react"
-import { CommentForm } from "component/detailedReview/CommentForm"
+import { CommentFormModal } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
 import Markdown from "markdown-to-jsx"
@@ -58,13 +57,12 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
   }
 
   return (
-    <Typography
+    <span
+      className="font-semibold"
       onClick={onClick}
-      fontWeight="bold"
-      sx={{ color: "neutral.darkBlue" }}
     >
       {timestamp ? `@${time}` : time}
-    </Typography>)
+    </span>)
 }
 
 export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
@@ -106,92 +104,64 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
     setIsReplying(false)
   }
 
-  const commentStyle = {
-    width: "100%",
-    padding: "0.5rem",
-    // If child comment, indent.
-    marginLeft: isChild ? "1rem" : "0"
-  }
-
   const Stamp =
     ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
 
   // TODO: need to consider which comments are owned by user.
   return (
-    // <div className="collapse">
-    // <input type="checkbox" className="peer" />
-    // <div className="collapse-title bg-primary text-primary-content peer-checked:text-secondary-content"> 
-    <div className="card w-200  bg-primary text-primary-content" onClick={onClick}>
-      <div className="card-body">
-
-        <h2 className="card-title"> {commenterName}</h2>
-        <div className="avatar">
-          <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-            <img loading="lazy" src={avatar}></img>
+    <div className="" onClick={onClick}>
+      <div className=" card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around space-y-5">
+        <div className="flex flex-col items-center space-y-2 justify-self-start">
+          <h2 className="card-title"> {commenterName} </h2>
+          <div className="avatar">
+            <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <img loading="lazy" src={avatar}></img>
+            </div>
           </div>
+          <h2 className=""> {createdAt}</h2>
         </div>
 
-        <h2 className=""> {createdAt}</h2>
-
-        <Stack
-          spacing={5}
-          direction="row"
-          alignItems="center"
-        >
-          <Stack direction="row" >
-            <Modal
-              open={isEditing}
-              onClose={() => setIsEditing(false)}>
-              <div>
-                <CommentForm
-                  onSubmit={onUpdate}
-                  onCancel={resetState}
-                  initialValue={comment}
-                />
-              </div>
-            </Modal>
-            <Modal
-              open={isReplying}
-              onClose={() => setIsReplying(false)}>
-              <div>
-                <CommentForm
-                  onSubmit={onReply}
-                  onCancel={resetState}
-                  initialValue={""}
-                />
-              </div>
-            </Modal>
-            <Stack
-              spacing={2}
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              {/* <ListItemText primary={comment} /> */}
-              <Typography>
-                <Markdown
-                  children={comment}
-                  options={{
-                    overrides: {
-                      Stamp,
-                    },
-                  }}
-                />
-              </Typography>
-              <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
-              <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
-              {/* For now we don't want to permit infinite nesting */}
-              {isChild ? <div /> : <Button disabled={loadingReply} onClick={() => setIsReplying(true)}> reply </Button>}
-            </Stack>
-          </Stack>
-        </Stack>
-        {children.map(child =>
-          <div className="" key={child.id}>
-            <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+        <div className="flex flex-col w-3/4">
+          <div className="h-3/4 p-2 w-5/6">
+            <Markdown
+              children={comment}
+              options={{
+                overrides: {
+                  Stamp,
+                },
+              }}
+            />
           </div>
-        )}
-
+          <div className="btn-group">
+            <button className="btn btn-sm btn-primary " disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
+            <button className="btn btn-sm btn-error" disabled={loadingDelete} onClick={onDelete}> delete </button>
+            {/* For now we don't want to permit infinite nesting */}
+            {<button className="btn btn-sm btn-primary" disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}> reply </button>}
+          </div>
+        </div>
       </div>
+
+      {children.map(child =>
+        <div className="pl-5 py-5" key={child.id}>
+          <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+        </div>
+      )}
+
+      <CommentFormModal
+        title={"edit comment"}
+        open={isEditing}
+        onClose={() => setIsEditing(false)}
+        onSubmit={onUpdate}
+        onCancel={resetState}
+        initialValue={comment}
+      />
+      <CommentFormModal
+        title={"reply to comment"}
+        open={isReplying}
+        onClose={() => setIsReplying(false)}
+        onSubmit={onReply}
+        onCancel={resetState}
+      />
     </div>
   )
 }

@@ -1,13 +1,11 @@
-import { Avatar, Box, Button, CardMedia, Modal, Stack, Typography } from "@mui/material"
 import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription } from "graphql/generated/schema"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
-import { CommentForm } from "component/detailedReview/CommentForm"
+import {  CommentFormModal } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
 import { useAtomValue } from "jotai"
 import { selectedTrack } from "state/Atoms"
-
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
@@ -15,7 +13,7 @@ export interface PlaylistTrackProps {
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId}: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId }: PlaylistTrackProps) {
     // We want to know what devices are available so we can start playback on the correct device.
     const { data } = useAvailableDevicesSubscription()
     const devices = data?.availableDevices
@@ -73,7 +71,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             style={selectedStyle}
-            className="card card-body flex flex-row items-center justify-around p-1 bg-base-100 shadow-xl"
+            className="card card-body flex flex-row items-center justify-around p-1 bg-neutral shadow-xl"
             onMouseEnter={() => setShowCommentButton(true)}
             onMouseLeave={() => setShowCommentButton(false)}
         >
@@ -97,64 +95,13 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                 </div>
             </div>
             <button className="btn btn-primary" onClick={() => setShowComment(true)}> + </button>
-
-            <Modal2
+            <CommentFormModal
                 open={showCommentModal}
-                onClose={() => setShowComment(false)}>
-                <CommentForm onSubmit={onSubmit} onCancel={resetState} />
-            </Modal2>
-
+                onClose={() => setShowComment(false)}
+                title="Create Comment"
+                onCancel={resetState}
+                onSubmit={onSubmit}
+            />
         </div >
     )
-}
-
-// components/Modal.js
-import { createPortal } from 'react-dom'
-interface ModalProps {
-    open: boolean
-    onClose: () => void
-    onSubmit?: () => void
-    children: JSX.Element
-}
-export function Modal2({ open, onClose, children }: ModalProps) {
-    function escHandler({ key }) {
-        if (key === 'Escape') {
-            onClose()
-        }
-    }
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            window.addEventListener('keydown', escHandler);
-        }
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                window.removeEventListener('keydown', escHandler);
-            }
-        };
-    }, []);
-
-
-    if (typeof document !== 'undefined') {
-        return createPortal((
-            <div className={`fixed inset-0 ${open ? '' : 'pointer-events-none'}`}>
-                {/* backdrop */}
-                <div
-                    className={`fixed inset-0 bg-black ${open ? 'opacity-50' : 'pointer-events-none opacity-0'} transition-opacity duration-300 ease-in-out`}
-                    onClick={onClose}
-                />
-
-                {/* content */}
-                <div className={`fixed right-0 h-full bg-white shadow-lg w-full max-w-screen-sm p-4 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'} transition-opacity duration-300 ease-in-out`}>
-                    <div>
-                        <button onClick={onClose}>Click to close modal</button>
-                    </div>
-                    {children}
-                </div>
-            </div>
-        ), document.body)
-    } else {
-        return null
-    }
 }
