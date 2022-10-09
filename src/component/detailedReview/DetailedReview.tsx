@@ -43,7 +43,8 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     variables: { reviewId },
     fetchPolicy: "no-cache",
     nextFetchPolicy: "no-cache",
-    pollInterval: 5 * 1000
+    pollInterval: 5 * 1000,
+    onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
   })
   const { data, loading, error, refetch } = useDetailedReviewQuery({
     variables: { reviewId },
@@ -52,20 +53,12 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     pollInterval: 5 * 1000
   })
 
-
   if (commentErrors) {
     console.log("Errors in comment event", commentErrors)
   }
   if (subErrors || subErrorsTime) {
     console.error("Play errors", subErrors, subErrorsTime)
   }
-
-  useEffect(() => {
-    console.log("IN HERE 1")
-    if (dataComments?.review?.comments) {
-      setComments(dataComments?.review?.comments)
-    }
-  }, [dataComments])
 
   const getReviewContent = () => {
     const review = data?.review

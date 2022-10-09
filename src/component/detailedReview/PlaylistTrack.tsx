@@ -46,7 +46,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
 
     const onPlayError = (error: ApolloError) => {
         toast.error(`Failed to start playback. Please start a playback session and try again.`)
-        // refetchDevices()
     }
 
     const onPlaySuccess = () => {
