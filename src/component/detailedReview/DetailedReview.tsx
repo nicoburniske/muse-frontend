@@ -91,7 +91,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
   const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
   const progress = currentPosition && totalDuration ? (currentPosition / totalDuration) * 100 : 0
-  console.log("Progress", progress, currentPosition, totalDuration)
 
   if (loading) {
     return <h1>Loading...</h1>

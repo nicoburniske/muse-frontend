@@ -1,5 +1,6 @@
 import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/generated/schema"
 import PlaylistTrack from "component/detailedReview/PlaylistTrack"
+import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { useMemo, useRef } from "react"
 import { useSetAtom } from "jotai"
@@ -33,16 +34,12 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     }, [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrack)
-    const commentRefs = useRef(new Map<number, HTMLLIElement>())
-    const trackRefs = useRef(new Map<string, HTMLLIElement>())
 
     // We want to find the track that the comment is applied to and scroll to it.
     const onCommentClick = (commentId: number) => {
         const trackId = comments.find(c => c.id == commentId)?.entityId
-        const track = trackId ? trackRefs.current.get(trackId) : undefined
-        if (track) {
+        if (trackId) {
             setSelectedTrack(trackId)
-            track.scrollIntoView({ behavior: 'smooth' })
         }
     }
 
@@ -54,20 +51,17 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             style={{ height: '85vh' }}
         >
             {/*  */}
-            <div className="w-2/5 overflow-auto p-1 space-y-2" >
-                {tracks.map(t =>
-                    <div key={t.track.id} ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}>
-                        <PlaylistTrack
-                            playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} />
-                    </div>)
-                }
-            </div>
+            <PlaylistTrackTable
+                playlistId={playlist.id}
+                reviewId={reviewId}
+                playlistTracks={tracks}
+            />
+
             <div className="w-3/5 h-full overflow-auto p-1">
                 <div className="flex flex-col space-y-5 justify-end">
                     {rootComments.map((c: DetailedCommentFragment) =>
                         <div
                             key={c.id}
-                            ref={el => commentRefs.current.set(c.id, (el as HTMLLIElement))}
                         >
                             <DetailedComment
                                 reviewId={reviewId}

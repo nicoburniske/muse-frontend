@@ -1,7 +1,7 @@
-import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription } from "graphql/generated/schema"
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription, AvailableDevicesSubscription, PlaybackDeviceFragment } from "graphql/generated/schema"
 import { useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
-import {  CommentFormModal } from "component/detailedReview/CommentForm"
+import { CommentFormModal } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
 import { useAtomValue } from "jotai"
@@ -58,15 +58,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
         const outer = { entityId: playlistId, entityType: EntityType.Playlist }
         playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
     }
-
-    // TODO: fix this it's terrible.
-    useHotkeys('enter+command', () => {
-        console.log("outside dis bih")
-        if ((comment.length > 0) && !loading) {
-            console.log("in dis bit")
-            createComment()
-        }
-    }, [comment, loading])
 
     return (
         <div

@@ -122,7 +122,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
         </div>
 
         <div className="flex flex-col w-3/4">
-          <div className="h-3/4 p-2 w-5/6">
+          <div className="min-h-fit	 p-2 w-5/6">
             <Markdown
               children={comment}
               options={{
