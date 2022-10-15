@@ -2,7 +2,7 @@ import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedRe
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom } from "jotai"
-import { playbackDevices, currentlyPlayingTrack} from "state/Atoms"
+import { playbackDevices, currentlyPlayingTrack } from "state/Atoms"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -79,7 +79,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const getReviewContent = useMemo(() => {
     const review = data?.review
     const entity = data?.review?.entity
-    const usersShared = data?.review?.collaborators?.map(u => u.user.id)
 
     switch (entity?.__typename) {
       // case "Album":
@@ -87,7 +86,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
       // case "Track":
       case "Playlist":
         return <DetailedPlaylist
-          reviewId={review.id}
+          reviewId={review?.id as string}
           playlist={entity}
           comments={comments}
         />
@@ -102,6 +101,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const title = data?.review?.reviewName
   const entity = data?.review?.entity?.name
   const eType = data?.review?.entity?.__typename
+  const collaborators = data?.review?.collaborators?.map(u => u.user.id).join(", ")
 
   const progress = useMemo(() => {
     const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
@@ -120,11 +120,24 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   } else if (data) {
     return (
       < div className="w-full p-1">
-        <h1 className="prose text-5xl underline">{title}</h1>
-        <h2 className="prose text-3xl">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-3xl font-bold leading-7 text-primary-content sm:truncate sm:text-3xl sm:tracking-tight">
+            {title}
+          </h1>
+          <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
+            <div className="mt-2 flex items-center text-sm text-secondary-content">
+              {`${eType} review: ${entity}`}
+            </div>
+            <div className="mt-2 flex items-center text-sm text-secondary-content">
+              {collaborators} 
+            </div>
+          </div>
+        </div>
+        {/* <h1 className="prose text-5xl underline">{title}</h1> */}
+        {/* <h2 className="prose text-3xl">
           {`${eType} review: ${entity}`}
-        </h2>
-        <progress className="progress progress-info w-56" value={progress} max="100"></progress>
+        </h2> */}
+        <progress className="progress progress-success w-100" value={progress} max="100"></progress>
         {getReviewContent}
       </div>
     )
@@ -132,7 +145,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   if (error) {
     return (
       <Alert severity={AlertSeverity.Error}>
-        <span> Review Doesn't Exist </span>
+        <span> Error Loading Review </span>
       </Alert >)
   }
 }

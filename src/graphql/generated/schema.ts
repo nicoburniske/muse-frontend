@@ -417,12 +417,7 @@ export type User = {
   spotifyProfile?: Maybe<SpotifyProfile>;
 };
 
-export type AvailableDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AvailableDevicesSubscription = { __typename?: 'Subscriptions', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
-
-export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
+export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   input: CreateCommentInput;
@@ -445,6 +440,27 @@ export type DeleteCommentMutationVariables = Exact<{
 
 export type DeleteCommentMutation = { __typename?: 'Mutations', deleteComment?: boolean | null };
 
+export type ShareReviewMutationVariables = Exact<{
+  input: ShareReviewInput;
+}>;
+
+
+export type ShareReviewMutation = { __typename?: 'Mutations', shareReview?: boolean | null };
+
+export type StartPlaybackMutationVariables = Exact<{
+  input: StartPlaybackInput;
+}>;
+
+
+export type StartPlaybackMutation = { __typename?: 'Mutations', startPlayback?: boolean | null };
+
+export type UpdateCommentMutationVariables = Exact<{
+  input: UpdateCommentInput;
+}>;
+
+
+export type UpdateCommentMutation = { __typename?: 'Mutations', updateComment?: { __typename?: 'Comment', id: number } | null };
+
 export type DetailedReviewQueryVariables = Exact<{
   reviewId: Scalars['ID'];
 }>;
@@ -464,30 +480,12 @@ export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string 
 
 export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number };
 
-export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null };
-
 export type DetailedReviewCommentsQueryVariables = Exact<{
   reviewId: Scalars['ID'];
 }>;
 
 
 export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null }> | null } | null };
-
-export type NowPlayingSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
-
-
-export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
-
-export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
-
-export type NowPlayingOffsetSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
-
-
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item?: { __typename?: 'Track', id: string, durationMs: number } | null } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -506,6 +504,29 @@ type ReviewEntityOverview_Track_Fragment = { __typename?: 'Track', id: string, n
 
 export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
 
+export type AvailableDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AvailableDevicesSubscription = { __typename?: 'Subscriptions', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
+
+export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
+
+export type NowPlayingSubscriptionVariables = Exact<{
+  input: Scalars['Int'];
+}>;
+
+
+export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
+
+export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
+
+export type NowPlayingOffsetSubscriptionVariables = Exact<{
+  input: Scalars['Int'];
+}>;
+
+
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item?: { __typename?: 'Track', id: string, durationMs: number } | null } | null };
+
 export type ReviewUpdatesSubscriptionVariables = Exact<{
   reviewId: Scalars['ID'];
 }>;
@@ -513,31 +534,6 @@ export type ReviewUpdatesSubscriptionVariables = Exact<{
 
 export type ReviewUpdatesSubscription = { __typename?: 'Subscriptions', reviewUpdates?: { __typename?: 'CreatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null } } | { __typename?: 'DeletedComment', reviewId: string, commentId: number } | { __typename?: 'UpdatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, commenterId: string, comment?: string | null, rating?: number | null, entityId: string, entityType: EntityType, commenter?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null } } | null };
 
-export type StartPlaybackMutationVariables = Exact<{
-  input: StartPlaybackInput;
-}>;
-
-
-export type StartPlaybackMutation = { __typename?: 'Mutations', startPlayback?: boolean | null };
-
-export type UpdateCommentMutationVariables = Exact<{
-  input: UpdateCommentInput;
-}>;
-
-
-export type UpdateCommentMutation = { __typename?: 'Mutations', updateComment?: { __typename?: 'Comment', id: number } | null };
-
-export const PlaybackDeviceFragmentDoc = gql`
-    fragment PlaybackDevice on PlaybackDevice {
-  id
-  isActive
-  isPrivateSession
-  isRestricted
-  name
-  type
-  volumePercent
-}
-    `;
 export const UserWithSpotifyOverviewFragmentDoc = gql`
     fragment UserWithSpotifyOverview on User {
   id
@@ -547,6 +543,23 @@ export const UserWithSpotifyOverviewFragmentDoc = gql`
   }
 }
     `;
+export const DetailedCommentFragmentDoc = gql`
+    fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenterId
+  commenter {
+    ...UserWithSpotifyOverview
+  }
+  comment
+  rating
+  entityId
+  entityType
+}
+    ${UserWithSpotifyOverviewFragmentDoc}`;
 export const DetailedTrackFragmentDoc = gql`
     fragment DetailedTrack on Track {
   uri
@@ -638,48 +651,6 @@ export const DetailedArtistFragmentDoc = gql`
   artistPopularity: popularity
 }
     `;
-export const DetailedCommentFragmentDoc = gql`
-    fragment DetailedComment on Comment {
-  id
-  reviewId
-  createdAt
-  updatedAt
-  parentCommentId
-  commenterId
-  commenter {
-    ...UserWithSpotifyOverview
-  }
-  comment
-  rating
-  entityId
-  entityType
-}
-    ${UserWithSpotifyOverviewFragmentDoc}`;
-export const PlaybackStateFragmentDoc = gql`
-    fragment PlaybackState on PlaybackState {
-  device {
-    id
-    name
-  }
-  shuffleState
-  timestamp
-  progressMs
-  item {
-    id
-    name
-    durationMs
-    isLiked
-    artists {
-      name
-    }
-    album {
-      name
-      id
-      images
-    }
-  }
-}
-    `;
 export const ReviewEntityOverviewFragmentDoc = gql`
     fragment ReviewEntityOverview on ReviewEntity {
   id
@@ -720,35 +691,42 @@ export const ReviewOverviewFragmentDoc = gql`
   }
 }
     ${ReviewEntityOverviewFragmentDoc}`;
-export const AvailableDevicesDocument = gql`
-    subscription AvailableDevices {
-  availableDevices {
-    ...PlaybackDevice
+export const PlaybackDeviceFragmentDoc = gql`
+    fragment PlaybackDevice on PlaybackDevice {
+  id
+  isActive
+  isPrivateSession
+  isRestricted
+  name
+  type
+  volumePercent
+}
+    `;
+export const PlaybackStateFragmentDoc = gql`
+    fragment PlaybackState on PlaybackState {
+  device {
+    id
+    name
+  }
+  shuffleState
+  timestamp
+  progressMs
+  item {
+    id
+    name
+    durationMs
+    isLiked
+    artists {
+      name
+    }
+    album {
+      name
+      id
+      images
+    }
   }
 }
-    ${PlaybackDeviceFragmentDoc}`;
-
-/**
- * __useAvailableDevicesSubscription__
- *
- * To run a query within a React component, call `useAvailableDevicesSubscription` and pass it any options that fit your needs.
- * When your component renders, `useAvailableDevicesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAvailableDevicesSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useAvailableDevicesSubscription(baseOptions?: Apollo.SubscriptionHookOptions<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>(AvailableDevicesDocument, options);
-      }
-export type AvailableDevicesSubscriptionHookResult = ReturnType<typeof useAvailableDevicesSubscription>;
-export type AvailableDevicesSubscriptionResult = Apollo.SubscriptionResult<AvailableDevicesSubscription>;
+    `;
 export const CreateCommentDocument = gql`
     mutation CreateComment($input: CreateCommentInput!) {
   createComment(input: $input) {
@@ -849,6 +827,101 @@ export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const ShareReviewDocument = gql`
+    mutation ShareReview($input: ShareReviewInput!) {
+  shareReview(input: $input)
+}
+    `;
+export type ShareReviewMutationFn = Apollo.MutationFunction<ShareReviewMutation, ShareReviewMutationVariables>;
+
+/**
+ * __useShareReviewMutation__
+ *
+ * To run a mutation, you first call `useShareReviewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useShareReviewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [shareReviewMutation, { data, loading, error }] = useShareReviewMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useShareReviewMutation(baseOptions?: Apollo.MutationHookOptions<ShareReviewMutation, ShareReviewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, options);
+      }
+export type ShareReviewMutationHookResult = ReturnType<typeof useShareReviewMutation>;
+export type ShareReviewMutationResult = Apollo.MutationResult<ShareReviewMutation>;
+export type ShareReviewMutationOptions = Apollo.BaseMutationOptions<ShareReviewMutation, ShareReviewMutationVariables>;
+export const StartPlaybackDocument = gql`
+    mutation StartPlayback($input: StartPlaybackInput!) {
+  startPlayback(input: $input)
+}
+    `;
+export type StartPlaybackMutationFn = Apollo.MutationFunction<StartPlaybackMutation, StartPlaybackMutationVariables>;
+
+/**
+ * __useStartPlaybackMutation__
+ *
+ * To run a mutation, you first call `useStartPlaybackMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartPlaybackMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startPlaybackMutation, { data, loading, error }] = useStartPlaybackMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useStartPlaybackMutation(baseOptions?: Apollo.MutationHookOptions<StartPlaybackMutation, StartPlaybackMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, options);
+      }
+export type StartPlaybackMutationHookResult = ReturnType<typeof useStartPlaybackMutation>;
+export type StartPlaybackMutationResult = Apollo.MutationResult<StartPlaybackMutation>;
+export type StartPlaybackMutationOptions = Apollo.BaseMutationOptions<StartPlaybackMutation, StartPlaybackMutationVariables>;
+export const UpdateCommentDocument = gql`
+    mutation UpdateComment($input: UpdateCommentInput!) {
+  updateComment(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;
+
+/**
+ * __useUpdateCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, options);
+      }
+export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
+export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
+export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<UpdateCommentMutation, UpdateCommentMutationVariables>;
 export const DetailedReviewDocument = gql`
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
@@ -952,6 +1025,78 @@ export function useDetailedReviewCommentsLazyQuery(baseOptions?: Apollo.LazyQuer
 export type DetailedReviewCommentsQueryHookResult = ReturnType<typeof useDetailedReviewCommentsQuery>;
 export type DetailedReviewCommentsLazyQueryHookResult = ReturnType<typeof useDetailedReviewCommentsLazyQuery>;
 export type DetailedReviewCommentsQueryResult = Apollo.QueryResult<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>;
+export const ProfileAndReviewsDocument = gql`
+    query ProfileAndReviews {
+  user {
+    id
+    spotifyProfile {
+      id
+      displayName
+      images
+      numFollowers
+    }
+    reviews {
+      ...ReviewOverview
+    }
+  }
+}
+    ${ReviewOverviewFragmentDoc}`;
+
+/**
+ * __useProfileAndReviewsQuery__
+ *
+ * To run a query within a React component, call `useProfileAndReviewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProfileAndReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProfileAndReviewsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useProfileAndReviewsQuery(baseOptions?: Apollo.QueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
+      }
+export function useProfileAndReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
+        }
+export type ProfileAndReviewsQueryHookResult = ReturnType<typeof useProfileAndReviewsQuery>;
+export type ProfileAndReviewsLazyQueryHookResult = ReturnType<typeof useProfileAndReviewsLazyQuery>;
+export type ProfileAndReviewsQueryResult = Apollo.QueryResult<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>;
+export const AvailableDevicesDocument = gql`
+    subscription AvailableDevices {
+  availableDevices {
+    ...PlaybackDevice
+  }
+}
+    ${PlaybackDeviceFragmentDoc}`;
+
+/**
+ * __useAvailableDevicesSubscription__
+ *
+ * To run a query within a React component, call `useAvailableDevicesSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAvailableDevicesSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAvailableDevicesSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAvailableDevicesSubscription(baseOptions?: Apollo.SubscriptionHookOptions<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<AvailableDevicesSubscription, AvailableDevicesSubscriptionVariables>(AvailableDevicesDocument, options);
+      }
+export type AvailableDevicesSubscriptionHookResult = ReturnType<typeof useAvailableDevicesSubscription>;
+export type AvailableDevicesSubscriptionResult = Apollo.SubscriptionResult<AvailableDevicesSubscription>;
 export const NowPlayingDocument = gql`
     subscription NowPlaying($input: Int!) {
   nowPlaying(tickInterval: $input) {
@@ -1017,49 +1162,6 @@ export function useNowPlayingOffsetSubscription(baseOptions: Apollo.Subscription
       }
 export type NowPlayingOffsetSubscriptionHookResult = ReturnType<typeof useNowPlayingOffsetSubscription>;
 export type NowPlayingOffsetSubscriptionResult = Apollo.SubscriptionResult<NowPlayingOffsetSubscription>;
-export const ProfileAndReviewsDocument = gql`
-    query ProfileAndReviews {
-  user {
-    id
-    spotifyProfile {
-      id
-      displayName
-      images
-      numFollowers
-    }
-    reviews {
-      ...ReviewOverview
-    }
-  }
-}
-    ${ReviewOverviewFragmentDoc}`;
-
-/**
- * __useProfileAndReviewsQuery__
- *
- * To run a query within a React component, call `useProfileAndReviewsQuery` and pass it any options that fit your needs.
- * When your component renders, `useProfileAndReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useProfileAndReviewsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useProfileAndReviewsQuery(baseOptions?: Apollo.QueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
-      }
-export function useProfileAndReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, options);
-        }
-export type ProfileAndReviewsQueryHookResult = ReturnType<typeof useProfileAndReviewsQuery>;
-export type ProfileAndReviewsLazyQueryHookResult = ReturnType<typeof useProfileAndReviewsLazyQuery>;
-export type ProfileAndReviewsQueryResult = Apollo.QueryResult<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>;
 export const ReviewUpdatesDocument = gql`
     subscription ReviewUpdates($reviewId: ID!) {
   reviewUpdates(reviewId: $reviewId) {
@@ -1103,67 +1205,3 @@ export function useReviewUpdatesSubscription(baseOptions: Apollo.SubscriptionHoo
       }
 export type ReviewUpdatesSubscriptionHookResult = ReturnType<typeof useReviewUpdatesSubscription>;
 export type ReviewUpdatesSubscriptionResult = Apollo.SubscriptionResult<ReviewUpdatesSubscription>;
-export const StartPlaybackDocument = gql`
-    mutation StartPlayback($input: StartPlaybackInput!) {
-  startPlayback(input: $input)
-}
-    `;
-export type StartPlaybackMutationFn = Apollo.MutationFunction<StartPlaybackMutation, StartPlaybackMutationVariables>;
-
-/**
- * __useStartPlaybackMutation__
- *
- * To run a mutation, you first call `useStartPlaybackMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useStartPlaybackMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [startPlaybackMutation, { data, loading, error }] = useStartPlaybackMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useStartPlaybackMutation(baseOptions?: Apollo.MutationHookOptions<StartPlaybackMutation, StartPlaybackMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, options);
-      }
-export type StartPlaybackMutationHookResult = ReturnType<typeof useStartPlaybackMutation>;
-export type StartPlaybackMutationResult = Apollo.MutationResult<StartPlaybackMutation>;
-export type StartPlaybackMutationOptions = Apollo.BaseMutationOptions<StartPlaybackMutation, StartPlaybackMutationVariables>;
-export const UpdateCommentDocument = gql`
-    mutation UpdateComment($input: UpdateCommentInput!) {
-  updateComment(input: $input) {
-    id
-  }
-}
-    `;
-export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;
-
-/**
- * __useUpdateCommentMutation__
- *
- * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, options);
-      }
-export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
-export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
-export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<UpdateCommentMutation, UpdateCommentMutationVariables>;

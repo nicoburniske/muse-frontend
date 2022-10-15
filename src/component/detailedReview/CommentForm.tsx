@@ -29,11 +29,11 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
 
     return (
         <div className="flex flex-col items-center " >
-            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-1/2 h-24"
+            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-full h-48 text-primary-content bg-base-200"
                 onChange={(e) => setComment(e.target.value as string)}
                 value={comment}
             />
-            <div className="flex flex-row items-center outline-dashed " >
+            <div className="flex flex-row items-center justify-around w-1/2" >
                 <button className="btn btn-primary space-w-5"
                     onClick={submitAndReset}
                     disabled={!canSubmit}>
@@ -50,23 +50,26 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
 export interface CommentFormModalProps {
     open: boolean
     onSubmit: (comment: string) => Promise<void>
-    onClose: () => void
     onCancel: () => void
     title: string
     initialValue?: string
 }
 
-export const CommentFormModal = ({ open, onSubmit, onClose, onCancel, title, initialValue}: CommentFormModalProps) => {
+export const CommentFormModal = ({ open, onSubmit, onCancel, title, initialValue }: CommentFormModalProps) => {
     return (
-    <Dialog open={open} onClose={onClose}>
-        <div className="fixed inset-0 flex items-center justify-center p-4 w-full">
-            <Dialog.Panel className="w-full max-w-sm rounded bg-neutral">
-                <Dialog.Title>{title}</Dialog.Title>
-                {/* <Dialog.Description>
+        // Returning null for on close makes it so
+        <Dialog open={open} onClose={() => null}>
+            <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
+            <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
+                <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral">
+                    <Dialog.Title>{title}</Dialog.Title>
+                    {/* <Dialog.Description>
                     This will permanently deactivate your account
                 </Dialog.Description> */}
-                <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue}/>
-            </Dialog.Panel>
-        </div>
-    </Dialog>)
+                    {/* <div className="w-full"> */}
+                    <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} />
+                    {/* </div> */}
+                </Dialog.Panel>
+            </div>
+        </Dialog>)
 }

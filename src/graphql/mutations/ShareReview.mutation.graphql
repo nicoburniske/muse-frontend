@@ -1,0 +1,3 @@
+mutation ShareReview($input: ShareReviewInput!) {
+    shareReview(input: $input) 
+}

@@ -27,7 +27,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     // Get outline.
     const isSelected = useAtomValue(selectedTrack) == track.id
     const isPlaying = useAtomValue(currentlyPlayingTrack) == track.id
-    const finalStyle = isPlaying?  { border: '1px dashed green' } : isSelected ? { border: '1px solid yellow' } : {}
+    const finalStyle = isPlaying?  "border border-success" : isSelected ? "border border-info" : "border border-neutral"
 
     const resetState = () => setShowCommentModal(false)
 
@@ -52,8 +52,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
 
     return (
         <div
-            style={finalStyle}
-            className="card card-body flex flex-row items-center justify-around p-1 bg-neutral shadow-xl"
+            className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral shadow-xl ${finalStyle}`}
         >
             <div className="avatar" onClick={() => onPlayTrack()}>
                 <div className="w-16 rounded">

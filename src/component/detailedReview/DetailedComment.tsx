@@ -78,7 +78,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
   const comment = detailedComment?.comment ?? "Failed to retrieve comment";
   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
-  const createdAt = new Date(detailedComment?.createdAt).toLocaleDateString()
+  const createdAt = new Date(detailedComment?.createdAt).toLocaleString()
 
   const onDelete = async () => {
     await deleteComment()
@@ -118,7 +118,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
               <img loading="lazy" src={avatar}></img>
             </div>
           </div>
-          <h2 className=""> {createdAt}</h2>
+          <h2 className="text-secondar-content"> {createdAt} </h2>
         </div>
 
         <div className="flex flex-col w-3/4">
@@ -142,7 +142,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       </div>
 
       {children.map(child =>
-        <div className="pl-5 py-5" key={child.id}>
+        <div className="pl-5 py-1" key={child.id}>
           <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
         </div>
       )}
@@ -150,7 +150,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       <CommentFormModal
         title={"edit comment"}
         open={isEditing}
-        onClose={() => setIsEditing(false)}
         onSubmit={onUpdate}
         onCancel={resetState}
         initialValue={comment}
@@ -158,7 +157,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       <CommentFormModal
         title={"reply to comment"}
         open={isReplying}
-        onClose={() => setIsReplying(false)}
         onSubmit={onReply}
         onCancel={resetState}
       />

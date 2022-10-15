@@ -33,7 +33,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
     }, [selectedTrackId])
 
     const MemoizedTrack = React.memo(({ index }: { index: number }) =>
-        <div className="py-2">
+        <div className="py-0.5 bg-base-300">
             <PlaylistTrack
                 playlistId={playlistId}
                 reviewId={reviewId}
@@ -45,7 +45,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
 
     return (
         <Virtuoso
-            className="w-2/5 h-full overflow-auto p-1"
+            className="w-2/5 h-full overflow-y-auto"
             ref={virtuoso}
             style={{ height: "100%" }}
             totalCount={playlistTracks.length}

@@ -57,7 +57,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             />
 
             <div className="w-3/5 h-full overflow-auto p-1">
-                <div className="flex flex-col space-y-5 justify-end">
+                <div className="flex flex-col space-y-1 justify-end">
                     {rootComments.map((c: DetailedCommentFragment) =>
                         <div
                             key={c.id}
