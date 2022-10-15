@@ -228,7 +228,7 @@ export type PlaybackDevice = {
 
 export type PlaybackState = {
   __typename?: 'PlaybackState';
-  context: PlaybackContext;
+  context?: Maybe<PlaybackContext>;
   currentlyPlayingType: Scalars['String'];
   device: PlaybackDevice;
   isPlaying: Scalars['Boolean'];
@@ -480,6 +480,8 @@ export type NowPlayingSubscriptionVariables = Exact<{
 
 export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
 
+export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
+
 export type NowPlayingOffsetSubscriptionVariables = Exact<{
   input: Scalars['Int'];
 }>;
@@ -653,6 +655,31 @@ export const DetailedCommentFragmentDoc = gql`
   entityType
 }
     ${UserWithSpotifyOverviewFragmentDoc}`;
+export const PlaybackStateFragmentDoc = gql`
+    fragment PlaybackState on PlaybackState {
+  device {
+    id
+    name
+  }
+  shuffleState
+  timestamp
+  progressMs
+  item {
+    id
+    name
+    durationMs
+    isLiked
+    artists {
+      name
+    }
+    album {
+      name
+      id
+      images
+    }
+  }
+}
+    `;
 export const ReviewEntityOverviewFragmentDoc = gql`
     fragment ReviewEntityOverview on ReviewEntity {
   id
@@ -928,30 +955,10 @@ export type DetailedReviewCommentsQueryResult = Apollo.QueryResult<DetailedRevie
 export const NowPlayingDocument = gql`
     subscription NowPlaying($input: Int!) {
   nowPlaying(tickInterval: $input) {
-    device {
-      id
-      name
-    }
-    shuffleState
-    timestamp
-    progressMs
-    item {
-      id
-      name
-      durationMs
-      isLiked
-      artists {
-        name
-      }
-      album {
-        name
-        id
-        images
-      }
-    }
+    ...PlaybackState
   }
 }
-    `;
+    ${PlaybackStateFragmentDoc}`;
 
 /**
  * __useNowPlayingSubscription__

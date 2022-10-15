@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
-import { useVirtualizer } from '@tanstack/react-virtual'
+import React, { useEffect, useRef } from "react";
 import { DetailedPlaylistTrackFragment } from "graphql/generated/schema";
 import PlaylistTrack from "./PlaylistTrack";
 import { useAtomValue } from "jotai";
 import { selectedTrack } from "state/Atoms";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+
 
 export interface PlaylistTrackTableProps {
     playlistId: string,
@@ -12,7 +13,7 @@ export interface PlaylistTrackTableProps {
 }
 
 export default function PlaylistTrackTable({ playlistId, reviewId, playlistTracks }: PlaylistTrackTableProps) {
-    const parentRef = React.useRef<null | HTMLDivElement>()
+    const virtuoso = useRef<VirtuosoHandle>(null);
 
     const idToIndex = React.useMemo(() =>
         playlistTracks
@@ -26,18 +27,10 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
         if (selectedTrackId) {
             const index = idToIndex.get(selectedTrackId)
             if (index !== undefined) {
-                virtualizer.scrollToIndex(index)
+                virtuoso.current?.scrollToIndex({ index, behavior: 'smooth', align: 'center' })
             }
         }
     }, [selectedTrackId])
-
-
-    const virtualizer = useVirtualizer({
-        count: playlistTracks.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 100,
-        overscan: 40
-    })
 
     const MemoizedTrack = React.memo(({ index }: { index: number }) =>
         <div className="py-2">
@@ -46,37 +39,18 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
                 reviewId={reviewId}
                 playlistTrack={playlistTracks[index]} />
         </div>
-    )
+        , (prev, next) => prev.index === next.index)
 
-    // const trackContent = (index: number) => <MemoizedTrack index={index} />
+    const trackContent = (index: number) => <MemoizedTrack index={index} />
 
     return (
-        <div id="yeet" ref={parentRef} className="w-2/5 overflow-auto " >
-            <div
-                className="relative w-full"
-                style={{
-                    height: `${virtualizer.getTotalSize()}px`
-                }}>
-                {
-                    virtualizer.getVirtualItems().map((virtualRow) => (
-                        <div
-                            key={virtualRow.key}
-                            ref={virtualRow.measureElement}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                // height: `${virtualRow.size}px`,
-                                transform: `translateY(${virtualRow.start}px)`,
-                            }}
-                        >
-                            <MemoizedTrack index={virtualRow.index} />
-                        </div>
-
-                    ))
-                }
-            </div>
-        </div >
+        <Virtuoso
+            className="w-2/5 h-full overflow-auto p-1"
+            ref={virtuoso}
+            style={{ height: "100%" }}
+            totalCount={playlistTracks.length}
+            itemContent={(index) => trackContent(index)}
+            overscan={50}
+        />
     )
 }

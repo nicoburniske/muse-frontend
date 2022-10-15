@@ -1,5 +1,4 @@
 import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/generated/schema"
-import PlaylistTrack from "component/detailedReview/PlaylistTrack"
 import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { useMemo, useRef } from "react"

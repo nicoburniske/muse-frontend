@@ -1,6 +1,8 @@
-import { DetailedCommentFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useNowPlayingSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
+import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useNowPlayingSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useSetAtom } from "jotai"
+import { playbackDevices, currentlyPlayingTrack} from "state/Atoms"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -8,8 +10,21 @@ export interface DetailedReviewProps {
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
   // State.
   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
+
   // Subscriptions.
-  const { data: nowPlaying, error: subErrors } = useNowPlayingSubscription({ variables: { input: 15 } })
+
+  // Update jotai atom with playback devices.
+  const setDevices = useSetAtom(playbackDevices)
+  useAvailableDevicesSubscription({
+    onSubscriptionData: (data) => {
+      if (data.subscriptionData.data?.availableDevices) {
+        setDevices(data.subscriptionData.data.availableDevices)
+      } else {
+        setDevices([])
+      }
+    }
+  })
+
   const { data: nowPlayingTime, error: subErrorsTime } = useNowPlayingOffsetSubscription({ variables: { input: 2 } })
   const { error: commentErrors } = useReviewUpdatesSubscription({
     variables: { reviewId }, onSubscriptionData: (data) => {
@@ -39,11 +54,11 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   })
 
   // Queries.
-  const { data: dataComments, loading: loadingComments, error: errorComments } = useDetailedReviewCommentsQuery({
+  useDetailedReviewCommentsQuery({
     variables: { reviewId },
     fetchPolicy: "no-cache",
     nextFetchPolicy: "no-cache",
-    pollInterval: 5 * 1000,
+    pollInterval: 5 * 60 * 1000,
     onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
   })
   // This only needs to happen so that playlist tracks are refreshed.
@@ -51,17 +66,17 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     variables: { reviewId },
     fetchPolicy: "cache-first",
     nextFetchPolicy: "cache-first",
-    pollInterval: 5 * 1000
+    pollInterval: 5 * 60 * 1000
   })
 
   if (commentErrors) {
-    console.log("Errors in comment event", commentErrors)
+    console.error("Errors in comment event", commentErrors)
   }
-  if (subErrors || subErrorsTime) {
-    console.error("Play errors", subErrors, subErrorsTime)
+  if (subErrorsTime) {
+    console.error("Play errors", subErrorsTime)
   }
 
-  const getReviewContent = () => {
+  const getReviewContent = useMemo(() => {
     const review = data?.review
     const entity = data?.review?.entity
     const usersShared = data?.review?.collaborators?.map(u => u.user.id)
@@ -82,15 +97,23 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
             <span> Not Implemented Yet. </span>
           </Alert >)
     }
-  }
+  }, [data, comments])
 
   const title = data?.review?.reviewName
   const entity = data?.review?.entity?.name
   const eType = data?.review?.entity?.__typename
 
-  const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
-  const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
-  const progress = currentPosition && totalDuration ? (currentPosition / totalDuration) * 100 : 0
+  const progress = useMemo(() => {
+    const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
+    const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
+    const progress = currentPosition && totalDuration ? (currentPosition / totalDuration) * 100 : 0
+    return progress
+  }, [nowPlayingTime])
+
+  const setNowPlaying = useSetAtom(currentlyPlayingTrack)
+  useEffect(() => {
+    setNowPlaying(nowPlayingTime?.nowPlaying?.item?.id)
+  }, [nowPlayingTime])
 
   if (loading) {
     return <h1>Loading...</h1>
@@ -102,15 +125,15 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           {`${eType} review: ${entity}`}
         </h2>
         <progress className="progress progress-info w-56" value={progress} max="100"></progress>
-        {getReviewContent()}
+        {getReviewContent}
       </div>
     )
   }
   if (error) {
     return (
-    <Alert severity={AlertSeverity.Error}>
-      <span> Review Doesn't Exist </span>
-    </Alert >)
+      <Alert severity={AlertSeverity.Error}>
+        <span> Review Doesn't Exist </span>
+      </Alert >)
   }
 }
 

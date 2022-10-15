@@ -1,25 +1,29 @@
 subscription NowPlaying($input: Int!) {
     nowPlaying(tickInterval: $input) {         
-        device {
-            id
+        ...PlaybackState     
+    }
+}
+
+fragment PlaybackState on PlaybackState {
+    device {
+        id
+        name
+    }
+    shuffleState
+    timestamp
+    progressMs
+    item {
+        id 
+        name
+        durationMs
+        isLiked
+        artists {
             name
         }
-        shuffleState
-        timestamp
-        progressMs
-        item {
-            id 
+        album {
             name
-            durationMs
-            isLiked
-            artists {
-                name
-            }
-            album {
-                name
-                id
-                images 
-            }
+            id
+            images 
         }
     }
 }
