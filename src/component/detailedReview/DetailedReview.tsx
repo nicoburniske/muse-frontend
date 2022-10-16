@@ -2,7 +2,8 @@ import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedRe
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom } from "jotai"
-import { playbackDevices, currentlyPlayingTrack } from "state/Atoms"
+import { playbackDevices, currentlyPlayingTrack, selectedTrack } from "state/Atoms"
+import { ShareReview } from "./ShareReview"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -12,7 +13,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
 
   // Subscriptions.
-
   // Update jotai atom with playback devices.
   const setDevices = useSetAtom(playbackDevices)
   useAvailableDevicesSubscription({
@@ -99,9 +99,37 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }, [data, comments])
 
   const title = data?.review?.reviewName
-  const entity = data?.review?.entity?.name
+  const entityName = data?.review?.entity?.name
   const eType = data?.review?.entity?.__typename
   const collaborators = data?.review?.collaborators?.map(u => u.user.id).join(", ")
+  const creator = data?.review?.creator.spotifyProfile?.displayName ?? data?.review?.creator.id
+  const reviewEntityImage = (() => {
+    const entity = data?.review?.entity
+    switch (entity?.__typename) {
+      case "Artist":
+      case "Playlist":
+      case "Album":
+        return entity?.images.at(0)
+      case "Track":
+        return entity?.album?.images.at(0)
+    }
+  })()
+
+  const entityCreator = (() => {
+    const entity = data?.review?.entity
+    switch (entity?.__typename) {
+      case "Artist":
+        return null
+      case "Playlist":
+        console.log(entity?.owner?.spotifyProfile)
+        return entity?.owner?.spotifyProfile?.displayName ?? null
+      case "Album":
+        return null
+      case "Track":
+        return entity?.artists?.at(0)?.name
+    }
+  })()
+  console.log("E", entityCreator)
 
   const progress = useMemo(() => {
     const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
@@ -111,8 +139,10 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }, [nowPlayingTime])
 
   const setNowPlaying = useSetAtom(currentlyPlayingTrack)
+  const setSelectedTrack = useSetAtom(selectedTrack)
+  const nowPlaying = nowPlayingTime?.nowPlaying?.item?.id
   useEffect(() => {
-    setNowPlaying(nowPlayingTime?.nowPlaying?.item?.id)
+    setNowPlaying(nowPlaying)
   }, [nowPlayingTime])
 
   if (loading) {
@@ -120,24 +150,32 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   } else if (data) {
     return (
       < div className="w-full p-1">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-3xl font-bold leading-7 text-primary-content sm:truncate sm:text-3xl sm:tracking-tight">
-            {title}
-          </h1>
-          <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-            <div className="mt-2 flex items-center text-sm text-secondary-content">
-              {`${eType} review: ${entity}`}
-            </div>
-            <div className="mt-2 flex items-center text-sm text-secondary-content">
-              {collaborators} 
+        <div className="mt-0 flex flex-row justify-start space-x-5 ">
+          <div className="avatar">
+            <div className="w-28 rounded">
+              <img src={reviewEntityImage} />
             </div>
           </div>
+          <div className="stats shadow">
+            <div className="stat">
+              <div className="stat-title">{`${eType} Review`}</div>
+              <div className="stat-value">{title}</div>
+              <div className="stat-desc"> by {creator}</div>
+            </div>
+          </div>
+          <div className="stats shadow">
+            <div className="stat">
+              <div className="stat-title">{"Playlist"}</div>
+              <div className="stat-value">{entityName}</div>
+              <div className="stat-desc"> by {entityCreator}</div>
+            </div>
+          </div>
+          <ShareReview reviewId={reviewId}/>
+          {/* <div className="mt-2 flex items-center text-sm text-secondary-content font-light">
+              {collaborators} 
+            </div> */}
         </div>
-        {/* <h1 className="prose text-5xl underline">{title}</h1> */}
-        {/* <h2 className="prose text-3xl">
-          {`${eType} review: ${entity}`}
-        </h2> */}
-        <progress className="progress progress-success w-100" value={progress} max="100"></progress>
+        <progress className="progress progress-success w-100 h-2" value={progress} max="100" onClick={() => setSelectedTrack(nowPlaying)}></progress>
         {getReviewContent}
       </div>
     )

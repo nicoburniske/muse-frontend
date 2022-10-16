@@ -57,17 +57,18 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
   }
 
   return (
-    <span
-      className="font-semibold"
+    <a
+      className="link link-primary"
       onClick={onClick}
     >
       {timestamp ? `@${time}` : time}
-    </span>)
+    </a>)
 }
 
 export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
 
   const [deleteComment, { data: dataDelete, error: errorError, loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
@@ -78,7 +79,10 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
   const comment = detailedComment?.comment ?? "Failed to retrieve comment";
   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
-  const createdAt = new Date(detailedComment?.createdAt).toLocaleString()
+  const createdAt = (() => {
+    const date = new Date(detailedComment?.createdAt)
+    return `${date.toLocaleDateString()} - ${date.getHours()}:${date.getMinutes()}`
+  })()
 
   const onDelete = async () => {
     await deleteComment()
@@ -107,10 +111,12 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const Stamp =
     ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
 
+  const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   // TODO: need to consider which comments are owned by user.
   return (
-    <div className="" onClick={onClick}>
-      <div className=" card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around space-y-5">
+
+    <div tabIndex={0} className={`collapse collapse-arrow  rounded-box ${expanded}`} onClick={onClick}>
+      <div className="collapse-title card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around" onClick={() => {setIsExpanded(!isExpanded)}}>
         <div className="flex flex-col items-center space-y-2 justify-self-start">
           <h2 className="card-title"> {commenterName} </h2>
           <div className="avatar">
@@ -121,8 +127,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           <h2 className="text-secondar-content"> {createdAt} </h2>
         </div>
 
-        <div className="flex flex-col w-3/4">
-          <div className="min-h-fit	 p-2 w-5/6">
+        <div className="flex flex-col w-3/4 justify-between">
+          <div className="min-h-fit p-2 w-5/6">
             <Markdown
               children={comment}
               options={{
@@ -132,7 +138,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
               }}
             />
           </div>
-          <div className="btn-group">
+          <div className="btn-group mx-auto">
             <button className="btn btn-sm btn-primary " disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
             <button className="btn btn-sm btn-error" disabled={loadingDelete} onClick={onDelete}> delete </button>
             {/* For now we don't want to permit infinite nesting */}
@@ -142,7 +148,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       </div>
 
       {children.map(child =>
-        <div className="pl-5 py-1" key={child.id}>
+        <div tabIndex={0} className="collapse-content" key={child.id}>
           <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
         </div>
       )}

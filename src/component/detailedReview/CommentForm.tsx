@@ -28,8 +28,9 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     }
 
     return (
-        <div className="flex flex-col items-center " >
-            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-full h-48 text-primary-content bg-base-200"
+        <div className="flex flex-col items-center space-y-5 p-3" >
+            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-full h-48 text-primary-content bg-base-200 
+            focus:border-accent-focus border-accent"
                 onChange={(e) => setComment(e.target.value as string)}
                 value={comment}
             />
@@ -61,7 +62,7 @@ export const CommentFormModal = ({ open, onSubmit, onCancel, title, initialValue
         <Dialog open={open} onClose={() => null}>
             <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
-                <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral">
+                <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral border-primary">
                     <Dialog.Title>{title}</Dialog.Title>
                     {/* <Dialog.Description>
                     This will permanently deactivate your account
