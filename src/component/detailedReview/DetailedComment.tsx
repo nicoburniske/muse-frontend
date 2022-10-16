@@ -115,8 +115,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   // TODO: need to consider which comments are owned by user.
   return (
 
-    <div tabIndex={0} className={`collapse collapse-arrow  rounded-box ${expanded}`} onClick={onClick}>
-      <div className="collapse-title card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around" onClick={() => {setIsExpanded(!isExpanded)}}>
+    <div tabIndex={0} className={`collapse rounded-box ${expanded}`}>
+      <div className="collapse-title card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around px-0">
         <div className="flex flex-col items-center space-y-2 justify-self-start">
           <h2 className="card-title"> {commenterName} </h2>
           <div className="avatar">
@@ -127,8 +127,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           <h2 className="text-secondar-content"> {createdAt} </h2>
         </div>
 
-        <div className="flex flex-col w-3/4 justify-between">
-          <div className="min-h-fit p-2 w-5/6">
+        <div className="flex flex-col w-3/4 justify-between" >
+          <article className="min-h-fit p-2 w-5/6 prose" onClick={() => { setIsExpanded(!isExpanded) }}>
             <Markdown
               children={comment}
               options={{
@@ -137,7 +137,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
                 },
               }}
             />
-          </div>
+          </article>
           <div className="btn-group mx-auto">
             <button className="btn btn-sm btn-primary " disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
             <button className="btn btn-sm btn-error" disabled={loadingDelete} onClick={onDelete}> delete </button>
@@ -145,13 +145,23 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             {<button className="btn btn-sm btn-primary" disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}> reply </button>}
           </div>
         </div>
+        <div className="position: absolute; top: 0; right: 0; width: 100px; text-align:right;" onClick={onClick}>
+          <button onClick={onClick}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+              <path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {children.map(child =>
-        <div tabIndex={0} className="collapse-content" key={child.id}>
-          <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
-        </div>
-      )}
+
+      {
+        children.map(child =>
+          <div tabIndex={0} className="collapse-content" key={child.id}>
+            <DetailedComment playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+          </div>
+        )
+      }
 
       <CommentFormModal
         title={"edit comment"}
@@ -166,6 +176,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
         onSubmit={onReply}
         onCancel={resetState}
       />
-    </div>
+    </div >
   )
 }

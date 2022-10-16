@@ -145,12 +145,26 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     setNowPlaying(nowPlaying)
   }, [nowPlayingTime])
 
+  const collaboratorImages = useMemo(() => {
+    return (
+      <div className="avatar-group -space-x-6">
+        {data?.review?.collaborators
+          ?.map(u => u?.user?.spotifyProfile?.images?.at(-2))
+          .filter(i => i).map(imageSource =>
+            <div className="w-12" key={imageSource}>
+              <img src={imageSource} />
+            </div>
+          )
+        }
+      </div>)
+  }, [data])
+
   if (loading) {
     return <h1>Loading...</h1>
   } else if (data) {
     return (
       < div className="w-full p-1">
-        <div className="mt-0 flex flex-row justify-start space-x-5 ">
+        <div className="mt-0 flex flex-row justify-start space-x-5 items-center">
           <div className="avatar">
             <div className="w-28 rounded">
               <img src={reviewEntityImage} />
@@ -170,7 +184,8 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
               <div className="stat-desc"> by {entityCreator}</div>
             </div>
           </div>
-          <ShareReview reviewId={reviewId}/>
+          {collaboratorImages}
+          <ShareReview reviewId={reviewId} />
           {/* <div className="mt-2 flex items-center text-sm text-secondary-content font-light">
               {collaborators} 
             </div> */}

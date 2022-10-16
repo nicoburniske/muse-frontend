@@ -34,7 +34,7 @@ export function ShareReview({ reviewId }: ShareReviewProps) {
             <Dialog open={isModalOpen} onClose={() => null}>
                 <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
                 <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
-                    <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral border-primary">
+                    <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral border-primary">
                         <Dialog.Title>Share Review</Dialog.Title>
                         <div className="flex flex-col items-center justify-between space-y-5 p-3" >
                             <div className="form-control w-full max-w-xs">
@@ -68,8 +68,8 @@ export function ShareReview({ reviewId }: ShareReviewProps) {
     }, [isModalOpen, username, accessLevel])
 
     return (
-        <div className="w-20">
-            <button className="btn btn-primary" onClick={() => setModalOpen(true)} >
+        <div>
+            <button className="btn btn-primary btn-square" onClick={() => setModalOpen(true)} >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15" />
                 </svg>
