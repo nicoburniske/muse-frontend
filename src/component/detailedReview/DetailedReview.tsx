@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, EntityType, useAvailableDevicesSubscription, useCreateCommentMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
+import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom } from "jotai"
@@ -6,7 +6,8 @@ import { playbackDevicesAtom, currentlyPlayingTrackAtom, selectedTrackAtom, open
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
-import { toast } from "react-toastify"
+import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
+import { PlaybackTime } from "./PlaybackTime"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -149,7 +150,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
         return false
       case "Playlist":
         const isPlaying = entity?.tracks?.some(t => t.track.id === nowPlaying)
-        console.log("HERE", isPlaying)
         return isPlaying === undefined ? false : isPlaying
       case "Album":
         return false
@@ -201,12 +201,10 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           </div>
           {collaboratorImages}
           <ShareReview reviewId={reviewId} />
-          <PlayingTime time={progressMs} trackId={nowPlaying ?? ""} reviewId={reviewId} disabled={!isPlayingPartOfEntity} />
-          {/* <div className="mt-2 flex items-center text-sm text-secondary-content font-light">
-              {collaborators} 
-            </div> */}
+          <PlaybackTime time={progressMs} trackId={nowPlaying ?? ""} reviewId={reviewId} disabled={!isPlayingPartOfEntity} />
+          <CommentFormModalWrapper/>
         </div>
-        <progress className="progress progress-success w-100 h-2" value={progress} max="100" onClick={() => setSelectedTrack(nowPlaying)}></progress>
+        <progress id="playbackProgressBar"className="progress progress-success w-100 h-2" value={progress} max="100" onClick={() => setSelectedTrack(nowPlaying)}></progress>
         {getReviewContent}
       </div>
     )
@@ -217,44 +215,4 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
         <span> Error Loading Review </span>
       </Alert >)
   }
-}
-
-function PlayingTime({ time, trackId, reviewId, disabled }: { time: number, trackId: string, reviewId: string, disabled: boolean }) {
-  const setCommentModal = useSetAtom(openCommentModalAtom)
-  const [createComment,] = useCreateCommentMutation({ onCompleted: () => { toast.success("comment created"); setCommentModal(undefined) } })
-  const onSubmit = (comment: string) =>
-    createComment({ variables: { input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } } })
-      .then(() => { })
-
-  const [h, m, s, ms] = useMemo(() => msToTime(time), [time])
-
-  const showModal = () => {
-    const paddedS = s < 10 ? `0${s}` : s
-    const initialValue = `<Stamp at="${m}:${paddedS}" />`
-    const values = { title: "create comment", onCancel: () => setCommentModal(undefined), onSubmit, initialValue }
-    setCommentModal(values)
-  }
-
-  const tooltipContent = disabled ? "Not part of this review" : "Comment at timestamp"
-
-  return (
-    <div className="tooltip tooltip-right" data-tip={tooltipContent}>
-      <button className="hover:bg-neutral hover:text-neutral-content" onClick={showModal} disabled={disabled}>
-        <span className="countdown font-mono text-2xl">
-          <span style={{ "--value": m }}></span>:
-          <span style={{ "--value": s }}></span>
-        </span>
-      </button>
-    </div>
-  )
-}
-
-function msToTime(duration: number) {
-  const
-    hours = Math.floor((duration / (1000 * 60 * 60)) % 24),
-    minutes = Math.floor((duration / (1000 * 60)) % 60),
-    seconds = Math.floor((duration / 1000) % 60),
-    milliseconds = Math.floor((duration % 1000) / 100)
-
-  return [hours, minutes, seconds, milliseconds]
 }

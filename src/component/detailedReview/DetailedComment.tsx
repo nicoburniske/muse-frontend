@@ -1,9 +1,9 @@
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useState } from "react"
-import { CommentFormModal } from "component/detailedReview/CommentForm"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
 import Markdown from "markdown-to-jsx"
+import { CommentFormModal } from "./commentForm/CommentFormModal"
 
 export interface DetailedCommentProps {
   reviewId: string

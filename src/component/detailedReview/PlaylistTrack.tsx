@@ -37,20 +37,20 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
             .then(() => { })
 
 
-    const [playTrack] = useStartPlaybackMutation({
+    const [playTrack, { loading }] = useStartPlaybackMutation({
         onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
         onCompleted: () => toast.success(`Successfully started playback`)
     });
 
     const onPlayTrack = () => {
-        // We only want to include device when one is not active.
-        const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
-        const inner = { entityId: track.id, entityType: EntityType.Track }
-        const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-        playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
+        if (!loading) {
+            // We only want to include device when one is not active.
+            const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
+            const inner = { entityId: track.id, entityType: EntityType.Track }
+            const outer = { entityId: playlistId, entityType: EntityType.Playlist }
+            playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
+        }
     }
-
-    const truncateString = (str: string, length: number) => str.length > length ? str.substring(0, length) + "..." : str
 
     const showModal = () => {
         const values = { title: "create comment", onCancel: resetState, onSubmit }
@@ -58,7 +58,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     }
 
     return (
-        <div className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral order-4 ${bgStyle} m-0`}>
+        <div className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral ${bgStyle} m-0`}>
             <div className="avatar" onClick={() => onPlayTrack()}>
                 <div className="w-16 rounded">
                     <img src={albumImage} />

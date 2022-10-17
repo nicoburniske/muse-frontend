@@ -70,7 +70,7 @@ export default function CreateReview() {
                                 onChange={(e) => setReviewName(e.target.value as string)}
                                 value={name}
                             />
-                            <input type="text" placeholder="Spotify URL / Entity Id" className="input input-bordered w-full max-w-xs"
+                            <input type="text" placeholder="Spotify URL or ID" className="input input-bordered w-full max-w-xs"
                                 onChange={e => setEntityId(e.target.value as string)}
                                 value={entityId}
                             />

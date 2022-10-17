@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom"
-import { Alert } from "@mui/material"
 import { DetailedReview } from 'component/detailedReview/DetailedReview'
-// import { FixedSizeList as List, ListChildComponentProps } from 'react-window'
-
+import { Alert, AlertSeverity } from "component/Alert"
 
 
 export default function DetailedReviewPage() {
@@ -15,7 +13,7 @@ export default function DetailedReviewPage() {
       </div>)
   } else {
     return (
-      <Alert severity="error"> Missing Review ID </Alert >
+      <Alert severity={AlertSeverity.Error}> <span>Missing Review ID </span></Alert >
     )
   }
 }

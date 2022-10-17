@@ -17,8 +17,7 @@ export interface DetailedPlaylistProps {
 // when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
     const comments = useMemo(() => {
-        return propComments
-        // return propComments.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        return [...propComments].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     }, [propComments])
 
 
@@ -47,18 +46,21 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     const tracks = playlist.tracks ?? []
 
     return (
-        <div
-            className=" flex flex-row w-full"
+        <Split
+            className="flex"
+            sizes={[40, 60]}
+            direction="horizontal"
+            minSize={300}
             style={{ height: '79.5vh' }}
         >
-            {/*  */}
-            <PlaylistTrackTable
-                playlistId={playlist.id}
-                reviewId={reviewId}
-                playlistTracks={tracks}
-            />
-            <div className="divider divider-horizontal"/>
-            <div className="w-full h-full overflow-auto p-1">
+            <div className=" flex flex-row">
+                <PlaylistTrackTable
+                    playlistId={playlist.id}
+                    reviewId={reviewId}
+                    playlistTracks={tracks}
+                />
+            </div>
+            <div className="overflow-auto p-1">
                 <div className="flex flex-col space-y-1 justify-end">
                     {rootComments.map((c: DetailedCommentFragment) =>
                         <div key={c.id}>
@@ -73,5 +75,6 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                     )}
                 </div>
             </div>
-        </div>)
+        </Split>
+    )
 }

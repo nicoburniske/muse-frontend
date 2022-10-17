@@ -78,6 +78,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               closeOnClick={true}
               pauseOnHover={true}
               draggable={true}
+              limit={2}
             />
           </>
         </BrowserRouter>

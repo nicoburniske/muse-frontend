@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DetailedPlaylistTrackFragment } from "graphql/generated/schema";
 import PlaylistTrack from "./PlaylistTrack";
 import { useAtomValue } from "jotai";
-import { openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
+import { selectedTrackAtom } from "state/Atoms";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
-import { CommentFormModal } from "./CommentForm";
-
 
 export interface PlaylistTrackTableProps {
     playlistId: string,
@@ -15,7 +13,6 @@ export interface PlaylistTrackTableProps {
 
 export default function PlaylistTrackTable({ playlistId, reviewId, playlistTracks }: PlaylistTrackTableProps) {
     const virtuoso = useRef<VirtuosoHandle>(null);
-    const modalData = useAtomValue(openCommentModalAtom)
 
     const idToIndex = React.useMemo(() =>
         playlistTracks
@@ -45,25 +42,29 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
 
     const trackContent = (index: number) => <MemoizedTrack index={index} />
 
-    const open = useMemo(() => modalData !== undefined, [modalData])
-
     return (
-        <>
-            <Virtuoso
-                className="w-full h-full overflow-y-auto"
-                ref={virtuoso}
-                style={{ height: "100%" }}
-                totalCount={playlistTracks.length}
-                itemContent={(index) => trackContent(index)}
-                overscan={200}
-            />
-            <CommentFormModal
-                open={open}
-                title={modalData?.title ?? ""}
-                onCancel={modalData?.onCancel ?? (() => { })}
-                onSubmit={modalData?.onSubmit ?? (() => Promise.resolve())}
-                initialValue={modalData?.initialValue}
-            />
-        </>
+        <Virtuoso
+            className="w-full h-full overflow-y-auto"
+            ref={virtuoso}
+            scrollSeekConfiguration={{
+                enter: (velocity) => Math.abs(velocity) > 1000,
+                exit: (velocity) => Math.abs(velocity) < 100,
+            }}
+            components={{ ScrollSeekPlaceholder }}
+            totalCount={playlistTracks.length}
+            itemContent={(index) => trackContent(index)}
+            overscan={100}
+        />
     )
 }
+
+const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
+    <div className="py-0.5">
+        <div
+            className="card card-body bg-neutral"
+            style={{
+                height
+            }}
+        />
+    </div>
+)

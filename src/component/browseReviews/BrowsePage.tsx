@@ -9,7 +9,7 @@ export default function BrowsePage() {
 
   const createGrid = () => {
     return (
-      <div className="grid grid-cols-5 gap-4 py-10 bg-inherit">
+      <div className="grid grid-cols-6 gap-4 py-10 px-2 bg-inherit">
         {reviews.map(review => <CreateCard key={review.id} review={review} />)}
       </div>
     )
@@ -36,11 +36,11 @@ function CreateCard({ review }: CreateCardProps) {
     <div key={review.id} className="card bg-base-100 shadow-xl">
       <figure><img src={image} /></figure>
       <button onClick={linkToReviewPage} className="card-body hover:bg-base-200 p-2">
-     
+
         <div className="stat w-full flex flex-col justify-center items-center">
-          <div className="stat-title">{review.reviewName}</div>
-          <div className="stat-value text-lg">{entityName}</div>
-          <div className="stat-desc"> {creatorName}</div>
+          <div className="stat-title whitespace-normal">{entityName}</div>
+          <div className="stat-value w-full text-lg whitespace-normal">{review.reviewName}</div>
+          <div className="stat-desc"> {creatorName} </div>
         </div>
         {/* <div className="card-actions justify-end">
           <button onClick={linkToReviewPage} className="btn btn-primary">View</button>
