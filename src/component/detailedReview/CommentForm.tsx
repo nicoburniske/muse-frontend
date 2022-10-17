@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react"
 import { Dialog } from '@headlessui/react'
+import { useAtomValue } from "jotai"
+import { themeAtom } from "state/Atoms"
 
 export interface CommentFormProps {
     initialValue?: string
@@ -57,10 +59,11 @@ export interface CommentFormModalProps {
 }
 
 export const CommentFormModal = ({ open, onSubmit, onCancel, title, initialValue }: CommentFormModalProps) => {
+    const theme = useAtomValue(themeAtom)
     return (
         // Returning null for on close makes it so
-        <Dialog open={open} onClose={() => null}>
-            <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
+        <Dialog open={open} onClose={() => null} data-theme={theme}>
+            <div className="fixed inset-0 bg-base-300/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
                 <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral border-primary">
                     <Dialog.Title>{title}</Dialog.Title>

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useSetAtom } from "jotai"
 import { playbackDevices, currentlyPlayingTrack, selectedTrack } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
+import { Alert, AlertSeverity } from "component/Alert"
+import { HeroLoading } from "component/HeroLoading"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -56,16 +58,13 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   // Queries.
   useDetailedReviewCommentsQuery({
     variables: { reviewId },
-    fetchPolicy: "no-cache",
-    nextFetchPolicy: "no-cache",
+    fetchPolicy: "cache-first",
     pollInterval: 5 * 60 * 1000,
     onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
   })
   // This only needs to happen so that playlist tracks are refreshed.
   const { data, loading, error } = useDetailedReviewQuery({
     variables: { reviewId },
-    fetchPolicy: "cache-first",
-    nextFetchPolicy: "cache-first",
     pollInterval: 5 * 60 * 1000
   })
 
@@ -121,7 +120,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
       case "Artist":
         return null
       case "Playlist":
-        console.log(entity?.owner?.spotifyProfile)
         return entity?.owner?.spotifyProfile?.displayName ?? null
       case "Album":
         return null
@@ -129,7 +127,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
         return entity?.artists?.at(0)?.name
     }
   })()
-  console.log("E", entityCreator)
 
   const progress = useMemo(() => {
     const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
@@ -145,6 +142,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     setNowPlaying(nowPlaying)
   }, [nowPlayingTime])
 
+  // Tooltip to show username on hover? 
   const collaboratorImages = useMemo(() => {
     return (
       <div className="avatar-group -space-x-6">
@@ -160,7 +158,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }, [data])
 
   if (loading) {
-    return <h1>Loading...</h1>
+    return <HeroLoading/>
   } else if (data) {
     return (
       < div className="w-full p-1">
@@ -203,18 +201,3 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }
 }
 
-enum AlertSeverity {
-  Error,
-  Warning
-}
-
-const Alert = ({ severity, children }: { severity: AlertSeverity, children: JSX.Element }) => {
-  const className = severity === AlertSeverity.Error ? "alert alert-error" : "alert alert-warning"
-  return (
-    <div className={`alert ${className} shadow-lg`}>
-      <div>
-        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        {children}
-      </div>
-    </div>)
-}

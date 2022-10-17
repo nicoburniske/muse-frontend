@@ -26,6 +26,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
     useEffect(() => {
         if (selectedTrackId) {
             const index = idToIndex.get(selectedTrackId)
+            console.log("index", index)
             if (index !== undefined) {
                 virtuoso.current?.scrollToIndex({ index, behavior: 'smooth', align: 'center' })
             }

@@ -58,7 +58,7 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
 
   return (
     <a
-      className="link link-primary"
+      className="link link-accent"
       onClick={onClick}
     >
       {timestamp ? `@${time}` : time}
@@ -118,13 +118,13 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
     <div tabIndex={0} className={`collapse rounded-box ${expanded}`}>
       <div className="collapse-title card card-body w-200 text-primary-content py-1  bg-neutral flex flex-row justify-around px-0">
         <div className="flex flex-col items-center space-y-2 justify-self-start">
-          <h2 className="card-title"> {commenterName} </h2>
+          <h2 className="card-title text-base-content"> {commenterName} </h2>
           <div className="avatar">
             <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
               <img loading="lazy" src={avatar}></img>
             </div>
           </div>
-          <h2 className="text-secondar-content"> {createdAt} </h2>
+          <h2 className="text-secondar-content text-base-content"> {createdAt} </h2>
         </div>
 
         <div className="flex flex-col w-3/4 justify-between" >
@@ -146,14 +146,13 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           </div>
         </div>
         <div className="position: absolute; top: 0; right: 0; width: 100px; text-align:right;" onClick={onClick}>
-          <button onClick={onClick}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-              <path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clipRule="evenodd" />
+          <button onClick={onClick} className="text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           </button>
         </div>
       </div>
-
 
       {
         children.map(child =>

@@ -46,7 +46,9 @@ export function ShareReview({ reviewId }: ShareReviewProps) {
                                     value={username}
                                 />
                             </div>
-                            <select value={accessLevel} className="select select-bordered w-full max-w-xs">
+                            <select value={accessLevel}
+                                onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
+                                className="select select-bordered w-full max-w-xs">
                                 <option disabled selected>Access Level</option>
                                 <option>{AccessLevel.Collaborator}</option>
                                 <option>{AccessLevel.Viewer}</option>
@@ -57,7 +59,7 @@ export function ShareReview({ reviewId }: ShareReviewProps) {
                                     disabled={username.length === 0}>
                                     Share
                                 </button>
-                                <button className="btn btn-secondary" onClick={onCancel}>
+                                <button className="btn btn-neutral-content" onClick={onCancel}>
                                     cancel
                                 </button>
                             </div>

@@ -27,12 +27,12 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     // Get outline.
     const isSelected = useAtomValue(selectedTrack) == track.id
     const isPlaying = useAtomValue(currentlyPlayingTrack) == track.id
-    const finalStyle = isPlaying ? "border border-success" : isSelected ? "border border-info" : "border border-neutral"
+    const finalStyle = isPlaying ? "border border-success" : isSelected ? "border border-accent-content" : "border border-neutral"
 
     const resetState = () => setShowCommentModal(false)
 
     // On successful comment creation, clear the comment box and refetch the review.
-    const [createComment, { error, loading, called }] = useCreateCommentMutation({ onCompleted: resetState })
+    const [createComment,] = useCreateCommentMutation({ onCompleted: resetState })
     const onSubmit = (comment: string) =>
         createComment({ variables: { input: { comment, entityId: track.id, entityType: EntityType.Track, reviewId } } })
             .then(() => { })
@@ -54,7 +54,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const truncateString = (str: string, length: number) => str.length > length ? str.substring(0, length) + "..." : str
 
     return (
-        <div className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral shadow-xl ${finalStyle}`}>
+        <div className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral shadow-xl border-4 ${finalStyle}`}>
             <div className="avatar" onClick={() => onPlayTrack()}>
                 <div className="w-16 rounded">
                     <img src={albumImage} />
@@ -69,24 +69,23 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                 <div className="p-1"> {new Date(addedAt).toLocaleDateString()} </div>
             </div>
 
-            <div className="avatar" onClick={() => onPlayTrack()}>
+            <div className="avatar">
                 <div className="w-12 h-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                     <img src={avatarImage} />
                 </div>
             </div>
             <button className="btn btn-primary btn-square btn-sm" onClick={() => setShowCommentModal(true)}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                 </svg>
-
             </button>
-            <CommentFormModal
+            {/* Need to move this out into singleton comment modal */}
+            {/* <CommentFormModal
                 open={showCommentModal}
-                onClose={() => setShowCommentModal(false)}
                 title="Create Comment"
                 onCancel={resetState}
                 onSubmit={onSubmit}
-            />
+            /> */}
         </div >
     )
 }
