@@ -30,19 +30,18 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     }
 
     return (
-        <div className="flex flex-col items-center space-y-5 p-3" >
-            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-full h-48 text-primary-content bg-base-200 
-            focus:border-accent-focus border-accent"
+        <div className="flex flex-col  w-full items-center space-y-5 p-3" >
+            <textarea placeholder="create a comment" className="form-textarea mt-1 block w-full h-48 text-base-content bg-base-100 focus:border-accent-focus border-accent"
                 onChange={(e) => setComment(e.target.value as string)}
                 value={comment}
             />
             <div className="flex flex-row items-center justify-around w-1/2" >
-                <button className="btn btn-primary space-w-5"
+                <button className="btn btn-success disabled:btn-outline"
                     onClick={submitAndReset}
                     disabled={!canSubmit}>
                     {initialValue.length === 0 ? "create" : "update"}
                 </button>
-                <button className="btn btn-secondary"
+                <button className="btn btn-error"
                     onClick={cancel}>
                     cancel
                 </button>
@@ -66,14 +65,37 @@ export const CommentFormModal = ({ open, onSubmit, onCancel, title, initialValue
             <div className="fixed inset-0 bg-base-300/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
                 <Dialog.Panel className="w-full max-w-4xl rounded bg-neutral border-primary">
-                    <Dialog.Title>{title}</Dialog.Title>
-                    {/* <Dialog.Description>
-                    This will permanently deactivate your account
-                </Dialog.Description> */}
-                    {/* <div className="w-full"> */}
-                    <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} />
-                    {/* </div> */}
+                    <div className="flex flex-col items-center justify-between space-y-5 p-3" >
+                        <Dialog.Title>
+                            <h3 className="font-bold text-lg text-neutral-content"> {title} </h3>
+                        </Dialog.Title>
+                        {/* <Dialog.Description>
+                This will permanently deactivate your account
+            </Dialog.Description> */}
+                        {/* <div className="w-full"> */}
+                        <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} />
+                        {/* </div> */}
+                    </div>
                 </Dialog.Panel>
             </div>
         </Dialog>)
 }
+// return (
+//     // Returning null for on close makes it so
+//     <Dialog open={open} onClose={() => null} data-theme={theme}>
+//         <div className="fixed inset-0 bg-base-300/30" aria-hidden="true" />
+//         <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral border-primary">
+//             <div className="flex flex-col items-center justify-between space-y-5 p-3" >
+//                 {/* <Dialog.Title>
+//                     <h3 className="font-bold text-lg text-primary-content"> {title} </h3>
+//                 </Dialog.Title> */}
+//                 <Dialog.Title>{title}</Dialog.Title>
+//                 {/* <Dialog.Description>
+//                 This will permanently deactivate your account
+//             </Dialog.Description> */}
+//                 {/* <div className="w-full"> */}
+//                 <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} />
+//                 {/* </div> */}
+//             </div>
+//         </Dialog.Panel>
+//     </Dialog >)

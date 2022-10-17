@@ -13,7 +13,7 @@ export default function App() {
   const [theme, setTheme] = useAtom(themeAtom)
   return (
     <div data-theme={theme} className="h-screen bg-base-300">
-      <div className="navbar ">
+      <div className="navbar bg-base-100 sticky top-0 z-50">
         <div className="navbar-start">
           <div className="dropdown">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
@@ -27,25 +27,24 @@ export default function App() {
           </div>
         </div>
         <div className="navbar-center">
-          <a className="btn btn-ghost normal-case text-xl" onClick={linkToHome}>muse</a>
+          <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
         </div>
         <div className="navbar-end flex flex-row space-x-5">
           <CreateReview />
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value as Theme)}
-            className="select select-bordered w-full max-w-xs">
-            <option disabled selected>Access Level</option>
-            {Object.values(Theme).map((e) => <option value={e}>{e}</option>)}
-          </select>
+          <div className="tooltip tooltip-bottom" data-tip="Theme">
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as Theme)}
+              className="select select-bordered w-full max-w-xs">
+              {Object.values(Theme).map((e) => <option key={e} value={e}>{e}</option>)}
+            </select>
+          </div>
         </div>
       </div>
-      <div>
         <Routes>
           <Route path="/" element={<BrowsePage />} />
           <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
         </Routes>
-      </div>
     </div>
   )
 }

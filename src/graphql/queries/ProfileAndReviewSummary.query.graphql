@@ -19,6 +19,9 @@ fragment ReviewOverview on Review {
   entityType
   entityId
   createdAt
+  creator {
+    ...UserWithSpotifyOverview
+  }
   entity {
     ...ReviewEntityOverview 
   }

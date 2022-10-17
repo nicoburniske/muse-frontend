@@ -52,6 +52,7 @@ export default function CreateReview() {
     const onCancel = () => {
         setModalOpen(false)
         setEntityId("")
+        setReviewName("")
         setEntityType(EntityType.Album)
     }
 
@@ -60,43 +61,52 @@ export default function CreateReview() {
             <Dialog open={isModalOpen} onClose={() => null} data-theme={theme}>
                 <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
                 <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
-                    <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral border-primary">
+                    <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral">
                         <div className="flex flex-col items-center justify-between space-y-5 p-3" >
                             <Dialog.Title>
-                                <h3 className="font-bold text-lg text-primary-content"> Create Review </h3>
+                                <h3 className="font-bold text-lg text-neutral-content"> Create Review </h3>
                             </Dialog.Title>
                             <input type="text" placeholder="Review Name" className="input input-bordered w-full max-w-xs"
                                 onChange={(e) => setReviewName(e.target.value as string)}
                                 value={name}
                             />
-                            <select
-                                value={entityType}
-                                onChange={(e) => setEntityType(e.target.value as EntityType)}
-                                className="select select-bordered w-full max-w-xs">
-                                <option disabled selected>Access Level</option>
-                                {Object.values(EntityType).map((e) => <option value={e}>{e}</option>)}
-                            </select>
                             <input type="text" placeholder="Spotify URL / Entity Id" className="input input-bordered w-full max-w-xs"
                                 onChange={e => setEntityId(e.target.value as string)}
                                 value={entityId}
                             />
-                            <select
-                                value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
-                                className="select select-bordered w-full max-w-xs">
-                                <option disabled selected>Is Public</option>
-                                <option selected value={0}>False</option>
-                                <option selected value={1}>True</option>
+                            <div className="form-control w-full max-w-xs">
+                                <label className="label">
+                                    <span className="label-text text-neutral-content">Type</span>
+                                </label>
+                                <select
+                                    value={entityType}
+                                    onChange={(e) => setEntityType(e.target.value as EntityType)}
+                                    className="select select-bordered w-full max-w-xs">
+                                    {Object.values(EntityType).map((e) => <option key={e} value={e}>{e}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-control w-full max-w-xs">
 
-                            </select>
+                                <label className="label">
+                                    <span className="label-text text-neutral-content">Is Public</span>
+                                </label>
+                                <select
+                                    value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
+                                    className="select select-bordered w-full max-w-xs">
+                                    <option selected value={0}>False</option>
+                                    <option selected value={1}>True</option>
+
+                                </select>
+                            </div>
                             <div className="flex flex-row items-center justify-around w-1/2" >
                                 <button
-                                    className="btn btn-secondary"
+                                    className="btn btn-success disabled:btn-outline"
                                     disabled={!canSubmit}
                                     onClick={() => createReviewMutation()}
                                 >
                                     create
                                 </button>
-                                <button className="btn btn-secondary" onClick={onCancel}> cancel </button>
+                                <button className="btn btn-error" onClick={onCancel}> cancel </button>
                             </div>
                         </div>
                     </Dialog.Panel>

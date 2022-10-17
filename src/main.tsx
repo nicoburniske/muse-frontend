@@ -68,7 +68,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={clientGraphQL}>
         <BrowserRouter>
-          <div>
+          <>
             <App />
             <ToastContainer
               position="bottom-center"
@@ -79,7 +79,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               pauseOnHover={true}
               draggable={true}
             />
-          </div>
+          </>
         </BrowserRouter>
       </ApolloProvider>
     </QueryClientProvider>

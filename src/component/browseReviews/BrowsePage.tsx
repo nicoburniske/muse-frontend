@@ -9,17 +9,17 @@ export default function BrowsePage() {
 
   const createGrid = () => {
     return (
-      <div className="grid grid-cols-5 gap-4">
-        {reviews.map(review => <CreateCard review={review} />)}
+      <div className="grid grid-cols-5 gap-4 py-10 bg-inherit">
+        {reviews.map(review => <CreateCard key={review.id} review={review} />)}
       </div>
     )
   }
 
-  if (loading) {
+  if (loading && data == undefined) {
     return <HeroLoading />
   } else {
     return (
-      createGrid() 
+      createGrid()
     )
   }
 }
@@ -31,12 +31,17 @@ function CreateCard({ review }: CreateCardProps) {
   const [entityName, image] = getNameAndImage(review.entity)
   const nav = useNavigate()
   const linkToReviewPage = () => nav(`reviews/${review.id}`)
+  const creatorName = review?.creator?.spotifyProfile?.displayName ?? "Unknown"
   return (
     <div key={review.id} className="card bg-base-100 shadow-xl">
       <figure><img src={image} /></figure>
-      <button onClick={linkToReviewPage} className="card-body hover:bg-base-200">
-        <h2 className="card-title">{review.reviewName}</h2>
-        <p>{review.entityType} Review: {entityName}</p>
+      <button onClick={linkToReviewPage} className="card-body hover:bg-base-200 p-2">
+     
+        <div className="stat w-full flex flex-col justify-center items-center">
+          <div className="stat-title">{review.reviewName}</div>
+          <div className="stat-value text-lg">{entityName}</div>
+          <div className="stat-desc"> {creatorName}</div>
+        </div>
         {/* <div className="card-actions justify-end">
           <button onClick={linkToReviewPage} className="btn btn-primary">View</button>
         </div> */}

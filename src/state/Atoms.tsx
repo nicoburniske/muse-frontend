@@ -1,9 +1,19 @@
 import { PlaybackDeviceFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
-export const selectedTrack = atom<string | undefined>(undefined)
-export const currentlyPlayingTrack = atom<string | undefined>(undefined)
-export const playbackDevices = atom<PlaybackDeviceFragment[]>([])
+export const selectedTrackAtom = atom<string | undefined>(undefined)
+export const currentlyPlayingTrackAtom = atom<string | undefined>(undefined)
+export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
+
+interface CommentModalData {
+    onSubmit: (comment: string) => Promise<void>
+    onCancel: () => void
+    title: string
+    initialValue?: string
+}
+
+export const openCommentModalAtom = atom<undefined | CommentModalData> (undefined)
 
 export enum Theme {
     Light = "light",
@@ -37,4 +47,4 @@ export enum Theme {
     Winter = "winter"
 }
 
-export const themeAtom = atom<Theme>(Theme.Dark)
+export const themeAtom = atomWithStorage<Theme>('muse-app-theme', Theme.Dark)

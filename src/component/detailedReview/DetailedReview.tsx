@@ -1,11 +1,12 @@
-import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useNowPlayingSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
+import { DetailedCommentFragment, EntityType, useAvailableDevicesSubscription, useCreateCommentMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom } from "jotai"
-import { playbackDevices, currentlyPlayingTrack, selectedTrack } from "state/Atoms"
+import { playbackDevicesAtom, currentlyPlayingTrackAtom, selectedTrackAtom, openCommentModalAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
+import { toast } from "react-toastify"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -16,7 +17,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
 
   // Subscriptions.
   // Update jotai atom with playback devices.
-  const setDevices = useSetAtom(playbackDevices)
+  const setDevices = useSetAtom(playbackDevicesAtom)
   useAvailableDevicesSubscription({
     onSubscriptionData: (data) => {
       if (data.subscriptionData.data?.availableDevices) {
@@ -32,7 +33,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     variables: { reviewId }, onSubscriptionData: (data) => {
       const commentEvent = data.subscriptionData.data?.reviewUpdates
       if (commentEvent?.__typename) {
-        console.log(commentEvent)
         switch (commentEvent.__typename) {
           case "CreatedComment":
             setComments([...comments, commentEvent.comment])
@@ -128,21 +128,38 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     }
   })()
 
+  const progressMs = nowPlayingTime?.nowPlaying?.progressMs ?? 0
   const progress = useMemo(() => {
-    const currentPosition = nowPlayingTime?.nowPlaying?.progressMs
     const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
-    const progress = currentPosition && totalDuration ? (currentPosition / totalDuration) * 100 : 0
+    const progress = progressMs && totalDuration ? (progressMs / totalDuration) * 100 : 0
     return progress
   }, [nowPlayingTime])
 
-  const setNowPlaying = useSetAtom(currentlyPlayingTrack)
-  const setSelectedTrack = useSetAtom(selectedTrack)
+  const setNowPlaying = useSetAtom(currentlyPlayingTrackAtom)
+  const setSelectedTrack = useSetAtom(selectedTrackAtom)
   const nowPlaying = nowPlayingTime?.nowPlaying?.item?.id
   useEffect(() => {
     setNowPlaying(nowPlaying)
   }, [nowPlayingTime])
 
-  // Tooltip to show username on hover? 
+  const isPlayingPartOfEntity: boolean = useMemo(() => {
+    const entity = data?.review?.entity
+    switch (entity?.__typename) {
+      case "Artist":
+        return false
+      case "Playlist":
+        const isPlaying = entity?.tracks?.some(t => t.track.id === nowPlaying)
+        console.log("HERE", isPlaying)
+        return isPlaying === undefined ? false : isPlaying
+      case "Album":
+        return false
+      case "Track":
+        return entity?.id === nowPlaying
+      default:
+        return false
+    }
+  }, [data, nowPlaying])
+
   const collaboratorImages = useMemo(() => {
     return (
       <div className="avatar-group -space-x-6">
@@ -158,7 +175,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }, [data])
 
   if (loading) {
-    return <HeroLoading/>
+    return <HeroLoading />
   } else if (data) {
     return (
       < div className="w-full p-1">
@@ -184,6 +201,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           </div>
           {collaboratorImages}
           <ShareReview reviewId={reviewId} />
+          <PlayingTime time={progressMs} trackId={nowPlaying ?? ""} reviewId={reviewId} disabled={!isPlayingPartOfEntity} />
           {/* <div className="mt-2 flex items-center text-sm text-secondary-content font-light">
               {collaborators} 
             </div> */}
@@ -201,3 +219,42 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }
 }
 
+function PlayingTime({ time, trackId, reviewId, disabled }: { time: number, trackId: string, reviewId: string, disabled: boolean }) {
+  const setCommentModal = useSetAtom(openCommentModalAtom)
+  const [createComment,] = useCreateCommentMutation({ onCompleted: () => { toast.success("comment created"); setCommentModal(undefined) } })
+  const onSubmit = (comment: string) =>
+    createComment({ variables: { input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } } })
+      .then(() => { })
+
+  const [h, m, s, ms] = useMemo(() => msToTime(time), [time])
+
+  const showModal = () => {
+    const paddedS = s < 10 ? `0${s}` : s
+    const initialValue = `<Stamp at="${m}:${paddedS}" />`
+    const values = { title: "create comment", onCancel: () => setCommentModal(undefined), onSubmit, initialValue }
+    setCommentModal(values)
+  }
+
+  const tooltipContent = disabled ? "Not part of this review" : "Comment at timestamp"
+
+  return (
+    <div className="tooltip tooltip-right" data-tip={tooltipContent}>
+      <button className="hover:bg-neutral hover:text-neutral-content" onClick={showModal} disabled={disabled}>
+        <span className="countdown font-mono text-2xl">
+          <span style={{ "--value": m }}></span>:
+          <span style={{ "--value": s }}></span>
+        </span>
+      </button>
+    </div>
+  )
+}
+
+function msToTime(duration: number) {
+  const
+    hours = Math.floor((duration / (1000 * 60 * 60)) % 24),
+    minutes = Math.floor((duration / (1000 * 60)) % 60),
+    seconds = Math.floor((duration / 1000) % 60),
+    milliseconds = Math.floor((duration % 1000) / 100)
+
+  return [hours, minutes, seconds, milliseconds]
+}
