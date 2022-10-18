@@ -27,8 +27,8 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     }
 
     return (
-        <div className="flex flex-col  w-full items-center space-y-5 p-3" >
-            <textarea placeholder="..." className="form-textarea mt-1 block w-full h-48 text-base-content bg-base-100 focus:border-accent-focus border-accent"
+        <div className="flex flex-col w-full items-center space-y-5 p-3" >
+            <textarea placeholder="" className="mt-1 block w-full h-48 text-base-content bg-base-100 focus:border-accent-focus border-accent"
                 onChange={(e) => setComment(e.target.value as string)}
                 value={comment}
             />

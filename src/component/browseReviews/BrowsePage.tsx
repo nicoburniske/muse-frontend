@@ -2,24 +2,32 @@ import { useNavigate } from "react-router-dom";
 import { ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { toast } from "react-toastify";
 import { HeroLoading } from "component/HeroLoading";
+import { refreshOverviewAtom, searchValueAtomLower } from "state/Atoms";
+import { useAtomValue } from "jotai";
+import { useMemo } from "react";
 
 export default function BrowsePage() {
-  const { data, loading } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
-  const reviews = data?.user?.reviews ?? []
+  const search = useAtomValue(searchValueAtomLower)
+  const { data, loading, refetch } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
+  const reviews = useMemo(() =>
+    data?.user?.reviews?.filter(r =>
+      r.reviewName.toLowerCase().includes(search) ||
+      r.creator.id.toLowerCase().includes(search) ||
+      r.entity.name.toLowerCase().includes(search) ||
+      r.creator.spotifyProfile?.displayName?.toLowerCase().includes(search)
+    ) ?? [], [search, data])
 
-  const createGrid = () => {
-    return (
-      <div className="grid grid-cols-6 gap-4 py-10 px-2 bg-inherit">
-        {reviews.map(review => <CreateCard key={review.id} review={review} />)}
-      </div>
-    )
-  }
+  // We to update the reviews in case one gets created.
+  const refreshCount = useAtomValue(refreshOverviewAtom)
+  useMemo(() => refetch(), [refreshCount])
 
   if (loading && data == undefined) {
     return <HeroLoading />
   } else {
     return (
-      createGrid()
+      <div className="grid grid-cols-6 gap-4 py-10 px-2 bg-inherit">
+        {reviews.map(review => <CreateCard key={review.id} review={review} />)}
+      </div>
     )
   }
 }
@@ -35,8 +43,7 @@ function CreateCard({ review }: CreateCardProps) {
   return (
     <div key={review.id} className="card bg-base-100 shadow-xl">
       <figure><img src={image} /></figure>
-      <button onClick={linkToReviewPage} className="card-body hover:bg-base-200 p-2">
-
+      <button onClick={linkToReviewPage} className="card-body flex justify-center hover:bg-base-200 p-2">
         <div className="stat w-full flex flex-col justify-center items-center">
           <div className="stat-title whitespace-normal">{entityName}</div>
           <div className="stat-value w-full text-lg whitespace-normal">{review.reviewName}</div>

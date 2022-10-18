@@ -1,14 +1,13 @@
 import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription, useSeekPlaybackMutation } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
-import { useSetAtom } from "jotai"
-import { playbackDevicesAtom, currentlyPlayingTrackAtom, selectedTrackAtom, openCommentModalAtom } from "state/Atoms"
+import { useAtom, useSetAtom } from "jotai"
+import { playbackDevicesAtom, currentlyPlayingTrackAtom, searchValueAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
 import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { PlaybackTime } from "./PlaybackTime"
-import { toast } from "react-toastify"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -80,7 +79,6 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const getReviewContent = useMemo(() => {
     const review = data?.review
     const entity = data?.review?.entity
-
     switch (entity?.__typename) {
       // case "Album":
       // case "Artist":
@@ -131,14 +129,9 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   })()
 
   const progressMs = nowPlayingTime?.nowPlaying?.progressMs ?? 0
-  const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs
-  const progress = useMemo(() => {
-    const progress = progressMs && totalDuration ? (progressMs / totalDuration) * 100 : 0
-    return progress
-  }, [nowPlayingTime])
+  const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs ?? Number.MAX_SAFE_INTEGER
 
   const setNowPlaying = useSetAtom(currentlyPlayingTrackAtom)
-  const setSelectedTrack = useSetAtom(selectedTrackAtom)
   const nowPlaying = nowPlayingTime?.nowPlaying?.item?.id
   useEffect(() => {
     setNowPlaying(nowPlaying)
@@ -175,33 +168,11 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
       </div>)
   }, [data])
 
-  const [seekTrack, { loading: loadingPlayback }] = useSeekPlaybackMutation({
-    onError: () => toast.error(`Failed to start playback.`),
-  });
-
-  function onProgressClick(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
-    setSelectedTrack(nowPlaying)
-    const progress = getPercentProgress(e)
-    if (progress !== undefined && totalDuration !== undefined) {
-      const position = Math.floor(progress * totalDuration)
-      seekTrack({ variables: { input: { positionMs: position } } })
-    }
-  }
-
-  function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
-    const offsetLeft = e.currentTarget.offsetLeft
-    const offsetWidth = e.currentTarget.offsetWidth
-    if (!loadingPlayback && totalDuration && offsetWidth > 0) {
-      return (e.pageX - offsetLeft) / offsetWidth
-    }
-    return undefined
-  }
-
   if (loading) {
     return <HeroLoading />
   } else if (data) {
     return (
-      < div className="w-full p-1">
+      < div className="w-full p-2">
         <div className="mt-0 flex flex-row justify-start space-x-5 items-center">
           <div className="avatar">
             <div className="w-28 rounded">
@@ -224,17 +195,15 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           </div>
           {collaboratorImages}
           <ShareReview reviewId={reviewId} />
-          <div className="flex flex-col grow">
-            <PlaybackTime
-              progressMs={progressMs}
-              durationMs={totalDuration === undefined ? 1 : totalDuration}
-              trackId={nowPlaying ?? ""}
-              reviewId={reviewId} disabled={!isPlayingPartOfEntity} />
-            <progress id="playbackProgressBar" className="progress progress-success w-100 h-2" value={progress} max="100"
-              onClick={onProgressClick}></progress>
-          </div>
+          <PlaybackTime
+            progressMs={progressMs}
+            durationMs={totalDuration}
+            trackId={nowPlaying ?? ""}
+            reviewId={reviewId}
+            disabled={!isPlayingPartOfEntity} />
           <CommentFormModalWrapper />
         </div>
+        <div className="divider m-0.5"/>
         {getReviewContent}
       </div>
     )

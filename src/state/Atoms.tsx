@@ -5,6 +5,14 @@ import { atomWithStorage } from 'jotai/utils'
 export const selectedTrackAtom = atom<string | undefined>(undefined)
 export const currentlyPlayingTrackAtom = atom<string | undefined>(undefined)
 export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
+export const searchValueAtom = atom<string>('')
+export const searchValueAtomLower = atom<string>(get => get(searchValueAtom).toLowerCase())
+
+const refreshOverviewCountAtom = atom<number>(0)
+export const refreshOverviewAtom = atom(
+    (get) => get(refreshOverviewCountAtom),
+    (get, set, _arg) => set(refreshOverviewCountAtom, get(refreshOverviewCountAtom) + 1),
+)
 
 interface CommentModalData {
     onSubmit: (comment: string) => Promise<void>
@@ -13,7 +21,7 @@ interface CommentModalData {
     initialValue?: string
 }
 
-export const openCommentModalAtom = atom<undefined | CommentModalData> (undefined)
+export const openCommentModalAtom = atom<undefined | CommentModalData>(undefined)
 
 export enum Theme {
     Light = "light",

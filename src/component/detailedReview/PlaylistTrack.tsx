@@ -39,7 +39,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
 
     const [playTrack, { loading }] = useStartPlaybackMutation({
         onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
-        onCompleted: () => toast.success(`Successfully started playback`)
+        onCompleted: () => toast.success(`Successfully started playback`, { autoClose: 500})
     });
 
     const onPlayTrack = () => {

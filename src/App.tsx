@@ -3,7 +3,7 @@ import CreateReview from 'component/browseReviews/CreateReview';
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { useAtom } from 'jotai';
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { Theme, themeAtom } from 'state/Atoms';
+import { searchValueAtom, Theme, themeAtom } from 'state/Atoms';
 import "./index.css"
 
 
@@ -11,6 +11,8 @@ export default function App() {
   const nav = useNavigate()
   const linkToHome = () => nav("")
   const [theme, setTheme] = useAtom(themeAtom)
+  const [search, setSearch] = useAtom(searchValueAtom)
+
   return (
     <div data-theme={theme} className="h-screen bg-base-300">
       <div className="navbar bg-base-100 sticky top-0 z-50">
@@ -30,6 +32,7 @@ export default function App() {
           <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
         </div>
         <div className="navbar-end flex flex-row space-x-5">
+          <input type="text" placeholder="search" className="input w-full bg-base-200 max-w-xs" value={search} onChange={e => setSearch(e.target.value)} />
           <CreateReview />
           <div className="tooltip tooltip-bottom" data-tip="Theme">
             <select
@@ -41,10 +44,10 @@ export default function App() {
           </div>
         </div>
       </div>
-        <Routes>
-          <Route path="/" element={<BrowsePage />} />
-          <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
-        </Routes>
+      <Routes>
+        <Route path="/" element={<BrowsePage />} />
+        <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
+      </Routes>
     </div>
   )
 }

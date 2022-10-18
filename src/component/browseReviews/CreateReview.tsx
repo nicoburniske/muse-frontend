@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { EntityType, useCreateReviewMutation } from 'graphql/generated/schema'
 import { toast } from 'react-toastify'
 import { Dialog } from '@headlessui/react'
-import { themeAtom } from 'state/Atoms'
-import { useAtomValue } from 'jotai'
+import { refreshOverviewAtom, themeAtom } from 'state/Atoms'
+import { useAtomValue, useSetAtom } from 'jotai'
 
 type BoolNum = 0 | 1
 
@@ -14,6 +14,7 @@ export default function CreateReview() {
     const [isPublic, setIsPublic] = useState<BoolNum>(0)
     const [isModalOpen, setModalOpen] = useState(false)
     const theme = useAtomValue(themeAtom)
+    const updateReviews = useSetAtom(refreshOverviewAtom)
 
     // Converts URL to Entity id.
     const convertedEntityId = useMemo(() => {
@@ -44,7 +45,14 @@ export default function CreateReview() {
     const [createReviewMutation, { loading }] = useCreateReviewMutation({
         variables: { input },
         onError: () => toast.error(`Failed to create ${entityType} review.`),
-        onCompleted: () => toast.success(`Successfully created ${entityType} review.`)
+        onCompleted: () => {
+            toast.success(`Successfully created ${entityType} review.`)
+            setModalOpen(false)
+            setEntityId("")
+            setIsPublic(0)
+            setReviewName("")
+            updateReviews()
+        }
     })
 
     const canSubmit = useMemo(() => !loading && name.length > 0 && entityId.length > 0, [loading, name, entityId])

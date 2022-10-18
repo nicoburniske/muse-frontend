@@ -2,8 +2,8 @@ import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/gener
 import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { useMemo, useRef } from "react"
-import { useSetAtom } from "jotai"
-import { selectedTrackAtom } from "state/Atoms"
+import { useAtomValue, useSetAtom } from "jotai"
+import { searchValueAtomLower, selectedTrackAtom } from "state/Atoms"
 import Split from "react-split"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
@@ -16,10 +16,23 @@ export interface DetailedPlaylistProps {
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
-    const comments = useMemo(() => {
-        return [...propComments].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    }, [propComments])
+    const search = useAtomValue(searchValueAtomLower)
 
+    const tracks = useMemo(() =>
+        playlist.tracks
+            ?.filter(track => (track?.track.name?.toLowerCase().includes(search)) ||
+                track?.track.artists?.flatMap(a => a.name.toLocaleLowerCase()).some(name => name.includes(searchLowercase)))
+        ?? []
+        , [playlist, search])
+
+
+    const trackIds = useMemo(() => new Set(tracks.map(track => track?.track.id)), [tracks])
+
+    const comments = useMemo(() => {
+        return [...propComments]
+            .filter(comment => trackIds.has(comment?.entityId))
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    }, [propComments, trackIds])
 
     const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
@@ -43,15 +56,13 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
         }
     }
 
-    const tracks = playlist.tracks ?? []
-
     return (
         <Split
             className="flex"
             sizes={[40, 60]}
             direction="horizontal"
             minSize={300}
-            style={{ height: '79.5vh' }}
+            style={{ height: '79vh' }}
         >
             <div className=" flex flex-row">
                 <PlaylistTrackTable

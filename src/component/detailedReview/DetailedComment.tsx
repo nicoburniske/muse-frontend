@@ -1,7 +1,6 @@
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useMemo, useState } from "react"
 import { toast } from "react-toastify"
-import { ApolloError } from "@apollo/client"
 import Markdown from "markdown-to-jsx"
 import { CommentFormModal } from "./commentForm/CommentFormModal"
 
@@ -24,8 +23,8 @@ interface ConvertToTimestampProps {
   comment?: string
 }
 
-function ConvertToTimestamp({ time, trackId, playlistId, comment}: ConvertToTimestampProps) {
-  // Timestamp converted to millis if valid
+function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTimestampProps) {
+  // Timestamp converted to millis if valid.
   const timestamp = useMemo(() => {
     const timeSplit = time.split(":")
     if (timeSplit.length === 2) {
@@ -39,14 +38,12 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment}: ConvertToTime
     return undefined;
   }, [time])
 
-  const handleError = (error: ApolloError) => {
+  const handleError = () => {
     toast.error(`Failed to start playback. Please start a playback session and try again.`)
   }
   const onSuccess = () => {
-    if (timestamp) {
-      toast.success(`Successfully started playback at ${time}`)
-    } else {
-      toast.success("Successfully started playback. Invalid timestamp.")
+    if (timestamp === undefined) {
+      toast.warning("Successfully started playback from start. Invalid timestamp.")
     }
   }
 
@@ -58,13 +55,19 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment}: ConvertToTime
     playTrack({ variables: { input: { entityOffset: { outer, inner }, positionMs: timestamp } } })
   }
 
-  return (
+  const text = comment !== undefined ? comment : timestamp ? `@${time}` : time
+  const internal = (
     <a
       className="link link-base-content link-hover"
       onClick={onClick}
     >
-      {comment ? comment : timestamp ? `@${time}` : time}
+      {text}
     </a>)
+  return comment !== undefined ?
+    (<a className="tooltip tooltip-bottom link link-base-content link-hover" data-tip={`@${time}`}>
+      {internal}
+    </a>) :
+    internal
 }
 
 export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
@@ -111,7 +114,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   }
 
   const Stamp =
-    ({ at, comment}: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment.entityId, playlistId })
+    ({ at, comment }: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment.entityId, playlistId })
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   // TODO: need to consider which comments are owned by user.
