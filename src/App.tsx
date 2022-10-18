@@ -3,7 +3,7 @@ import CreateReview from 'component/browseReviews/CreateReview';
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { useAtom } from 'jotai';
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { searchValueAtom, Theme, themeAtom } from 'state/Atoms';
+import { searchAtom, Theme, themeAtom } from 'state/Atoms';
 import "./index.css"
 
 
@@ -11,7 +11,7 @@ export default function App() {
   const nav = useNavigate()
   const linkToHome = () => nav("")
   const [theme, setTheme] = useAtom(themeAtom)
-  const [search, setSearch] = useAtom(searchValueAtom)
+  const [search, setSearch] = useAtom(searchAtom)
 
   return (
     <div data-theme={theme} className="h-screen bg-base-300">

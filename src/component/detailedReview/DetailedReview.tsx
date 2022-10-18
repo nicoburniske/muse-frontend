@@ -2,7 +2,7 @@ import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedRe
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useAtom, useSetAtom } from "jotai"
-import { playbackDevicesAtom, currentlyPlayingTrackAtom, searchValueAtom } from "state/Atoms"
+import { playbackDevicesAtom, currentlyPlayingTrackAtom, searchAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
@@ -172,7 +172,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     return <HeroLoading />
   } else if (data) {
     return (
-      < div className="w-full p-2">
+      < div className="w-full p-1">
         <div className="mt-0 flex flex-row justify-start space-x-5 items-center">
           <div className="avatar">
             <div className="w-28 rounded">
@@ -182,14 +182,14 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           <div className="stats shadow">
             <div className="stat">
               <div className="stat-title">{`${eType} Review`}</div>
-              <div className="stat-value">{title}</div>
+              <div className="stat-value ">{title}</div>
               <div className="stat-desc"> by {creator}</div>
             </div>
           </div>
           <div className="stats shadow">
             <div className="stat">
               <div className="stat-title">{"Playlist"}</div>
-              <div className="stat-value">{entityName}</div>
+              <div className="stat-value text-xl text-clip overflow-hidden">{entityName}</div>
               <div className="stat-desc"> by {entityCreator}</div>
             </div>
           </div>

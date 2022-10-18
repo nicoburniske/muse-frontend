@@ -41,6 +41,15 @@ fragment ReviewEntityOverview on ReviewEntity {
     images 
   }
   ... on Playlist {
+    owner {
+      id
+      spotifyProfile {
+        id
+        displayName
+        images
+        numFollowers
+      } 
+    }
     images
   }
   ... on Track {

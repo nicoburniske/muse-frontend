@@ -1,19 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import { ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { EntityType, ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { toast } from "react-toastify";
 import { HeroLoading } from "component/HeroLoading";
-import { refreshOverviewAtom, searchValueAtomLower } from "state/Atoms";
+import { refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 
 export default function BrowsePage() {
-  const search = useAtomValue(searchValueAtomLower)
+  const search = useAtomValue(searchLoweredAtom)
   const { data, loading, refetch } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
   const reviews = useMemo(() =>
     data?.user?.reviews?.filter(r =>
       r.reviewName.toLowerCase().includes(search) ||
       r.creator.id.toLowerCase().includes(search) ||
       r.entity.name.toLowerCase().includes(search) ||
+      (r.entity.__typename === EntityType.Playlist &&
+        (r.entity.owner?.id.toLowerCase().includes(search) ||
+          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))||
       r.creator.spotifyProfile?.displayName?.toLowerCase().includes(search)
     ) ?? [], [search, data])
 

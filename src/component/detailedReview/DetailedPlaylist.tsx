@@ -3,7 +3,7 @@ import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
 import { useMemo, useRef } from "react"
 import { useAtomValue, useSetAtom } from "jotai"
-import { searchValueAtomLower, selectedTrackAtom } from "state/Atoms"
+import { searchLoweredAtom, selectedTrackAtom } from "state/Atoms"
 import Split from "react-split"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
@@ -16,12 +16,12 @@ export interface DetailedPlaylistProps {
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
-    const search = useAtomValue(searchValueAtomLower)
+    const search = useAtomValue(searchLoweredAtom)
 
     const tracks = useMemo(() =>
         playlist.tracks
             ?.filter(track => (track?.track.name?.toLowerCase().includes(search)) ||
-                track?.track.artists?.flatMap(a => a.name.toLocaleLowerCase()).some(name => name.includes(searchLowercase)))
+                track?.track.artists?.flatMap(a => a.name.toLocaleLowerCase()).some(name => name.includes(search)))
         ?? []
         , [playlist, search])
 

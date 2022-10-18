@@ -5,8 +5,8 @@ import { atomWithStorage } from 'jotai/utils'
 export const selectedTrackAtom = atom<string | undefined>(undefined)
 export const currentlyPlayingTrackAtom = atom<string | undefined>(undefined)
 export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
-export const searchValueAtom = atom<string>('')
-export const searchValueAtomLower = atom<string>(get => get(searchValueAtom).toLowerCase())
+export const searchAtom = atom<string>('')
+export const searchLoweredAtom = atom<string>(get => get(searchAtom).toLowerCase())
 
 const refreshOverviewCountAtom = atom<number>(0)
 export const refreshOverviewAtom = atom(
