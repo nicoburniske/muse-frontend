@@ -150,6 +150,7 @@ export type Mutations = {
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
+  seekPlayback?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
   startPlayback?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
@@ -179,6 +180,11 @@ export type MutationsDeleteReviewArgs = {
 
 export type MutationsSaveTracksArgs = {
   input: Array<Scalars['String']>;
+};
+
+
+export type MutationsSeekPlaybackArgs = {
+  input: SeekPlaybackInput;
 };
 
 
@@ -323,6 +329,11 @@ export type SearchResult = {
   tracks: Array<Track>;
 };
 
+export type SeekPlaybackInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  positionMs: Scalars['Int'];
+};
+
 export type ShareReviewInput = {
   access: AccessLevel;
   reviewId: Scalars['ID'];
@@ -439,6 +450,13 @@ export type DeleteCommentMutationVariables = Exact<{
 
 
 export type DeleteCommentMutation = { __typename?: 'Mutations', deleteComment?: boolean | null };
+
+export type SeekPlaybackMutationVariables = Exact<{
+  input: SeekPlaybackInput;
+}>;
+
+
+export type SeekPlaybackMutation = { __typename?: 'Mutations', seekPlayback?: boolean | null };
 
 export type ShareReviewMutationVariables = Exact<{
   input: ShareReviewInput;
@@ -831,6 +849,37 @@ export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const SeekPlaybackDocument = gql`
+    mutation SeekPlayback($input: SeekPlaybackInput!) {
+  seekPlayback(input: $input)
+}
+    `;
+export type SeekPlaybackMutationFn = Apollo.MutationFunction<SeekPlaybackMutation, SeekPlaybackMutationVariables>;
+
+/**
+ * __useSeekPlaybackMutation__
+ *
+ * To run a mutation, you first call `useSeekPlaybackMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSeekPlaybackMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [seekPlaybackMutation, { data, loading, error }] = useSeekPlaybackMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSeekPlaybackMutation(baseOptions?: Apollo.MutationHookOptions<SeekPlaybackMutation, SeekPlaybackMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, options);
+      }
+export type SeekPlaybackMutationHookResult = ReturnType<typeof useSeekPlaybackMutation>;
+export type SeekPlaybackMutationResult = Apollo.MutationResult<SeekPlaybackMutation>;
+export type SeekPlaybackMutationOptions = Apollo.BaseMutationOptions<SeekPlaybackMutation, SeekPlaybackMutationVariables>;
 export const ShareReviewDocument = gql`
     mutation ShareReview($input: ShareReviewInput!) {
   shareReview(input: $input)

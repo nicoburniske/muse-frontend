@@ -1,5 +1,5 @@
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "react-toastify"
 import { ApolloError } from "@apollo/client"
 import Markdown from "markdown-to-jsx"
@@ -15,16 +15,18 @@ export interface DetailedCommentProps {
 
 interface TrackTimestampProps {
   at: string
+  comment?: string
 }
 interface ConvertToTimestampProps {
   time: string
   trackId: string
   playlistId: string
+  comment?: string
 }
 
-function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampProps) {
+function ConvertToTimestamp({ time, trackId, playlistId, comment}: ConvertToTimestampProps) {
   // Timestamp converted to millis if valid
-  const timestamp = (() => {
+  const timestamp = useMemo(() => {
     const timeSplit = time.split(":")
     if (timeSplit.length === 2) {
       const mins = parseInt(timeSplit[0])
@@ -35,7 +37,7 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
       return (mins * 60 + seconds) * 1000
     }
     return undefined;
-  })()
+  }, [time])
 
   const handleError = (error: ApolloError) => {
     toast.error(`Failed to start playback. Please start a playback session and try again.`)
@@ -61,7 +63,7 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
       className="link link-base-content link-hover"
       onClick={onClick}
     >
-      {timestamp ? `@${time}` : time}
+      {comment ? comment : timestamp ? `@${time}` : time}
     </a>)
 }
 
@@ -71,9 +73,9 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const [isExpanded, setIsExpanded] = useState(false)
 
 
-  const [deleteComment, { data: dataDelete, error: errorError, loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
-  const [updateComment, { data: dataUpdate, error: errorUpdate, loading: loadingUpdate }] = useUpdateCommentMutation()
-  const [replyComment, { data: data, loading: loadingReply }] = useCreateCommentMutation()
+  const [deleteComment, { loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
+  const [updateComment, { loading: loadingUpdate }] = useUpdateCommentMutation()
+  const [replyComment, { loading: loadingReply }] = useCreateCommentMutation()
 
   const isChild = detailedComment.parentCommentId != null
   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
@@ -109,12 +111,11 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   }
 
   const Stamp =
-    ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
+    ({ at, comment}: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment.entityId, playlistId })
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   // TODO: need to consider which comments are owned by user.
   return (
-
     <div tabIndex={0} className={`collapse rounded-box ${expanded}`}>
       <div className="collapse-title card card-body w-200 text-base-content py-1 bg-base-200 flex flex-row justify-around px-0">
         <div className="flex flex-col items-center space-y-2 justify-self-start">
