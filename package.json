@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "npx http-server ./dist",
+    "start": "npx http-server ./dist -a 0.0.0.0 -p",
     "generate": "graphql-codegen"
   },
   "dependencies": {
