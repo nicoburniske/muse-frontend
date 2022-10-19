@@ -17,6 +17,7 @@ generates:
       fetcher: fetch
       scalars:
         Long: number
+        Instant: string
   #  Needed for using fragments in interfaces/unions.
   ./src/graphql/generated/fragmentTypes.ts:
     plugins:

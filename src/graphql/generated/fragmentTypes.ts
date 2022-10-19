@@ -6,6 +6,11 @@
       "Artist",
       "Playlist",
       "Track"
+    ],
+    "ReviewUpdate": [
+      "CreatedComment",
+      "DeletedComment",
+      "UpdatedComment"
     ]
   }
 };
@@ -16,6 +21,11 @@
       "Artist",
       "Playlist",
       "Track"
+    ],
+    "ReviewUpdate": [
+      "CreatedComment",
+      "DeletedComment",
+      "UpdatedComment"
     ]
   }
 };

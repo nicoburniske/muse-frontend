@@ -1,23 +1,39 @@
-import { Box, List, ListItem, Stack } from "@mui/material"
-import { DetailedCommentFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment } from "graphql/generated/schema"
-import PlaylistTrack from "component/detailedReview/PlaylistTrack"
+import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/generated/schema"
+import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
-import { Children, useEffect, useMemo, useRef, useState } from "react"
-import { useSetAtom } from "jotai"
-import { selectedTrack } from "state/Atoms"
+import { useMemo, useRef } from "react"
+import { useAtomValue, useSetAtom } from "jotai"
+import { searchLoweredAtom, selectedTrackAtom } from "state/Atoms"
+import Split from "react-split"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
 export interface DetailedPlaylistProps {
     reviewId: string
     playlist: DetailedPlaylistFragment
     comments: DetailedCommentFragment[]
-    updateComments: () => Promise<void>
 }
 
 // TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
 // when clicking a comment, scroll to comment and allow nesting expansion.
-export default function DetailedPlaylist({ reviewId, playlist, comments: propComments, updateComments }: DetailedPlaylistProps) {
-    const comments = useMemo(() => propComments, [propComments])
+export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
+    const search = useAtomValue(searchLoweredAtom)
+
+    const tracks = useMemo(() =>
+        playlist.tracks
+            ?.filter(track => (track?.track.name?.toLowerCase().includes(search)) ||
+                track?.track.artists?.flatMap(a => a.name.toLocaleLowerCase()).some(name => name.includes(search)))
+        ?? []
+        , [playlist, search])
+
+
+    const trackIds = useMemo(() => new Set(tracks.map(track => track?.track.id)), [tracks])
+
+    const comments = useMemo(() => {
+        return [...propComments]
+            .filter(comment => trackIds.has(comment?.entityId))
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    }, [propComments, trackIds])
+
     const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
         const commentMap: Map<number, DetailedCommentFragment[]> = new Map()
@@ -30,61 +46,46 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
         return commentMap
     }, [comments])
 
-    const setSelectedTrack = useSetAtom(selectedTrack)
-    const commentRefs = useRef<Map<number, HTMLLIElement>>(new Map())
-    const trackRefs = useRef<Map<string, HTMLLIElement>>(new Map())
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
     // We want to find the track that the comment is applied to and scroll to it.
     const onCommentClick = (commentId: number) => {
         const trackId = comments.find(c => c.id == commentId)?.entityId
-        const track = trackId ? trackRefs.current.get(trackId) : undefined
-        if (track) {
+        if (trackId) {
             setSelectedTrack(trackId)
-            track.scrollIntoView({ behavior: 'smooth' })
         }
     }
 
-    const tracks = playlist.tracks ?? []
-
     return (
-        <Stack
-            spacing={2}
-            direction="row"
-            justifyContent="space-around"
+        <Split
+            className="flex"
+            sizes={[40, 60]}
+            direction="horizontal"
+            minSize={300}
+            style={{ height: '79vh' }}
         >
-            <Box width={"40%"}>
-                <List style={{ overflow: 'auto', height: '85vh' }}>
-                    {tracks.map(t =>
-                        <ListItem
-                            key={t.track.id}
-                            ref={el => trackRefs.current.set(t.track.id, (el as HTMLLIElement))}
-                        >
-                            <PlaylistTrack playlistId={playlist.id} reviewId={reviewId} playlistTrack={t} updateComments={updateComments} />
-                        </ListItem>)
-                    }
-                </List>
-            </Box>
-            <Box width={"60%"}>
-                <List style={{ overflow: 'auto', height: '85vh', width: '100%' }}>
-                    {
-                        rootComments.map((c: DetailedCommentFragment) =>
-                            <ListItem
-                                key={c.id}
-                                ref={el => commentRefs.current.set(c.id, (el as HTMLLIElement))}
-                            >
-                                <DetailedComment
-                                    reviewId={reviewId}
-                                    playlistId={playlist.id}
-                                    comment={c}
-                                    updateComments={updateComments}
-                                    children={childComments.get(c.id) ?? []}
-                                    onClick={() => onCommentClick(c.id)}
-                                />
-                            </ListItem>
-                        )
-                    }
-                </List>
-            </Box>
-        </Stack>
+            <div className=" flex flex-row">
+                <PlaylistTrackTable
+                    playlistId={playlist.id}
+                    reviewId={reviewId}
+                    playlistTracks={tracks}
+                />
+            </div>
+            <div className="overflow-auto p-1">
+                <div className="flex flex-col space-y-1 justify-end">
+                    {rootComments.map((c: DetailedCommentFragment) =>
+                        <div key={c.id}>
+                            <DetailedComment
+                                reviewId={reviewId}
+                                playlistId={playlist.id}
+                                comment={c}
+                                children={childComments.get(c.id) ?? []}
+                                onClick={() => onCommentClick(c.id)}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </Split>
     )
 }

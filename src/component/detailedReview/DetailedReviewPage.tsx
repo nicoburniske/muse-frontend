@@ -1,18 +1,19 @@
-import { useParams} from "react-router-dom"
-import { Alert } from "@mui/material"
+import { useParams } from "react-router-dom"
 import { DetailedReview } from 'component/detailedReview/DetailedReview'
-// import { FixedSizeList as List, ListChildComponentProps } from 'react-window'
-
+import { Alert, AlertSeverity } from "component/Alert"
 
 
 export default function DetailedReviewPage() {
   const { reviewId } = useParams()
 
   if (reviewId) {
-    return <DetailedReview reviewId={reviewId} />
+    return (
+      <div className="bg-base-300">
+        <DetailedReview reviewId={reviewId} />
+      </div>)
   } else {
     return (
-      <Alert severity="error"> Missing Review ID </Alert >
+      <Alert severity={AlertSeverity.Error}> <span>Missing Review ID </span></Alert >
     )
   }
 }

@@ -10,9 +10,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { AppConfig } from 'util/Config';
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://localhost:8883/ws/graphql',
+  url: `ws://${AppConfig.backendUrl}/ws/graphql`,
   connectionParams: {
     Authorization: getCookie("XSESSION"),
   }
@@ -36,7 +37,7 @@ function getCookie(name: string): string | null {
 const queryClient = new QueryClient()
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:8883/api/graphql',
+  uri: `http://${AppConfig.backendUrl}/api/graphql`,
   credentials: 'include'
 })
 
@@ -68,18 +69,19 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={clientGraphQL}>
         <BrowserRouter>
-          <div>
+          <>
             <App />
             <ToastContainer
               position="bottom-center"
               newestOnTop
-              autoClose={5000}
+              autoClose={3000}
               hideProgressBar={false}
               closeOnClick={true}
               pauseOnHover={true}
               draggable={true}
+              limit={2}
             />
-          </div>
+          </>
         </BrowserRouter>
       </ApolloProvider>
     </QueryClientProvider>

@@ -1,32 +1,31 @@
-import { Avatar, Box, Button, ListItemText, Modal, Stack, Typography } from "@mui/material"
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
-import { useState } from "react"
-import { CommentForm } from "component/detailedReview/CommentForm"
+import { useMemo, useState } from "react"
 import { toast } from "react-toastify"
-import { ApolloError } from "@apollo/client"
 import Markdown from "markdown-to-jsx"
+import { CommentFormModal } from "./commentForm/CommentFormModal"
 
 export interface DetailedCommentProps {
   reviewId: string
   playlistId: string
   comment: DetailedCommentFragment
   children: DetailedCommentFragment[]
-  updateComments: () => Promise<void>
   onClick: () => void
 }
 
 interface TrackTimestampProps {
   at: string
+  comment?: string
 }
 interface ConvertToTimestampProps {
   time: string
   trackId: string
   playlistId: string
+  comment?: string
 }
 
-function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampProps) {
-  // Timestamp converted to millis if valid
-  const timestamp = (() => {
+function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTimestampProps) {
+  // Timestamp converted to millis if valid.
+  const timestamp = useMemo(() => {
     const timeSplit = time.split(":")
     if (timeSplit.length === 2) {
       const mins = parseInt(timeSplit[0])
@@ -37,16 +36,14 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
       return (mins * 60 + seconds) * 1000
     }
     return undefined;
-  })()
+  }, [time])
 
-  const handleError = (error: ApolloError) => {
+  const handleError = () => {
     toast.error(`Failed to start playback. Please start a playback session and try again.`)
   }
   const onSuccess = () => {
-    if (timestamp) {
-      toast.success(`Successfully started playback at ${time}`)
-    } else {
-      toast.success("Successfully started playback. Invalid timestamp.")
+    if (timestamp === undefined) {
+      toast.warning("Successfully started playback from start. Invalid timestamp.")
     }
   }
 
@@ -58,40 +55,47 @@ function ConvertToTimestamp({ time, trackId, playlistId }: ConvertToTimestampPro
     playTrack({ variables: { input: { entityOffset: { outer, inner }, positionMs: timestamp } } })
   }
 
-  return (
-    <Typography
+  const text = comment !== undefined ? comment : timestamp ? `@${time}` : time
+  const internal = (
+    <a
+      className="link link-base-content link-hover"
       onClick={onClick}
-      fontWeight="bold"
-      sx={{ color: "neutral.darkBlue" }}
     >
-      {timestamp ? `@${time}` : time}
-    </Typography>)
+      {text}
+    </a>)
+  return comment !== undefined ?
+    (<a className="tooltip tooltip-bottom link link-base-content link-hover" data-tip={`@${time}`}>
+      {internal}
+    </a>) :
+    internal
 }
 
-export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, updateComments, onClick }: DetailedCommentProps) {
+export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
 
-  const [deleteComment, { data: dataDelete, error: errorError, loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
-  const [updateComment, { data: dataUpdate, error: errorUpdate, loading: loadingUpdate }] = useUpdateCommentMutation()
-  const [replyComment, { data: data, loading: loadingReply }] = useCreateCommentMutation()
+  const [deleteComment, { loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
+  const [updateComment, { loading: loadingUpdate }] = useUpdateCommentMutation()
+  const [replyComment, { loading: loadingReply }] = useCreateCommentMutation()
 
   const isChild = detailedComment.parentCommentId != null
   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
   const comment = detailedComment?.comment ?? "Failed to retrieve comment";
   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
-  const createdAt = new Date(detailedComment?.createdAt).toLocaleDateString()
+  const createdAt = (() => {
+    const date = new Date(detailedComment?.createdAt)
+    return `${date.toLocaleDateString()} - ${date.getHours()}:${date.getMinutes()}`
+  })()
 
   const onDelete = async () => {
     await deleteComment()
-    await updateComments()
   }
 
   const onUpdate = async (content: string) => {
     const input = { reviewId, commentId: detailedComment.id, comment: content }
     await updateComment({ variables: { input } })
-    await updateComments()
     resetState()
   }
 
@@ -101,7 +105,6 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       entityType: detailedComment.entityType, entityId: detailedComment.entityId
     }
     await replyComment({ variables: { input } })
-    await updateComments()
     resetState()
   }
 
@@ -110,86 +113,70 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
     setIsReplying(false)
   }
 
-  const commentStyle = {
-    width: "100%",
-    padding: "0.5rem",
-    // If child comment, indent.
-    marginLeft: isChild ? "1rem" : "0"
-  }
-
   const Stamp =
-    ({ at }: TrackTimestampProps) => ConvertToTimestamp({ time: at, trackId: detailedComment.entityId, playlistId })
+    ({ at, comment }: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment.entityId, playlistId })
 
+  const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   // TODO: need to consider which comments are owned by user.
   return (
-    <Box sx={commentStyle} onClick={onClick}>
-      <Stack
-        spacing={5}
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Stack spacing={2} direction="row" alignItems="center">
-          <Avatar src={avatar}></Avatar>
-          <Typography
-            fontWeight="bold"
-            sx={{ color: "neutral.darkBlue" }}
-          >
-            {commenterName}
-          </Typography>
-          <Typography sx={{ color: "neutral.grayishBlue" }}>
-            {createdAt}
-          </Typography>
-        </Stack>
-        <Stack direction="row" >
-          <Modal
-            open={isEditing}
-            onClose={() => setIsEditing(false)}>
-            <div>
-              <CommentForm
-                onSubmit={onUpdate}
-                onCancel={resetState}
-                initialValue={comment}
-              />
+    <div tabIndex={0} className={`collapse rounded-box ${expanded}`}>
+      <div className="collapse-title card card-body w-200 text-base-content py-1 bg-base-200 flex flex-row justify-around px-0">
+        <div className="flex flex-col items-center space-y-2 justify-self-start">
+          <div className="card-title text-base-content"> {commenterName} </div>
+          <div className="avatar">
+            <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <img loading="lazy" src={avatar}></img>
             </div>
-          </Modal>
-          <Modal
-            open={isReplying}
-            onClose={() => setIsReplying(false)}>
-            <div>
-              <CommentForm
-                onSubmit={onReply}
-                onCancel={resetState}
-                initialValue={""}
-              />
-            </div>
-          </Modal>
-          <Stack
-            spacing={2}
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            {/* <ListItemText primary={comment} /> */}
-            <Typography>
-              <Markdown
-                children={comment}
-                options={{
-                  overrides: {
-                    Stamp,
-                  },
-                }}
-              />
-            </Typography>
-            <Button disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </Button>
-            <Button disabled={loadingDelete} onClick={onDelete}> delete </Button>
+          </div>
+          <div className="text-secondar-content text-base-content"> {createdAt} </div>
+        </div>
+
+        <div className="flex flex-col w-3/4 justify-between" >
+          <article className="card card-body min-h-[75%] p-2 min-w-full prose text-base-content bg-base-100" onClick={() => { setIsExpanded(!isExpanded) }}>
+            <Markdown
+              children={comment}
+              options={{
+                overrides: {
+                  Stamp,
+                },
+              }}
+            />
+          </article>
+          <div className="flex-grow-1 btn-group mx-auto">
+            <button className="btn btn-sm btn-primary " disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
+            <button className="btn btn-sm btn-error" disabled={loadingDelete} onClick={onDelete}> delete </button>
             {/* For now we don't want to permit infinite nesting */}
-            {isChild ? <div /> : <Button disabled={loadingReply} onClick={() => setIsReplying(true)}> reply </Button>}
-          </Stack>
-        </Stack>
-      </Stack>
-      {children.map(child =>
-        <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} updateComments={updateComments} onClick={onClick} />)}
-    </Box>
+            {<button className="btn btn-sm btn-primary" disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}> reply </button>}
+          </div>
+        </div>
+        <button className="position: absolute; top: 0; right: 0; width: 100px;text-primary" onClick={onClick}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </button>
+      </div>
+
+      {
+        children.map(child =>
+          <div tabIndex={0} className="collapse-content py-1" key={child.id}>
+            <DetailedComment playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+          </div>
+        )
+      }
+
+      <CommentFormModal
+        title={"edit comment"}
+        open={isEditing}
+        onSubmit={onUpdate}
+        onCancel={resetState}
+        initialValue={comment}
+      />
+      <CommentFormModal
+        title={"reply to comment"}
+        open={isReplying}
+        onSubmit={onReply}
+        onCancel={resetState}
+      />
+    </div >
   )
 }

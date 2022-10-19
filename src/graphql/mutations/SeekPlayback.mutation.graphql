@@ -1,0 +1,3 @@
+mutation SeekPlayback($input: SeekPlaybackInput!) {
+    seekPlayback(input: $input) 
+}

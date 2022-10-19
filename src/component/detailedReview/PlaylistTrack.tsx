@@ -1,130 +1,89 @@
-import { Avatar, Box, Button, CardMedia, Modal, Stack, Typography } from "@mui/material"
-import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription } from "graphql/generated/schema"
-import { useEffect, useState } from "react"
-import { useHotkeys } from "react-hotkeys-hook"
-import { CommentForm } from "component/detailedReview/CommentForm"
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription, AvailableDevicesSubscription, PlaybackDeviceFragment } from "graphql/generated/schema"
 import { toast } from "react-toastify"
-import { ApolloError } from "@apollo/client"
-import { useAtomValue} from "jotai"
-import { selectedTrack } from "state/Atoms"
-
+import { useAtomValue, useSetAtom } from "jotai"
+import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
-    updateComments: () => Promise<void>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId, updateComments }: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId }: PlaylistTrackProps) {
     // We want to know what devices are available so we can start playback on the correct device.
-    const { data } = useAvailableDevicesSubscription()
-    const devices = data?.availableDevices
-
-    // Only want to show comment button on hover.
-    const [showCommentButton, setShowCommentButton] = useState(false)
-    // Comment modal.
-    const [showComment, setShowComment] = useState(false)
-    const [comment, setComment] = useState("")
+    const devices = useAtomValue(playbackDevicesAtom)
+    const setCommentModal = useSetAtom(openCommentModalAtom)
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
     // Sorted biggest to smallest.
     const albumImage = track.album?.images?.at(-2)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
-    const isSelected = useAtomValue(selectedTrack) == track.id 
-    const selectedStyle = isSelected ? { border: '1px dashed green' } : {}
+    const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
-    const resetStateAndUpdateComments = () => {
-        setComment("")
-        setShowComment(false)
-        updateComments()
-    }
+    // Get track styles.
+    const isSelected = useAtomValue(selectedTrackAtom) == track.id
+    const isPlaying = useAtomValue(currentlyPlayingTrackAtom) == track.id
+    const [bgStyle, textStyle] =
+        isPlaying ? ["bg-success", "text-success-content"] :
+            isSelected ? ["bg-info", "text-info-content"] :
+                ["bg-neutral", "text-neutral-content"]
 
-    // On successful comment creation, clear the comment box and refetch the review.
-    const [createComment, { error, loading, called }] = useCreateCommentMutation({ onCompleted: resetStateAndUpdateComments })
+    const resetState = () => setCommentModal(undefined)
+
+    // On successful comment creation, clear the comment box 
+    const [createComment,] = useCreateCommentMutation({ onCompleted: resetState })
     const onSubmit = (comment: string) =>
         createComment({ variables: { input: { comment, entityId: track.id, entityType: EntityType.Track, reviewId } } })
             .then(() => { })
 
-    const onPlayError = (error: ApolloError) => {
-        toast.error(`Failed to start playback. Please start a playback session and try again.`)
-        // refetchDevices()
-    }
 
-    const onPlaySuccess = () => {
-        toast.success(`Successfully started playback`)
-    }
-    const [playTrack] = useStartPlaybackMutation({ onError: onPlayError, onCompleted: onPlaySuccess });
+    const [playTrack, { loading }] = useStartPlaybackMutation({
+        onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
+        onCompleted: () => toast.success(`Successfully started playback`, { autoClose: 500})
+    });
 
     const onPlayTrack = () => {
-        // We only want to include device when one is not active.
-        const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
-        const inner = { entityId: track.id, entityType: EntityType.Track }
-        const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-        playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
+        if (!loading) {
+            // We only want to include device when one is not active.
+            const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
+            const inner = { entityId: track.id, entityType: EntityType.Track }
+            const outer = { entityId: playlistId, entityType: EntityType.Playlist }
+            playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
+        }
     }
 
-    // TODO: fix this it's terrible.
-    useHotkeys('enter+command', () => {
-        console.log("outside dis bih")
-        if ((comment.length > 0) && !loading) {
-            console.log("in dis bit")
-            createComment()
-        }
-    }, [comment, loading])
+    const showModal = () => {
+        const values = { title: "create comment", onCancel: resetState, onSubmit }
+        setCommentModal(values)
+    }
 
     return (
-        <Box
-            sx={selectedStyle}
-        >
-            <Stack
-                direction="row"
-                spacing={4}
-                alignItems="center"
-                justifyContent="space-around"
-                width="100%"
-                onMouseEnter={() => setShowCommentButton(true)}
-                onMouseLeave={() => setShowCommentButton(false)}
-            >
-                <CardMedia
-                    component="img"
-                    onClick={() => onPlayTrack()}
-                    image={albumImage}
-                    width={1 / 3}
-                    sx={{ width: 1 / 8, height: 1 / 8 }} />
-                <Box width={1 / 3}>
-                    <Typography
-                        variant="body2"
-                        color="text.primary"
-                        display="block"
-                    >
-                        {track.name}
-                    </Typography>
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        display="block"
-                    >
-                        {artistNames}
-                    </Typography>
-                </Box>
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    display="block"
-                >
-                    {new Date(addedAt).toLocaleDateString()}
-                </Typography>
-                <Avatar src={avatarImage}></Avatar>
-                <Button disabled={!showCommentButton} variant="contained" size="medium" onClick={() => setShowComment(true)}> + </Button>
-                <Modal
-                    open={showComment}
-                    onClose={() => setShowComment(false)}>
-                    <div>
-                        <CommentForm onSubmit={onSubmit} onCancel={resetStateAndUpdateComments} />
+        <div className={`card card-body flex flex-row items-center justify-around p-0.5 bg-neutral ${bgStyle} m-0`}>
+            <div className="avatar" onClick={() => onPlayTrack()}>
+                <div className="w-16 rounded">
+                    <img src={albumImage} />
+                </div>
+            </div>
+
+            <div className={`flex flex-row w-3/6 justify-evenly ${textStyle}`}>
+                <div className="flex flex-col grow max-w-[70%]">
+                    <div className="truncate p-0.5"> {track.name} </div>
+                    <div className="truncate p-0.5 font-light"> {artistNames ?? ""} </div>
+                </div>
+                <div className="p-1"> {new Date(addedAt).toLocaleDateString()} </div>
+            </div>
+            <div className="tooltip tooltip-primary tooltip-left" data-tip={displayName}>
+                <div className="avatar">
+                    <div className="w-12 h-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                        <img src={avatarImage} />
                     </div>
-                </Modal>
-            </Stack>
-        </Box>
+                </div>
+            </div>
+            <button className="btn btn-primary btn-square btn-sm" onClick={showModal}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+            </button>
+        </div >
     )
 }

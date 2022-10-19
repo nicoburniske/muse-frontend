@@ -25,7 +25,7 @@ query DetailedReview($reviewId: ID!) {
     collaborators {
       accessLevel
       user {
-        id
+        ...UserWithSpotifyOverview
       }
     }
   }
