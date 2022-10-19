@@ -12,11 +12,21 @@ import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { AppConfig } from 'util/Config';
 
+// Such a hack to get session id.
+const getSession = () => {
+  const cookie = getCookie("XSESSION")
+  if (cookie) {
+    return Promise.resolve({ Authorization: cookie })
+  }
+  return fetch(`http://${AppConfig.backendUrl}/session`, { method: 'GET', credentials: 'include' })
+    .then(r => r.text())
+    .then(a => { return { Authorization: a } })
+    .catch(e => console.error("Failed to get session", e))
+}
+
 const wsLink = new GraphQLWsLink(createClient({
   url: `ws://${AppConfig.backendUrl}/ws/graphql`,
-  connectionParams: {
-    Authorization: getCookie("XSESSION"),
-  }
+  connectionParams: getSession as () => Promise<{ Authorization: string }>
 }));
 
 function getCookie(name: string): string | null {
