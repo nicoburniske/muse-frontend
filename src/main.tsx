@@ -18,7 +18,7 @@ const getSession = () => {
   if (cookie) {
     return Promise.resolve({ Authorization: cookie })
   }
-  return fetch(`http://${AppConfig.backendUrl}/session`, { method: 'GET', credentials: 'include' })
+  return fetch(`https://${AppConfig.backendUrl}/session`, { method: 'GET', credentials: 'include' })
     .then(r => r.text())
     .then(a => { return { Authorization: a } })
     .catch(e => console.error("Failed to get session", e))
@@ -47,7 +47,7 @@ function getCookie(name: string): string | null {
 const queryClient = new QueryClient()
 
 const httpLink = createHttpLink({
-  uri: `http://${AppConfig.backendUrl}/api/graphql`,
+  uri: `https://${AppConfig.backendUrl}/api/graphql`,
   credentials: 'include'
 })
 
