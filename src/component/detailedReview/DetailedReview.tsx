@@ -1,7 +1,7 @@
 import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription, useSeekPlaybackMutation } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
-import { useAtom, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { playbackDevicesAtom, currentlyPlayingTrackAtom, searchAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
@@ -29,7 +29,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     }
   })
 
-  const { data: nowPlayingTime, error: subErrorsTime } = useNowPlayingOffsetSubscription({ variables: { input: 2 } })
+  const { data: nowPlayingTime, error: subErrorsTime } = useNowPlayingOffsetSubscription({ variables: { input: 1 } })
   const { error: commentErrors } = useReviewUpdatesSubscription({
     variables: { reviewId }, onSubscriptionData: (data) => {
       const commentEvent = data.subscriptionData.data?.reviewUpdates
@@ -106,6 +106,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     const entity = data?.review?.entity
     switch (entity?.__typename) {
       case "Artist":
+        return entity?.artistImages?.at(0)
       case "Playlist":
       case "Album":
         return entity?.images.at(0)
@@ -130,6 +131,11 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
 
   const progressMs = nowPlayingTime?.nowPlaying?.progressMs ?? 0
   const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs ?? Number.MAX_SAFE_INTEGER
+  const isPlaying = nowPlayingTime?.nowPlaying?.isPlaying ?? false
+  const nowPlayingImage = nowPlayingTime?.nowPlaying?.item?.album?.images?.at(1) ?? ""
+  const nowPlayingArtist = nowPlayingTime?.nowPlaying?.item?.artists?.map(a => a.name).join(", ") ?? ""
+  const nowPlayingAlbum = nowPlayingTime?.nowPlaying?.item?.album?.name
+  const nowPlayingTrackName = nowPlayingTime?.nowPlaying?.item?.name ?? ""
 
   const setNowPlaying = useSetAtom(currentlyPlayingTrackAtom)
   const nowPlaying = nowPlayingTime?.nowPlaying?.item?.id
@@ -172,38 +178,46 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     return <HeroLoading />
   } else if (data) {
     return (
-      < div className="w-full p-1">
-        <div className="mt-0 flex flex-row justify-start space-x-5 items-center">
-          <div className="avatar">
-            <div className="w-28 rounded">
-              <img src={reviewEntityImage} />
+      < div className="w-full h-full p-1">
+        <div className="mt-0 flex flex-row justify-around items-center w-full h-[10%]">
+          <div className="flex flex-row items-center justify-start space-x-1 w-1/2 h-full">
+            <div className="w-16 md:w-24 lg:w-32 avatar">
+              <div className=" rounded">
+                <img className="scale-100" src={reviewEntityImage} />
+              </div>
             </div>
-          </div>
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-title">{`${eType} Review`}</div>
-              <div className="stat-value ">{title}</div>
-              <div className="stat-desc"> by {creator}</div>
+            <div className="stats shadow w-max h-full">
+              <div className="stat">
+                <div className="stat-title truncate ">{`${eType} Review`}</div>
+                <div className="stat-value ">{title}</div>
+                <div className="stat-desc"> by {creator}</div>
+              </div>
             </div>
-          </div>
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-title">{"Playlist"}</div>
-              <div className="stat-value text-xl text-clip overflow-hidden">{entityName}</div>
-              <div className="stat-desc"> by {entityCreator}</div>
+            <div className="stats shadow ">
+              <div className="stat h-full w-max">
+                <div className="stat-title">{"Playlist"}</div>
+                <div className="stat-value text-xl text-clip overflow-hidden">{entityName}</div>
+                <div className="stat-desc"> by {entityCreator}</div>
+              </div>
             </div>
+            {collaboratorImages}
+            <ShareReview reviewId={reviewId} />
           </div>
-          {collaboratorImages}
-          <ShareReview reviewId={reviewId} />
-          <PlaybackTime
-            progressMs={progressMs}
-            durationMs={totalDuration}
-            trackId={nowPlaying ?? ""}
-            reviewId={reviewId}
-            disabled={!isPlayingPartOfEntity} />
+          <div className='w-1/2 flex flex-row justify-center'>
+            <PlaybackTime
+              isPlaying={isPlaying}
+              progressMs={progressMs}
+              durationMs={totalDuration}
+              trackId={nowPlaying ?? ""}
+              reviewId={reviewId}
+              disabled={!isPlayingPartOfEntity}
+              trackImage={nowPlayingImage}
+              trackName={nowPlayingTrackName}
+              trackArtist={nowPlayingArtist} />
+          </div>
           <CommentFormModalWrapper />
         </div>
-        <div className="divider m-0.5"/>
+        <div className="divider m-0 p-0 h-3" />
         {getReviewContent}
       </div>
     )

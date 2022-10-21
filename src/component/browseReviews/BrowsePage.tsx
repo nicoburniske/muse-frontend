@@ -16,7 +16,7 @@ export default function BrowsePage() {
       r.entity.name.toLowerCase().includes(search) ||
       (r.entity.__typename === EntityType.Playlist &&
         (r.entity.owner?.id.toLowerCase().includes(search) ||
-          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))||
+          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
       r.creator.spotifyProfile?.displayName?.toLowerCase().includes(search)
     ) ?? [], [search, data])
 
@@ -68,8 +68,10 @@ function CreateCard({ review }: CreateCardProps) {
 function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
   if ("images" in data) {
     return [data.name, data.images?.[0]]
+  } else if ('artistImages' in data) {
+    return [data.name, data.artistImages?.[0] ?? ""]
   } else {
-    // this is a track.
+    // TODO: what is this complaining about?
     return [data.name, data.album?.images?.[0] ?? ""]
   }
 }

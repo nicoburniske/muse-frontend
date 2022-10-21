@@ -43,13 +43,13 @@ export type Artist = ReviewEntity & {
   __typename?: 'Artist';
   albums?: Maybe<Array<Album>>;
   externalUrls: Array<KvStringString>;
-  genres: Array<Scalars['String']>;
+  genres?: Maybe<Array<Scalars['String']>>;
   href: Scalars['String'];
   id: Scalars['String'];
-  images: Array<Scalars['String']>;
+  images?: Maybe<Array<Scalars['String']>>;
   name: Scalars['String'];
-  numFollowers: Scalars['Int'];
-  popularity: Scalars['Int'];
+  numFollowers?: Maybe<Scalars['Int']>;
+  popularity?: Maybe<Scalars['Int']>;
   topTracks?: Maybe<Array<Track>>;
   uri: Scalars['String'];
 };
@@ -149,9 +149,12 @@ export type Mutations = {
   createReview?: Maybe<Review>;
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
+  pausePlayback?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
   seekPlayback?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
+  skipToNext?: Maybe<Scalars['Boolean']>;
+  skipToPrevious?: Maybe<Scalars['Boolean']>;
   startPlayback?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
@@ -178,6 +181,11 @@ export type MutationsDeleteReviewArgs = {
 };
 
 
+export type MutationsPausePlaybackArgs = {
+  deviceId?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationsSaveTracksArgs = {
   input: Array<Scalars['String']>;
 };
@@ -193,8 +201,18 @@ export type MutationsShareReviewArgs = {
 };
 
 
+export type MutationsSkipToNextArgs = {
+  deviceId?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationsSkipToPreviousArgs = {
+  deviceId?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationsStartPlaybackArgs = {
-  input: StartPlaybackInput;
+  input: PlaybackContextInput;
 };
 
 
@@ -219,6 +237,15 @@ export type PlaybackContext = {
   metadata?: Maybe<Array<KvStringString>>;
   type: Scalars['String'];
   uri: Scalars['String'];
+};
+
+export type PlaybackContextInput = {
+  /** If device id is specified, playback will be transferred to that device. Otherwise, playback will be executed on user's active device. */
+  deviceId?: InputMaybe<Scalars['String']>;
+  entityOffset?: InputMaybe<EntityOffsetInput>;
+  positionMs?: InputMaybe<Scalars['Int']>;
+  positionOffset?: InputMaybe<PositionOffsetInput>;
+  uris?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type PlaybackDevice = {
@@ -351,15 +378,6 @@ export type SpotifyProfile = {
   uri: Scalars['String'];
 };
 
-export type StartPlaybackInput = {
-  /** If device id is specified, playback will be transferred to that device. Otherwise, playback will be executed on user's active device. */
-  deviceId?: InputMaybe<Scalars['String']>;
-  entityOffset?: InputMaybe<EntityOffsetInput>;
-  positionMs?: InputMaybe<Scalars['Int']>;
-  positionOffset?: InputMaybe<PositionOffsetInput>;
-  uris?: InputMaybe<Array<Scalars['String']>>;
-};
-
 export type Subscriptions = {
   __typename?: 'Subscriptions';
   availableDevices?: Maybe<Array<PlaybackDevice>>;
@@ -451,6 +469,13 @@ export type DeleteCommentMutationVariables = Exact<{
 
 export type DeleteCommentMutation = { __typename?: 'Mutations', deleteComment?: boolean | null };
 
+export type PausePlaybackMutationVariables = Exact<{
+  deviceId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type PausePlaybackMutation = { __typename?: 'Mutations', pausePlayback?: boolean | null };
+
 export type SeekPlaybackMutationVariables = Exact<{
   input: SeekPlaybackInput;
 }>;
@@ -465,8 +490,22 @@ export type ShareReviewMutationVariables = Exact<{
 
 export type ShareReviewMutation = { __typename?: 'Mutations', shareReview?: boolean | null };
 
+export type SkipToNextMutationVariables = Exact<{
+  deviceId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type SkipToNextMutation = { __typename?: 'Mutations', skipToNext?: boolean | null };
+
+export type SkipToPreviousMutationVariables = Exact<{
+  deviceId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type SkipToPreviousMutation = { __typename?: 'Mutations', skipToPrevious?: boolean | null };
+
 export type StartPlaybackMutationVariables = Exact<{
-  input: StartPlaybackInput;
+  input: PlaybackContextInput;
 }>;
 
 
@@ -484,7 +523,7 @@ export type DetailedReviewQueryVariables = Exact<{
 }>;
 
 
-export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
 
 export type UserWithSpotifyOverviewFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null };
 
@@ -496,7 +535,7 @@ export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', adde
 
 export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null };
 
-export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers: number, genres: Array<string>, href: string, id: string, images: Array<string>, name: string, artistPopularity: number };
+export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null };
 
 export type DetailedReviewCommentsQueryVariables = Exact<{
   reviewId: Scalars['ID'];
@@ -508,13 +547,13 @@ export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { _
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
 
-export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', images: Array<string>, id: string, name: string } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
 
 type ReviewEntityOverview_Album_Fragment = { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
-type ReviewEntityOverview_Artist_Fragment = { __typename?: 'Artist', images: Array<string>, id: string, name: string };
+type ReviewEntityOverview_Artist_Fragment = { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null };
 
 type ReviewEntityOverview_Playlist_Fragment = { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } };
 
@@ -543,7 +582,7 @@ export type NowPlayingOffsetSubscriptionVariables = Exact<{
 }>;
 
 
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, item?: { __typename?: 'Track', id: string, durationMs: number } | null } | null };
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
 
 export type ReviewUpdatesSubscriptionVariables = Exact<{
   reviewId: Scalars['ID'];
@@ -661,10 +700,10 @@ export const DetailedAlbumFragmentDoc = gql`
 export const DetailedArtistFragmentDoc = gql`
     fragment DetailedArtist on Artist {
   numFollowers
-  genres
+  artistGenres: genres
   href
   id
-  images
+  artistImages: images
   name
   artistPopularity: popularity
 }
@@ -681,7 +720,7 @@ export const ReviewEntityOverviewFragmentDoc = gql`
     }
   }
   ... on Artist {
-    images
+    artistImages: images
   }
   ... on Playlist {
     owner {
@@ -858,6 +897,37 @@ export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const PausePlaybackDocument = gql`
+    mutation PausePlayback($deviceId: String) {
+  pausePlayback(deviceId: $deviceId)
+}
+    `;
+export type PausePlaybackMutationFn = Apollo.MutationFunction<PausePlaybackMutation, PausePlaybackMutationVariables>;
+
+/**
+ * __usePausePlaybackMutation__
+ *
+ * To run a mutation, you first call `usePausePlaybackMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePausePlaybackMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [pausePlaybackMutation, { data, loading, error }] = usePausePlaybackMutation({
+ *   variables: {
+ *      deviceId: // value for 'deviceId'
+ *   },
+ * });
+ */
+export function usePausePlaybackMutation(baseOptions?: Apollo.MutationHookOptions<PausePlaybackMutation, PausePlaybackMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, options);
+      }
+export type PausePlaybackMutationHookResult = ReturnType<typeof usePausePlaybackMutation>;
+export type PausePlaybackMutationResult = Apollo.MutationResult<PausePlaybackMutation>;
+export type PausePlaybackMutationOptions = Apollo.BaseMutationOptions<PausePlaybackMutation, PausePlaybackMutationVariables>;
 export const SeekPlaybackDocument = gql`
     mutation SeekPlayback($input: SeekPlaybackInput!) {
   seekPlayback(input: $input)
@@ -920,8 +990,70 @@ export function useShareReviewMutation(baseOptions?: Apollo.MutationHookOptions<
 export type ShareReviewMutationHookResult = ReturnType<typeof useShareReviewMutation>;
 export type ShareReviewMutationResult = Apollo.MutationResult<ShareReviewMutation>;
 export type ShareReviewMutationOptions = Apollo.BaseMutationOptions<ShareReviewMutation, ShareReviewMutationVariables>;
+export const SkipToNextDocument = gql`
+    mutation SkipToNext($deviceId: String) {
+  skipToNext(deviceId: $deviceId)
+}
+    `;
+export type SkipToNextMutationFn = Apollo.MutationFunction<SkipToNextMutation, SkipToNextMutationVariables>;
+
+/**
+ * __useSkipToNextMutation__
+ *
+ * To run a mutation, you first call `useSkipToNextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSkipToNextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [skipToNextMutation, { data, loading, error }] = useSkipToNextMutation({
+ *   variables: {
+ *      deviceId: // value for 'deviceId'
+ *   },
+ * });
+ */
+export function useSkipToNextMutation(baseOptions?: Apollo.MutationHookOptions<SkipToNextMutation, SkipToNextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, options);
+      }
+export type SkipToNextMutationHookResult = ReturnType<typeof useSkipToNextMutation>;
+export type SkipToNextMutationResult = Apollo.MutationResult<SkipToNextMutation>;
+export type SkipToNextMutationOptions = Apollo.BaseMutationOptions<SkipToNextMutation, SkipToNextMutationVariables>;
+export const SkipToPreviousDocument = gql`
+    mutation SkipToPrevious($deviceId: String) {
+  skipToPrevious(deviceId: $deviceId)
+}
+    `;
+export type SkipToPreviousMutationFn = Apollo.MutationFunction<SkipToPreviousMutation, SkipToPreviousMutationVariables>;
+
+/**
+ * __useSkipToPreviousMutation__
+ *
+ * To run a mutation, you first call `useSkipToPreviousMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSkipToPreviousMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [skipToPreviousMutation, { data, loading, error }] = useSkipToPreviousMutation({
+ *   variables: {
+ *      deviceId: // value for 'deviceId'
+ *   },
+ * });
+ */
+export function useSkipToPreviousMutation(baseOptions?: Apollo.MutationHookOptions<SkipToPreviousMutation, SkipToPreviousMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, options);
+      }
+export type SkipToPreviousMutationHookResult = ReturnType<typeof useSkipToPreviousMutation>;
+export type SkipToPreviousMutationResult = Apollo.MutationResult<SkipToPreviousMutation>;
+export type SkipToPreviousMutationOptions = Apollo.BaseMutationOptions<SkipToPreviousMutation, SkipToPreviousMutationVariables>;
 export const StartPlaybackDocument = gql`
-    mutation StartPlayback($input: StartPlaybackInput!) {
+    mutation StartPlayback($input: PlaybackContextInput!) {
   startPlayback(input: $input)
 }
     `;
@@ -1194,9 +1326,19 @@ export const NowPlayingOffsetDocument = gql`
   nowPlaying(tickInterval: $input) {
     timestamp
     progressMs
+    isPlaying
     item {
       id
       durationMs
+      name
+      artists {
+        id
+        name
+      }
+      album {
+        name
+        images
+      }
     }
   }
 }

@@ -38,7 +38,7 @@ fragment ReviewEntityOverview on ReviewEntity {
     } 
   }
   ... on Artist {
-    images 
+    artistImages: images 
   }
   ... on Playlist {
     owner {

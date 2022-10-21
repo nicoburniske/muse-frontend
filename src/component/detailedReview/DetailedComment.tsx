@@ -143,10 +143,10 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             />
           </article>
           <div className="flex-grow-1 btn-group mx-auto">
-            <button className="btn btn-sm btn-primary " disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
-            <button className="btn btn-sm btn-error" disabled={loadingDelete} onClick={onDelete}> delete </button>
+            <button className={`btn btn-sm btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}> update </button>
+            <button className={`btn btn-sm btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={onDelete}> delete </button>
             {/* For now we don't want to permit infinite nesting */}
-            {<button className="btn btn-sm btn-primary" disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}> reply </button>}
+            {<button className={`btn btn-sm  ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}> reply </button>}
           </div>
         </div>
         <button className="position: absolute; top: 0; right: 0; width: 100px;text-primary" onClick={onClick}>

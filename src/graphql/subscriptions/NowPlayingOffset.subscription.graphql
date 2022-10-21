@@ -2,9 +2,19 @@ subscription NowPlayingOffset($input: Int!) {
     nowPlaying(tickInterval: $input) { 
         timestamp
         progressMs
+        isPlaying
         item {
             id
             durationMs
+            name
+            artists {
+                id
+                name
+            }
+            album {
+                name 
+                images
+            }
         }
     }
 }

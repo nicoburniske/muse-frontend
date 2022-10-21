@@ -115,10 +115,10 @@ fragment DetailedAlbum on Album {
 
 fragment DetailedArtist on Artist {
   numFollowers
-  genres
+  artistGenres: genres
   href
   id
-  images
+  artistImages: images
   name
   artistPopularity: popularity
 }

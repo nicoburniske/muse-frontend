@@ -1,7 +1,7 @@
 import { DetailedCommentFragment, DetailedPlaylistFragment } from "graphql/generated/schema"
 import PlaylistTrackTable from "component/detailedReview/PlaylistTrackTable"
 import DetailedComment from "component/detailedReview/DetailedComment"
-import { useMemo, useRef } from "react"
+import { useMemo } from "react"
 import { useAtomValue, useSetAtom } from "jotai"
 import { searchLoweredAtom, selectedTrackAtom } from "state/Atoms"
 import Split from "react-split"
