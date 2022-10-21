@@ -124,7 +124,7 @@ export function PlaybackTime({
                     <div className={`flex flex-row justify-around w-full`}>
                             <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackName} </div>
                             <div className="divider divider-horizontal "/>
-                            <div className="text-center truncate p-0.5 font-light prose w-1/2 text-neutral-content"> {trackArtist} </div>
+                            <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackArtist} </div>
                     </div>
                 </div>
                 <div className="divider divider-vertical p-0 m-0"/>

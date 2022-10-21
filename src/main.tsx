@@ -25,7 +25,7 @@ const getSession = () => {
 }
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: `ws://${AppConfig.backendUrl}/ws/graphql`,
+  url: `wss://${AppConfig.backendUrl}/ws/graphql`,
   connectionParams: getSession as () => Promise<{ Authorization: string }>
 }));
 
