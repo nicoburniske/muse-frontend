@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { AppConfig } from 'util/Config';
+import { AppConfig } from 'util/AppConfig';
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -18,14 +18,14 @@ const getSession = () => {
   if (cookie) {
     return Promise.resolve({ Authorization: cookie })
   }
-  return fetch(`https://${AppConfig.backendUrl}/session`, { method: 'GET', credentials: 'include' })
+  return fetch(`${AppConfig.httpBase}/session`, { method: 'GET', credentials: 'include' })
     .then(r => r.text())
     .then(a => { return { Authorization: a } })
     .catch(e => console.error("Failed to get session", e))
 }
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: `wss://${AppConfig.backendUrl}/ws/graphql`,
+  url: AppConfig.websocketGraphEndpoint,
   connectionParams: getSession as () => Promise<{ Authorization: string }>
 }));
 
@@ -47,7 +47,7 @@ function getCookie(name: string): string | null {
 const queryClient = new QueryClient()
 
 const httpLink = createHttpLink({
-  uri: `https://${AppConfig.backendUrl}/api/graphql`,
+  uri: AppConfig.httpGraphEndpoint,
   credentials: 'include'
 })
 
