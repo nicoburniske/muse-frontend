@@ -1,13 +1,16 @@
 import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription, useSeekPlaybackMutation } from "graphql/generated/schema"
 import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
-import { useSetAtom } from "jotai"
-import { playbackDevicesAtom, currentlyPlayingTrackAtom, searchAtom } from "state/Atoms"
+import { useSetAtom, useAtomValue } from "jotai"
+import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
 import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { PlaybackTime } from "./PlaybackTime"
+import UserAvatar from "component/UserAvatar"
+import { EditReview } from "./editReview/EditReview"
+import { EllipsisIcon } from "component/Icons"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -15,6 +18,8 @@ export interface DetailedReviewProps {
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
   // State.
   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
+  const [openEditReview, setOpenEditReview] = useState(false)
+  const userId = useAtomValue(currentUserIdAtom)
 
   // Subscriptions.
   // Update jotai atom with playback devices.
@@ -64,10 +69,12 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
   })
   // This only needs to happen so that playlist tracks are refreshed.
-  const { data, loading, error } = useDetailedReviewQuery({
+  const { data, loading, error, refetch } = useDetailedReviewQuery({
     variables: { reviewId },
     pollInterval: 5 * 60 * 1000
   })
+
+  const isReviewOwner = useMemo(() => userId === data?.review?.creator?.id, [data, userId])
 
   if (commentErrors) {
     console.error("Errors in comment event", commentErrors)
@@ -100,8 +107,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   const title = data?.review?.reviewName
   const entityName = data?.review?.entity?.name
   const eType = data?.review?.entity?.__typename
-  const collaborators = data?.review?.collaborators?.map(u => u.user.id).join(", ")
-  const creator = data?.review?.creator.spotifyProfile?.displayName ?? data?.review?.creator.id
+  const creator = data?.review?.creator?.spotifyProfile?.displayName ?? data?.review?.creator?.id
   const reviewEntityImage = (() => {
     const entity = data?.review?.entity
     switch (entity?.__typename) {
@@ -160,16 +166,30 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     }
   }, [data, nowPlaying])
 
+
+  const collaborators = useMemo(() => (data?.review?.collaborators ?? []), [data])
   const collaboratorImages = useMemo(() => {
+    const numToShow = 1
+    const collaboratorsToShow = collaborators.slice(0, numToShow)
+    const leftOver = Math.min(collaborators.length - numToShow, 0)
     return (
-      <div className="avatar-group -space-x-6">
-        {data?.review?.collaborators
-          ?.map(u => u?.user?.spotifyProfile?.images?.at(-2))
-          .filter(i => i).map(imageSource =>
-            <div className="w-12" key={imageSource}>
-              <img src={imageSource} />
+      <div className="avatar-group space-x-6">
+        {
+          collaboratorsToShow
+            .map(u => u?.user?.spotifyProfile?.images?.at(0))
+            .filter(i => i)
+            .map(image =>
+              <UserAvatar image={image} />
+            )
+        }
+        {
+          (leftOver > 0) ?
+            <div className="avatar placeholder">
+              <div className="w-12 bg-neutral-focus text-neutral-content">
+                <span>+{leftOver}</span>
+              </div>
             </div>
-          )
+            : null
         }
       </div>)
   }, [data])
@@ -186,7 +206,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
                 <img className="scale-100" src={reviewEntityImage} />
               </div>
             </div>
-            <div className="stats shadow w-max h-full">
+            <div className="stats shadow w-max h-full" >
               <div className="stat">
                 <div className="stat-title truncate ">{`${eType} Review`}</div>
                 <div className="stat-value ">{title}</div>
@@ -200,8 +220,17 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
                 <div className="stat-desc"> by {entityCreator}</div>
               </div>
             </div>
+            {
+              isReviewOwner ?
+                <div className="btn-group btn-group-vertical">
+                  <ShareReview reviewId={reviewId} />
+                  <button className="btn btn-secondary btn-md" onClick={() => setOpenEditReview(true)}>
+                    <EllipsisIcon />
+                  </button>
+                </div>
+                : null
+            }
             {collaboratorImages}
-            <ShareReview reviewId={reviewId} />
           </div>
           <div className='w-1/2 flex flex-row justify-center'>
             <PlaybackTime
@@ -215,6 +244,10 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
               trackName={nowPlayingTrackName}
               trackArtist={nowPlayingArtist} />
           </div>
+          <EditReview reviewId={reviewId} reviewName={title!} isPublic={false}
+            onSuccess={() => { setOpenEditReview(false); refetch(); }}
+            isOpen={openEditReview}
+            onCancel={() => setOpenEditReview(false)} />
           <CommentFormModalWrapper />
         </div>
         <div className="divider m-0 p-0 h-3" />

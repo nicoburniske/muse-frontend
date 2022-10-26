@@ -11,7 +11,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
     const [comment, setComment] = useState(initialValue)
     const canSubmit = useMemo(() => comment != initialValue, [comment, initialValue])
 
-    const submitAndReset = async (event) => {
+    const submitAndReset = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault()
         try {
             await onSubmit(comment)
@@ -20,7 +20,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
         }
     }
 
-    const cancel = (event) => {
+    const cancel = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault()
         onCancel()
         setComment(initialValue)

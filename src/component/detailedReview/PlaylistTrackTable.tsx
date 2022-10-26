@@ -61,7 +61,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
     <div className="py-0.5">
         <div
-            className="card card-body bg-neutral"
+            className="card card-body bg-neutral/30 hover:bg-neutral-focus"
             style={{
                 height
             }}

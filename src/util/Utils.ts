@@ -1,3 +1,5 @@
+export type BoolNum = 0 | 1
+
 export function msToTime(duration: number) {
     const
         hours = Math.floor((duration / (1000 * 60 * 60)) % 24),

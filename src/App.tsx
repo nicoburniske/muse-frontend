@@ -9,7 +9,7 @@ import "./index.css"
 
 export default function App() {
   const nav = useNavigate()
-  const linkToHome = () => nav("")
+  const linkToHome = () => nav('/')
   const [theme, setTheme] = useAtom(themeAtom)
   const [search, setSearch] = useAtom(searchAtom)
 
@@ -39,7 +39,9 @@ export default function App() {
               value={theme}
               onChange={(e) => setTheme(e.target.value as Theme)}
               className="select select-bordered w-full max-w-xs">
-              {Object.values(Theme).map((e) => <option key={e} value={e}>{e}</option>)}
+              {Object.values(Theme)
+                .sort((a, b) => a.localeCompare(b))
+                .map((e) => <option key={e} value={e}>{e}</option>)}
             </select>
           </div>
         </div>

@@ -47,12 +47,16 @@ export function PlaybackTime({
 
 
     function onProgressClick(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
-        setSelectedTrack(nowPlaying)
         const progress = getPercentProgress(e)
         if (progress !== undefined && !loading) {
             const position = Math.floor(progress * durationMs)
             seekTrack({ variables: { input: { positionMs: position } } })
         }
+    }
+
+    const selectNowPlaying = () => {
+        setSelectedTrack('')
+        setTimeout(() => setSelectedTrack(nowPlaying), 1);
     }
 
     const seekForward = () => seekTrack({ variables: { input: { positionMs: progressMs + 10000 } } })
@@ -112,16 +116,16 @@ export function PlaybackTime({
         , [isPlaying, isLoading])
 
     return (
-        <div className="flex flex-row justify-center bg-neutral rounded-xl space-x-2 w-min">
-            <button className="flex avatar tooltip tooltip-left"
+        <div className="flex flex-row justify-center bg-neutral rounded-xl space-x-2 max-w-2xl w-full border-accent border">
+            <button className="flex avatar tooltip tooltip-left p-1"
                         data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
                 <div className="rounded w-16 md:w-24 lg:w-32">
                     <img className='scale-100' loading='lazy' src={trackImage} />
                 </div>
             </button>
-            <div className="flex flex-col justify-between rounded-lg">
+            <div className="flex flex-col justify-between rounded-lg w-4/5">
                 <div className="flex flex-row">
-                    <div className={`flex flex-row justify-around w-full`}>
+                    <div className={`flex flex-row justify-around w-full`} onClick={selectNowPlaying}>
                             <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackName} </div>
                             <div className="divider divider-horizontal "/>
                             <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackArtist} </div>
@@ -135,14 +139,14 @@ export function PlaybackTime({
                     <button className={commonClass} onClick={seekForward}><SkipForwardIcon /></button>
                     <button className={commonClass} onClick={() => nextTrack()}><NextTrackIcon /></button>
                 </div>
-                <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1">
+                <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
                     <button className="flex flex-row">
                         <span className="countdown font-mono text-xl ">
                             <span style={{ "--value": minutes }}></span>:
                             <span style={{ "--value": seconds }}></span>
                         </span>
                     </button>
-                    <progress className="progress progress-success w-96 h-4 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
+                    <progress className="progress progress-success h-4 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
                     <span className="countdown font-mono text-xl">
                         <span style={{ "--value": minDuration }}></span>:
                         <span style={{ "--value": secDuration }}></span>

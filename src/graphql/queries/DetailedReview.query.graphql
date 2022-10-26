@@ -23,12 +23,16 @@ query DetailedReview($reviewId: ID!) {
       }
     }
     collaborators {
-      accessLevel
-      user {
-        ...UserWithSpotifyOverview
-      }
+      ...Collaborator
     }
   }
+}
+
+fragment Collaborator on Collaborator {
+  accessLevel
+  user {
+    ...UserWithSpotifyOverview
+  } 
 }
 
 fragment UserWithSpotifyOverview on User {

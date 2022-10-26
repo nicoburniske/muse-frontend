@@ -57,7 +57,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
             sizes={[40, 60]}
             direction="horizontal"
             minSize={300}
-            style={{ height: '79vh' }}
+            style={{ height: '78vh' }}
         >
             <div className=" flex flex-row">
                 <PlaylistTrackTable

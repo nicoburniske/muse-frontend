@@ -5,7 +5,8 @@ import Markdown from "markdown-to-jsx"
 import { CommentFormModal } from "./commentForm/CommentFormModal"
 import { currentUserIdAtom } from "state/Atoms"
 import { useAtomValue } from "jotai"
-import UserAvatar from "component/UserAvatar"
+import UserAvatar, { TooltipPos } from "component/UserAvatar"
+import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, ReplyIcon, Search } from "component/Icons"
 
 export interface DetailedCommentProps {
   reviewId: string
@@ -127,9 +128,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   return (
     <div tabIndex={0} className={`collapse group rounded-box ${expanded}`}>
       <div className="collapse-title card card-body w-200 text-base-content py-1 bg-base-200 flex flex-row justify-around px-0">
-        <div className="flex flex-col items-center space-y-2 justify-self-start max-w-md">
-          <div className="card-title text-base-content text-base truncate"> {commenterName} </div>
-          <UserAvatar displayName={commenterName as string} image={avatar as string} />
+        <div className="flex flex-col items-center space-y-2 justify-self-start max-w-md py-1">
+          <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down}/>
           <div className="text-secondar-content text-base-content truncate"> {createdAt} </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             {isEditable ? (
               <>
                 <button className={`btn btn-sm btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={onDelete}>
-                  <DeleteIcon />
+                  <CrossIcon />
                 </button>
                 <button className={`btn btn-sm btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
                   <EditIcon />
@@ -185,7 +185,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           (<div tabIndex={0} className={`collapse-content ${childrenBg} space-y-0.5 px-1`}>
             {
               children.map(child =>
-                <DetailedComment playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+                <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
               )
             }
           </div>
@@ -208,39 +208,3 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
     </div >
   )
 }
-
-const ArrowUpIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-  </svg>
-)
-
-const ArrowDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-  </svg>
-)
-
-const Search = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-  </svg>
-)
-
-const ReplyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-  </svg>
-)
-
-const DeleteIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-)
-
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-  </svg>
-)

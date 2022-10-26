@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { EntityType, useCreateReviewMutation } from 'graphql/generated/schema'
 import { toast } from 'react-toastify'
 import { Dialog } from '@headlessui/react'
-import { refreshOverviewAtom, themeAtom } from 'state/Atoms'
-import { useAtomValue, useSetAtom } from 'jotai'
-
-type BoolNum = 0 | 1
+import { refreshOverviewAtom } from 'state/Atoms'
+import { useSetAtom } from 'jotai'
+import { BoolNum } from 'util/Utils'
+import { PlusIcon } from 'component/Icons'
+import { ThemeModal } from 'component/ThemeModal'
 
 export default function CreateReview() {
     const [name, setReviewName] = useState("")
@@ -13,7 +14,6 @@ export default function CreateReview() {
     const [entityId, setEntityId] = useState("")
     const [isPublic, setIsPublic] = useState<BoolNum>(0)
     const [isModalOpen, setModalOpen] = useState(false)
-    const theme = useAtomValue(themeAtom)
     const updateReviews = useSetAtom(refreshOverviewAtom)
 
     // Converts URL to Entity id.
@@ -66,65 +66,60 @@ export default function CreateReview() {
 
     return (
         <div>
-            <Dialog open={isModalOpen} onClose={() => null} data-theme={theme}>
-                <div className="fixed inset-0 bg-base-100/30" aria-hidden="true" />
-                <div className="fixed inset-0 flex items-center justify-center p-4 w-full z-50">
-                    <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral">
-                        <div className="flex flex-col items-center justify-between space-y-5 p-3" >
-                            <Dialog.Title>
-                                <h3 className="font-bold text-lg text-neutral-content"> Create Review </h3>
-                            </Dialog.Title>
-                            <input type="text" placeholder="Review Name" className="input input-bordered w-full max-w-xs"
-                                onChange={(e) => setReviewName(e.target.value as string)}
-                                value={name}
-                            />
-                            <input type="text" placeholder="Spotify URL or ID" className="input input-bordered w-full max-w-xs"
-                                onChange={e => setEntityId(e.target.value as string)}
-                                value={entityId}
-                            />
-                            <div className="form-control w-full max-w-xs">
-                                <label className="label">
-                                    <span className="label-text text-neutral-content">Type</span>
-                                </label>
-                                <select
-                                    value={entityType}
-                                    onChange={(e) => setEntityType(e.target.value as EntityType)}
-                                    className="select select-bordered w-full max-w-xs">
-                                    {Object.values(EntityType).map((e) => <option key={e} value={e}>{e}</option>)}
-                                </select>
-                            </div>
-                            <div className="form-control w-full max-w-xs">
-
-                                <label className="label">
-                                    <span className="label-text text-neutral-content">Is Public</span>
-                                </label>
-                                <select
-                                    value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
-                                    className="select select-bordered w-full max-w-xs">
-                                    <option selected value={0}>False</option>
-                                    <option selected value={1}>True</option>
-
-                                </select>
-                            </div>
-                            <div className="flex flex-row items-center justify-around w-1/2" >
-                                <button
-                                    className="btn btn-success disabled:btn-outline"
-                                    disabled={!canSubmit}
-                                    onClick={() => createReviewMutation()}
-                                >
-                                    create
-                                </button>
-                                <button className="btn btn-error" onClick={onCancel}> cancel </button>
-                            </div>
+            <ThemeModal open={isModalOpen}>
+                <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral">
+                    <div className="flex flex-col items-center justify-between space-y-5 p-3" >
+                        <Dialog.Title>
+                            <h3 className="font-bold text-lg text-neutral-content"> create review </h3>
+                        </Dialog.Title>
+                        <input type="text" placeholder="review name" className="input input-bordered w-full max-w-xs"
+                            onChange={(e) => setReviewName(e.target.value as string)}
+                            value={name}
+                        />
+                        <input type="text" placeholder="spotify url or id" className="input input-bordered w-full max-w-xs"
+                            onChange={e => setEntityId(e.target.value as string)}
+                            value={entityId}
+                        />
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text text-neutral-content">type</span>
+                            </label>
+                            <select
+                                value={entityType}
+                                onChange={(e) => setEntityType(e.target.value as EntityType)}
+                                className="select select-bordered w-full max-w-xs">
+                                {Object.values(EntityType).map((e) =>
+                                    <option key={e} value={e}>{e.toLowerCase()}</option>)
+                                }
+                            </select>
                         </div>
-                    </Dialog.Panel>
-                </div>
-            </Dialog>
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text text-neutral-content">is public</span>
+                            </label>
+                            <select
+                                value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
+                                className="select select-bordered w-full max-w-xs">
+                                <option selected value={0}>false</option>
+                                <option selected value={1}>true</option>
+                            </select>
+                        </div>
+                        <div className="flex flex-row items-center justify-around w-1/2" >
+                            <button
+                                className="btn btn-success disabled:btn-outline"
+                                disabled={!canSubmit}
+                                onClick={() => createReviewMutation()}
+                            >
+                                create
+                            </button>
+                            <button className="btn btn-error" onClick={onCancel}> cancel </button>
+                        </div>
+                    </div>
+                </Dialog.Panel>
+            </ThemeModal>
 
             <button className="btn btn-base-300 btn-square" onClick={() => setModalOpen(true)} >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+                <PlusIcon />
             </button>
         </div>
     )

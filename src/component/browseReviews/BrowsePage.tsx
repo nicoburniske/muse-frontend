@@ -4,20 +4,23 @@ import { toast } from "react-toastify";
 import { HeroLoading } from "component/HeroLoading";
 import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function BrowsePage() {
   const search = useAtomValue(searchLoweredAtom)
   const { data, loading, refetch } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
   const reviews = useMemo(() =>
     data?.user?.reviews?.filter(r =>
+      // Titles.
       r.reviewName.toLowerCase().includes(search) ||
-      r.creator.id.toLowerCase().includes(search) ||
+      r.creator?.id.toLowerCase().includes(search) ||
       r.entity.name.toLowerCase().includes(search) ||
+      // playlist owner.
       (r.entity.__typename === EntityType.Playlist &&
         (r.entity.owner?.id.toLowerCase().includes(search) ||
-          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
-      r.creator.spotifyProfile?.displayName?.toLowerCase().includes(search)
+          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
+      // review owner.
+      || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
     ) ?? [], [search, data])
 
   // Set current user name.
@@ -33,12 +36,19 @@ export default function BrowsePage() {
   const refreshCount = useAtomValue(refreshOverviewAtom)
   useMemo(() => refetch(), [refreshCount])
 
+  const [numPerRow, setNumPerRow] = useState(6)
+  const gridStyle = useMemo(() => `grid gap-4 py-10 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
+
   if (loading && data == undefined) {
     return <HeroLoading />
   } else {
     return (
-      <div className="grid grid-cols-6 gap-4 py-10 px-2 bg-inherit">
-        {reviews.map(review => <CreateCard key={review.id} review={review} />)}
+      <div className="flex flex-col items-center pt-1">
+        <input type="range" min={3} max={8} value={numPerRow} className="range range-primary max-w-xl" step={1}
+          onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
+        <div className={gridStyle}>
+          {reviews.map(review => <CreateCard key={review.id} review={review} />)}
+        </div>
       </div>
     )
   }
@@ -57,8 +67,8 @@ function CreateCard({ review }: CreateCardProps) {
       <figure><img src={image} /></figure>
       <button onClick={linkToReviewPage} className="card-body flex justify-center hover:bg-base-200 p-2">
         <div className="stat w-full flex flex-col justify-center items-center">
-          <div className="stat-title whitespace-normal">{entityName}</div>
-          <div className="stat-value w-full text-lg whitespace-normal">{review.reviewName}</div>
+          <div className="stat-title whitespace-normal truncate">{entityName}</div>
+          <div className="stat-value w-full text-lg whitespace-normal truncate">{review.reviewName}</div>
           <div className="stat-desc"> {creatorName} </div>
         </div>
         {/* <div className="card-actions justify-end">
@@ -84,3 +94,12 @@ function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
     return [data.name, data.album?.images?.[0] ?? ""]
   }
 }
+
+const styles = new Map([
+  [3, 'grid-cols-3'],
+  [4, 'grid-cols-4'],
+  [5, 'grid-cols-5'],
+  [6, 'grid-cols-6'],
+  [7, 'grid-cols-7'],
+  [8, 'grid-cols-8'],
+])
