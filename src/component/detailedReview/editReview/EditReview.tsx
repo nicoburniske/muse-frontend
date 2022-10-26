@@ -1,11 +1,10 @@
 import { Dialog } from "@headlessui/react"
-import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon } from "component/Icons"
+import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from "component/Icons"
 import { ThemeModal } from "component/ThemeModal"
 import { useUpdateReviewMutation, useDeleteReviewMutation } from "graphql/generated/schema"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import { BoolNum } from "util/Utils"
 
 interface EditReviewProps {
     isOpen: boolean
@@ -23,8 +22,10 @@ function useStateWithSyncedDefault<T>(defaultValue: T) {
     return state
 }
 
+const deleteStyle = "btn btn-error absolute top-0 right-5"
+
 export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPublic: isPublicProp, onSuccess, onCancel }: EditReviewProps) => {
-    const defaultIsPublic = isPublicProp ? 1 : 0
+    const defaultIsPublic = useMemo(() => isPublicProp ? 1 : 0, [isPublicProp])
 
     const [reviewName, setReviewName] = useStateWithSyncedDefault(reviewNameProp)
     const [isPublic, setIsPublic] = useStateWithSyncedDefault(defaultIsPublic)
@@ -32,10 +33,11 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
     const resetState = () => {
         setIsPublic(defaultIsPublic)
         setReviewName(reviewNameProp)
+        setIsDeleting(false)
     }
 
-    const input = { reviewId, name: reviewName, isPublic: (isPublic ? true : false) }
-    const [updateReview, { }] = useUpdateReviewMutation({
+    const input = { reviewId, name: reviewName, isPublic: (isPublic === 1 ? true : false) }
+    const [updateReview, { loading }] = useUpdateReviewMutation({
         variables: { input },
         onError: () => toast.error('Failed to update review.'),
         onCompleted: () => {
@@ -46,7 +48,6 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
 
     // Deleting
     const [isDeleting, setIsDeleting] = useState(false)
-    const deleteStyle = "btn btn-error absolute top-0 right-5"
     const nav = useNavigate()
     const [deleteReview, { }] = useDeleteReviewMutation({
         variables: { input: { id: reviewId } },
@@ -67,8 +68,8 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
     }
 
     const disabled = useMemo(() =>
-        isPublic === defaultIsPublic && reviewName === reviewNameProp,
-        [isPublic, reviewName])
+        loading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
+        [loading, isPublic, reviewName])
 
     return (
         <ThemeModal open={isOpen}>
@@ -91,10 +92,10 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
                             <span className="label-text text-neutral-content">is public</span>
                         </label>
                         <select
-                            value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
+                            value={isPublic} onChange={(e) => setIsPublic(+e.target.value)}
                             className="select select-bordered w-full max-w-xs">
-                            <option selected value={0}>false</option>
-                            <option selected value={1}>true</option>
+                            <option value={0}>false</option>
+                            <option value={1}>true</option>
                         </select>
                     </div>
 
@@ -114,7 +115,7 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
                         </div>
                         :
                         <button className={deleteStyle} onClick={() => setIsDeleting(true)}>
-                            <HazardIcon />
+                            <TrashIcon/>
                         </button>
                     }
                 </div>

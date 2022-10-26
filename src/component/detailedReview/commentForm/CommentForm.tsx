@@ -1,3 +1,4 @@
+import { CheckIcon, CrossIcon } from "component/Icons"
 import { useMemo, useState } from "react"
 
 export interface CommentFormProps {
@@ -36,11 +37,11 @@ export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFo
                 <button className="btn btn-success disabled:btn-outline"
                     onClick={submitAndReset}
                     disabled={!canSubmit}>
-                    {initialValue.length === 0 ? "create" : "update"}
+                    <CheckIcon />
                 </button>
                 <button className="btn btn-error"
                     onClick={cancel}>
-                    cancel
+                    <CrossIcon />
                 </button>
             </div>
         </div>

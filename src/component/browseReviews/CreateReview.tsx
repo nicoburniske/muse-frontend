@@ -98,10 +98,10 @@ export default function CreateReview() {
                                 <span className="label-text text-neutral-content">is public</span>
                             </label>
                             <select
-                                value={isPublic} onChange={(e) => setIsPublic(e.target.value as unknown as BoolNum)}
+                                value={isPublic} onChange={(e) => setIsPublic(+e.target.value as BoolNum)}
                                 className="select select-bordered w-full max-w-xs">
-                                <option selected value={0}>false</option>
-                                <option selected value={1}>true</option>
+                                <option value={0}>false</option>
+                                <option value={1}>true</option>
                             </select>
                         </div>
                         <div className="flex flex-row items-center justify-around w-1/2" >

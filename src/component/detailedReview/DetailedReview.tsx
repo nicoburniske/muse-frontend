@@ -194,6 +194,8 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
       </div>)
   }, [data])
 
+  const isPublic = data?.review?.isPublic
+
   if (loading) {
     return <HeroLoading />
   } else if (data) {
@@ -244,7 +246,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
               trackName={nowPlayingTrackName}
               trackArtist={nowPlayingArtist} />
           </div>
-          <EditReview reviewId={reviewId} reviewName={title!} isPublic={false}
+          <EditReview reviewId={reviewId} reviewName={title!} isPublic={ isPublic === undefined ? false : isPublic}
             onSuccess={() => { setOpenEditReview(false); refetch(); }}
             isOpen={openEditReview}
             onCancel={() => setOpenEditReview(false)} />

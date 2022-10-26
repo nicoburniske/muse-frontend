@@ -6,7 +6,7 @@ import { CommentFormModal } from "./commentForm/CommentFormModal"
 import { currentUserIdAtom } from "state/Atoms"
 import { useAtomValue } from "jotai"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
-import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, ReplyIcon, Search } from "component/Icons"
+import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, HazardIcon, ReplyIcon, Search, TrashIcon } from "component/Icons"
 
 export interface DetailedCommentProps {
   reviewId: string
@@ -81,6 +81,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [deleteComment, { loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
   const [updateComment, { loading: loadingUpdate }] = useUpdateCommentMutation()
@@ -92,7 +93,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
   const createdAt = (() => {
     const date = new Date(detailedComment?.updatedAt)
-    return `${date.toLocaleDateString()} - ${date.getHours()}:${date.getMinutes()}`
+    return `${date.toLocaleDateString()}  ${date.getHours()}:${date.getMinutes()}`
   })()
 
   const onDelete = async () => {
@@ -124,16 +125,34 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
-  // TODO: need to consider which comments are owned by user.
   return (
     <div tabIndex={0} className={`collapse group rounded-box ${expanded}`}>
-      <div className="collapse-title card card-body w-200 text-base-content py-1 bg-base-200 flex flex-row justify-around px-0">
-        <div className="flex flex-col items-center space-y-2 justify-self-start max-w-md py-1">
-          <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down}/>
-          <div className="text-secondar-content text-base-content truncate"> {createdAt} </div>
+      <div className="collapse-title card card-body w-full text-base-content py-1 bg-base-200 flex flex-row justify-around px-0 relative">
+        {/* Delete confirmation */}
+        {isDeleting ?
+          <div className="absolute inset-0 z-10 bg-base-300/50">
+            <div className="w-full h-full grid place-items-center">
+              <div className="flex flex-col items-center" >
+                <p>are you sure?</p>
+                <div className="btn-group btn-group-horizontal " >
+                  <button className="btn btn-error tooltip tooltip-bottom tooltip-error" data-tip="delete comment" onClick={onDelete}>
+                    <HazardIcon />
+                  </button>
+                  <button className="btn btn-info tooltip tooltip-bottom tooltip-info" data-tip="cancel delete" onClick={() => setIsDeleting(false)}>
+                    <ReplyIcon />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          : null
+        }
+        <div className="flex flex-col items-center space-y-2 justify-self-start max-w-md py-1 w-[20%]">
+          <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down} />
+          <p className="w-full text-base-content text-wrap text-center"> {createdAt} </p>
         </div>
 
-        <div className="flex flex-col w-3/4 justify-between" >
+        <div className="flex flex-col w-4/5 justify-between" >
           <article className="card card-body min-h-[75%] p-2 min-w-full prose text-base-content bg-base-100">
             <Markdown
               children={comment}
@@ -156,8 +175,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             </button>
             {isEditable ? (
               <>
-                <button className={`btn btn-sm btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={onDelete}>
-                  <CrossIcon />
+                <button className={`btn btn-sm btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={() => setIsDeleting(true)}>
+                  <TrashIcon />
                 </button>
                 <button className={`btn btn-sm btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
                   <EditIcon />

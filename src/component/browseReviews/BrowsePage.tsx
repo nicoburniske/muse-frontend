@@ -37,13 +37,13 @@ export default function BrowsePage() {
   useMemo(() => refetch(), [refreshCount])
 
   const [numPerRow, setNumPerRow] = useState(6)
-  const gridStyle = useMemo(() => `grid gap-4 py-10 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
+  const gridStyle = useMemo(() => `grid gap-4 pt-2 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
 
   if (loading && data == undefined) {
     return <HeroLoading />
   } else {
     return (
-      <div className="flex flex-col items-center pt-1">
+      <div className="flex flex-col items-center pt-2">
         <input type="range" min={3} max={8} value={numPerRow} className="range range-primary max-w-xl" step={1}
           onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
         <div className={gridStyle}>

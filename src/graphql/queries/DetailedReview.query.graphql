@@ -5,6 +5,7 @@ query DetailedReview($reviewId: ID!) {
     entityType
     entityId
     createdAt
+    isPublic
     creator {
       ...UserWithSpotifyOverview
     }
