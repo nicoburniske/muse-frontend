@@ -13,7 +13,8 @@ export const AppConfig = (() => {
       PROD,
       backendUrl,
       httpBase,
-      httpGraphEndpoint: `${httpPrefix}://${backendUrl}/api/graphql`,
+      httpGraphEndpoint: `${httpBase}/api/graphql`,
+      httpSessionEndpoint: `${httpBase}/session`,
       websocketGraphEndpoint:`${wsPrefix}://${backendUrl}/ws/graphql`
    }
 })()

@@ -5,6 +5,7 @@ import { useMemo } from "react"
 import { useAtomValue, useSetAtom } from "jotai"
 import { searchLoweredAtom, selectedTrackAtom } from "state/Atoms"
 import Split from "react-split"
+import { groupBy } from "util/Utils"
 
 // TODO: Figure out how to generate type definitions with pretty printing. 
 export interface DetailedPlaylistProps {
@@ -13,8 +14,6 @@ export interface DetailedPlaylistProps {
     comments: DetailedCommentFragment[]
 }
 
-// TODO: Tracks and Comments side by side. Clicking a comment will focus the entity that the comment is applied to.
-// when clicking a comment, scroll to comment and allow nesting expansion.
 export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
     const search = useAtomValue(searchLoweredAtom)
 
@@ -24,7 +23,6 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                 track?.track.artists?.flatMap(a => a.name.toLocaleLowerCase()).some(name => name.includes(search)))
         ?? []
         , [playlist, search])
-
 
     const trackIds = useMemo(() => new Set(tracks.map(track => track?.track.id)), [tracks])
 
@@ -36,14 +34,10 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
 
     const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
-        const commentMap: Map<number, DetailedCommentFragment[]> = new Map()
-        comments.filter(comment => comment.parentCommentId !== null).forEach(comment => {
-            const parentCommentId = comment.parentCommentId!
-            const childComments = commentMap.get(parentCommentId) ?? []
-            childComments.push(comment)
-            commentMap.set(parentCommentId, childComments)
-        })
-        return commentMap
+        const childComments = comments
+            .filter(comment => comment.parentCommentId !== null)
+            .filter(comment => comment.parentCommentId !== undefined)
+        return groupBy(childComments, c => c.parentCommentId)
     }, [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
@@ -52,7 +46,8 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     const onCommentClick = (commentId: number) => {
         const trackId = comments.find(c => c.id == commentId)?.entityId
         if (trackId) {
-            setSelectedTrack(trackId)
+            setSelectedTrack('')
+            setTimeout(() => setSelectedTrack(trackId), 1);
         }
     }
 

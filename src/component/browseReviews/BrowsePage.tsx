@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { EntityType, ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { toast } from "react-toastify";
 import { HeroLoading } from "component/HeroLoading";
-import { refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
-import { useAtomValue } from "jotai";
-import { useMemo } from "react";
+import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useMemo } from "react";
 
 export default function BrowsePage() {
   const search = useAtomValue(searchLoweredAtom)
@@ -19,6 +19,15 @@ export default function BrowsePage() {
           r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
       r.creator.spotifyProfile?.displayName?.toLowerCase().includes(search)
     ) ?? [], [search, data])
+
+  // Set current user name.
+  const setCurrentUserId = useSetAtom(currentUserIdAtom)
+  useEffect(() => {
+    const maybeUser = data?.user?.id
+    if (maybeUser !== undefined) {
+      setCurrentUserId(maybeUser)
+    }
+  }, [data])
 
   // We to update the reviews in case one gets created.
   const refreshCount = useAtomValue(refreshOverviewAtom)

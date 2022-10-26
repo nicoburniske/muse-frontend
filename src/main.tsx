@@ -18,7 +18,7 @@ const getSession = () => {
   if (cookie) {
     return Promise.resolve({ Authorization: cookie })
   }
-  return fetch(`${AppConfig.httpBase}/session`, { method: 'GET', credentials: 'include' })
+  return fetch(AppConfig.httpSessionEndpoint, { method: 'GET', credentials: 'include' })
     .then(r => r.text())
     .then(a => { return { Authorization: a } })
     .catch(e => console.error("Failed to get session", e))

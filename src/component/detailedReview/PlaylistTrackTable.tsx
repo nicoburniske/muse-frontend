@@ -47,7 +47,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
             className="w-full h-full overflow-y-auto"
             ref={virtuoso}
             scrollSeekConfiguration={{
-                enter: (velocity) => Math.abs(velocity) > 1000,
+                enter: (velocity) => Math.abs(velocity) > 1500,
                 exit: (velocity) => Math.abs(velocity) < 100,
             }}
             components={{ ScrollSeekPlaceholder }}
