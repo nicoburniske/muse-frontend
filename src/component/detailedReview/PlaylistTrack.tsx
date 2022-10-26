@@ -76,8 +76,11 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                     <div className="truncate p-0.5"> {track.name} </div>
                     <div className="truncate p-0.5 font-light"> {artistNames ?? ""} </div>
                 </div>
-                <div className="p-1"> {new Date(addedAt).toLocaleDateString()} </div>
+                <div className="p-1 grid place-items-center">
+                    <p> {new Date(addedAt).toLocaleDateString()} </p>
+                </div>
             </div>
+            {/* TODO: This needs to get centered vertically */}
             <UserAvatar displayName={displayName} image={avatarImage as string} />
             <button className="btn btn-neutral btn-square btn-sm" onClick={showModal}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">

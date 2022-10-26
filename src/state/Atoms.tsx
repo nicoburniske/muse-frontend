@@ -56,4 +56,4 @@ export enum Theme {
     Winter = "winter"
 }
 
-export const themeAtom = atomWithStorage<Theme>('muse-app-theme', Theme.Dark)
+export const themeAtom = atomWithStorage<Theme>('muse-app-theme', Theme.Black)
