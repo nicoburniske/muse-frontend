@@ -68,8 +68,8 @@ function CreateCard({ review }: CreateCardProps) {
       <button onClick={linkToReviewPage} className="card-body flex justify-center hover:bg-base-200 p-2">
         <div className="stat w-full flex flex-col justify-center items-center">
           <div className="stat-title whitespace-normal truncate">{entityName}</div>
-          <div className="stat-value w-full text-lg whitespace-normal truncate">{review.reviewName}</div>
-          <div className="stat-desc"> {creatorName} </div>
+          <div className="stat-value text-lg whitespace-normal truncate">{review.reviewName}</div>
+          <div className="stat-desc truncate"> {creatorName} </div>
         </div>
         {/* <div className="card-actions justify-end">
           <button onClick={linkToReviewPage} className="btn btn-primary">View</button>

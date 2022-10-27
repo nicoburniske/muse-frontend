@@ -66,45 +66,44 @@ export default function CreateReview() {
 
     return (
         <div>
-            <ThemeModal open={isModalOpen}>
-                <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral">
-                    <div className="flex flex-col items-center justify-between space-y-5 p-3" >
+            <ThemeModal open={isModalOpen} className="max-w-md">
+                    <div className="flex flex-col w-full items-center justify-between space-y-5 p-3" >
                         <Dialog.Title>
-                            <h3 className="font-bold text-lg text-neutral-content"> create review </h3>
+                            <h3 className="font-bold text-lg text-neutral-content flex-1"> create review </h3>
                         </Dialog.Title>
-                        <input type="text" placeholder="review name" className="input input-bordered w-full max-w-xs"
+                        <input type="text" placeholder="review name" className="input input-bordered w-full"
                             onChange={(e) => setReviewName(e.target.value as string)}
                             value={name}
                         />
-                        <input type="text" placeholder="spotify url or id" className="input input-bordered w-full max-w-xs"
+                        <input type="text" placeholder="spotify url or id" className="input input-bordered w-full"
                             onChange={e => setEntityId(e.target.value as string)}
                             value={entityId}
                         />
-                        <div className="form-control w-full max-w-xs">
+                        <div className="form-control w-full">
                             <label className="label">
                                 <span className="label-text text-neutral-content">type</span>
                             </label>
                             <select
                                 value={entityType}
                                 onChange={(e) => setEntityType(e.target.value as EntityType)}
-                                className="select select-bordered w-full max-w-xs">
+                                className="select select-bordered w-full">
                                 {Object.values(EntityType).map((e) =>
                                     <option key={e} value={e}>{e.toLowerCase()}</option>)
                                 }
                             </select>
                         </div>
-                        <div className="form-control w-full max-w-xs">
+                        <div className="form-control w-full">
                             <label className="label">
                                 <span className="label-text text-neutral-content">is public</span>
                             </label>
                             <select
                                 value={isPublic} onChange={(e) => setIsPublic(+e.target.value as BoolNum)}
-                                className="select select-bordered w-full max-w-xs">
+                                className="select select-bordered w-full">
                                 <option value={0}>false</option>
                                 <option value={1}>true</option>
                             </select>
                         </div>
-                        <div className="flex flex-row items-center justify-around w-1/2" >
+                        <div className="flex flex-row items-center justify-around w-full" >
                             <button
                                 className="btn btn-success disabled:btn-outline"
                                 disabled={!canSubmit}
@@ -117,7 +116,6 @@ export default function CreateReview() {
                             </button>
                         </div>
                     </div>
-                </Dialog.Panel>
             </ThemeModal>
 
             <button className="btn btn-base-300 btn-square" onClick={() => setModalOpen(true)} >

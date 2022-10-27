@@ -125,6 +125,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
+  const buttonClass = 'btn btn-xs lg:btn-sm'
   return (
     <div tabIndex={0} className={`collapse group rounded-box ${expanded}`}>
       <div className="collapse-title card card-body w-full text-base-content py-1 bg-base-200 flex flex-row justify-around px-0 relative">
@@ -164,39 +165,37 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             />
           </article>
         </div>
-        <div className="position: absolute; top: 0; right: 0; width: 100px;text-primary">
-          <div className="flex-grow-1 btn-group btn-group-vertical mx-auto">
-            <button className="btn btn-sm btn-success" onClick={onClick}>
-              <Search />
-            </button>
-            {/* For now we don't want to permit infinite nesting */}
-            <button className={`btn btn-sm  ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>
-              <ReplyIcon />
-            </button>
-            {isEditable ? (
-              <>
-                <button className={`btn btn-sm btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={() => setIsDeleting(true)}>
-                  <TrashIcon />
-                </button>
-                <button className={`btn btn-sm btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
-                  <EditIcon />
-                </button>
-              </>)
-              : null
-            }
-            {(children.length > 0) ?
-              (
-                <button className='btn btn-sm btn-info' onClick={() => setIsExpanded(!isExpanded)}>
-                  {
-                    isExpanded ?
-                      <ArrowUpIcon /> :
-                      <ArrowDownIcon />
-                  }
-                </button>
-              ) :
-              null
-            }
-          </div>
+        <div className="flex-grow-1 btn-group btn-group-vertical mx-auto pr-1 py-1">
+          <button className={`${buttonClass} btn-success`} onClick={onClick}>
+            <Search />
+          </button>
+          {/* For now we don't want to permit infinite nesting */}
+          <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>
+            <ReplyIcon />
+          </button>
+          {isEditable ? (
+            <>
+              <button className={`${buttonClass} btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={() => setIsDeleting(true)}>
+                <TrashIcon />
+              </button>
+              <button className={`${buttonClass} btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
+                <EditIcon />
+              </button>
+            </>)
+            : null
+          }
+          {(children.length > 0) ?
+            (
+              <button className={`${buttonClass} btn-info`} onClick={() => setIsExpanded(!isExpanded)}>
+                {
+                  isExpanded ?
+                    <ArrowUpIcon /> :
+                    <ArrowDownIcon />
+                }
+              </button>
+            ) :
+            null
+          }
         </div >
       </div>
       {
@@ -211,6 +210,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           ) : null
       }
 
+      {/* TODO: move this to an inline editor! */}
       <CommentFormModal
         title={"edit comment"}
         open={isEditing}

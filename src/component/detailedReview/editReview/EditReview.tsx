@@ -66,54 +66,52 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
         [loading, isPublic, reviewName])
 
     return (
-        <ThemeModal open={isOpen}>
-            <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral border-primary relative">
-                <div className="flex flex-col items-center justify-between space-y-5 p-3" >
-                    <Dialog.Title>
-                        <h3 className="font-bold text-lg text-neutral-content"> edit review </h3>
-                    </Dialog.Title>
-                    <div className="w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text text-neutral-content"> review name </span>
-                        </label>
-                        <input type="text" placeholder="Review Name" className="input input-bordered w-full max-w-xs"
-                            onChange={(e) => setReviewName(e.target.value as string)}
-                            value={reviewName}
-                        />
-                    </div>
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text text-neutral-content">is public</span>
-                        </label>
-                        <select
-                            value={isPublic} onChange={(e) => setIsPublic(+e.target.value)}
-                            className="select select-bordered w-full max-w-xs">
-                            <option value={0}>false</option>
-                            <option value={1}>true</option>
-                        </select>
-                    </div>
-
-                    <div className="flex flex-row items-center justify-around w-1/2" >
-                        <button className="btn btn-success" disabled={disabled} onClick={onSubmit}> <CheckIcon /> </button>
-                        <button className="btn btn-info" onClick={cancel}> <CrossIcon /> </button>
-                    </div>
-
-                    {isDeleting ?
-                        <div className="btn-group absolute top-0 right-5" >
-                            <button className="btn btn-error tooltip tooltip-error" data-tip="delete review" onClick={() => deleteReview()}>
-                                <HazardIcon />
-                            </button>
-                            <button className="btn btn-info tooltip tooltip-info" data-tip="cancel delete" onClick={() => setIsDeleting(false)}>
-                                <ReplyIcon />
-                            </button>
-                        </div>
-                        :
-                        <button className={deleteStyle} onClick={() => setIsDeleting(true)}>
-                            <TrashIcon/>
-                        </button>
-                    }
+        <ThemeModal open={isOpen} className="max-w-md">
+            <div className="flex flex-col items-center justify-between space-y-5 p-3 relative" >
+                <Dialog.Title>
+                    <h3 className="font-bold text-lg text-neutral-content"> edit review </h3>
+                </Dialog.Title>
+                <div className="w-full">
+                    <label className="label">
+                        <span className="label-text text-neutral-content"> review name </span>
+                    </label>
+                    <input type="text" placeholder="Review Name" className="input input-bordered w-full"
+                        onChange={(e) => setReviewName(e.target.value as string)}
+                        value={reviewName}
+                    />
                 </div>
-            </Dialog.Panel>
+                <div className="form-control w-full">
+                    <label className="label">
+                        <span className="label-text text-neutral-content">is public</span>
+                    </label>
+                    <select
+                        value={isPublic} onChange={(e) => setIsPublic(+e.target.value)}
+                        className="select select-bordered w-full">
+                        <option value={0}>false</option>
+                        <option value={1}>true</option>
+                    </select>
+                </div>
+
+                <div className="flex flex-row items-center justify-around w-full" >
+                    <button className="btn btn-success" disabled={disabled} onClick={onSubmit}> <CheckIcon /> </button>
+                    <button className="btn btn-info" onClick={cancel}> <CrossIcon /> </button>
+                </div>
+
+                {isDeleting ?
+                    <div className="btn-group absolute top-0 right-5" >
+                        <button className="btn btn-error tooltip tooltip-error" data-tip="delete review" onClick={() => deleteReview()}>
+                            <HazardIcon />
+                        </button>
+                        <button className="btn btn-info tooltip tooltip-info" data-tip="cancel delete" onClick={() => setIsDeleting(false)}>
+                            <ReplyIcon />
+                        </button>
+                    </div>
+                    :
+                    <button className={deleteStyle} onClick={() => setIsDeleting(true)}>
+                        <TrashIcon />
+                    </button>
+                }
+            </div>
         </ThemeModal>
     )
 }

@@ -69,72 +69,70 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                 <ShareIcon />
             </button>
 
-            <ThemeModal open={isModalOpen} >
-                <Dialog.Panel className="w-1/4 max-w-4xl rounded bg-neutral border-primary">
-                    <div className="flex flex-col items-center justify-between space-y-5 p-3 " >
-                        <Dialog.Title>
-                            <h3 className="font-bold text-lg text-neutral-content"> share review </h3>
-                        </Dialog.Title>
-                        <div className="form-control w-full max-w-xs">
-                            <label className="label">
-                                <span className="label-text text-neutral-content">who do you want to share with?</span>
-                            </label>
-                            <input type="text" placeholder="spotify username" className="input input-bordered w-full max-w-xs"
-                                onChange={(e) => setUsername(e.target.value as string)}
-                                value={username}
-                            />
-                        </div>
-                        <div className="form-control w-full max-w-xs">
-                            <label className="label">
-                                <span className="label-text text-neutral-content">access level</span>
-                            </label>
-                            <select value={accessLevel}
-                                onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
-                                className="select select-bordered w-full max-w-xs">
-                                {Object.values(AccessLevel).map((a) =>
-                                    <option key={a} value={a}>{a.toLowerCase()}</option>)
-                                }
-                            </select>
-                        </div>
-                        {
-                            collabProp.length > 0 &&
-                            <div className="form-control w-full items-center">
-                                <label className="label">
-                                    <span className="label-text text-neutral-content"> collaborators </span>
-                                </label>
-                                <ul className="menu bg-base-100 w-full">
-                                    {collaborators.map((c) =>
-                                        <li key={c.user.id}>
-                                            <div className="flex flex-row justify-between">
-                                                <p>{c.user.id}</p>
-                                                <button
-                                                    className="btn btn-error"
-                                                    onClick={() => setCollaborators(collaborators.filter((c2) => c2.user.id !== c.user.id))}
-                                                >
-                                                    <CrossIcon />
-                                                </button>
-                                            </div>
-                                        </li>
-                                    )
-                                    }
-                                </ul>
-                            </div>
-                        }
-                        <div className="flex flex-row items-center justify-around w-1/2" >
-                            <button className="btn btn-success disabled:btn-outline"
-                                onClick={onSubmit}
-                                disabled={disabled}>
-                                <CheckIcon />
-                            </button>
-                            <button className="btn btn-info" disabled={disabledUndo} onClick={() => setCollaborators(collabProp)}>
-                                <ReplyIcon />
-                            </button>
-                            <button className="btn btn-error" onClick={onCancel}>
-                                <CrossIcon />
-                            </button>
-                        </div>
+            <ThemeModal open={isModalOpen} className="max-w-md">
+                <div className="flex flex-col items-center justify-between space-y-5 p-3">
+                    <Dialog.Title>
+                        <h3 className="font-bold text-lg text-neutral-content"> share review </h3>
+                    </Dialog.Title>
+                    <div className="form-control w-full items-center">
+                        <label className="label">
+                            <span className="label-text text-neutral-content">who do you want to share with?</span>
+                        </label>
+                        <input type="text" placeholder="spotify username" className="input input-bordered w-full"
+                            onChange={(e) => setUsername(e.target.value as string)}
+                            value={username}
+                        />
                     </div>
-                </Dialog.Panel>
+                    <div className="form-control w-full items-center">
+                        <label className="label">
+                            <span className="label-text text-neutral-content">access level</span>
+                        </label>
+                        <select value={accessLevel}
+                            onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
+                            className="select select-bordered w-full">
+                            {Object.values(AccessLevel).map((a) =>
+                                <option key={a} value={a}>{a.toLowerCase()}</option>)
+                            }
+                        </select>
+                    </div>
+                    {
+                        collabProp.length > 0 &&
+                        <div className="form-control w-full items-center">
+                            <label className="label">
+                                <span className="label-text text-neutral-content"> collaborators </span>
+                            </label>
+                            <ul className="menu bg-base-100 w-full">
+                                {collaborators.map((c) =>
+                                    <li key={c.user.id}>
+                                        <div className="flex flex-row justify-between">
+                                            <p>{c.user.id}</p>
+                                            <button
+                                                className="btn btn-error"
+                                                onClick={() => setCollaborators(collaborators.filter((c2) => c2.user.id !== c.user.id))}
+                                            >
+                                                <CrossIcon />
+                                            </button>
+                                        </div>
+                                    </li>
+                                )
+                                }
+                            </ul>
+                        </div>
+                    }
+                    <div className="flex flex-row items-center justify-around w-full lg:w-1/2" >
+                        <button className="btn btn-success disabled:btn-outline"
+                            onClick={onSubmit}
+                            disabled={disabled}>
+                            <CheckIcon />
+                        </button>
+                        <button className="btn btn-info" disabled={disabledUndo} onClick={() => setCollaborators(collabProp)}>
+                            <ReplyIcon />
+                        </button>
+                        <button className="btn btn-error" onClick={onCancel}>
+                            <CrossIcon />
+                        </button>
+                    </div>
+                </div>
             </ThemeModal>
         </div>
     )

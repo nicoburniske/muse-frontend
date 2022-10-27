@@ -14,10 +14,6 @@ import { AppConfig } from 'util/AppConfig';
 
 // Such a hack to get session id.
 const getSession = () => {
-  const cookie = getCookie("XSESSION")
-  if (cookie) {
-    return Promise.resolve({ Authorization: cookie })
-  }
   return fetch(AppConfig.httpSessionEndpoint, { method: 'GET', credentials: 'include' })
     .then(r => r.text())
     .then(a => { return { Authorization: a } })
@@ -28,21 +24,6 @@ const wsLink = new GraphQLWsLink(createClient({
   url: AppConfig.websocketGraphEndpoint,
   connectionParams: getSession as () => Promise<{ Authorization: string }>
 }));
-
-function getCookie(name: string): string | null {
-  const nameLenPlus = (name.length + 1);
-  const cookie = document.cookie
-    .split(';')
-    .map(c => c.trim())
-    .filter(cookie => {
-      return cookie.substring(0, nameLenPlus) === `${name}=`;
-    })
-    .map(cookie => {
-      return decodeURIComponent(cookie.substring(nameLenPlus));
-    })[0] || null;
-
-  return cookie
-}
 
 const queryClient = new QueryClient()
 

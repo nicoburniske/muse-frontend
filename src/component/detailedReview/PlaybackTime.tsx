@@ -1,7 +1,7 @@
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation } from "graphql/generated/schema";
-import useStateWithSyncdDefault from "hook/useStateWithSyncedDefault";
+import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "react-toastify";
 import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
 import { msToTime } from "util/Utils";
@@ -19,10 +19,12 @@ interface PlaybackTimeProps {
     disabled: boolean
 }
 
+const commonClass = 'btn btn-ghost neutral-focus'
+
 export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
     trackId, reviewId, disabled, isPlaying: isPlayingProp, trackImage, trackName, trackArtist }: PlaybackTimeProps) {
-    const [isPlaying, setIsPlaying] = useStateWithSyncdDefault(isPlayingProp)
+    const [isPlaying, setIsPlaying] = useStateWithSyncedDefault(isPlayingProp)
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const progressMs = useMemo(() => progressProp >= 0 ? progressProp : 0, [progressProp])
@@ -106,7 +108,6 @@ export function PlaybackTime({
     }
 
     const tooltipContent = useMemo(() => disabled ? "Not part of this review" : "Comment at timestamp", [disabled])
-    const commonClass = 'btn btn-ghost neutral-focus'
     const buttonClass = useMemo(() => isLoading ? commonClass + ' loading' : commonClass, [isLoading])
 
     const icon = useMemo(() =>
@@ -117,7 +118,7 @@ export function PlaybackTime({
     return (
         <div className="flex flex-row justify-center bg-neutral rounded-xl space-x-2 max-w-2xl w-full border-accent border">
             <button className="flex avatar tooltip tooltip-left p-1"
-                        data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
+                data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
                 <div className="rounded w-16 md:w-24 lg:w-32">
                     <img className='scale-100' loading='lazy' src={trackImage} />
                 </div>
@@ -125,12 +126,12 @@ export function PlaybackTime({
             <div className="flex flex-col justify-between rounded-lg w-4/5">
                 <div className="flex flex-row">
                     <div className={`flex flex-row justify-around w-full`} onClick={selectNowPlaying}>
-                            <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackName} </div>
-                            <div className="divider divider-horizontal "/>
-                            <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackArtist} </div>
+                        <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackName} </div>
+                        <div className="divider divider-horizontal " />
+                        <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackArtist} </div>
                     </div>
                 </div>
-                <div className="divider divider-vertical p-0 m-0"/>
+                <div className="divider divider-vertical p-0 m-0" />
                 <div className="flex flex-row justify-around items-center text-neutral-content ">
                     <button className={commonClass} onClick={() => prevTrack()}><PreviousTrackIcon /></button>
                     <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
