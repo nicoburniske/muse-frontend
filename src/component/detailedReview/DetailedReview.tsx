@@ -225,7 +225,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
             {
               isReviewOwner ?
                 <div className="btn-group btn-group-vertical">
-                  <ShareReview reviewId={reviewId} />
+                  <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => refetch()}/>
                   <button className="btn btn-secondary btn-md" onClick={() => setOpenEditReview(true)}>
                     <EllipsisIcon />
                   </button>

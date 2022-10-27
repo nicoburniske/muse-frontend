@@ -5,7 +5,7 @@ import { Dialog } from '@headlessui/react'
 import { refreshOverviewAtom } from 'state/Atoms'
 import { useSetAtom } from 'jotai'
 import { BoolNum } from 'util/Utils'
-import { PlusIcon } from 'component/Icons'
+import { CheckIcon, CrossIcon, PlusIcon } from 'component/Icons'
 import { ThemeModal } from 'component/ThemeModal'
 
 export default function CreateReview() {
@@ -110,9 +110,11 @@ export default function CreateReview() {
                                 disabled={!canSubmit}
                                 onClick={() => createReviewMutation()}
                             >
-                                create
+                                <CheckIcon />
                             </button>
-                            <button className="btn btn-error" onClick={onCancel}> cancel </button>
+                            <button className="btn btn-error" onClick={onCancel}>
+                                <CrossIcon />
+                            </button>
                         </div>
                     </div>
                 </Dialog.Panel>

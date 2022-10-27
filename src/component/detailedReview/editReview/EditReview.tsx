@@ -2,7 +2,8 @@ import { Dialog } from "@headlessui/react"
 import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from "component/Icons"
 import { ThemeModal } from "component/ThemeModal"
 import { useUpdateReviewMutation, useDeleteReviewMutation } from "graphql/generated/schema"
-import { useEffect, useMemo, useState } from "react"
+import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 
@@ -13,13 +14,6 @@ interface EditReviewProps {
     isPublic: boolean
     onSuccess: () => void
     onCancel: () => void
-}
-
-function useStateWithSyncedDefault<T>(defaultValue: T) {
-    const state = useState(defaultValue)
-    const [, setState] = state
-    useEffect(() => setState(defaultValue), [defaultValue])
-    return state
 }
 
 const deleteStyle = "btn btn-error absolute top-0 right-5"

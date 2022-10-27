@@ -1,4 +1,5 @@
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation } from "graphql/generated/schema";
+import useStateWithSyncdDefault from "hook/useStateWithSyncedDefault";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -21,9 +22,7 @@ interface PlaybackTimeProps {
 export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
     trackId, reviewId, disabled, isPlaying: isPlayingProp, trackImage, trackName, trackArtist }: PlaybackTimeProps) {
-    // Synchronizing prop state with local state. Want the button to change instantly.
-    const [isPlaying, setIsPlaying] = useState(isPlayingProp)
-    useEffect(() => setIsPlaying(isPlayingProp), [isPlayingProp])
+    const [isPlaying, setIsPlaying] = useStateWithSyncdDefault(isPlayingProp)
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const progressMs = useMemo(() => progressProp >= 0 ? progressProp : 0, [progressProp])
