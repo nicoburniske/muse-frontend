@@ -1,4 +1,5 @@
-import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation } from "graphql/generated/schema";
+import { HeartIcon, NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from "component/Icons";
+import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
@@ -11,6 +12,7 @@ interface PlaybackTimeProps {
     trackName: string,
     trackArtist: string,
     isPlaying: boolean,
+    isShuffled: boolean,
     // Current playback position.
     progressMs: number,
     // Track total duration.
@@ -23,8 +25,10 @@ const commonClass = 'btn btn-ghost neutral-focus'
 
 export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
-    trackId, reviewId, disabled, isPlaying: isPlayingProp, trackImage, trackName, trackArtist }: PlaybackTimeProps) {
+    trackId, reviewId, disabled, isPlaying: isPlayingProp, isShuffled: isShuffledProp,
+    trackImage, trackName, trackArtist }: PlaybackTimeProps) {
     const [isPlaying, setIsPlaying] = useStateWithSyncedDefault(isPlayingProp)
+    const [isShuffled, setIsShuffled] = useStateWithSyncedDefault(isShuffledProp)
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const progressMs = useMemo(() => progressProp >= 0 ? progressProp : 0, [progressProp])
@@ -38,14 +42,21 @@ export function PlaybackTime({
     const [seekTrack, { loading }] = useSeekPlaybackMutation({
         onError: () => toast.error('Failed to seek playback.'),
     });
-    const [nextTrack, { loading: nextLoading }] = useSkipToNextMutation({
+    const [nextTrack,] = useSkipToNextMutation({
         onError: () => toast.error('Failed to skip to next track.'),
     });
 
-    const [prevTrack, { loading: prevLoading }] = useSkipToPreviousMutation({
+    const [prevTrack,] = useSkipToPreviousMutation({
         onError: () => toast.error('Failed to skip to previous track.'),
     });
 
+    const [toggleShuffle, { }] = useToggleShuffleMutation({
+        variables: { input: !isShuffled },
+        onCompleted: () => {
+            setIsShuffled(!isShuffled)
+        },
+        onError: () => toast.error('Failed to toggle shuffle.')
+    })
 
     function onProgressClick(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
         const progress = getPercentProgress(e)
@@ -66,7 +77,6 @@ export function PlaybackTime({
     const [pausePlayback, { loading: loadingPause }] = usePausePlaybackMutation({
         variables: { deviceId: undefined },
         onCompleted: () => {
-            toast.success("Paused playback.", { autoClose: 500 })
             setIsPlaying(false)
         },
         onError: () => toast.success("Failed to pause playback."),
@@ -76,7 +86,6 @@ export function PlaybackTime({
         variables: { input: {} },
         onError: () => toast.error('Failed to start playback.'),
         onCompleted: () => {
-            toast.success(`Successfully started playback`, { autoClose: 500 })
             setIsPlaying(true)
         }
     });
@@ -109,51 +118,54 @@ export function PlaybackTime({
 
     const tooltipContent = useMemo(() => disabled ? "Not part of this review" : "Comment at timestamp", [disabled])
     const buttonClass = useMemo(() => isLoading ? commonClass + ' loading' : commonClass, [isLoading])
+    const shuffleButtonClass = useMemo(() => isShuffled ? 'btn btn-success' : commonClass, [isShuffled])
 
     const icon = useMemo(() =>
         isLoading ? null :
             isPlaying ? <PauseIcon /> : <PlayIcon />
         , [isPlaying, isLoading])
 
+    console.log(isShuffled, 'SHUFFLED')
     return (
-        <div className="flex flex-row justify-center bg-neutral rounded-xl space-x-2 max-w-2xl w-full border-accent border">
-            <button className="flex avatar tooltip tooltip-left p-1"
-                data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
-                <div className="rounded w-16 md:w-24 lg:w-32">
-                    <img className='scale-100' loading='lazy' src={trackImage} />
-                </div>
-            </button>
-            <div className="flex flex-col justify-between rounded-lg w-4/5">
-                <div className="flex flex-row">
-                    <div className={`flex flex-row justify-around w-full`} onClick={selectNowPlaying}>
-                        <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackName} </div>
-                        <div className="divider divider-horizontal " />
-                        <div className="text-center truncate p-0.5 prose w-1/2 text-neutral-content"> {trackArtist} </div>
+        <div className="grid grid-cols-4 rounded-xl w-full h-full border-accent border bg-neutral">
+            <div className='flex flex-row px-1 space-x-2 items-center max-w-[70%]'>
+                <button className="tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
+                    <div className="avatar" >
+                        <div className="w-16 lg:w-20 rounded">
+                            <img loading='lazy' src={trackImage} />
+                        </div>
                     </div>
+                </button>
+                <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}>
+                    <div className="text-left truncate p-0.5 prose w-full text-neutral-content"> {trackName} </div>
+                    <div className="text-left truncate p-0.5 prose w-full text-neutral-content"> {trackArtist} </div>
                 </div>
-                <div className="divider divider-vertical p-0 m-0" />
-                <div className="flex flex-row justify-around items-center text-neutral-content ">
+            </div>
+            <div className="col-span-2 flex flex-col justify-center items-center rounded-lg max-w-4xl">
+                <div className="flex flex-row justify-around items-center text-neutral-content">
+                    <button className={commonClass} onClick={() => null}><HeartIcon /></button>
                     <button className={commonClass} onClick={() => prevTrack()}><PreviousTrackIcon /></button>
                     <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
                     <button className={buttonClass} onClick={onTogglePlayback}>{icon}</button>
                     <button className={commonClass} onClick={seekForward}><SkipForwardIcon /></button>
                     <button className={commonClass} onClick={() => nextTrack()}><NextTrackIcon /></button>
+                    <button className={shuffleButtonClass} onClick={() => toggleShuffle()}><ShuffleIcon /></button>
                 </div>
                 <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
                     <button className="flex flex-row">
-                        <span className="countdown font-mono text-xl ">
+                        <span className="countdown font-mono text-sm lg:text-lg">
                             <span style={{ "--value": minutes }}></span>:
                             <span style={{ "--value": seconds }}></span>
                         </span>
                     </button>
-                    <progress className="progress progress-success h-4 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
-                    <span className="countdown font-mono text-xl">
+                    <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
+                    <span className="countdown font-mono text-sm lg:text-lg">
                         <span style={{ "--value": minDuration }}></span>:
                         <span style={{ "--value": secDuration }}></span>
                     </span>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
@@ -165,39 +177,3 @@ function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>
     }
     return undefined
 }
-
-const PlayIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-    </svg>
-)
-
-const PauseIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-    </svg>
-)
-
-const SkipForwardIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-    </svg>
-)
-
-const SkipBackwardIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-    </svg>
-)
-
-const NextTrackIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 010 1.953l-7.108 4.062A1.125 1.125 0 013 16.81V8.688zM12.75 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 010 1.953l-7.108 4.062a1.125 1.125 0 01-1.683-.977V8.688z" />
-    </svg>
-)
-
-const PreviousTrackIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953l7.108-4.062A1.125 1.125 0 0121 8.688v8.123zM11.25 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953L9.567 7.71a1.125 1.125 0 011.683.977v8.123z" />
-    </svg>
-)

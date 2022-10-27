@@ -8,7 +8,7 @@ export default function DetailedReviewPage() {
 
   if (reviewId) {
     return (
-      <div className="bg-base-300">
+      <div className="bg-base-300 w-full h-full">
         <DetailedReview reviewId={reviewId} />
       </div>)
   } else {

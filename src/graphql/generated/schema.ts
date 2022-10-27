@@ -156,6 +156,7 @@ export type Mutations = {
   skipToNext?: Maybe<Scalars['Boolean']>;
   skipToPrevious?: Maybe<Scalars['Boolean']>;
   startPlayback?: Maybe<Scalars['Boolean']>;
+  toggleShuffle?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
 };
@@ -213,6 +214,11 @@ export type MutationsSkipToPreviousArgs = {
 
 export type MutationsStartPlaybackArgs = {
   input: PlaybackContextInput;
+};
+
+
+export type MutationsToggleShuffleArgs = {
+  input: Scalars['Boolean'];
 };
 
 
@@ -331,7 +337,7 @@ export type Review = {
   comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Instant'];
   creator?: Maybe<User>;
-  entity: ReviewEntity;
+  entity?: Maybe<ReviewEntity>;
   entityId: Scalars['String'];
   entityType: EntityType;
   id: Scalars['ID'];
@@ -498,6 +504,13 @@ export type ShareReviewMutationVariables = Exact<{
 
 export type ShareReviewMutation = { __typename?: 'Mutations', shareReview?: boolean | null };
 
+export type ToggleShuffleMutationVariables = Exact<{
+  input: Scalars['Boolean'];
+}>;
+
+
+export type ToggleShuffleMutation = { __typename?: 'Mutations', toggleShuffle?: boolean | null };
+
 export type SkipToNextMutationVariables = Exact<{
   deviceId?: InputMaybe<Scalars['String']>;
 }>;
@@ -538,7 +551,7 @@ export type DetailedReviewQueryVariables = Exact<{
 }>;
 
 
-export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, isPublic: boolean, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, isPublic: boolean, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
 
 export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
@@ -564,9 +577,9 @@ export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { _
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+export type ProfileAndReviewsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null, reviews?: Array<{ __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null }> | null } | null };
 
-export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type ReviewOverviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename?: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename?: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename?: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null };
 
 type ReviewEntityOverview_Album_Fragment = { __typename?: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
@@ -599,7 +612,7 @@ export type NowPlayingOffsetSubscriptionVariables = Exact<{
 }>;
 
 
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, shuffleState: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
 
 export type ReviewUpdatesSubscriptionVariables = Exact<{
   reviewId: Scalars['ID'];
@@ -1046,6 +1059,37 @@ export function useShareReviewMutation(baseOptions?: Apollo.MutationHookOptions<
 export type ShareReviewMutationHookResult = ReturnType<typeof useShareReviewMutation>;
 export type ShareReviewMutationResult = Apollo.MutationResult<ShareReviewMutation>;
 export type ShareReviewMutationOptions = Apollo.BaseMutationOptions<ShareReviewMutation, ShareReviewMutationVariables>;
+export const ToggleShuffleDocument = gql`
+    mutation ToggleShuffle($input: Boolean!) {
+  toggleShuffle(input: $input)
+}
+    `;
+export type ToggleShuffleMutationFn = Apollo.MutationFunction<ToggleShuffleMutation, ToggleShuffleMutationVariables>;
+
+/**
+ * __useToggleShuffleMutation__
+ *
+ * To run a mutation, you first call `useToggleShuffleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleShuffleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleShuffleMutation, { data, loading, error }] = useToggleShuffleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useToggleShuffleMutation(baseOptions?: Apollo.MutationHookOptions<ToggleShuffleMutation, ToggleShuffleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, options);
+      }
+export type ToggleShuffleMutationHookResult = ReturnType<typeof useToggleShuffleMutation>;
+export type ToggleShuffleMutationResult = Apollo.MutationResult<ToggleShuffleMutation>;
+export type ToggleShuffleMutationOptions = Apollo.BaseMutationOptions<ToggleShuffleMutation, ToggleShuffleMutationVariables>;
 export const SkipToNextDocument = gql`
     mutation SkipToNext($deviceId: String) {
   skipToNext(deviceId: $deviceId)
@@ -1415,6 +1459,7 @@ export const NowPlayingOffsetDocument = gql`
     timestamp
     progressMs
     isPlaying
+    shuffleState
     item {
       id
       durationMs

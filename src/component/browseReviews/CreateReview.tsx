@@ -111,7 +111,7 @@ export default function CreateReview() {
                             >
                                 <CheckIcon />
                             </button>
-                            <button className="btn btn-error" onClick={onCancel}>
+                            <button className="btn btn-info" onClick={onCancel}>
                                 <CrossIcon />
                             </button>
                         </div>

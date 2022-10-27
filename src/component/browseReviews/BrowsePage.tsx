@@ -5,8 +5,11 @@ import { HeroLoading } from "component/HeroLoading";
 import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
+import NavbarRhs from "component/NavbarRhs";
 
 export default function BrowsePage() {
+  const nav = useNavigate()
+  const linkToHome = () => nav('/')
   const search = useAtomValue(searchLoweredAtom)
   const { data, loading, refetch } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
   const reviews = useMemo(() =>
@@ -14,10 +17,10 @@ export default function BrowsePage() {
       // Titles.
       r.reviewName.toLowerCase().includes(search) ||
       r.creator?.id.toLowerCase().includes(search) ||
-      r.entity.name.toLowerCase().includes(search) ||
+      r.entity?.name.toLowerCase().includes(search) ||
       // playlist owner.
-      (r.entity.__typename === EntityType.Playlist &&
-        (r.entity.owner?.id.toLowerCase().includes(search) ||
+      (r.entity?.__typename === EntityType.Playlist &&
+        (r.entity?.owner?.id.toLowerCase().includes(search) ||
           r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
       // review owner.
       || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
@@ -43,9 +46,26 @@ export default function BrowsePage() {
     return <HeroLoading />
   } else {
     return (
-      <div className="flex flex-col items-center pt-2">
-        <input type="range" min={3} max={8} value={numPerRow} className="range range-primary max-w-xl" step={1}
-          onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
+      <div className="flex flex-col w-full h-full items-center">
+        <div className="navbar bg-base-100 z-50">
+          <div className="navbar-start">
+            <div className="dropdown">
+              <label tabIndex={0} className="btn btn-ghost btn-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+              </label>
+              <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+              </ul>
+            </div>
+          </div>
+          <div className="navbar-center">
+            <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
+          </div>
+            <NavbarRhs className='navbar-end space-x-5'/>
+        </div>
+        <div className="min-h-fit w-full">
+          <input type="range" min={3} max={8} value={numPerRow} className="range range-primary max-w-xl " step={1}
+            onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
+        </div>
         <div className={gridStyle}>
           {reviews.map(review => <CreateCard key={review.id} review={review} />)}
         </div>
@@ -60,7 +80,7 @@ interface CreateCardProps {
 function CreateCard({ review }: CreateCardProps) {
   const [entityName, image] = getNameAndImage(review.entity)
   const nav = useNavigate()
-  const linkToReviewPage = () => nav(`reviews/${review.id}`)
+  const linkToReviewPage = () => nav(`/reviews/${review.id}`)
   const creatorName = review?.creator?.spotifyProfile?.displayName ?? "Unknown"
   return (
     <div key={review.id} className="card bg-base-100 shadow-xl">

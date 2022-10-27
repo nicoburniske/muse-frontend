@@ -1,0 +1,3 @@
+mutation ToggleShuffle($input: Boolean!) {
+    toggleShuffle(input: $input)
+}

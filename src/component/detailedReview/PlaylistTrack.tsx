@@ -1,10 +1,10 @@
-import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation, useAvailableDevicesSubscription, AvailableDevicesSubscription, PlaybackDeviceFragment } from "graphql/generated/schema"
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation } from "graphql/generated/schema"
 import { toast } from "react-toastify"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { useMemo } from "react"
+import { RefObject, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
-import { CommentIcon } from "component/Icons"
+import useDoubleClick from "hook/useDoubleClick"
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
@@ -44,7 +44,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const [playTrack, { loading }] = useStartPlaybackMutation({
         onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
         onCompleted: () => {
-            toast.success(`Successfully started playback`, { autoClose: 500 })
             setPlaying(track.id)
         }
     });
@@ -64,28 +63,31 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
         setCommentModal(values)
     }
 
+    // Play on div double click.
+    const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
+    useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: onPlayTrack })
     return (
-        <div className={`card card-body flex flex-row items-center justify-around p-0.5 m-0 ${bgStyle} ${hoverStyle} `}>
-            <div className="avatar" onClick={() => onPlayTrack()}>
+        <div
+            ref={playOnDoubleClickRef}
+            className={`card card-body grid grid-cols-6	items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+
+            <div className="avatar" onClick={showModal}>
                 <div className="w-16 rounded">
                     <img loading='lazy' src={albumImage} />
                 </div>
             </div>
 
-            <div className={`flex flex-row w-3/6 justify-evenly ${textStyle}`}>
-                <div className="flex flex-col grow max-w-[70%]">
-                    <div className="truncate p-0.5"> {track.name} </div>
-                    <div className="truncate p-0.5 font-light"> {artistNames ?? ""} </div>
-                </div>
-                <div className="p-1 grid place-items-center">
-                    <p> {new Date(addedAt).toLocaleDateString()} </p>
-                </div>
+            <div className={`col-span-3	flex flex-col grow  ${textStyle}`}>
+                <div className="truncate text-sm lg:text-base p-0.5"> {track.name} </div>
+                <div className="truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
             </div>
+
+            <div className="p-1 grid place-items-center text-sm lg:text-base">
+                <p> {new Date(addedAt).toLocaleDateString()} </p>
+            </div>
+            {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
             {/* TODO: This needs to get centered vertically */}
-            <UserAvatar displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left}/>
-            <button className="btn btn-neutral border-neutral bg-neutral/30 hover:bg-neutral-focus btn-square btn-sm" onClick={showModal}>
-                <CommentIcon />
-            </button>
+            <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
         </div >
     )
 }

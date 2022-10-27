@@ -18,7 +18,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
     const [accessLevel, setAccessLevel] = useState(DEFAULT_ACCESS_LEVEL)
     const [username, setUsername] = useState("")
     const [isModalOpen, setModalOpen] = useState(false)
-    const [collaborators, setCollaborators] = useStateWithSyncedDefault(collabProp)
+    const [collaborators, setCollaborators, resetCollaborators] = useStateWithSyncedDefault(collabProp)
 
     const [shareReview, { loading }] = useShareReviewMutation(
         {
@@ -55,6 +55,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
         setModalOpen(false)
         setUsername("")
         setAccessLevel(DEFAULT_ACCESS_LEVEL)
+        resetCollaborators()
     }
 
     const disabledUndo = useMemo(() => collaborators.length === collabProp.length, [collaborators, collabProp])
@@ -65,7 +66,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
     return (
         <div>
-            <button className="btn btn-primary btn-md" onClick={() => setModalOpen(true)} >
+            <button className="btn btn-primary btn-sm lg:btn-md" onClick={() => setModalOpen(true)} >
                 <ShareIcon />
             </button>
 
@@ -128,7 +129,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                         <button className="btn btn-info" disabled={disabledUndo} onClick={() => setCollaborators(collabProp)}>
                             <ReplyIcon />
                         </button>
-                        <button className="btn btn-error" onClick={onCancel}>
+                        <button className="btn btn-info" onClick={onCancel}>
                             <CrossIcon />
                         </button>
                     </div>

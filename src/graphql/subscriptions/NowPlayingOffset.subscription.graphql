@@ -3,6 +3,7 @@ subscription NowPlayingOffset($input: Int!) {
         timestamp
         progressMs
         isPlaying
+        shuffleState
         item {
             id
             durationMs

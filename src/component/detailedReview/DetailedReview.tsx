@@ -10,7 +10,9 @@ import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { PlaybackTime } from "./PlaybackTime"
 import UserAvatar from "component/UserAvatar"
 import { EditReview } from "./editReview/EditReview"
-import { EllipsisIcon } from "component/Icons"
+import { EllipsisIcon, SkipBackwardIcon } from "component/Icons"
+import NavbarRhs from "component/NavbarRhs"
+import { useNavigate } from "react-router-dom"
 export interface DetailedReviewProps {
   reviewId: string
 }
@@ -121,23 +123,10 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
     }
   })()
 
-  const entityCreator = (() => {
-    const entity = data?.review?.entity
-    switch (entity?.__typename) {
-      case "Artist":
-        return null
-      case "Playlist":
-        return entity?.owner?.spotifyProfile?.displayName ?? null
-      case "Album":
-        return null
-      case "Track":
-        return entity?.artists?.at(0)?.name
-    }
-  })()
-
   const progressMs = nowPlayingTime?.nowPlaying?.progressMs ?? 0
   const totalDuration = nowPlayingTime?.nowPlaying?.item?.durationMs ?? Number.MAX_SAFE_INTEGER
   const isPlaying = nowPlayingTime?.nowPlaying?.isPlaying ?? false
+  const isShuffled = nowPlayingTime?.nowPlaying?.shuffleState ?? false
   const nowPlayingImage = nowPlayingTime?.nowPlaying?.item?.album?.images?.at(1) ?? ""
   const nowPlayingArtist = nowPlayingTime?.nowPlaying?.item?.artists?.map(a => a.name).join(", ") ?? ""
   const nowPlayingAlbum = nowPlayingTime?.nowPlaying?.item?.album?.name
@@ -196,65 +185,77 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
 
   const isPublic = data?.review?.isPublic
 
+  const nav = useNavigate()
   if (loading) {
     return <HeroLoading />
   } else if (data) {
     return (
-      < div className="w-full h-full p-1">
-        <div className="mt-0 flex flex-row justify-around items-center w-full h-[10%]">
-          <div className="flex flex-row items-center justify-start space-x-1 w-1/2 h-full">
-            <div className="w-16 md:w-24 lg:w-32 avatar">
-              <div className=" rounded">
-                <img className="scale-100" src={reviewEntityImage} />
+      < div className="w-full h-full flex flex-col relative">
+        <div className="grid grid-cols-2 items-center bg-base-100 z-50 h-[10%]">
+          <div className="flex flex-row items-center px-1 space-x-1">
+            <button className='btn btn-info btn-circle' onClick={() => nav('/')}>
+              <SkipBackwardIcon />
+            </button>
+            <div className="card flex flex-row items-center space-x-2 bg-base-200 px-2">
+              <div className="avatar h-20" >
+                <div className="rounded">
+                  <img loading='lazy' src={reviewEntityImage} />
+                </div>
               </div>
-            </div>
-            <div className="stats shadow w-max h-full" >
-              <div className="stat">
-                <div className="stat-title truncate ">{`${eType} Review`}</div>
-                <div className="stat-value ">{title}</div>
-                <div className="stat-desc"> by {creator}</div>
-              </div>
-            </div>
-            <div className="stats shadow ">
-              <div className="stat h-full w-max">
-                <div className="stat-title">{"Playlist"}</div>
-                <div className="stat-value text-xl text-clip overflow-hidden">{entityName}</div>
-                <div className="stat-desc"> by {entityCreator}</div>
+              <div className="stat w-full">
+                <div className="stat-value text-sm lg:text-md text-clip">{title}</div>
+                <div className="stat-title text-sm lg:text-md text-clip">{entityName}</div>
+                <div className="flex flex-row justify-around">
+                  <div className="badge badge-primary">playlist</div>
+                  <div className="badge badge-secondary">{creator}</div>
+                </div>
               </div>
             </div>
             {
               isReviewOwner ?
-                <div className="btn-group btn-group-vertical">
-                  <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => refetch()}/>
-                  <button className="btn btn-secondary btn-md" onClick={() => setOpenEditReview(true)}>
+                <div className="btn-group btn-group-vertical lg:btn-group-horizontal">
+                  <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => refetch()} />
+                  <button className="btn btn-secondary btn-sm lg:btn-md" onClick={() => setOpenEditReview(true)}>
                     <EllipsisIcon />
                   </button>
                 </div>
                 : null
             }
+          </div>
+
+          <NavbarRhs className='justify-end space-x-1' />
+
+          {/* <div className="flex flex-row items-center h-full">
+            <div className="stats shadow">
+              <div className="stat h-full">
+              </div>
+            </div>
             {collaboratorImages}
-          </div>
-          <div className='w-1/2 flex flex-row justify-center'>
-            <PlaybackTime
-              isPlaying={isPlaying}
-              progressMs={progressMs}
-              durationMs={totalDuration}
-              trackId={nowPlaying ?? ""}
-              reviewId={reviewId}
-              disabled={!isPlayingPartOfEntity}
-              trackImage={nowPlayingImage}
-              trackName={nowPlayingTrackName}
-              trackArtist={nowPlayingArtist} />
-          </div>
-          <EditReview reviewId={reviewId} reviewName={title!} isPublic={ isPublic === undefined ? false : isPublic}
-            onSuccess={() => { setOpenEditReview(false); refetch(); }}
-            isOpen={openEditReview}
-            onCancel={() => setOpenEditReview(false)} />
-          <CommentFormModalWrapper />
+          </div> */}
         </div>
-        <div className="divider m-0 p-0 h-3" />
-        {getReviewContent}
-      </div>
+        <EditReview reviewId={reviewId} reviewName={title!} isPublic={isPublic === undefined ? false : isPublic}
+          onSuccess={() => { setOpenEditReview(false); refetch(); }}
+          isOpen={openEditReview}
+          onCancel={() => setOpenEditReview(false)} />
+        <CommentFormModalWrapper />
+        <div className="w-full h-[80%] bg-base-300">
+          {getReviewContent}
+        </div>
+        <div className='w-full h-[10%]'>
+          <PlaybackTime
+            isPlaying={isPlaying}
+            isShuffled={isShuffled}
+            progressMs={progressMs}
+            durationMs={totalDuration}
+            trackId={nowPlaying ?? ""}
+            reviewId={reviewId}
+            disabled={!isPlayingPartOfEntity}
+            trackImage={nowPlayingImage}
+            trackName={nowPlayingTrackName}
+            trackArtist={nowPlayingArtist}
+          />
+        </div>
+      </div >
     )
   }
   if (error) {

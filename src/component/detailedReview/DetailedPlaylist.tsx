@@ -12,9 +12,16 @@ export interface DetailedPlaylistProps {
     reviewId: string
     playlist: DetailedPlaylistFragment
     comments: DetailedCommentFragment[]
+    options?: RenderOptions
 }
 
-export default function DetailedPlaylist({ reviewId, playlist, comments: propComments }: DetailedPlaylistProps) {
+enum RenderOptions {
+    Tracks,
+    Comments,
+    Both
+}
+
+export default function DetailedPlaylist({ reviewId, playlist, comments: propComments, options = RenderOptions.Both }: DetailedPlaylistProps) {
     const search = useAtomValue(searchLoweredAtom)
 
     const tracks = useMemo(() =>
@@ -51,36 +58,53 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
         }
     }
 
+    const displayTracks = useMemo(() => (
+        <div className="flex flex-row">
+            <PlaylistTrackTable
+                playlistId={playlist.id}
+                reviewId={reviewId}
+                playlistTracks={tracks}
+            />
+        </div>
+    ), [playlist, reviewId, tracks])
+
+    const displayComments = useMemo(() => (
+        <div className="overflow-auto p-1">
+            <div className="flex flex-col space-y-1 justify-end">
+                {rootComments.map((c: DetailedCommentFragment) =>
+                    <div key={c.id}>
+                        <DetailedComment
+                            reviewId={reviewId}
+                            playlistId={playlist.id}
+                            comment={c}
+                            children={childComments.get(c.id) ?? []}
+                            onClick={() => onCommentClick(c.id)}
+                        />
+                    </div>
+                )}
+            </div>
+        </div>
+    ), [reviewId, playlist, rootComments, childComments])
+
     return (
-        <Split
-            className="flex"
-            sizes={[40, 60]}
-            direction="horizontal"
-            minSize={300}
-            style={{ height: '78vh' }}
-        >
-            <div className=" flex flex-row">
-                <PlaylistTrackTable
-                    playlistId={playlist.id}
-                    reviewId={reviewId}
-                    playlistTracks={tracks}
-                />
-            </div>
-            <div className="overflow-auto p-1">
-                <div className="flex flex-col space-y-1 justify-end">
-                    {rootComments.map((c: DetailedCommentFragment) =>
-                        <div key={c.id}>
-                            <DetailedComment
-                                reviewId={reviewId}
-                                playlistId={playlist.id}
-                                comment={c}
-                                children={childComments.get(c.id) ?? []}
-                                onClick={() => onCommentClick(c.id)}
-                            />
-                        </div>
-                    )}
+        <div className="h-full px-1">
+            {(options == RenderOptions.Both) ?
+                <Split
+                    className="flex h-full"
+                    sizes={[40, 60]}
+                    direction="horizontal"
+                >
+                    {displayTracks}
+                    {displayComments}
+                </Split>
+                :
+                <div className="h-full">
+                    {
+                        (options == RenderOptions.Tracks) ?
+                            displayTracks : displayComments
+                    }
                 </div>
-            </div>
-        </Split>
+            }
+        </div>
     )
 }

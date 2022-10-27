@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react"
+import { SetStateAction } from "jotai"
+import { Dispatch, useEffect, useState } from "react"
 
-export default function useStateWithSyncedDefault<T>(defaultValue: T) {
-    const state = useState(defaultValue)
-    const [, setState] = state
+export default function useStateWithSyncedDefault<T>(defaultValue: T): [T, Dispatch<SetStateAction<T>>, () => void] {
+    const [state, setState] = useState(defaultValue)
     useEffect(() => setState(defaultValue), [defaultValue])
-    return state
+
+    return [state, setState, (() => setState(defaultValue)) as () => void] 
 }
 
