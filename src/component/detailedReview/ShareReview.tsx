@@ -66,7 +66,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
     return (
         <div>
-            <button className="btn btn-primary btn-sm lg:btn-md" onClick={() => setModalOpen(true)} >
+            <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setModalOpen(true)} >
                 <ShareIcon />
             </button>
 

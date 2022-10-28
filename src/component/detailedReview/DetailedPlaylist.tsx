@@ -15,7 +15,7 @@ export interface DetailedPlaylistProps {
     options?: RenderOptions
 }
 
-enum RenderOptions {
+export enum RenderOptions {
     Tracks,
     Comments,
     Both
@@ -59,30 +59,26 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
     }
 
     const displayTracks = useMemo(() => (
-        <div className="flex flex-row">
-            <PlaylistTrackTable
-                playlistId={playlist.id}
-                reviewId={reviewId}
-                playlistTracks={tracks}
-            />
-        </div>
+        <PlaylistTrackTable
+            playlistId={playlist.id}
+            reviewId={reviewId}
+            playlistTracks={tracks}
+        />
     ), [playlist, reviewId, tracks])
 
     const displayComments = useMemo(() => (
-        <div className="overflow-auto p-1">
-            <div className="flex flex-col space-y-1 justify-end">
-                {rootComments.map((c: DetailedCommentFragment) =>
-                    <div key={c.id}>
-                        <DetailedComment
-                            reviewId={reviewId}
-                            playlistId={playlist.id}
-                            comment={c}
-                            children={childComments.get(c.id) ?? []}
-                            onClick={() => onCommentClick(c.id)}
-                        />
-                    </div>
-                )}
-            </div>
+        <div className="flex flex-col space-y-0.5 lg:space-y-1 h-full w-full overflow-auto">
+            {rootComments.map((c: DetailedCommentFragment) =>
+                <div key={c.id}>
+                    <DetailedComment
+                        reviewId={reviewId}
+                        playlistId={playlist.id}
+                        comment={c}
+                        children={childComments.get(c.id) ?? []}
+                        onClick={() => onCommentClick(c.id)}
+                    />
+                </div>
+            )}
         </div>
     ), [reviewId, playlist, rootComments, childComments])
 
@@ -98,7 +94,7 @@ export default function DetailedPlaylist({ reviewId, playlist, comments: propCom
                     {displayComments}
                 </Split>
                 :
-                <div className="h-full">
+                <div className="flex h-full">
                     {
                         (options == RenderOptions.Tracks) ?
                             displayTracks : displayComments

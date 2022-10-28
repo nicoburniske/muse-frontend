@@ -6,6 +6,7 @@ import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import NavbarRhs from "component/NavbarRhs";
+import useWindowSize from "hook/useWindowSize";
 
 export default function BrowsePage() {
   const nav = useNavigate()
@@ -39,7 +40,10 @@ export default function BrowsePage() {
   const refreshCount = useAtomValue(refreshOverviewAtom)
   useMemo(() => refetch(), [refreshCount])
 
-  const [numPerRow, setNumPerRow] = useState(6)
+  const {isSm} = useWindowSize()
+  useEffect(() => isSm ? setNumPerRow(2) : undefined, [isSm])
+
+  const [numPerRow, setNumPerRow] = useState(isSm? 2 : 5)
   const gridStyle = useMemo(() => `grid gap-4 pt-2 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
 
   if (loading && data == undefined) {
@@ -62,8 +66,8 @@ export default function BrowsePage() {
           </div>
             <NavbarRhs className='navbar-end space-x-5'/>
         </div>
-        <div className="min-h-fit w-full">
-          <input type="range" min={3} max={8} value={numPerRow} className="range range-primary max-w-xl " step={1}
+        <div className="min-h-fit w-full flex flex-row justify-center">
+          <input type="range" min={1} max={8} value={numPerRow} className="range range-primary max-w-xl " step={1}
             onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
         </div>
         <div className={gridStyle}>
@@ -85,11 +89,11 @@ function CreateCard({ review }: CreateCardProps) {
   return (
     <div key={review.id} className="card bg-base-100 shadow-xl">
       <figure><img src={image} /></figure>
-      <button onClick={linkToReviewPage} className="card-body flex justify-center hover:bg-base-200 p-2">
-        <div className="stat w-full flex flex-col justify-center items-center">
-          <div className="stat-title whitespace-normal truncate">{entityName}</div>
-          <div className="stat-value text-lg whitespace-normal truncate">{review.reviewName}</div>
-          <div className="stat-desc truncate"> {creatorName} </div>
+      <button onClick={linkToReviewPage} className="card-body p-0 flex justify-center hover:bg-base-200">
+        <div className="w-full flex flex-col justify-center items-center hover:whitespace-normal">
+          <div className="stat-title text-xs md:text-base w-full truncate">{entityName}</div>
+          <div className="stat-value text-xs md:text-base w-full truncate">{review.reviewName}</div>
+          <div className="stat-desc text-xs md:text-base w-full truncate"> {creatorName} </div>
         </div>
         {/* <div className="card-actions justify-end">
           <button onClick={linkToReviewPage} className="btn btn-primary">View</button>
@@ -115,7 +119,10 @@ function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
   }
 }
 
+// Would be great to have macros for tailwind.
 const styles = new Map([
+  [1, 'grid-cols-1'],
+  [2, 'grid-cols-2'],
   [3, 'grid-cols-3'],
   [4, 'grid-cols-4'],
   [5, 'grid-cols-5'],

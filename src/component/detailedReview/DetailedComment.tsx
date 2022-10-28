@@ -125,10 +125,10 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
-  const buttonClass = 'btn btn-xs lg:btn-sm'
+  const buttonClass = 'btn btn-xs p-0 lg:btn-sm'
   return (
     <div tabIndex={0} className={`collapse group rounded-box ${expanded}`}>
-      <div className="collapse-title card card-body w-full text-base-content py-1 bg-base-200 flex flex-row justify-around px-0 relative">
+      <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center lg:justify-around bg-base-200 md:flex-row space-y-px py-0.5 md:py-1 px-0 relative">
         {/* Delete confirmation */}
         {isDeleting ?
           <div className="absolute inset-0 z-10 bg-base-300/50">
@@ -148,13 +148,13 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           </div>
           : null
         }
-        <div className="flex flex-col items-center space-y-2 justify-self-start max-w-md py-1 w-[20%]">
+        <div className="flex flex-row items-center justify-around md:flex-col md:space-y-2 justify-self-start w-full py-1 md:w-[20%]">
           <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down} />
-          <p className="w-full text-base-content text-wrap text-center"> {createdAt} </p>
+          <div className="text-base-content text-wrap text-xs text-center lg:w-full md:text-center md:text-base"> {createdAt} </div>
         </div>
 
-        <div className="flex flex-col w-4/5 justify-between" >
-          <article className="card card-body min-h-[75%] p-2 min-w-full prose text-base-content bg-base-100">
+        <div className="grid place-items-center w-full mx-1 md:min-h-[75%]" >
+          <article className="card card-body p-0.5 lg:p-2 min-w-full md:min-h-full prose text-base-content bg-base-100 text-sm md:text-base">
             <Markdown
               children={comment}
               options={{
@@ -165,7 +165,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
             />
           </article>
         </div>
-        <div className="flex-grow-1 btn-group btn-group-vertical mx-auto pr-1 py-1">
+        <div className="flex-grow-1 flex flex-row justify-around w-full md:flex-col md:w-fit md:pr-1 md:py-5">
           <button className={`${buttonClass} btn-success`} onClick={onClick}>
             <Search />
           </button>

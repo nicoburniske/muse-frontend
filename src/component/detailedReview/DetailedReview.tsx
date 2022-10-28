@@ -1,5 +1,5 @@
 import { DetailedCommentFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription, useSeekPlaybackMutation } from "graphql/generated/schema"
-import DetailedPlaylist from "component/detailedReview/DetailedPlaylist"
+import DetailedPlaylist, { RenderOptions } from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom, useAtomValue } from "jotai"
 import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom } from "state/Atoms"
@@ -10,15 +10,20 @@ import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { PlaybackTime } from "./PlaybackTime"
 import UserAvatar from "component/UserAvatar"
 import { EditReview } from "./editReview/EditReview"
-import { EllipsisIcon, SkipBackwardIcon } from "component/Icons"
+import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardIcon } from "component/Icons"
 import NavbarRhs from "component/NavbarRhs"
 import { useNavigate } from "react-router-dom"
+import useWindowSize from "hook/useWindowSize"
+import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 export interface DetailedReviewProps {
   reviewId: string
 }
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
   // State.
+  const { isSm } = useWindowSize()
+  const [renderOption, setRenderOption,] = useStateWithSyncedDefault(isSm ? RenderOptions.Tracks : RenderOptions.Both)
+
   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
   const [openEditReview, setOpenEditReview] = useState(false)
   const userId = useAtomValue(currentUserIdAtom)
@@ -97,6 +102,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
           reviewId={review?.id as string}
           playlist={entity}
           comments={comments}
+          options={renderOption}
         />
       default:
         return (
@@ -104,7 +110,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
             <span> Not Implemented Yet. </span>
           </Alert >)
     }
-  }, [data, comments])
+  }, [data, comments, renderOption])
 
   const title = data?.review?.reviewName
   const entityName = data?.review?.entity?.name
@@ -184,6 +190,7 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   }, [data])
 
   const isPublic = data?.review?.isPublic
+  const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
   const nav = useNavigate()
   if (loading) {
@@ -191,23 +198,23 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
   } else if (data) {
     return (
       < div className="w-full h-full flex flex-col relative">
-        <div className="grid grid-cols-2 items-center bg-base-100 z-50 h-[10%]">
+        <div className="grid grid-cols-3 items-center bg-base-100 z-50 h-[10%]">
           <div className="flex flex-row items-center px-1 space-x-1">
-            <button className='btn btn-info btn-circle' onClick={() => nav('/')}>
+            <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav('/')}>
               <SkipBackwardIcon />
             </button>
-            <div className="card flex flex-row items-center space-x-2 bg-base-200 px-2">
-              <div className="avatar h-20" >
+            <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
+              <div className="h-10 hidden md:avatar md:h-20" >
                 <div className="rounded">
                   <img loading='lazy' src={reviewEntityImage} />
                 </div>
               </div>
-              <div className="stat w-full">
-                <div className="stat-value text-sm lg:text-md text-clip">{title}</div>
-                <div className="stat-title text-sm lg:text-md text-clip">{entityName}</div>
+              <div className="stat">
+                <div className="stat-value text-sm lg:text-base text-clip">{title}</div>
+                <div className="stat-title text-sm lg:text-base text-clip">{entityName}</div>
                 <div className="flex flex-row justify-around">
-                  <div className="badge badge-primary">playlist</div>
-                  <div className="badge badge-secondary">{creator}</div>
+                  <div className="badge badge-primary text-clip overflow-hidden">playlist</div>
+                  <div className="badge badge-secondary text-clip overflow-hidden">{creator}</div>
                 </div>
               </div>
             </div>
@@ -215,14 +222,31 @@ export function DetailedReview({ reviewId }: DetailedReviewProps) {
               isReviewOwner ?
                 <div className="btn-group btn-group-vertical lg:btn-group-horizontal">
                   <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => refetch()} />
-                  <button className="btn btn-secondary btn-sm lg:btn-md" onClick={() => setOpenEditReview(true)}>
+                  <button className="btn btn-secondary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
                     <EllipsisIcon />
                   </button>
                 </div>
                 : null
             }
           </div>
-
+          <div className="tabs flex flex-row justify-center">
+            <button className={`${tabStyle} ${renderOption === RenderOptions.Tracks ? 'tab-active' : ''}`}
+              onClick={() => setRenderOption(RenderOptions.Tracks)}
+            >
+              <MusicIcon />
+            </button>
+            <button className={`${tabStyle} ${renderOption === RenderOptions.Both ? 'tab-active' : ''}`}
+              onClick={() => setRenderOption(RenderOptions.Both)}
+            >
+              <ArrowRightLeftIcon />
+            </button>
+            <button
+              className={`${tabStyle} ${renderOption === RenderOptions.Comments ? 'tab-active' : ''}`}
+              onClick={() => setRenderOption(RenderOptions.Comments)}
+            >
+              <CommentIcon />
+            </button>
+          </div>
           <NavbarRhs className='justify-end space-x-1' />
 
           {/* <div className="flex flex-row items-center h-full">

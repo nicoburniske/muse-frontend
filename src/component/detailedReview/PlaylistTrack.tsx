@@ -69,25 +69,27 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-6	items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 md:grid-cols-5	items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="avatar" onClick={showModal}>
-                <div className="w-16 rounded">
+                <div className="w-8 md:w-16 rounded">
                     <img loading='lazy' src={albumImage} />
                 </div>
             </div>
 
-            <div className={`col-span-3	flex flex-col grow  ${textStyle}`}>
-                <div className="truncate text-sm lg:text-base p-0.5"> {track.name} </div>
-                <div className="truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
+            <div className={`col-span-2 flex flex-col grow ${textStyle}`}>
+                <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.name} </div>
+                <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
             </div>
 
-            <div className="p-1 grid place-items-center text-sm lg:text-base">
+            <div className="hidden md:grid place-items-center select-none	text-sm text-neutral-content lg:text-base">
                 <p> {new Date(addedAt).toLocaleDateString()} </p>
             </div>
             {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
             {/* TODO: This needs to get centered vertically */}
-            <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
+            <div className="grid place-items-center">
+                <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
+            </div>
         </div >
     )
 }

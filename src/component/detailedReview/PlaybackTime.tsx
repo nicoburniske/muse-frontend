@@ -21,7 +21,7 @@ interface PlaybackTimeProps {
     disabled: boolean
 }
 
-const commonClass = 'btn btn-ghost neutral-focus'
+const commonClass = 'btn  btn-sm lg:btn-md neutral-focus p-0'
 
 export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
@@ -118,31 +118,30 @@ export function PlaybackTime({
 
     const tooltipContent = useMemo(() => disabled ? "Not part of this review" : "Comment at timestamp", [disabled])
     const buttonClass = useMemo(() => isLoading ? commonClass + ' loading' : commonClass, [isLoading])
-    const shuffleButtonClass = useMemo(() => isShuffled ? 'btn btn-success' : commonClass, [isShuffled])
+    const shuffleButtonClass = useMemo(() => isShuffled ? commonClass + ' btn btn-success' : commonClass, [isShuffled])
 
     const icon = useMemo(() =>
         isLoading ? null :
             isPlaying ? <PauseIcon /> : <PlayIcon />
         , [isPlaying, isLoading])
 
-    console.log(isShuffled, 'SHUFFLED')
     return (
-        <div className="grid grid-cols-4 rounded-xl w-full h-full border-accent border bg-neutral">
-            <div className='flex flex-row px-1 space-x-2 items-center max-w-[70%]'>
-                <button className="tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full h-full border-accent border bg-neutral">
+            <div className='flex flex-row px-1 space-x-2 items-center lg:max-w-[70%]'>
+                <button className="hidden sm:inline-block tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={disabled} >
                     <div className="avatar" >
-                        <div className="w-16 lg:w-20 rounded">
+                        <div className="w-12 md:w-16 lg:w-20 rounded">
                             <img loading='lazy' src={trackImage} />
                         </div>
                     </div>
                 </button>
                 <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}>
-                    <div className="text-left truncate p-0.5 prose w-full text-neutral-content"> {trackName} </div>
-                    <div className="text-left truncate p-0.5 prose w-full text-neutral-content"> {trackArtist} </div>
+                    <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackName} </div>
+                    <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackArtist} </div>
                 </div>
             </div>
-            <div className="col-span-2 flex flex-col justify-center items-center rounded-lg max-w-4xl">
-                <div className="flex flex-row justify-around items-center text-neutral-content">
+            <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
+                <div className="flex flex-row justify-between md:justify-around items-center text-neutral-content md:w-full lg:w-3/4">
                     <button className={commonClass} onClick={() => null}><HeartIcon /></button>
                     <button className={commonClass} onClick={() => prevTrack()}><PreviousTrackIcon /></button>
                     <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
@@ -152,12 +151,10 @@ export function PlaybackTime({
                     <button className={shuffleButtonClass} onClick={() => toggleShuffle()}><ShuffleIcon /></button>
                 </div>
                 <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
-                    <button className="flex flex-row">
-                        <span className="countdown font-mono text-sm lg:text-lg">
-                            <span style={{ "--value": minutes }}></span>:
-                            <span style={{ "--value": seconds }}></span>
-                        </span>
-                    </button>
+                <span className="countdown font-mono text-sm lg:text-lg">
+                        <span style={{ "--value": minutes }}></span>:
+                        <span style={{ "--value": seconds }}></span>
+                    </span>
                     <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
                     <span className="countdown font-mono text-sm lg:text-lg">
                         <span style={{ "--value": minDuration }}></span>:
