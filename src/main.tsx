@@ -6,8 +6,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink, split } fr
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import PossibleTypesResultData from 'graphql/generated/fragmentTypes';
 import App from './App'
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { AppConfig } from 'util/AppConfig';
@@ -62,15 +61,19 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <>
             <App />
-            <ToastContainer
-              position="bottom-center"
-              newestOnTop
-              autoClose={3000}
-              hideProgressBar={false}
-              closeOnClick={true}
-              pauseOnHover={true}
-              draggable={true}
-              limit={2}
+            <Toaster
+              position="bottom-right"
+              reverseOrder={false}
+              gutter={8}
+              toastOptions={{
+                duration: 3000,
+                success: {
+                  className: 'bg-success text-success-content',
+                },
+                error: {
+                  className: 'bg-error text-error-content'
+                },
+              }}
             />
           </>
         </BrowserRouter>

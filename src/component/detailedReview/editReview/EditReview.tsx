@@ -5,7 +5,7 @@ import { useUpdateReviewMutation, useDeleteReviewMutation } from "graphql/genera
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
+import toast from 'react-hot-toast';
 
 interface EditReviewProps {
     isOpen: boolean

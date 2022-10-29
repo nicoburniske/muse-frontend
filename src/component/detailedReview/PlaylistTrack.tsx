@@ -1,5 +1,5 @@
 import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation } from "graphql/generated/schema"
-import { toast } from "react-toastify"
+import toast from 'react-hot-toast';
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
 import { RefObject, useMemo, useRef } from "react"

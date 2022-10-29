@@ -26,10 +26,10 @@
     "markdown-to-jsx": "^7.1.7",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-hot-toast": "^2.4.0",
     "react-query": "^3.39.1",
     "react-router-dom": "^6.3.0",
     "react-split": "^2.0.14",
-    "react-toastify": "^9.0.8",
     "react-virtuoso": "^2.19.1",
     "vite-tsconfig-paths": "^3.5.0"
   },

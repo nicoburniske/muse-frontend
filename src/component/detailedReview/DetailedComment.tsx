@@ -1,6 +1,6 @@
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useMemo, useState } from "react"
-import { toast } from "react-toastify"
+import toast from 'react-hot-toast';
 import Markdown from "markdown-to-jsx"
 import { CommentFormModal } from "./commentForm/CommentFormModal"
 import { currentUserIdAtom } from "state/Atoms"

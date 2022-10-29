@@ -4,7 +4,7 @@ import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
 import { useBoolToggleSynced } from "hook/useToggle";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
 import { msToTime } from "util/Utils";
 

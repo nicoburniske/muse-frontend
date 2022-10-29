@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { EntityType, ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import { HeroLoading } from "component/HeroLoading";
 import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -53,6 +53,8 @@ export default function BrowsePage() {
       <div className="flex flex-col w-full h-full items-center">
         <div className="navbar bg-base-100 z-50">
           <div className="navbar-start">
+            <button onClick={() => toast.success("yes")}>test</button>
+            <button onClick={() => toast.error("no")}>test</button>
             <div className="dropdown">
               <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /></svg>

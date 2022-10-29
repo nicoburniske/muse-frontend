@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { EntityType, useCreateReviewMutation } from 'graphql/generated/schema'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast';
 import { Dialog } from '@headlessui/react'
 import { refreshOverviewAtom } from 'state/Atoms'
 import { useSetAtom } from 'jotai'
