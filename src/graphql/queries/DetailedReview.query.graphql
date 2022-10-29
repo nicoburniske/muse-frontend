@@ -1,31 +1,35 @@
 query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
-    reviewName
-    id
-    entityType
-    entityId
-    createdAt
-    isPublic
-    creator {
-      ...UserWithSpotifyOverview
+    ...DetailedReview
+  }
+}
+
+fragment DetailedReview on Review {
+  reviewName
+  id
+  entityType
+  entityId
+  createdAt
+  isPublic
+  creator {
+    ...UserWithSpotifyOverview
+  }
+  entity {
+    ... on Album {
+      ...DetailedAlbum
     }
-    entity {
-      ... on Album {
-        ...DetailedAlbum
-      }
-      ... on Artist {
-        ...DetailedArtist 
-      }
-      ... on Playlist {
-        ...DetailedPlaylist
-      }
-      ... on Track {
-        ...DetailedTrack
-      }
+    ... on Artist {
+      ...DetailedArtist 
     }
-    collaborators {
-      ...Collaborator
+    ... on Playlist {
+      ...DetailedPlaylist
     }
+    ... on Track {
+      ...DetailedTrack
+    }
+  }
+  collaborators {
+    ...Collaborator
   }
 }
 
@@ -53,6 +57,7 @@ fragment DetailedTrack on Track {
   isPlayable
   previewUrl
   popularity
+  isLiked
   album {
     images
     id 

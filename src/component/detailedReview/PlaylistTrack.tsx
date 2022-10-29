@@ -69,7 +69,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-4 md:grid-cols-5	items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="avatar" onClick={showModal}>
                 <div className="w-8 md:w-16 rounded">

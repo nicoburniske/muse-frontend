@@ -150,6 +150,7 @@ export type Mutations = {
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
   pausePlayback?: Maybe<Scalars['Boolean']>;
+  removeSavedTracks?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
   seekPlayback?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
@@ -184,6 +185,11 @@ export type MutationsDeleteReviewArgs = {
 
 export type MutationsPausePlaybackArgs = {
   deviceId?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationsRemoveSavedTracksArgs = {
+  input: Array<Scalars['String']>;
 };
 
 
@@ -490,6 +496,20 @@ export type PausePlaybackMutationVariables = Exact<{
 
 export type PausePlaybackMutation = { __typename?: 'Mutations', pausePlayback?: boolean | null };
 
+export type RemoveSavedTracksMutationVariables = Exact<{
+  trackIds: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type RemoveSavedTracksMutation = { __typename?: 'Mutations', removeSavedTracks?: boolean | null };
+
+export type SaveTracksMutationVariables = Exact<{
+  trackIds: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type SaveTracksMutation = { __typename?: 'Mutations', saveTracks?: boolean | null };
+
 export type SeekPlaybackMutationVariables = Exact<{
   input: SeekPlaybackInput;
 }>;
@@ -551,17 +571,19 @@ export type DetailedReviewQueryVariables = Exact<{
 }>;
 
 
-export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, isPublic: boolean, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
+export type DetailedReviewQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, isPublic: boolean, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
+
+export type DetailedReviewFragment = { __typename?: 'Review', reviewName: string, id: string, entityType: EntityType, entityId: string, createdAt: string, isPublic: boolean, creator?: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } | null, entity?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null } | { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null };
 
 export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
 export type UserWithSpotifyOverviewFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null };
 
-export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
+export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
-export type DetailedPlaylistFragment = { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null };
+export type DetailedPlaylistFragment = { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null };
 
-export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, isLiked?: boolean | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
 
 export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null };
 
@@ -612,7 +634,7 @@ export type NowPlayingOffsetSubscriptionVariables = Exact<{
 }>;
 
 
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, shuffleState: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
+export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, shuffleState: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
 
 export type ReviewUpdatesSubscriptionVariables = Exact<{
   reviewId: Scalars['ID'];
@@ -647,64 +669,6 @@ export const DetailedCommentFragmentDoc = gql`
   entityType
 }
     ${UserWithSpotifyOverviewFragmentDoc}`;
-export const CollaboratorFragmentDoc = gql`
-    fragment Collaborator on Collaborator {
-  accessLevel
-  user {
-    ...UserWithSpotifyOverview
-  }
-}
-    ${UserWithSpotifyOverviewFragmentDoc}`;
-export const DetailedTrackFragmentDoc = gql`
-    fragment DetailedTrack on Track {
-  uri
-  id
-  name
-  durationMs
-  explicit
-  isPlayable
-  previewUrl
-  popularity
-  album {
-    images
-    id
-  }
-  artists {
-    name
-    id
-  }
-}
-    `;
-export const DetailedPlaylistTrackFragmentDoc = gql`
-    fragment DetailedPlaylistTrack on PlaylistTrack {
-  addedAt
-  addedBy {
-    ...UserWithSpotifyOverview
-  }
-  track {
-    ...DetailedTrack
-  }
-}
-    ${UserWithSpotifyOverviewFragmentDoc}
-${DetailedTrackFragmentDoc}`;
-export const DetailedPlaylistFragmentDoc = gql`
-    fragment DetailedPlaylist on Playlist {
-  collaborative
-  description
-  id
-  images
-  name
-  owner {
-    ...UserWithSpotifyOverview
-  }
-  tracks {
-    ...DetailedPlaylistTrack
-  }
-  primaryColor
-  public
-}
-    ${UserWithSpotifyOverviewFragmentDoc}
-${DetailedPlaylistTrackFragmentDoc}`;
 export const DetailedAlbumFragmentDoc = gql`
     fragment DetailedAlbum on Album {
   albumGroup
@@ -746,6 +710,100 @@ export const DetailedArtistFragmentDoc = gql`
   artistPopularity: popularity
 }
     `;
+export const DetailedTrackFragmentDoc = gql`
+    fragment DetailedTrack on Track {
+  uri
+  id
+  name
+  durationMs
+  explicit
+  isPlayable
+  previewUrl
+  popularity
+  isLiked
+  album {
+    images
+    id
+  }
+  artists {
+    name
+    id
+  }
+}
+    `;
+export const DetailedPlaylistTrackFragmentDoc = gql`
+    fragment DetailedPlaylistTrack on PlaylistTrack {
+  addedAt
+  addedBy {
+    ...UserWithSpotifyOverview
+  }
+  track {
+    ...DetailedTrack
+  }
+}
+    ${UserWithSpotifyOverviewFragmentDoc}
+${DetailedTrackFragmentDoc}`;
+export const DetailedPlaylistFragmentDoc = gql`
+    fragment DetailedPlaylist on Playlist {
+  collaborative
+  description
+  id
+  images
+  name
+  owner {
+    ...UserWithSpotifyOverview
+  }
+  tracks {
+    ...DetailedPlaylistTrack
+  }
+  primaryColor
+  public
+}
+    ${UserWithSpotifyOverviewFragmentDoc}
+${DetailedPlaylistTrackFragmentDoc}`;
+export const CollaboratorFragmentDoc = gql`
+    fragment Collaborator on Collaborator {
+  accessLevel
+  user {
+    ...UserWithSpotifyOverview
+  }
+}
+    ${UserWithSpotifyOverviewFragmentDoc}`;
+export const DetailedReviewFragmentDoc = gql`
+    fragment DetailedReview on Review {
+  reviewName
+  id
+  entityType
+  entityId
+  createdAt
+  isPublic
+  creator {
+    ...UserWithSpotifyOverview
+  }
+  entity {
+    ... on Album {
+      ...DetailedAlbum
+    }
+    ... on Artist {
+      ...DetailedArtist
+    }
+    ... on Playlist {
+      ...DetailedPlaylist
+    }
+    ... on Track {
+      ...DetailedTrack
+    }
+  }
+  collaborators {
+    ...Collaborator
+  }
+}
+    ${UserWithSpotifyOverviewFragmentDoc}
+${DetailedAlbumFragmentDoc}
+${DetailedArtistFragmentDoc}
+${DetailedPlaylistFragmentDoc}
+${DetailedTrackFragmentDoc}
+${CollaboratorFragmentDoc}`;
 export const ReviewEntityOverviewFragmentDoc = gql`
     fragment ReviewEntityOverview on ReviewEntity {
   id
@@ -997,6 +1055,68 @@ export function usePausePlaybackMutation(baseOptions?: Apollo.MutationHookOption
 export type PausePlaybackMutationHookResult = ReturnType<typeof usePausePlaybackMutation>;
 export type PausePlaybackMutationResult = Apollo.MutationResult<PausePlaybackMutation>;
 export type PausePlaybackMutationOptions = Apollo.BaseMutationOptions<PausePlaybackMutation, PausePlaybackMutationVariables>;
+export const RemoveSavedTracksDocument = gql`
+    mutation RemoveSavedTracks($trackIds: [String!]!) {
+  removeSavedTracks(input: $trackIds)
+}
+    `;
+export type RemoveSavedTracksMutationFn = Apollo.MutationFunction<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>;
+
+/**
+ * __useRemoveSavedTracksMutation__
+ *
+ * To run a mutation, you first call `useRemoveSavedTracksMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveSavedTracksMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeSavedTracksMutation, { data, loading, error }] = useRemoveSavedTracksMutation({
+ *   variables: {
+ *      trackIds: // value for 'trackIds'
+ *   },
+ * });
+ */
+export function useRemoveSavedTracksMutation(baseOptions?: Apollo.MutationHookOptions<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, options);
+      }
+export type RemoveSavedTracksMutationHookResult = ReturnType<typeof useRemoveSavedTracksMutation>;
+export type RemoveSavedTracksMutationResult = Apollo.MutationResult<RemoveSavedTracksMutation>;
+export type RemoveSavedTracksMutationOptions = Apollo.BaseMutationOptions<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>;
+export const SaveTracksDocument = gql`
+    mutation SaveTracks($trackIds: [String!]!) {
+  saveTracks(input: $trackIds)
+}
+    `;
+export type SaveTracksMutationFn = Apollo.MutationFunction<SaveTracksMutation, SaveTracksMutationVariables>;
+
+/**
+ * __useSaveTracksMutation__
+ *
+ * To run a mutation, you first call `useSaveTracksMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTracksMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTracksMutation, { data, loading, error }] = useSaveTracksMutation({
+ *   variables: {
+ *      trackIds: // value for 'trackIds'
+ *   },
+ * });
+ */
+export function useSaveTracksMutation(baseOptions?: Apollo.MutationHookOptions<SaveTracksMutation, SaveTracksMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, options);
+      }
+export type SaveTracksMutationHookResult = ReturnType<typeof useSaveTracksMutation>;
+export type SaveTracksMutationResult = Apollo.MutationResult<SaveTracksMutation>;
+export type SaveTracksMutationOptions = Apollo.BaseMutationOptions<SaveTracksMutation, SaveTracksMutationVariables>;
 export const SeekPlaybackDocument = gql`
     mutation SeekPlayback($input: SeekPlaybackInput!) {
   seekPlayback(input: $input)
@@ -1252,40 +1372,10 @@ export type UpdateReviewMutationOptions = Apollo.BaseMutationOptions<UpdateRevie
 export const DetailedReviewDocument = gql`
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
-    reviewName
-    id
-    entityType
-    entityId
-    createdAt
-    isPublic
-    creator {
-      ...UserWithSpotifyOverview
-    }
-    entity {
-      ... on Album {
-        ...DetailedAlbum
-      }
-      ... on Artist {
-        ...DetailedArtist
-      }
-      ... on Playlist {
-        ...DetailedPlaylist
-      }
-      ... on Track {
-        ...DetailedTrack
-      }
-    }
-    collaborators {
-      ...Collaborator
-    }
+    ...DetailedReview
   }
 }
-    ${UserWithSpotifyOverviewFragmentDoc}
-${DetailedAlbumFragmentDoc}
-${DetailedArtistFragmentDoc}
-${DetailedPlaylistFragmentDoc}
-${DetailedTrackFragmentDoc}
-${CollaboratorFragmentDoc}`;
+    ${DetailedReviewFragmentDoc}`;
 
 /**
  * __useDetailedReviewQuery__
@@ -1464,6 +1554,7 @@ export const NowPlayingOffsetDocument = gql`
       id
       durationMs
       name
+      isLiked
       artists {
         id
         name

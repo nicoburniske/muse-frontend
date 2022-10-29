@@ -131,7 +131,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
       <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center lg:justify-around bg-base-200 md:flex-row space-y-px py-0.5 md:py-1 px-0 relative">
         {/* Delete confirmation */}
         {isDeleting ?
-          <div className="absolute inset-0 z-10 bg-base-300/50">
+          <div className="absolute inset-0 z-10 bg-base-300/10">
             <div className="w-full h-full grid place-items-center">
               <div className="flex flex-col items-center" >
                 <p>are you sure?</p>

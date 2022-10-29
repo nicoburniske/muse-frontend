@@ -8,6 +8,7 @@ subscription NowPlayingOffset($input: Int!) {
             id
             durationMs
             name
+            isLiked
             artists {
                 id
                 name
