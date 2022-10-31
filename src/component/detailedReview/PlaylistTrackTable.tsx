@@ -53,7 +53,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
             components={{ ScrollSeekPlaceholder }}
             totalCount={playlistTracks.length}
             itemContent={(index) => trackContent(index)}
-            overscan={100}
+            overscan={1000}
         />
     )
 }

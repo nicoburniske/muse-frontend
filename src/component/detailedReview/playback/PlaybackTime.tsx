@@ -31,6 +31,7 @@ export function PlaybackTime({
     trackId, reviewId, disabled, isPlaying, isShuffled,
     trackImage, trackName, trackArtist, isLiked }: PlaybackTimeProps) {
 
+    const [progressMs,setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
     const setCommentModal = useSetAtom(openCommentModalAtom)
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const nowPlaying = useAtomValue(currentlyPlayingTrackAtom)
@@ -53,7 +54,6 @@ export function PlaybackTime({
             .then(() => { })
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
-    const progressMs = progressProp >= 0 ? progressProp : 0
     const durationMs = durationProp > 0 ? durationProp : 1
     const progress = (progressMs / durationMs) * 1000
 
@@ -65,6 +65,7 @@ export function PlaybackTime({
         if (progress !== undefined && !loading) {
             const position = Math.floor(progress * durationMs)
             seekTrack({ variables: { input: { positionMs: position } } })
+                .then(() => setProgressMs(position))
         }
     }
 
