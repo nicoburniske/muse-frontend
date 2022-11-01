@@ -12,9 +12,13 @@ generates:
           flattenGeneratedTypes: true
           flattenGeneratedTypesIncludeFragments: true
           dedupeFragments: true
-      - typescript-react-apollo
+      - typescript-react-query
     config:
-      fetcher: fetch
+      addInfiniteQuery: true
+      fetcher: 
+        endpoint: http://localhost:8883/api/graphql
+        fetchParams:
+          credentials: include
       scalars:
         Long: number
         Instant: string

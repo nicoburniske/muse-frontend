@@ -1,0 +1,19 @@
+fragment DetailedTrack on Track {
+  uri
+  id
+  name
+  durationMs
+  explicit
+  isPlayable
+  previewUrl
+  popularity
+  isLiked
+  album {
+    images
+    id 
+  }
+  artists {
+    name
+    id
+  } 
+}

@@ -1,0 +1,7 @@
+fragment UserWithSpotifyOverview on User {
+  id
+  spotifyProfile {
+    displayName
+    images
+  }
+}

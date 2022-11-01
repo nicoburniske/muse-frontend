@@ -5,27 +5,30 @@ query DetailedReview($reviewId: ID!) {
 }
 
 fragment DetailedReview on Review {
-  reviewName
   id
-  entityType
-  entityId
   createdAt
-  isPublic
   creator {
     ...UserWithSpotifyOverview
   }
+  reviewName
+  isPublic
   entity {
-    ... on Album {
-      ...DetailedAlbum
+    name 
+    id
+  }
+  childReviews {
+    id 
+    createdAt
+    creator {
+      ...UserWithSpotifyOverview
     }
-    ... on Artist {
-      ...DetailedArtist 
+    isPublic
+    entity {
+      name
+      id
     }
-    ... on Playlist {
-      ...DetailedPlaylist
-    }
-    ... on Track {
-      ...DetailedTrack
+    collaborators {
+      ...Collaborator
     }
   }
   collaborators {
@@ -38,97 +41,4 @@ fragment Collaborator on Collaborator {
   user {
     ...UserWithSpotifyOverview
   } 
-}
-
-fragment UserWithSpotifyOverview on User {
-  id
-  spotifyProfile {
-    displayName
-    images
-  }
-}
-
-fragment DetailedTrack on Track {
-  uri
-  id
-  name
-  durationMs
-  explicit
-  isPlayable
-  previewUrl
-  popularity
-  isLiked
-  album {
-    images
-    id 
-  }
-  artists {
-    name
-    id
-  } 
-}
-
-fragment DetailedPlaylist on Playlist {
-  collaborative
-  description
-  id
-  images
-  name
-  owner {
-    ...UserWithSpotifyOverview
-  }
-  tracks {
-    ...DetailedPlaylistTrack
-  }
-  primaryColor
-  public
-}
-
-fragment DetailedPlaylistTrack on PlaylistTrack {
-  addedAt
-  addedBy {
-    ...UserWithSpotifyOverview
-  }
-  track {
-    ...DetailedTrack 
-  }
-}
-
-fragment DetailedAlbum on Album {
-  albumGroup
-  albumType
-  genres
-  id
-  images
-  label
-  name
-  albumPopularity: popularity
-  releaseDate
-  artists {
-    id
-    name
-  }
-  tracks {
-    id
-    name
-    durationMs
-    explicit
-    isPlayable
-    previewUrl
-    popularity
-    artists {
-      id
-      name
-    }
-  }
-}
-
-fragment DetailedArtist on Artist {
-  numFollowers
-  artistGenres: genres
-  href
-  id
-  artistImages: images
-  name
-  artistPopularity: popularity
 }

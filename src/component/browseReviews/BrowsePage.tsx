@@ -12,7 +12,8 @@ export default function BrowsePage() {
   const nav = useNavigate()
   const linkToHome = () => nav('/')
   const search = useAtomValue(searchLoweredAtom)
-  const { data, loading, refetch } = useProfileAndReviewsQuery({ onError: () => toast.error("Failed to load profile.") })
+  const { data, isLoading, refetch } = useProfileAndReviewsQuery({},{onError: () => toast.error("Failed to load profile.")})
+
   const reviews = useMemo(() =>
     data?.user?.reviews?.filter(r =>
       // Titles.
@@ -40,13 +41,13 @@ export default function BrowsePage() {
   const refreshCount = useAtomValue(refreshOverviewAtom)
   useMemo(() => refetch(), [refreshCount])
 
-  const {isSm} = useWindowSize()
+  const { isSm } = useWindowSize()
   useEffect(() => isSm ? setNumPerRow(2) : undefined, [isSm])
 
-  const [numPerRow, setNumPerRow] = useState(isSm? 2 : 5)
+  const [numPerRow, setNumPerRow] = useState(isSm ? 2 : 5)
   const gridStyle = useMemo(() => `grid gap-4 pt-2 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
 
-  if (loading && data == undefined) {
+  if (isLoading && data == undefined) {
     return <HeroLoading />
   } else {
     return (
@@ -64,7 +65,7 @@ export default function BrowsePage() {
           <div className="navbar-center">
             <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
           </div>
-            <NavbarRhs className='navbar-end space-x-5'/>
+          <NavbarRhs className='navbar-end space-x-5' />
         </div>
         <div className="min-h-fit w-full flex flex-row justify-center">
           <input type="range" min={1} max={8} value={numPerRow} className="range range-primary max-w-xl " step={1}
@@ -108,7 +109,10 @@ function CreateCard({ review }: CreateCardProps) {
 // Entity types -> Track, Album, Artist, Playlist. 
 // 1. Track, Artist, and Playlist all have images on top level.
 // 2. Track has images INSIDE of its album.
-function getNameAndImage(data: ReviewEntityOverviewFragment): [string, string] {
+function getNameAndImage(data?: ReviewEntityOverviewFragment): [string, string] {
+  if (data === undefined || data === null) {
+    return ["", ""]
+  }
   if ("images" in data) {
     return [data.name, data.images?.[0]]
   } else if ('artistImages' in data) {

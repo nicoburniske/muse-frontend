@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, DetailedReviewFragment, useAvailableDevicesSubscription, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useNowPlayingOffsetSubscription, useReviewUpdatesSubscription, useSeekPlaybackMutation } from "graphql/generated/schema"
+import { DetailedCommentFragment, DetailedReviewFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useSeekPlaybackMutation } from "graphql/generated/schema"
 import DetailedPlaylist, { RenderOptions } from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom, useAtomValue } from "jotai"
@@ -59,27 +59,23 @@ const useLatestReviewComments = (reviewId: string) => {
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
   // Subscriptions.
   // Update jotai atom with playback devices.
-  const setDevices = useSetAtom(playbackDevicesAtom)
-  useAvailableDevicesSubscription({
-    onSubscriptionData: (data) => {
-      if (data.subscriptionData.data?.availableDevices) {
-        setDevices(data.subscriptionData.data.availableDevices)
-      } else {
-        setDevices([])
-      }
-    }
-  })
+  // const setDevices = useSetAtom(playbackDevicesAtom)
+  // useAvailableDevicesSubscription({
+  //   onSubscriptionData: (data) => {
+  //     if (data.subscriptionData.data?.availableDevices) {
+  //       setDevices(data.subscriptionData.data.availableDevices)
+  //     } else {
+  //       setDevices([])
+  //     }
+  //   }
+  // })
 
   // Queries.
-  const comments = useLatestReviewComments(reviewId)
+  // const comments = useLatestReviewComments(reviewId)
   // This only needs to happen so that playlist tracks are refreshed.
-  const { data, loading, error, refetch } = useDetailedReviewQuery({
-    variables: { reviewId },
-    pollInterval: 0,
-    nextFetchPolicy: "cache-first"
-  })
+  const { data, isLoading, error, refetch } = useDetailedReviewQuery({ reviewId })
 
-  if (loading && data == undefined) {
+  if (isLoading && data == undefined) {
     return <HeroLoading />
   } else if (data) {
     return (

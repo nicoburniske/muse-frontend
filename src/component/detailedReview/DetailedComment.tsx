@@ -6,7 +6,7 @@ import { CommentFormModal } from "./commentForm/CommentFormModal"
 import { currentUserIdAtom } from "state/Atoms"
 import { useAtomValue } from "jotai"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
-import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, HazardIcon, ReplyIcon, Search, TrashIcon } from "component/Icons"
+import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, HazardIcon, ReplyIcon, SearchIcon, TrashIcon } from "component/Icons"
 
 export interface DetailedCommentProps {
   reviewId: string
@@ -167,7 +167,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
         </div>
         <div className="flex-grow-1 flex flex-row justify-around w-full md:flex-col md:w-fit md:pr-1 md:py-5">
           <button className={`${buttonClass} btn-success`} onClick={onClick}>
-            <Search />
+            <SearchIcon />
           </button>
           {/* For now we don't want to permit infinite nesting */}
           <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>

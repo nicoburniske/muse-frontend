@@ -4,12 +4,11 @@ fragment DetailedComment on Comment {
   createdAt
   updatedAt
   parentCommentId
-  commenterId
   commenter {
       ...UserWithSpotifyOverview 
   } 
   comment
-  rating
-  entityId
-  entityType
+  entities {
+    id 
+  }
 }

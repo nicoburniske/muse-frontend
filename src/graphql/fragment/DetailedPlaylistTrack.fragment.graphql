@@ -1,0 +1,10 @@
+
+fragment DetailedPlaylistTrack on PlaylistTrack {
+  addedAt
+  addedBy {
+    ...UserWithSpotifyOverview
+  }
+  track {
+    ...DetailedTrack 
+  }
+}

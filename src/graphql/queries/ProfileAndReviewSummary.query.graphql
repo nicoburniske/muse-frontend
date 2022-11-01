@@ -16,8 +16,6 @@ query ProfileAndReviews {
 fragment ReviewOverview on Review {
   reviewName
   id
-  entityType
-  entityId
   createdAt
   creator {
     ...UserWithSpotifyOverview

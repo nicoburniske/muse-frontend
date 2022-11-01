@@ -1,5 +1,5 @@
-subscription ReviewUpdates($reviewId: ID!) {
-  reviewUpdates(reviewId: $reviewId) {
+subscription ReviewUpdates($reviewIds: [ID!]!) {
+  reviewUpdates(reviewIds: $reviewIds) {
     ... on DeletedComment {
         reviewId
         commentId

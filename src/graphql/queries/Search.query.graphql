@@ -1,0 +1,32 @@
+query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
+  search(query: $query, types: $types,pagination: $pagination) {
+    playlists {
+        ...SearchPlaylist
+    }
+    albums {
+        ...SearchAlbum
+    }
+  }
+}
+
+fragment SearchAlbum on Album {
+    __typename
+    id 
+    name
+    images
+    popularity
+    artists {
+        name
+    }
+}
+
+fragment SearchPlaylist on Playlist {
+    __typename
+    id
+    name
+    images
+    owner {
+        ...UserWithSpotifyOverview
+    }
+}
+
