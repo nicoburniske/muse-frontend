@@ -1,6 +1,6 @@
 import { useAtom } from "jotai"
 import { Theme, themeAtom } from "state/Atoms"
-import CreateReview from "./browseReviews/CreateReview"
+import CreateReview from "./createReview/CreateReview"
 import SearchBar from "./SearchBar"
 
 export default function NavbarRhs({className}: {className?: string}) {

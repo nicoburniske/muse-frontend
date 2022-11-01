@@ -1,16 +1,15 @@
-import { EntityType, SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery, useSearchSpotifyQuery } from "graphql/generated/schema"
+import { SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from "graphql/generated/schema"
 import toast from 'react-hot-toast';
 import { Virtuoso } from "react-virtuoso"
-import { CrossIcon, SearchIcon } from "./Icons";
+import { CrossIcon } from "./Icons";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import atomWithDebounce from "state/atomWithDebounce";
 import { useEffect } from "react";
-import { entityTypeAtom } from "./browseReviews/CreateReview";
+import { entityTypeAtom } from "./createReview/createReviewAtoms";
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment
 const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]"
 const DEFAULT_PAGINATION = { first: 20, from: 0 }
-
 
 export const entityIdAtom = atom<string>("")
 const searchResultAtom = atom<SearchResult[]>([])
