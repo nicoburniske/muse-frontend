@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, DetailedReviewFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useSeekPlaybackMutation } from "graphql/generated/schema"
+import { DetailedCommentFragment, EntityType, ReviewDetailsFragment, ReviewEntityOverviewFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useSeekPlaybackMutation } from "graphql/generated/schema"
 import DetailedPlaylist, { RenderOptions } from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useState } from "react"
 import { useSetAtom, useAtomValue } from "jotai"
@@ -13,48 +13,54 @@ import NavbarRhs from "component/NavbarRhs"
 import { useNavigate } from "react-router-dom"
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
+import Split from "react-split"
+import PlaylistTrackTable from "./PlaylistTrackTable"
+import { useBoolToggle } from "hook/useToggle"
+import { Virtuoso } from "react-virtuoso"
+import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
+import { nonNullable, findFirstImage } from "util/Utils"
 export interface DetailedReviewProps {
   reviewId: string
   isSm: boolean
 }
 
-const useLatestReviewComments = (reviewId: string) => {
-  const [comments, setComments] = useState<DetailedCommentFragment[]>([])
+// const useLatestReviewComments = (reviewId: string) => {
+//   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
 
-  useDetailedReviewCommentsQuery({
-    variables: { reviewId },
-    nextFetchPolicy: "cache-first",
-    pollInterval: 0,
-    onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
-  })
+//   useDetailedReviewCommentsQuery({
+//     variables: { reviewId },
+//     nextFetchPolicy: "cache-first",
+//     pollInterval: 0,
+//     onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
+//   })
 
-  useReviewUpdatesSubscription({
-    variables: { reviewId }, onSubscriptionData: (data) => {
-      const commentEvent = data.subscriptionData.data?.reviewUpdates
-      if (commentEvent?.__typename) {
-        switch (commentEvent.__typename) {
-          case "CreatedComment":
-            setComments([...comments, commentEvent.comment])
-            break;
-          case "UpdatedComment":
-            const updatedCommentId = commentEvent.comment.id
-            const filtered = comments.filter(comment => comment.id !== updatedCommentId)
-            filtered.push(commentEvent.comment)
-            setComments(filtered)
-            break;
-          case "DeletedComment":
-            const deletedCommentId = commentEvent.commentId
-            const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
-            setComments(removeDeleted)
-            break;
-          default:
-            console.error("Unhandled review update event", commentEvent)
-        }
-      }
-    }
-  })
-  return comments
-}
+//   useReviewUpdatesSubscription({
+//     variables: { reviewId }, onSubscriptionData: (data) => {
+//       const commentEvent = data.subscriptionData.data?.reviewUpdates
+//       if (commentEvent?.__typename) {
+//         switch (commentEvent.__typename) {
+//           case "CreatedComment":
+//             setComments([...comments, commentEvent.comment])
+//             break;
+//           case "UpdatedComment":
+//             const updatedCommentId = commentEvent.comment.id
+//             const filtered = comments.filter(comment => comment.id !== updatedCommentId)
+//             filtered.push(commentEvent.comment)
+//             setComments(filtered)
+//             break;
+//           case "DeletedComment":
+//             const deletedCommentId = commentEvent.commentId
+//             const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
+//             setComments(removeDeleted)
+//             break;
+//           default:
+//             console.error("Unhandled review update event", commentEvent)
+//         }
+//       }
+//     }
+//   })
+//   return comments
+// }
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
   // Subscriptions.
@@ -77,14 +83,12 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
 
   if (isLoading && data == undefined) {
     return <HeroLoading />
-  } else if (data) {
+  } else if (data?.review) {
     return (
       <DetailedReviewContent
         renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
         reviewId={reviewId}
         review={data.review}
-        comments={[]}
-        // comments={comments} 
         reload={() => refetch()} />
     )
 
@@ -99,35 +103,42 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
 interface DetailedReviewContentProps {
   renderOption: RenderOptions
   reviewId: string
-  review: DetailedReviewFragment
-  comments: DetailedCommentFragment[]
+  review: ReviewDetailsFragment
   reload: () => void
 }
 
-const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, comments, reload }: DetailedReviewContentProps) => {
+const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
   const [renderOption, setRenderOption,] = useStateWithSyncedDefault(renderOptionProp)
   const [openEditReview, setOpenEditReview] = useState(false)
   const nav = useNavigate()
   const userId = useAtomValue(currentUserIdAtom)
+  const setParentReviewId = useSetAtom(parentReviewIdAtom)
 
   const isReviewOwner = userId === review?.creator?.id
   const collaborators = review?.collaborators ?? []
   const isPublic = review?.isPublic
   const title = review?.reviewName
   const entityName = review?.entity?.name
+  const entityId = review?.entity?.id ?? ""
   const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
   const entity = review?.entity
-  const reviewEntityImage = (() => {
-    switch (entity?.__typename) {
-      case "Artist":
-        return entity?.artistImages?.at(0)
-      case "Playlist":
-      case "Album":
-        return entity?.images.at(0)
-      case "Track":
-        return entity?.album?.images.at(0)
-    }
-  })()
+  const children = review
+    ?.childReviews
+    ?.filter(Boolean)
+    ?.filter(c => c?.id)
+    ?.filter(c => c.entity?.id)
+    ?.filter(c => c.entity?.__typename)
+    .map(child => ({ reviewId: child.id, entityId: child.entity?.id, entityType: child.entity?.__typename, reviewName: child?.reviewName })) ?? []
+  const parent = { reviewId, entityId, entityType: review?.entity?.__typename, reviewName: review?.reviewName }
+
+  const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? [] 
+  const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity,  ...childEntities] : childEntities)
+
+  // On unmount reset parent review id.
+  useEffect(() => {
+    setParentReviewId(reviewId)
+    return () => setParentReviewId(undefined)
+  })
 
   const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
@@ -198,16 +209,18 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         onCancel={() => setOpenEditReview(false)} />
       <CommentFormModalWrapper />
       <div className="w-full h-[80%] bg-base-300">
-        {entity?.__typename === 'Playlist' ?
+        {/* {entity?.__typename === 'Playlist' ?
           <DetailedPlaylist
             reviewId={review?.id as string}
             playlist={entity}
             comments={comments}
             options={renderOption}
-          /> :
-          <Alert severity={AlertSeverity.Warning}>
-            <span> Not Implemented Yet. </span>
-          </Alert >
+          /> : */
+          <DetailedReviewBody parent={parent} children={children} />
+
+          // <Alert severity={AlertSeverity.Warning}>
+          //   <span> Not Implemented Yet. </span>
+          // </Alert >
         }
       </div>
       <div className='w-full h-[10%]'>
@@ -217,5 +230,121 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         />
       </div>
     </div >
+  )
+}
+
+interface DetailedReviewBodyProps {
+  parent: ReviewOverview
+  children: ReviewOverview[]
+  options?: RenderOptions
+}
+
+const DetailedReviewBody = ({ parent, children, options = RenderOptions.Both }: DetailedReviewBodyProps) => (
+  <div className="h-full px-1">
+    {(options == RenderOptions.Both) ?
+      <Split
+        className="flex h-full"
+        sizes={[40, 60]}
+        direction="horizontal"
+      >
+        <TrackSectionTable parent={parent} children={children} />
+        <ReviewCommentSection />
+      </Split>
+      : null
+      // <div className="flex h-full">
+      //   {(options == RenderOptions.Tracks) ?
+      //     displayTracks : displayComments}
+      // </div>
+    }
+  </div>
+)
+
+interface ReviewOverview {
+  reviewName: string
+  reviewId: string
+  entityId: string
+  entityType: EntityType
+}
+
+// consider flattening? 
+const TrackSectionTable = ({ parent, children }: { parent: ReviewOverview, children: ReviewOverview[] }) => {
+  const all = [parent, ...children]
+  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+
+  const handleAccordionClick = (index: number) => {
+    const exists = openIndexes.includes(index);
+    if (exists) {
+      setOpenIndexes(
+        openIndexes.filter((c) => {
+          return c !== index;
+        })
+      );
+    } else {
+      setOpenIndexes([...openIndexes, index]);
+    }
+  };
+
+  return (
+    <Virtuoso
+      className="w-full h-full overflow-y-auto"
+      data={all}
+      itemContent={(index, data) =>
+        <TrackSectionCollapsible
+          reviewId={data.reviewId}
+          reviewName={data.reviewName}
+          entityId={data.entityId}
+          entityType={data.entityType}
+          isOpen={openIndexes.includes(index)}
+          // onToggle={() => handleAccordionClick(index)} />
+          onToggle={() => () => {}} />
+      }
+      overscan={1000}
+    />
+  )
+}
+
+function ReviewCommentSection() {
+  return (
+    <div>
+      yeet
+    </div>
+  )
+}
+
+interface TrackSectionCollapsibleProps {
+  isOpen: boolean
+  onToggle: () => void
+  reviewName: string
+  reviewId: string
+  entityId: string
+  entityType: EntityType
+}
+
+
+function TrackSectionCollapsible({ reviewId, reviewName, entityId, entityType  }: TrackSectionCollapsibleProps) {
+  const { data } = useGetPlaylistQuery({ id: entityId })
+  const [isOpen, setOpen, onToggle] = useBoolToggle(false)
+  const name = reviewName ?? data?.getPlaylist?.name
+  const tracks = data?.getPlaylist?.tracks ?? []
+
+  const openClass = isOpen ? 'collapse-open' : 'collapse-close h-fit'
+
+  return (
+    <div className={`w-full collapse collapse-plus border border-base-300 bg-base-100 rounded-box flex flex-col justify-start ${openClass}`}
+    >
+      <div className="collapse-title text-xl font-medium bg-neutral h-fit w-full"
+        onClick={onToggle}
+      >
+        {name}
+      </div>
+      <div className="collapse-content w-full h-screen m-0 p-0">
+        <PlaylistTrackTable
+          playlistId={entityId}
+          reviewId={reviewId}
+          playlistTracks={tracks}
+        />
+      </div>
+
+    </div>
   )
 }

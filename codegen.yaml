@@ -7,14 +7,13 @@ generates:
   ./src/graphql/generated/schema.ts:
     plugins:
       - typescript
-      - typescript-operations:
-        config:
-          flattenGeneratedTypes: true
-          flattenGeneratedTypesIncludeFragments: true
-          dedupeFragments: true
+      - typescript-operations
       - typescript-react-query
     config:
       addInfiniteQuery: true
+      flattenGeneratedTypes: true
+      flattenGeneratedTypesIncludeFragments: true
+      dedupeFragments: true
       fetcher: 
         endpoint: http://localhost:8883/api/graphql
         fetchParams:

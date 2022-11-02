@@ -5,6 +5,7 @@ import App from './App'
 import { Toaster } from 'react-hot-toast';
 import { AppConfig } from 'util/AppConfig';
 import React from 'react';
+import { FILTER_SCHEMA } from 'filtersSchema';
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -48,6 +49,18 @@ const queryClient = new QueryClient()
 //   link: splitLink,
 //   connectToDevTools: true
 // });
+console.log(FILTER_SCHEMA)
+const isDefined = (x: any) => x !== undefined && x !== null
+const searchFilter = FILTER_SCHEMA.filter(f => isDefined(f.properties?.search_ui_filter)).filter(f => f.properties?.search_ui_filter)
+const searchFilterId = searchFilter.map(f => f.id)
+const searchFilterTypes = FILTER_SCHEMA.filter(f => isDefined(f.properties?.search_ui_filter_type))
+const searchFilterTypeId = searchFilterTypes.map(f => f.id)
+
+const diff = searchFilterId.filter(x => !searchFilterTypeId.includes(x))
+console.log("SIDEBAR FILTERS", searchFilter.length)
+console.log("SIDEBAR FILTERS TYPE", searchFilterTypes.length)
+console.log("Diff" , diff)
+
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

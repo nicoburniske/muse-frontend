@@ -16,7 +16,7 @@ export const refreshOverviewAtom = atom(
 )
 
 interface CommentModalData {
-    onSubmit: (comment: string) => Promise<void>
+    onSubmit: (comment: string) => void
     onCancel: () => void
     title: string
     initialValue?: string

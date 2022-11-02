@@ -1,4 +1,3 @@
-
 fragment DetailedTrack on Track {
   uri
   id
@@ -8,7 +7,6 @@ fragment DetailedTrack on Track {
   isPlayable
   previewUrl
   popularity
-  isLiked
   album {
     images
     id 

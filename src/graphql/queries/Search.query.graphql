@@ -1,10 +1,20 @@
 query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
   search(query: $query, types: $types,pagination: $pagination) {
     playlists {
-        ...SearchPlaylist
+        limit
+        nextOffset
+        itemsLeft
+        items {
+            ...SearchPlaylist
+        }
     }
     albums {
-        ...SearchAlbum
+        limit
+        nextOffset
+        itemsLeft
+        items {
+            ...SearchAlbum
+        }
     }
   }
 }

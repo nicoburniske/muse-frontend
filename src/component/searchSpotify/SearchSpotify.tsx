@@ -1,17 +1,17 @@
 import { SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from "graphql/generated/schema"
 import toast from 'react-hot-toast';
 import { Virtuoso } from "react-virtuoso"
-import { CrossIcon } from "./Icons";
+import { CrossIcon } from "../Icons";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import atomWithDebounce from "state/atomWithDebounce";
 import { useEffect } from "react";
-import { entityTypeAtom } from "./createReview/createReviewAtoms";
+import { entityTypeAtom } from "../createReview/createReviewAtoms";
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment
 const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]"
-const DEFAULT_PAGINATION = { first: 20, from: 0 }
+const DEFAULT_PAGINATION = { first: 20, offset: 0 }
 
-export const entityIdAtom = atom<string>("")
+export const entityIdAtom = atom<string | undefined>("")
 const searchResultAtom = atom<SearchResult[]>([])
 const paginationAtom = atom(DEFAULT_PAGINATION)
 const {
@@ -22,7 +22,7 @@ const {
 } = atomWithDebounce("");
 
 
-export default function SearchSpotify() {
+export default function SearchSpotify({ onClear }: { onClear: () => void }) {
     const entityType = useAtomValue(entityTypeAtom)
     const [debouncedSearch, setDebouncedSearch] = useAtom(debouncedSearchAtom)
     const isDebouncing = useAtomValue(isSearchDebouncing)
@@ -41,12 +41,13 @@ export default function SearchSpotify() {
         enabled: !isDebouncing && debouncedSearch.length > 0,
         staleTime: 1000 * 30,
         getNextPageParam: (last, all) => {
-            // TODO: fix this by including offset in response body.
-            const allAlbums: number = all.map(p => p.search?.albums.length ?? 0).reduce((a, b) => a + b, 0)
-            const allPlaylists: number = all.map(p => p.search?.playlists.length ?? 0).reduce((a, b) => a + b, 0)
-            const totalLength = allAlbums + allPlaylists
-            if (totalLength < 100) {
-                return { first: 20, from: totalLength }
+            const albumsLeft = last.search?.albums?.itemsLeft ?? 0
+            const playlistsLeft = last.search?.playlists?.itemsLeft ?? 0
+            const totalLeft = Math.min(albumsLeft + playlistsLeft, 20)
+            const nextOffset = last.search?.playlists?.nextOffset ?? 0
+            // TODO: impose limit? 
+            if (totalLeft > 0 && nextOffset > 0) {
+                return { first: 20, offset: nextOffset }
             }
         },
     })
@@ -55,7 +56,8 @@ export default function SearchSpotify() {
 
     useEffect(() => {
         const latestData = data?.pages?.flatMap(p =>
-            [...p.search?.albums ?? [], ...p.search?.playlists ?? []]
+            [...p.search?.albums?.items ?? [],
+            ...p.search?.playlists?.items ?? []]
         ) ?? []
         setSearchResults(latestData)
     }, [data])
@@ -63,11 +65,12 @@ export default function SearchSpotify() {
     const resetState = () => {
         setDebouncedSearch("")
         clearSearchResults()
+        onClear()
     }
 
     return (
         <>
-            <div className="w-full flex flex-row items-center">
+            <div className="w-full flex flex-row items-center justify-center">
                 <SearchInput />
                 <button className="btn btn-accent w-[10%]" onClick={resetState}>
                     <CrossIcon />
@@ -85,12 +88,10 @@ const SearchInput = () => {
     const setDebouncedValue = useSetAtom(debouncedSearchAtom)
 
     return (
-        <div className="w-full flex flex-row items-center">
-            <input type="text" placeholder="search" className="input input-bordered w-[90%]"
-                onChange={e => setDebouncedValue(e.target.value as string)}
-                value={currentValue}
-            />
-        </div>
+        <input type="text" placeholder="search" className="input input-bordered w-[90%]"
+            onChange={e => setDebouncedValue(e.target.value as string)}
+            value={currentValue}
+        />
     )
 }
 
@@ -125,7 +126,7 @@ const SearchResults = ({ fetchMore }: { fetchMore: () => void }) => {
                         onClick={() => setEntityId(result.id)}>
                         <div className="avatar flex-none">
                             <div className="w-8 md:w-16 rounded">
-                                <img loading='lazy' src={image} />
+                                <img src={image} />
                             </div>
                         </div>
                         <div className="grow flex flex-row justify-between max-w-[80%]">

@@ -30,27 +30,27 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
         setIsDeleting(false)
     }
 
-    const input = { reviewId, name: reviewName, isPublic: (isPublic === 1 ? true : false) }
-    const [updateReview, { loading }] = useUpdateReviewMutation({
-        variables: { input },
+    const { mutate, isLoading } = useUpdateReviewMutation({
         onError: () => toast.error('Failed to update review.'),
-        onCompleted: () => {
+        onSuccess: () => {
             onSuccess()
             resetState()
         }
     })
+    const input = { reviewId, name: reviewName, isPublic: (isPublic === 1 ? true : false) }
+    const updateReview = () => mutate({ input })
 
     // Deleting
     const [isDeleting, setIsDeleting] = useState(false)
     const nav = useNavigate()
-    const [deleteReview, { }] = useDeleteReviewMutation({
-        variables: { input: { id: reviewId } },
+    const { mutate: deleteReviewMutation } = useDeleteReviewMutation({
         onError: () => toast.error('Failed to delete review.'),
-        onCompleted: () => {
+        onSuccess: () => {
             nav('/')
             toast.success('Successfully deleted review.')
         }
     })
+    const deleteReview = () => deleteReviewMutation({ input: { id: reviewId } })
 
     const onSubmit = () => {
         updateReview()
@@ -62,8 +62,8 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
     }
 
     const disabled = useMemo(() =>
-        loading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
-        [loading, isPublic, reviewName])
+        isLoading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
+        [isLoading, isPublic, reviewName])
 
     return (
         <ThemeModal open={isOpen} className="max-w-md">

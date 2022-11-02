@@ -1,19 +1,21 @@
 import { CheckIcon, CrossIcon } from "component/Icons"
-import { entityIdAtom } from "component/SearchSpotify"
+import { entityIdAtom } from "component/searchSpotify/SearchSpotify"
 import { EntityType, useCreateReviewMutation } from "graphql/generated/schema"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useMemo } from "react"
 import { refreshOverviewAtom } from "state/Atoms"
-import { createReviewModalOpenAtom, debouncedReviewNameAtom, entityTypeAtom, isPublicAtom } from "./createReviewAtoms"
+import { createReviewModalOpenAtom, debouncedReviewNameAtom, entityTypeAtom, isPublicAtom, parentReviewIdAtom } from "./createReviewAtoms"
 import toast from 'react-hot-toast';
 
 export const CreateReviewButtons = () => {
     const [entityType, setEntityType] = useAtom(entityTypeAtom)
     const [isPublic, setIsPublic] = useAtom(isPublicAtom)
     const [entityId, setEntityId] = useAtom(entityIdAtom)
+    const parentReviewId = useAtomValue(parentReviewIdAtom)
 
     const [name, setReviewName] = useAtom(debouncedReviewNameAtom)
     const setModalOpen = useSetAtom(createReviewModalOpenAtom)
+    console.log(entityId)
 
     // Invalidate cache.
     const updateReviews = useSetAtom(refreshOverviewAtom)
@@ -24,21 +26,24 @@ export const CreateReviewButtons = () => {
             onSuccess: () => {
                 toast.success(`Successfully created ${entityType} review.`)
                 setModalOpen(false)
-                setEntityId("")
+                setEntityId(undefined)
                 setIsPublic(0)
                 setReviewName("")
                 updateReviews()
             }
         })
 
-    const input = { isPublic: isPublic ? true : false, name, entity: { entityType, entityId } }
+    const parentLink = parentReviewId === undefined ? undefined : { parentReviewId }
+    const entity = entityId !== undefined ? { entityId, entityType } : undefined
+    const input = { isPublic: isPublic ? true : false, name, entity, link: parentLink }
+
     const createReviewMutation = () => mutate({ input });
 
-    const canSubmit = useMemo(() => !isLoading && name.length > 0 && entityId.length > 0, [isLoading, name, entityId])
+    const canSubmit = useMemo(() => !isLoading && name.length > 0, [isLoading, name])
 
     const onCancel = () => {
         setModalOpen(false)
-        setEntityId("")
+        setEntityId(undefined)
         setReviewName("")
         setEntityType(EntityType.Album)
     }

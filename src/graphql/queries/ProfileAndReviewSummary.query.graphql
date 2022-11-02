@@ -8,55 +8,8 @@ query ProfileAndReviews {
       numFollowers
     }
     reviews {
-      ...ReviewOverview
+      ...ReviewDetails
     }
   }
 }
 
-fragment ReviewOverview on Review {
-  reviewName
-  id
-  createdAt
-  creator {
-    ...UserWithSpotifyOverview
-  }
-  entity {
-    ...ReviewEntityOverview 
-  }
-}
-
-fragment ReviewEntityOverview on ReviewEntity {
-  id
-  name
-  ... on Album {
-    images
-    artists {
-        name
-        id
-    } 
-  }
-  ... on Artist {
-    artistImages: images 
-  }
-  ... on Playlist {
-    owner {
-      id
-      spotifyProfile {
-        id
-        displayName
-        images
-        numFollowers
-      } 
-    }
-    images
-  }
-  ... on Track {
-    album {
-        images
-    }
-    artists {
-        name
-        id
-    }
-  }
-}

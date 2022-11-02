@@ -1,10 +1,10 @@
 query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
-    ...DetailedReview
+    ...ReviewDetails
   }
 }
 
-fragment DetailedReview on Review {
+fragment ReviewDetails on Review {
   id
   createdAt
   creator {
@@ -13,19 +13,18 @@ fragment DetailedReview on Review {
   reviewName
   isPublic
   entity {
-    name 
-    id
+    ...ReviewEntityOverview 
   }
   childReviews {
     id 
     createdAt
+    reviewName 
     creator {
       ...UserWithSpotifyOverview
     }
     isPublic
     entity {
-      name
-      id
+      ...ReviewEntityOverview 
     }
     collaborators {
       ...Collaborator

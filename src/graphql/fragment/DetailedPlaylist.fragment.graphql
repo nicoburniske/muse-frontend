@@ -1,19 +1,15 @@
-fragment DetailedTrack on Track {
-  uri
+fragment DetailedPlaylist on Playlist {
+  collaborative
+  description
   id
+  images
   name
-  durationMs
-  explicit
-  isPlayable
-  previewUrl
-  popularity
-  isLiked
-  album {
-    images
-    id 
+  owner {
+    ...UserWithSpotifyOverview
   }
-  artists {
-    name
-    id
-  } 
+  tracks {
+    ...DetailedPlaylistTrack
+  }
+  primaryColor
+  public
 }

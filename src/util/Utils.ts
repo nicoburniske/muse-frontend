@@ -1,3 +1,5 @@
+import { ReviewEntityOverviewFragment } from "graphql/generated/schema";
+
 export type BoolNum = 0 | 1
 
 export function msToTime(duration: number) {
@@ -21,7 +23,7 @@ export function msToTime(duration: number) {
  *
  * @returns Map of the array grouped by the grouping function.
  */
- export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
+export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
     const map = new Map<K, Array<V>>();
     list.forEach((item) => {
         const key = keyGetter(item);
@@ -33,4 +35,26 @@ export function msToTime(duration: number) {
         }
     });
     return map;
+}
+
+export function nonNullable<T>(value: T): value is NonNullable<T> {
+    return value !== null && value !== undefined;
+}
+
+export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
+    return reviews.map(entity =>
+        (() => {
+            switch (entity?.__typename) {
+                case "Artist":
+                    return entity?.artistImages?.at(0)
+                case "Playlist":
+                case "Album":
+                    return entity?.images?.at(0)
+                case "Track":
+                    return entity?.album?.images.at(0)
+            }
+        })()
+    )
+        .filter(nonNullable)
+        .at(0)
 }

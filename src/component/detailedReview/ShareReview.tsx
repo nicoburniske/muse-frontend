@@ -20,10 +20,10 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
     const [isModalOpen, setModalOpen] = useState(false)
     const [collaborators, setCollaborators, resetCollaborators] = useStateWithSyncedDefault(collabProp)
 
-    const [shareReview, { loading }] = useShareReviewMutation(
+    const { mutate: shareReview, isLoading } = useShareReviewMutation(
         {
             onError: () => toast.error("Failed to update review sharing."),
-            onCompleted: () => onChange()
+            onSuccess: () => onChange()
         }
     )
 
@@ -31,7 +31,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
         const addCollaborator = (() => {
             if (username.length !== 0) {
                 const variables = { input: { reviewId, accessLevel, userId: username } }
-                return shareReview({ variables })
+                return shareReview(variables)
             } else {
                 return Promise.resolve(null)
             }
@@ -41,7 +41,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
         const removeCollaborators = collabProp
             .filter(c => !collaborators.find(c2 => c2.user.id === c.user.id))
             .map(c => ({ input: { reviewId, userId: c.user.id } }))
-            .map(variables => shareReview({ variables }))
+            .map(variables => shareReview(variables))
 
         try {
             await Promise.all([addCollaborator, ...removeCollaborators])
@@ -61,7 +61,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
     const disabledUndo = useMemo(() => collaborators.length === collabProp.length, [collaborators, collabProp])
 
     const disabled = useMemo(() =>
-        loading || username.length === 0 && disabledUndo
+        isLoading || username.length === 0 && disabledUndo
         , [username, disabledUndo])
 
     return (

@@ -1,5 +1,5 @@
-import { useAtom } from 'jotai'
-import SearchSpotify from 'component/SearchSpotify';
+import { useAtom, useSetAtom } from 'jotai'
+import SearchSpotify, { entityIdAtom } from 'component/searchSpotify/SearchSpotify';
 import { PlusIcon } from 'component/Icons';
 import { ThemeModal } from 'component/ThemeModal';
 import { Dialog } from '@headlessui/react';
@@ -8,9 +8,9 @@ import { EditReviewName } from './EditReviewName';
 import { CreateReviewButtons } from './CreateReviewButtons';
 import { ReviewProperties } from './ReviewProperties';
 
-
 export default function CreateReview() {
     const [isModalOpen, setModalOpen] = useAtom(createReviewModalOpenAtom)
+    const setEntityId = useSetAtom(entityIdAtom)
 
     return (
         <div>
@@ -21,7 +21,7 @@ export default function CreateReview() {
                     </Dialog.Title>
                     <EditReviewName />
                     <ReviewProperties />
-                    <SearchSpotify />
+                    <SearchSpotify onClear={() => setEntityId("")} />
                     <CreateReviewButtons />
                 </div>
             </ThemeModal>

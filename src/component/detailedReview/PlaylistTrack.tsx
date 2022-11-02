@@ -35,26 +35,25 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
-    const [createComment,] = useCreateCommentMutation({ onCompleted: resetState })
+    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: resetState })
     const onSubmit = (comment: string) =>
-        createComment({ variables: { input: { comment, entityId: track.id, entityType: EntityType.Track, reviewId } } })
-            .then(() => { })
+        createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
 
 
-    const [playTrack, { loading }] = useStartPlaybackMutation({
+    const { mutate: playTrack, isLoading } = useStartPlaybackMutation({
         onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
-        onCompleted: () => {
+        onSuccess: () => {
             setPlaying(track.id)
         }
     });
 
     const onPlayTrack = () => {
-        if (!loading) {
+        if (!isLoading) {
             // We only want to include device when one is not active.
             const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
             const inner = { entityId: track.id, entityType: EntityType.Track }
             const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            playTrack({ variables: { input: { entityOffset: { outer, inner }, deviceId: device } } })
+            playTrack({ input: { entityOffset: { outer, inner }, deviceId: device } })
         }
     }
 
@@ -69,7 +68,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle} transition-all duration-50 hover:shadow hover:translate-y-0.5`} >
 
             <div className="avatar" onClick={showModal}>
                 <div className="w-8 md:w-16 rounded">

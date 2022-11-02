@@ -1,0 +1,36 @@
+fragment ReviewEntityOverview on ReviewEntity {
+  __typename
+  id
+  name
+  ... on Album {
+    images
+    artists {
+        name
+        id
+    } 
+  }
+  ... on Artist {
+    artistImages: images 
+  }
+  ... on Playlist {
+    owner {
+      id
+      spotifyProfile {
+        id
+        displayName
+        images
+        numFollowers
+      } 
+    }
+    images
+  }
+  ... on Track {
+    album {
+        images
+    }
+    artists {
+        name
+        id
+    }
+  }
+}

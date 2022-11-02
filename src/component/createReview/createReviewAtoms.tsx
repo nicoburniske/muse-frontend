@@ -5,6 +5,7 @@ import { BoolNum } from "util/Utils";
 
 
 export const entityTypeAtom = atom<EntityType>(EntityType.Playlist)
+export const parentReviewIdAtom = atom<string | undefined>(undefined)
 export const isPublicAtom = atom<BoolNum>(0)
 export const {
     isDebouncingAtom: isReviewNameDebouncing,

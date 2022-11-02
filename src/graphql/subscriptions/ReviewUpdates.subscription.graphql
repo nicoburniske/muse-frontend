@@ -1,18 +1,18 @@
-subscription ReviewUpdates($reviewIds: [ID!]!) {
-  reviewUpdates(reviewIds: $reviewIds) {
-    ... on DeletedComment {
-        reviewId
-        commentId
-    }
-    ... on UpdatedComment {
-        comment{
-            ...DetailedComment
-        }
-    }
-    ... on CreatedComment {
-        comment {
-            ...DetailedComment
-        }
-    }
-  }
-}
+# subscription ReviewUpdates($reviewIds: [ID!]!) {
+#   reviewUpdates(reviewIds: $reviewIds) {
+#     ... on DeletedComment {
+#         reviewId
+#         commentId
+#     }
+#     ... on UpdatedComment {
+#         comment{
+#             ...DetailedComment
+#         }
+#     }
+#     ... on CreatedComment {
+#         comment {
+#             ...DetailedComment
+#         }
+#     }
+#   }
+# }

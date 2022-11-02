@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { EntityType, ReviewEntityOverviewFragment, ReviewOverviewFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast';
 import { HeroLoading } from "component/HeroLoading";
 import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
@@ -7,12 +7,13 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import NavbarRhs from "component/NavbarRhs";
 import useWindowSize from "hook/useWindowSize";
+import { findFirstImage, nonNullable } from "util/Utils";
 
 export default function BrowsePage() {
   const nav = useNavigate()
   const linkToHome = () => nav('/')
   const search = useAtomValue(searchLoweredAtom)
-  const { data, isLoading, refetch } = useProfileAndReviewsQuery({},{onError: () => toast.error("Failed to load profile.")})
+  const { data, isLoading, refetch } = useProfileAndReviewsQuery({}, { onError: () => toast.error("Failed to load profile.") })
 
   const reviews = useMemo(() =>
     data?.user?.reviews?.filter(r =>
@@ -79,18 +80,21 @@ export default function BrowsePage() {
   }
 }
 interface CreateCardProps {
-  review: ReviewOverviewFragment
+  review: ReviewDetailsFragment
 }
 
 function CreateCard({ review }: CreateCardProps) {
-  const [entityName, image] = getNameAndImage(review.entity)
+  const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
+  const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
+  const entityName = allEntities.map(e => e.name).find(nonNullable)
+  const image = findFirstImage(allEntities)
   const nav = useNavigate()
   const linkToReviewPage = () => nav(`/reviews/${review.id}`)
   const creatorName = review?.creator?.spotifyProfile?.displayName ?? "Unknown"
   return (
-    <div key={review.id} className="card bg-base-100 shadow-xl">
+    <div key={review.id} onClick={linkToReviewPage} className="card bg-base-100 shadow-xl hover:bg-base-200 transition-all duration-200 hover:shadow hover:-translate-y-1">
       <figure><img src={image} /></figure>
-      <button onClick={linkToReviewPage} className="card-body p-0 flex justify-center hover:bg-base-200">
+      <button className="card-body p-0 flex justify-center">
         <div className="w-full flex flex-col justify-center items-center hover:whitespace-normal">
           <div className="stat-title text-xs md:text-base w-full truncate">{entityName}</div>
           <div className="stat-value text-xs md:text-base w-full truncate">{review.reviewName}</div>
@@ -102,25 +106,6 @@ function CreateCard({ review }: CreateCardProps) {
       </button>
     </div>
   )
-}
-
-// Example: Exhaustive type inferences!
-// There are two cases here. 
-// Entity types -> Track, Album, Artist, Playlist. 
-// 1. Track, Artist, and Playlist all have images on top level.
-// 2. Track has images INSIDE of its album.
-function getNameAndImage(data?: ReviewEntityOverviewFragment): [string, string] {
-  if (data === undefined || data === null) {
-    return ["", ""]
-  }
-  if ("images" in data) {
-    return [data.name, data.images?.[0]]
-  } else if ('artistImages' in data) {
-    return [data.name, data.artistImages?.[0] ?? ""]
-  } else {
-    // TODO: what is this complaining about?
-    return [data.name, data.album?.images?.[0] ?? ""]
-  }
 }
 
 // Would be great to have macros for tailwind.
