@@ -41,6 +41,10 @@ export function nonNullable<T>(value: T): value is NonNullable<T> {
     return value !== null && value !== undefined;
 }
 
+export function orElse<T extends {}>(value: T | undefined, defaultValue: T): NonNullable<T> {
+    return nonNullable(value) ? value : defaultValue;
+}
+
 export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
     return reviews.map(entity =>
         (() => {

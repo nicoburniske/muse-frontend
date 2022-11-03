@@ -32,7 +32,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
     }, [selectedTrackId])
 
     const MemoizedTrack = React.memo(({ index }: { index: number }) =>
-        <div className="py-0.5">
+        <div className="py-0.5 m-0">
             <PlaylistTrack
                 playlistId={playlistId}
                 reviewId={reviewId}
@@ -44,7 +44,7 @@ export default function PlaylistTrackTable({ playlistId, reviewId, playlistTrack
 
     return (
         <Virtuoso
-            className="w-full h-full overflow-y-auto"
+            useWindowScroll
             ref={virtuoso}
             scrollSeekConfiguration={{
                 enter: (velocity) => Math.abs(velocity) > 1500,

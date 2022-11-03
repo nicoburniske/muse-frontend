@@ -6,16 +6,17 @@ import { useMemo } from "react"
 import { refreshOverviewAtom } from "state/Atoms"
 import { createReviewModalOpenAtom, debouncedReviewNameAtom, entityTypeAtom, isPublicAtom, parentReviewIdAtom } from "./createReviewAtoms"
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query'
 
 export const CreateReviewButtons = () => {
     const [entityType, setEntityType] = useAtom(entityTypeAtom)
     const [isPublic, setIsPublic] = useAtom(isPublicAtom)
     const [entityId, setEntityId] = useAtom(entityIdAtom)
     const parentReviewId = useAtomValue(parentReviewIdAtom)
+    const queryClient = useQueryClient()
 
     const [name, setReviewName] = useAtom(debouncedReviewNameAtom)
     const setModalOpen = useSetAtom(createReviewModalOpenAtom)
-    console.log(entityId)
 
     // Invalidate cache.
     const updateReviews = useSetAtom(refreshOverviewAtom)
@@ -30,6 +31,7 @@ export const CreateReviewButtons = () => {
                 setIsPublic(0)
                 setReviewName("")
                 updateReviews()
+                queryClient.invalidateQueries({queryKey: ["DetailedReview"]})
             }
         })
 

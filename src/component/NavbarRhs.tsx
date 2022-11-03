@@ -1,26 +1,14 @@
-import { useAtom } from "jotai"
-import { Theme, themeAtom } from "state/Atoms"
 import CreateReview from "./createReview/CreateReview"
 import SearchBar from "./SearchBar"
+import { ThemeSetter } from "./ThemeSetter"
 
-export default function NavbarRhs({className}: {className?: string}) {
-    const [theme, setTheme] = useAtom(themeAtom)
+export default function NavbarRhs({ className, createReviewTitle }: { className?: string, createReviewTitle?: string }) {
 
     return (
         <div className={`flex flex-row ${className} `}>
             <SearchBar />
-            <CreateReview />
-            <div className="tooltip tooltip-bottom" data-tip="Theme">
-                <select
-                    value={theme}
-                    onChange={(e) => setTheme(e.target.value as Theme)}
-                    className="select select-bordered w-full max-w-xs">
-                    {Object.values(Theme)
-                        .sort((a, b) => a.localeCompare(b))
-                        .map((e) => <option key={e} value={e}>{e}</option>)}
-                </select>
-            </div>
+            <CreateReview title={createReviewTitle} className="btn btn-base-300 btn-square" />
+            <ThemeSetter />
         </div>
-
     )
 }

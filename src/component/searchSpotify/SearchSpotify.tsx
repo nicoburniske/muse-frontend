@@ -68,6 +68,9 @@ export default function SearchSpotify({ onClear }: { onClear: () => void }) {
         onClear()
     }
 
+    // Cleanup on unmount.
+    useEffect(() => () => resetState(), [])
+
     return (
         <>
             <div className="w-full flex flex-row items-center justify-center">

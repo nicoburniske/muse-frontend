@@ -1,6 +1,6 @@
-import { DetailedCommentFragment, EntityType, ReviewDetailsFragment, ReviewEntityOverviewFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useSeekPlaybackMutation } from "graphql/generated/schema"
-import DetailedPlaylist, { RenderOptions } from "component/detailedReview/DetailedPlaylist"
-import { useEffect, useMemo, useState } from "react"
+import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
+import { RenderOptions } from "component/detailedReview/DetailedPlaylist"
+import { useEffect, useState } from "react"
 import { useSetAtom, useAtomValue } from "jotai"
 import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
@@ -8,17 +8,17 @@ import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
 import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { EditReview } from "./editReview/EditReview"
-import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardIcon } from "component/Icons"
-import NavbarRhs from "component/NavbarRhs"
+import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, LinkIcon, MusicIcon, SkipBackwardIcon } from "component/Icons"
 import { useNavigate } from "react-router-dom"
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
 import PlaylistTrackTable from "./PlaylistTrackTable"
-import { useBoolToggle } from "hook/useToggle"
 import { Virtuoso } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
 import { nonNullable, findFirstImage } from "util/Utils"
+import CreateReview from "component/createReview/CreateReview"
+import { ThemeSetter } from "component/ThemeSetter"
 export interface DetailedReviewProps {
   reviewId: string
   isSm: boolean
@@ -122,19 +122,37 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
   const entityId = review?.entity?.id ?? ""
   const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
   const entity = review?.entity
+
+  // Find first image!
+  const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
+  // Root review doesn't need an entity.
+  const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
+
+  // Children!
   const children = review
     ?.childReviews
     ?.filter(Boolean)
-    ?.filter(c => c?.id)
-    ?.filter(c => c.entity?.id)
-    ?.filter(c => c.entity?.__typename)
-    .map(child => ({ reviewId: child.id, entityId: child.entity?.id, entityType: child.entity?.__typename, reviewName: child?.reviewName })) ?? []
-  const parent = { reviewId, entityId, entityType: review?.entity?.__typename, reviewName: review?.reviewName }
-
-  const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? [] 
-  const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity,  ...childEntities] : childEntities)
+    ?.filter(c => nonNullable(c?.id))
+    ?.filter(c => nonNullable(c.entity?.id))
+    ?.filter(c => nonNullable(c.entity?.__typename))
+    .map(child => ({
+      reviewId: child.id,
+      entityId: child.entity?.id as string,
+      entityType: child.entity?.__typename as EntityType,
+      reviewName: child?.reviewName
+    })) ?? []
+  const parent = nonNullable(review?.entity) ?
+    {
+      reviewId,
+      entityId,
+      entityType: review.entity.__typename as EntityType,
+      reviewName: review?.reviewName
+    }
+    : undefined
+  const allReviews = [parent, ...children].filter(nonNullable)
 
   // On unmount reset parent review id.
+  // This is for creating child reviews in modal.
   useEffect(() => {
     setParentReviewId(reviewId)
     return () => setParentReviewId(undefined)
@@ -168,9 +186,12 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             isReviewOwner ?
               <div className="btn-group btn-group-vertical lg:btn-group-horizontal">
                 <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
-                <button className="btn btn-secondary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
-                  <EllipsisIcon />
-                </button>
+                <div>
+                  <button className="btn btn-secondary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
+                    <EllipsisIcon />
+                  </button>
+                </div>
+                <CreateReview title="create linked review" className="btn btn-primary btn-xs lg:btn-md" />
               </div>
               : null
           }
@@ -193,7 +214,9 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             <CommentIcon />
           </button>
         </div>
-        <NavbarRhs className='justify-end space-x-1' />
+        <div className='flex justify-end px-1'>
+          <ThemeSetter />
+        </div>
 
         {/* <div className="flex flex-row items-center h-full">
           <div className="stats shadow">
@@ -216,7 +239,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             comments={comments}
             options={renderOption}
           /> : */
-          <DetailedReviewBody parent={parent} children={children} />
+          <DetailedReviewBody reviews={allReviews} />
 
           // <Alert severity={AlertSeverity.Warning}>
           //   <span> Not Implemented Yet. </span>
@@ -234,12 +257,11 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 }
 
 interface DetailedReviewBodyProps {
-  parent: ReviewOverview
-  children: ReviewOverview[]
+  reviews: ReviewOverview[]
   options?: RenderOptions
 }
 
-const DetailedReviewBody = ({ parent, children, options = RenderOptions.Both }: DetailedReviewBodyProps) => (
+const DetailedReviewBody = ({ reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => (
   <div className="h-full px-1">
     {(options == RenderOptions.Both) ?
       <Split
@@ -247,7 +269,7 @@ const DetailedReviewBody = ({ parent, children, options = RenderOptions.Both }: 
         sizes={[40, 60]}
         direction="horizontal"
       >
-        <TrackSectionTable parent={parent} children={children} />
+        <TrackSectionTable all={reviews} />
         <ReviewCommentSection />
       </Split>
       : null
@@ -267,9 +289,9 @@ interface ReviewOverview {
 }
 
 // consider flattening? 
-const TrackSectionTable = ({ parent, children }: { parent: ReviewOverview, children: ReviewOverview[] }) => {
-  const all = [parent, ...children]
-  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
+  // Need state so that children stay open on scroll.
+  const [openIndexes, setOpenIndexes] = useState<number[]>(all.length > 0 ? [0] : []);
 
   const handleAccordionClick = (index: number) => {
     const exists = openIndexes.includes(index);
@@ -285,21 +307,32 @@ const TrackSectionTable = ({ parent, children }: { parent: ReviewOverview, child
   };
 
   return (
-    <Virtuoso
-      className="w-full h-full overflow-y-auto"
-      data={all}
-      itemContent={(index, data) =>
-        <TrackSectionCollapsible
-          reviewId={data.reviewId}
-          reviewName={data.reviewName}
-          entityId={data.entityId}
-          entityType={data.entityType}
-          isOpen={openIndexes.includes(index)}
-          // onToggle={() => handleAccordionClick(index)} />
-          onToggle={() => () => {}} />
-      }
-      overscan={1000}
-    />
+    <div className="w-full h-full overflow-y-auto">
+      {all.map((data, index) => (
+        <div key={index} className="w-full">
+          <TrackSectionCollapsible
+            reviewId={data.reviewId}
+            reviewName={data.reviewName}
+            entityId={data.entityId}
+            entityType={data.entityType}
+            isOpen={openIndexes.includes(index)}
+            onToggle={() => handleAccordionClick(index)} />
+        </div>
+      ))}
+    </div>
+    // <Virtuoso
+    //   data={all}
+    //   itemContent={(index, data) =>
+    //     <TrackSectionCollapsible
+    //       reviewId={data.reviewId}
+    //       reviewName={data.reviewName}
+    //       entityId={data.entityId}
+    //       entityType={data.entityType}
+    //       isOpen={openIndexes.includes(index)}
+    //       onToggle={() => handleAccordionClick(index)} />
+    //   }
+    //   overscan={3000}
+    // />
   )
 }
 
@@ -321,29 +354,28 @@ interface TrackSectionCollapsibleProps {
 }
 
 
-function TrackSectionCollapsible({ reviewId, reviewName, entityId, entityType  }: TrackSectionCollapsibleProps) {
+function TrackSectionCollapsible({ reviewId, reviewName, entityId, entityType, isOpen, onToggle }: TrackSectionCollapsibleProps) {
   const { data } = useGetPlaylistQuery({ id: entityId })
-  const [isOpen, setOpen, onToggle] = useBoolToggle(false)
   const name = reviewName ?? data?.getPlaylist?.name
   const tracks = data?.getPlaylist?.tracks ?? []
 
-  const openClass = isOpen ? 'collapse-open' : 'collapse-close h-fit'
-
   return (
-    <div className={`w-full collapse collapse-plus border border-base-300 bg-base-100 rounded-box flex flex-col justify-start ${openClass}`}
-    >
-      <div className="collapse-title text-xl font-medium bg-neutral h-fit w-full"
+    <div className={`w-full flex flex-col justify-start p-1 h-full`}>
+      <div className="text-xl font-medium bg-neutral text-neutral-content"
         onClick={onToggle}
       >
         {name}
       </div>
-      <div className="collapse-content w-full h-screen m-0 p-0">
-        <PlaylistTrackTable
-          playlistId={entityId}
-          reviewId={reviewId}
-          playlistTracks={tracks}
-        />
-      </div>
+      {isOpen ?
+        <div className="h-max overflow-y-hidden">
+          <PlaylistTrackTable
+            playlistId={entityId}
+            reviewId={reviewId}
+            playlistTracks={tracks}
+          />
+        </div>
+        : null
+      }
 
     </div>
   )
