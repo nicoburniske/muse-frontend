@@ -1030,6 +1030,7 @@ export const useCreateCommentMutation = <
       (variables?: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables)(),
       options
     );
+useCreateCommentMutation.fetcher = (variables: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables);
 export const CreateReviewDocument = `
     mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
@@ -1046,6 +1047,7 @@ export const useCreateReviewMutation = <
       (variables?: CreateReviewMutationVariables) => fetcher<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, variables)(),
       options
     );
+useCreateReviewMutation.fetcher = (variables: CreateReviewMutationVariables) => fetcher<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, variables);
 export const DeleteCommentDocument = `
     mutation DeleteComment($input: DeleteCommentInput!) {
   deleteComment(input: $input)
@@ -1060,6 +1062,7 @@ export const useDeleteCommentMutation = <
       (variables?: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables)(),
       options
     );
+useDeleteCommentMutation.fetcher = (variables: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables);
 export const DeleteReviewDocument = `
     mutation DeleteReview($input: DeleteReviewInput!) {
   deleteReview(input: $input)
@@ -1074,6 +1077,7 @@ export const useDeleteReviewMutation = <
       (variables?: DeleteReviewMutationVariables) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables)(),
       options
     );
+useDeleteReviewMutation.fetcher = (variables: DeleteReviewMutationVariables) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables);
 export const PausePlaybackDocument = `
     mutation PausePlayback($deviceId: String) {
   pausePlayback(deviceId: $deviceId)
@@ -1088,6 +1092,7 @@ export const usePausePlaybackMutation = <
       (variables?: PausePlaybackMutationVariables) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables)(),
       options
     );
+usePausePlaybackMutation.fetcher = (variables?: PausePlaybackMutationVariables) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables);
 export const RemoveSavedTracksDocument = `
     mutation RemoveSavedTracks($trackIds: [String!]!) {
   removeSavedTracks(input: $trackIds)
@@ -1102,6 +1107,7 @@ export const useRemoveSavedTracksMutation = <
       (variables?: RemoveSavedTracksMutationVariables) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables)(),
       options
     );
+useRemoveSavedTracksMutation.fetcher = (variables: RemoveSavedTracksMutationVariables) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables);
 export const SaveTracksDocument = `
     mutation SaveTracks($trackIds: [String!]!) {
   saveTracks(input: $trackIds)
@@ -1116,6 +1122,7 @@ export const useSaveTracksMutation = <
       (variables?: SaveTracksMutationVariables) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables)(),
       options
     );
+useSaveTracksMutation.fetcher = (variables: SaveTracksMutationVariables) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables);
 export const SeekPlaybackDocument = `
     mutation SeekPlayback($input: SeekPlaybackInput!) {
   seekPlayback(input: $input)
@@ -1130,6 +1137,7 @@ export const useSeekPlaybackMutation = <
       (variables?: SeekPlaybackMutationVariables) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables)(),
       options
     );
+useSeekPlaybackMutation.fetcher = (variables: SeekPlaybackMutationVariables) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables);
 export const ShareReviewDocument = `
     mutation ShareReview($input: ShareReviewInput!) {
   shareReview(input: $input)
@@ -1144,6 +1152,7 @@ export const useShareReviewMutation = <
       (variables?: ShareReviewMutationVariables) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables)(),
       options
     );
+useShareReviewMutation.fetcher = (variables: ShareReviewMutationVariables) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables);
 export const ToggleShuffleDocument = `
     mutation ToggleShuffle($input: Boolean!) {
   toggleShuffle(input: $input)
@@ -1158,6 +1167,7 @@ export const useToggleShuffleMutation = <
       (variables?: ToggleShuffleMutationVariables) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables)(),
       options
     );
+useToggleShuffleMutation.fetcher = (variables: ToggleShuffleMutationVariables) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables);
 export const SkipToNextDocument = `
     mutation SkipToNext($deviceId: String) {
   skipToNext(deviceId: $deviceId)
@@ -1172,6 +1182,7 @@ export const useSkipToNextMutation = <
       (variables?: SkipToNextMutationVariables) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables)(),
       options
     );
+useSkipToNextMutation.fetcher = (variables?: SkipToNextMutationVariables) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables);
 export const SkipToPreviousDocument = `
     mutation SkipToPrevious($deviceId: String) {
   skipToPrevious(deviceId: $deviceId)
@@ -1186,6 +1197,7 @@ export const useSkipToPreviousMutation = <
       (variables?: SkipToPreviousMutationVariables) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables)(),
       options
     );
+useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables);
 export const StartPlaybackDocument = `
     mutation StartPlayback($input: PlaybackContextInput!) {
   startPlayback(input: $input)
@@ -1200,6 +1212,7 @@ export const useStartPlaybackMutation = <
       (variables?: StartPlaybackMutationVariables) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables)(),
       options
     );
+useStartPlaybackMutation.fetcher = (variables: StartPlaybackMutationVariables) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables);
 export const UpdateCommentDocument = `
     mutation UpdateComment($input: UpdateCommentInput!) {
   updateComment(input: $input) {
@@ -1216,6 +1229,7 @@ export const useUpdateCommentMutation = <
       (variables?: UpdateCommentMutationVariables) => fetcher<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, variables)(),
       options
     );
+useUpdateCommentMutation.fetcher = (variables: UpdateCommentMutationVariables) => fetcher<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, variables);
 export const UpdateReviewDocument = `
     mutation UpdateReview($input: UpdateReviewInput!) {
   updateReview(input: $input) {
@@ -1232,6 +1246,7 @@ export const useUpdateReviewMutation = <
       (variables?: UpdateReviewMutationVariables) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables)(),
       options
     );
+useUpdateReviewMutation.fetcher = (variables: UpdateReviewMutationVariables) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables);
 export const DetailedReviewDocument = `
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
@@ -1268,6 +1283,7 @@ export const useInfiniteDetailedReviewQuery = <
       options
     );
 
+useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables);
 export const DetailedReviewCommentsDocument = `
     query DetailedReviewComments($reviewId: ID!) {
   review(id: $reviewId) {
@@ -1304,6 +1320,7 @@ export const useInfiniteDetailedReviewCommentsQuery = <
       options
     );
 
+useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables);
 export const GetPlaylistDocument = `
     query GetPlaylist($id: String!) {
   getPlaylist(id: $id) {
@@ -1340,6 +1357,7 @@ export const useInfiniteGetPlaylistQuery = <
       options
     );
 
+useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables);
 export const ProfileAndReviewsDocument = `
     query ProfileAndReviews {
   user {
@@ -1385,6 +1403,7 @@ export const useInfiniteProfileAndReviewsQuery = <
       options
     );
 
+useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables);
 export const SearchSpotifyDocument = `
     query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
   search(query: $query, types: $types, pagination: $pagination) {
@@ -1435,6 +1454,7 @@ export const useInfiniteSearchSpotifyQuery = <
       options
     );
 
+useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables);
 export const UserPlaylistsDocument = `
     query UserPlaylists($input: SearchUserPlaylistsInput!) {
   user {
@@ -1476,6 +1496,7 @@ export const useInfiniteUserPlaylistsQuery = <
       options
     );
 
+useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables);
 export const AvailableDevicesDocument = `
     subscription AvailableDevices {
   availableDevices {

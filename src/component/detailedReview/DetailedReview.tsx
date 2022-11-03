@@ -1,6 +1,6 @@
-import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
+import { DetailedPlaylistTrackFragment, EntityType, GetPlaylistDocument, GetPlaylistQuery, GetPlaylistQueryVariables, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
 import { RenderOptions } from "component/detailedReview/DetailedPlaylist"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useSetAtom, useAtomValue } from "jotai"
 import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
@@ -14,11 +14,15 @@ import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
 import PlaylistTrackTable from "./PlaylistTrackTable"
-import { Virtuoso } from "react-virtuoso"
+import { Components, GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
 import { nonNullable, findFirstImage } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
+import { useQueries } from "@tanstack/react-query"
+import PlaylistTrack, { PlaylistTrackProps } from "./PlaylistTrack"
+import React from "react"
+
 export interface DetailedReviewProps {
   reviewId: string
   isSm: boolean
@@ -131,7 +135,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
   // Children!
   const children = review
     ?.childReviews
-    ?.filter(Boolean)
+    ?.filter(nonNullable)
     ?.filter(c => nonNullable(c?.id))
     ?.filter(c => nonNullable(c.entity?.id))
     ?.filter(c => nonNullable(c.entity?.__typename))
@@ -288,12 +292,61 @@ interface ReviewOverview {
   entityType: EntityType
 }
 
-// consider flattening? 
+function zip<A, B>(i: A[], j: B[]): [A, B][] {
+  return i.map((a, index) => [a, j[index]])
+}
+
+// Need to filter out errors.
 const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
-  // Need state so that children stay open on scroll.
-  const [openIndexes, setOpenIndexes] = useState<number[]>(all.length > 0 ? [0] : []);
+  const entityIds = all.map(r => r.entityId)
+  const results = useQueries({
+    queries: entityIds.map(id => ({
+      queryKey: ['entity', id],
+      queryFn: useGetPlaylistQuery.fetcher({ id }),
+    }))
+  })
+
+  // Ensure that indicies line up.
+  const validZipped = useMemo(() =>
+    zip(results, all)
+      // Success from API.
+      .filter(([res, _rev]) => res.isSuccess)
+      // Non Null Entity.
+      .filter(([res, _rev]) => nonNullable(res.data?.getPlaylist)),
+    [results])
+  const validReviews = validZipped.map(([_, rev]) => rev)
+  const validResults = validZipped.map(([res, _rev]) => res)
+
+  const loadingNoData = results.some(r => r.isLoading) && results.every(r => r.data === undefined)
+
+  const virtuoso = useRef<VirtuosoHandle>(null);
+  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+  useEffect(() => {
+    if (!loadingNoData) {
+      // Open all indicies after initial load.
+      setOpenIndexes([...Array(validZipped.length).keys()])
+    }
+  }, [loadingNoData])
+
+  // Group info.
+  const entityTypes = validReviews.map(r => r.entityType)
+  const groupHeader = validResults.map(r => r.data!.getPlaylist!.name)
+
+  // Content info.
+  const groupCounts = loadingNoData ? [] : validResults.flatMap((r, index) => openIndexes.includes(index)
+    ? r.data!.getPlaylist?.tracks?.length ?? [] : [0])
+  const tracks = validResults.filter((_r, index) => openIndexes.includes(index)).flatMap(r => r.data!.getPlaylist?.tracks)
+
+  const indexToPlaylistId = validResults.flatMap((review) => {
+    const playlist = review.data?.getPlaylist
+    const playlistId = playlist?.id
+    return playlist?.tracks?.map(_t => playlistId) ?? []
+  })
 
   const handleAccordionClick = (index: number) => {
+    if (validResults.length == 1) {
+      return;
+    }
     const exists = openIndexes.includes(index);
     if (exists) {
       setOpenIndexes(
@@ -303,38 +356,75 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
       );
     } else {
       setOpenIndexes([...openIndexes, index]);
+      const scrollIndex = groupCounts.slice(0, index).reduce((a, b) => a + b, 0);
+      if (scrollIndex !== undefined && scrollIndex !== 0) {
+        // Need timeout to wait for render of list elements.
+        setTimeout(() =>
+          virtuoso.current?.scrollToIndex({ index: scrollIndex, behavior: 'smooth', align: 'start' })
+          , 100)
+      }
     }
   };
 
+  // Do loading state. !
   return (
-    <div className="w-full h-full overflow-y-auto">
-      {all.map((data, index) => (
-        <div key={index} className="w-full">
-          <TrackSectionCollapsible
-            reviewId={data.reviewId}
-            reviewName={data.reviewName}
-            entityId={data.entityId}
-            entityType={data.entityType}
-            isOpen={openIndexes.includes(index)}
-            onToggle={() => handleAccordionClick(index)} />
+    <GroupedVirtuoso
+      ref={virtuoso}
+      groupCounts={groupCounts}
+      groupContent={(index) => (
+        <div className="card py-0 w-full bg-primary shadow-xl"
+          onClick={() => handleAccordionClick(index)}>
+          <div className="card-body p-1 flex flex-row justify-around items-center">
+            <h2 className="card-title text-primary-content">{groupHeader[index]}</h2>
+            <div className="badge badge-secondary">{entityTypes[index]}</div>
+          </div>
         </div>
-      ))}
-    </div>
-    // <Virtuoso
-    //   data={all}
-    //   itemContent={(index, data) =>
-    //     <TrackSectionCollapsible
-    //       reviewId={data.reviewId}
-    //       reviewName={data.reviewName}
-    //       entityId={data.entityId}
-    //       entityType={data.entityType}
-    //       isOpen={openIndexes.includes(index)}
-    //       onToggle={() => handleAccordionClick(index)} />
-    //   }
-    //   overscan={3000}
-    // />
-  )
+      )}
+      components={{
+        // Scroller,
+        ScrollSeekPlaceholder,
+        EmptyPlaceholder: () => (<HeroLoading />)
+      }}
+      scrollSeekConfiguration={{
+        enter: (velocity) => Math.abs(velocity) > 1500,
+        exit: (velocity) => Math.abs(velocity) < 100,
+      }}
+      itemContent={(index) => {
+        const track = tracks[index]
+        return track === undefined ?
+          null :
+          trackContent(indexToPlaylistId[index]!, "", track)
+      }
+      }
+      overscan={800}
+    />)
 }
+
+const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment) =>
+  <MemoizedTrack playlistId={playlistId} reviewId={reviewId} playlistTrack={playlistTrack} />
+
+const MemoizedTrack = React.memo(({ playlistId, reviewId, playlistTrack }: PlaylistTrackProps) => {
+  return (
+    <div className="py-0.5 m-0">
+      <PlaylistTrack
+        playlistId={playlistId}
+        reviewId={reviewId}
+        playlistTrack={playlistTrack} />
+    </div>
+  )
+})
+
+const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
+  <div className="py-0.5">
+    <div
+      // className="card card-body bg-neutral/30 hover:bg-neutral-focus"
+      className="card card-body bg-neutral/30"
+      style={{
+        height
+      }}
+    />
+  </div>
+)
 
 function ReviewCommentSection() {
   return (

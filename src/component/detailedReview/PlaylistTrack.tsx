@@ -2,7 +2,7 @@ import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, us
 import toast from 'react-hot-toast';
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { RefObject, useMemo, useRef } from "react"
+import { RefObject, useEffect, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
 export interface PlaylistTrackProps {
@@ -13,6 +13,10 @@ export interface PlaylistTrackProps {
 
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId }: PlaylistTrackProps) {
+    // useEffect(() => {
+    //     console.log("mounting playlist track")
+    //     return () => console.log("unmounting playlist track ")
+    // }, [])
     // We want to know what devices are available so we can start playback on the correct device.
     const devices = useAtomValue(playbackDevicesAtom)
     const setCommentModal = useSetAtom(openCommentModalAtom)
@@ -53,7 +57,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
             const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
             const inner = { entityId: track.id, entityType: EntityType.Track }
             const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            playTrack({ input: { entityOffset: { outer, inner }, deviceId: device } })
+            const input = { input: { entityOffset: { outer, inner }, deviceId: device } }
+            playTrack(input)
         }
     }
 
@@ -68,7 +73,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle} transition-all duration-50 hover:shadow hover:translate-y-0.5`} >
+            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="avatar" onClick={showModal}>
                 <div className="w-8 md:w-16 rounded">

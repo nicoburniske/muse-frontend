@@ -11,6 +11,7 @@ generates:
       - typescript-react-query
     config:
       addInfiniteQuery: true
+      exposeFetcher: true
       flattenGeneratedTypes: true
       flattenGeneratedTypesIncludeFragments: true
       dedupeFragments: true
