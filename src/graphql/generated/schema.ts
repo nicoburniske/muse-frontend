@@ -1,29 +1,10 @@
 import { useMutation, useQuery, useInfiniteQuery, UseMutationOptions, UseQueryOptions, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { fetcher } from 'graphql/fetcher';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-
-function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
-  return async (): Promise<TData> => {
-    const res = await fetch("http://localhost:8883/api/graphql", {
-    method: "POST",
-    ...({"credentials":"include"}),
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const json = await res.json();
-
-    if (json.errors) {
-      const { message } = json.errors[0];
-
-      throw new Error(message);
-    }
-
-    return json.data;
-  }
-}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -1030,7 +1011,7 @@ export const useCreateCommentMutation = <
       (variables?: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables)(),
       options
     );
-useCreateCommentMutation.fetcher = (variables: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables);
+useCreateCommentMutation.fetcher = (variables: CreateCommentMutationVariables, options?: RequestInit['headers']) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables, options);
 export const CreateReviewDocument = `
     mutation CreateReview($input: CreateReviewInput!) {
   createReview(input: $input) {
@@ -1047,7 +1028,7 @@ export const useCreateReviewMutation = <
       (variables?: CreateReviewMutationVariables) => fetcher<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, variables)(),
       options
     );
-useCreateReviewMutation.fetcher = (variables: CreateReviewMutationVariables) => fetcher<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, variables);
+useCreateReviewMutation.fetcher = (variables: CreateReviewMutationVariables, options?: RequestInit['headers']) => fetcher<CreateReviewMutation, CreateReviewMutationVariables>(CreateReviewDocument, variables, options);
 export const DeleteCommentDocument = `
     mutation DeleteComment($input: DeleteCommentInput!) {
   deleteComment(input: $input)
@@ -1062,7 +1043,7 @@ export const useDeleteCommentMutation = <
       (variables?: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables)(),
       options
     );
-useDeleteCommentMutation.fetcher = (variables: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables);
+useDeleteCommentMutation.fetcher = (variables: DeleteCommentMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables, options);
 export const DeleteReviewDocument = `
     mutation DeleteReview($input: DeleteReviewInput!) {
   deleteReview(input: $input)
@@ -1077,7 +1058,7 @@ export const useDeleteReviewMutation = <
       (variables?: DeleteReviewMutationVariables) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables)(),
       options
     );
-useDeleteReviewMutation.fetcher = (variables: DeleteReviewMutationVariables) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables);
+useDeleteReviewMutation.fetcher = (variables: DeleteReviewMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables, options);
 export const PausePlaybackDocument = `
     mutation PausePlayback($deviceId: String) {
   pausePlayback(deviceId: $deviceId)
@@ -1092,7 +1073,7 @@ export const usePausePlaybackMutation = <
       (variables?: PausePlaybackMutationVariables) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables)(),
       options
     );
-usePausePlaybackMutation.fetcher = (variables?: PausePlaybackMutationVariables) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables);
+usePausePlaybackMutation.fetcher = (variables?: PausePlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables, options);
 export const RemoveSavedTracksDocument = `
     mutation RemoveSavedTracks($trackIds: [String!]!) {
   removeSavedTracks(input: $trackIds)
@@ -1107,7 +1088,7 @@ export const useRemoveSavedTracksMutation = <
       (variables?: RemoveSavedTracksMutationVariables) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables)(),
       options
     );
-useRemoveSavedTracksMutation.fetcher = (variables: RemoveSavedTracksMutationVariables) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables);
+useRemoveSavedTracksMutation.fetcher = (variables: RemoveSavedTracksMutationVariables, options?: RequestInit['headers']) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables, options);
 export const SaveTracksDocument = `
     mutation SaveTracks($trackIds: [String!]!) {
   saveTracks(input: $trackIds)
@@ -1122,7 +1103,7 @@ export const useSaveTracksMutation = <
       (variables?: SaveTracksMutationVariables) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables)(),
       options
     );
-useSaveTracksMutation.fetcher = (variables: SaveTracksMutationVariables) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables);
+useSaveTracksMutation.fetcher = (variables: SaveTracksMutationVariables, options?: RequestInit['headers']) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables, options);
 export const SeekPlaybackDocument = `
     mutation SeekPlayback($input: SeekPlaybackInput!) {
   seekPlayback(input: $input)
@@ -1137,7 +1118,7 @@ export const useSeekPlaybackMutation = <
       (variables?: SeekPlaybackMutationVariables) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables)(),
       options
     );
-useSeekPlaybackMutation.fetcher = (variables: SeekPlaybackMutationVariables) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables);
+useSeekPlaybackMutation.fetcher = (variables: SeekPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables, options);
 export const ShareReviewDocument = `
     mutation ShareReview($input: ShareReviewInput!) {
   shareReview(input: $input)
@@ -1152,7 +1133,7 @@ export const useShareReviewMutation = <
       (variables?: ShareReviewMutationVariables) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables)(),
       options
     );
-useShareReviewMutation.fetcher = (variables: ShareReviewMutationVariables) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables);
+useShareReviewMutation.fetcher = (variables: ShareReviewMutationVariables, options?: RequestInit['headers']) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables, options);
 export const ToggleShuffleDocument = `
     mutation ToggleShuffle($input: Boolean!) {
   toggleShuffle(input: $input)
@@ -1167,7 +1148,7 @@ export const useToggleShuffleMutation = <
       (variables?: ToggleShuffleMutationVariables) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables)(),
       options
     );
-useToggleShuffleMutation.fetcher = (variables: ToggleShuffleMutationVariables) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables);
+useToggleShuffleMutation.fetcher = (variables: ToggleShuffleMutationVariables, options?: RequestInit['headers']) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables, options);
 export const SkipToNextDocument = `
     mutation SkipToNext($deviceId: String) {
   skipToNext(deviceId: $deviceId)
@@ -1182,7 +1163,7 @@ export const useSkipToNextMutation = <
       (variables?: SkipToNextMutationVariables) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables)(),
       options
     );
-useSkipToNextMutation.fetcher = (variables?: SkipToNextMutationVariables) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables);
+useSkipToNextMutation.fetcher = (variables?: SkipToNextMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables, options);
 export const SkipToPreviousDocument = `
     mutation SkipToPrevious($deviceId: String) {
   skipToPrevious(deviceId: $deviceId)
@@ -1197,7 +1178,7 @@ export const useSkipToPreviousMutation = <
       (variables?: SkipToPreviousMutationVariables) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables)(),
       options
     );
-useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables);
+useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables, options);
 export const StartPlaybackDocument = `
     mutation StartPlayback($input: PlaybackContextInput!) {
   startPlayback(input: $input)
@@ -1212,7 +1193,7 @@ export const useStartPlaybackMutation = <
       (variables?: StartPlaybackMutationVariables) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables)(),
       options
     );
-useStartPlaybackMutation.fetcher = (variables: StartPlaybackMutationVariables) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables);
+useStartPlaybackMutation.fetcher = (variables: StartPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables, options);
 export const UpdateCommentDocument = `
     mutation UpdateComment($input: UpdateCommentInput!) {
   updateComment(input: $input) {
@@ -1229,7 +1210,7 @@ export const useUpdateCommentMutation = <
       (variables?: UpdateCommentMutationVariables) => fetcher<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, variables)(),
       options
     );
-useUpdateCommentMutation.fetcher = (variables: UpdateCommentMutationVariables) => fetcher<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, variables);
+useUpdateCommentMutation.fetcher = (variables: UpdateCommentMutationVariables, options?: RequestInit['headers']) => fetcher<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, variables, options);
 export const UpdateReviewDocument = `
     mutation UpdateReview($input: UpdateReviewInput!) {
   updateReview(input: $input) {
@@ -1246,7 +1227,7 @@ export const useUpdateReviewMutation = <
       (variables?: UpdateReviewMutationVariables) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables)(),
       options
     );
-useUpdateReviewMutation.fetcher = (variables: UpdateReviewMutationVariables) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables);
+useUpdateReviewMutation.fetcher = (variables: UpdateReviewMutationVariables, options?: RequestInit['headers']) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables, options);
 export const DetailedReviewDocument = `
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {
@@ -1280,18 +1261,19 @@ export const useInfiniteDetailedReviewQuery = <
       pageParamKey: keyof DetailedReviewQueryVariables,
       variables: DetailedReviewQueryVariables,
       options?: UseInfiniteQueryOptions<DetailedReviewQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<DetailedReviewQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<DetailedReviewQuery, TError, TData>(
       ['DetailedReview.infinite', variables],
       (metaData) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview.infinite', variables];
 ;
 
-useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables);
+useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables, options?: RequestInit['headers']) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables, options);
 export const DetailedReviewCommentsDocument = `
     query DetailedReviewComments($reviewId: ID!) {
   review(id: $reviewId) {
@@ -1325,18 +1307,19 @@ export const useInfiniteDetailedReviewCommentsQuery = <
       pageParamKey: keyof DetailedReviewCommentsQueryVariables,
       variables: DetailedReviewCommentsQueryVariables,
       options?: UseInfiniteQueryOptions<DetailedReviewCommentsQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<DetailedReviewCommentsQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<DetailedReviewCommentsQuery, TError, TData>(
       ['DetailedReviewComments.infinite', variables],
       (metaData) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryVariables) => ['DetailedReviewComments.infinite', variables];
 ;
 
-useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables);
+useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables, options?: RequestInit['headers']) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables, options);
 export const GetPlaylistDocument = `
     query GetPlaylist($id: String!) {
   getPlaylist(id: $id) {
@@ -1370,18 +1353,19 @@ export const useInfiniteGetPlaylistQuery = <
       pageParamKey: keyof GetPlaylistQueryVariables,
       variables: GetPlaylistQueryVariables,
       options?: UseInfiniteQueryOptions<GetPlaylistQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<GetPlaylistQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<GetPlaylistQuery, TError, TData>(
       ['GetPlaylist.infinite', variables],
       (metaData) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist.infinite', variables];
 ;
 
-useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables);
+useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables, options?: RequestInit['headers']) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables, options);
 export const ProfileAndReviewsDocument = `
     query ProfileAndReviews {
   user {
@@ -1424,18 +1408,19 @@ export const useInfiniteProfileAndReviewsQuery = <
       pageParamKey: keyof ProfileAndReviewsQueryVariables,
       variables?: ProfileAndReviewsQueryVariables,
       options?: UseInfiniteQueryOptions<ProfileAndReviewsQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<ProfileAndReviewsQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<ProfileAndReviewsQuery, TError, TData>(
       variables === undefined ? ['ProfileAndReviews.infinite'] : ['ProfileAndReviews.infinite', variables],
       (metaData) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) => variables === undefined ? ['ProfileAndReviews.infinite'] : ['ProfileAndReviews.infinite', variables];
 ;
 
-useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables);
+useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables, options?: RequestInit['headers']) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables, options);
 export const SearchSpotifyDocument = `
     query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
   search(query: $query, types: $types, pagination: $pagination) {
@@ -1483,18 +1468,19 @@ export const useInfiniteSearchSpotifyQuery = <
       pageParamKey: keyof SearchSpotifyQueryVariables,
       variables: SearchSpotifyQueryVariables,
       options?: UseInfiniteQueryOptions<SearchSpotifyQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<SearchSpotifyQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<SearchSpotifyQuery, TError, TData>(
       ['SearchSpotify.infinite', variables],
       (metaData) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify.infinite', variables];
 ;
 
-useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables);
+useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables, options?: RequestInit['headers']) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables, options);
 export const UserPlaylistsDocument = `
     query UserPlaylists($input: SearchUserPlaylistsInput!) {
   user {
@@ -1533,18 +1519,19 @@ export const useInfiniteUserPlaylistsQuery = <
       pageParamKey: keyof UserPlaylistsQueryVariables,
       variables: UserPlaylistsQueryVariables,
       options?: UseInfiniteQueryOptions<UserPlaylistsQuery, TError, TData>
-    ) =>
-    useInfiniteQuery<UserPlaylistsQuery, TError, TData>(
+    ) =>{
+    
+    return useInfiniteQuery<UserPlaylistsQuery, TError, TData>(
       ['UserPlaylists.infinite', variables],
       (metaData) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
-    );
+    )};
 
 
 useInfiniteUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists.infinite', variables];
 ;
 
-useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables);
+useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables, options?: RequestInit['headers']) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables, options);
 export const AvailableDevicesDocument = `
     subscription AvailableDevices {
   availableDevices {

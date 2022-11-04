@@ -16,10 +16,7 @@ generates:
       flattenGeneratedTypes: true
       flattenGeneratedTypesIncludeFragments: true
       dedupeFragments: true
-      fetcher: 
-        endpoint: http://localhost:8883/api/graphql
-        fetchParams:
-          credentials: include
+      fetcher: 'graphql/fetcher#fetcher'
       scalars:
         Long: number
         Instant: string
