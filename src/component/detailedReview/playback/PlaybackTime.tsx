@@ -31,27 +31,28 @@ export function PlaybackTime({
     trackId, reviewId, disabled, isPlaying, isShuffled,
     trackImage, trackName, trackArtist, isLiked }: PlaybackTimeProps) {
 
-    const [progressMs,setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
+    const [progressMs, setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
     const setCommentModal = useSetAtom(openCommentModalAtom)
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const nowPlaying = useAtomValue(currentlyPlayingTrackAtom)
 
-    const [seekTrack, { loading }] = useSeekPlaybackMutation({
+    const { mutateAsync: seekTrack, isLoading: loading } = useSeekPlaybackMutation({
         onError: () => toast.error('Failed to seek playback.'),
     });
 
-    const seekForward = () => seekTrack({ variables: { input: { positionMs: progressMs + 10000 } } })
-    const seekBackward = () => seekTrack({ variables: { input: { positionMs: progressMs - 10000 } } })
+    const seekForward = () => seekTrack({ input: { positionMs: progressMs + 10000 } })
+    const seekBackward = () => seekTrack({ input: { positionMs: progressMs - 10000 } })
 
-    const selectNowPlaying = () => {
-        setSelectedTrack('')
-        setTimeout(() => setSelectedTrack(nowPlaying), 1);
-    }
+    // TODO: how to handle this?
+    // const selectNowPlaying = () => {
+    //     setSelectedTrack('')
+    //     setTimeout(() => setSelectedTrack(nowPlaying), 1);
+    // }
 
-    const [createComment,] = useCreateCommentMutation({ onCompleted: () => { toast.success("comment created"); setCommentModal(undefined) } })
+    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: () => { toast.success("comment created"); setCommentModal(undefined) } })
+    // TODO: how do I get review in here? 
     const onSubmit = (comment: string) =>
-        createComment({ variables: { input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } } })
-            .then(() => { })
+        createComment({ input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } },)
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const durationMs = durationProp > 0 ? durationProp : 1
@@ -64,7 +65,7 @@ export function PlaybackTime({
         const progress = getPercentProgress(e)
         if (progress !== undefined && !loading) {
             const position = Math.floor(progress * durationMs)
-            seekTrack({ variables: { input: { positionMs: position } } })
+            seekTrack({ input: { positionMs: position } })
                 .then(() => setProgressMs(position))
         }
     }
@@ -88,7 +89,8 @@ export function PlaybackTime({
                         </div>
                     </div>
                 </button>
-                <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}>
+                {/* <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}> */}
+                <div className={`flex flex-col justify-around w-full`}>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackName} </div>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackArtist} </div>
                 </div>
@@ -163,33 +165,20 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
     const [isShuffled, setIsShuffled] = useStateWithSyncedDefault(isShuffledProp)
     const [isPlaying, setIsPlaying] = useStateWithSyncedDefault(isPlayingProp)
 
-    const [nextTrack,] = useSkipToNextMutation({
-        onError: () => toast.error('Failed to skip to next track.'),
-    });
+    const { mutate: nextTrack } = useSkipToNextMutation({ onError: () => toast.error('Failed to skip to next track.') });
 
-    const [prevTrack,] = useSkipToPreviousMutation({
-        onError: () => toast.error('Failed to skip to previous track.'),
-    });
+    const { mutate: prevTrack } = useSkipToPreviousMutation({ onError: () => toast.error('Failed to skip to previous track.') });
 
-    const [pausePlayback, { loading: loadingPause }] = usePausePlaybackMutation({
-        variables: { deviceId: undefined },
-        onCompleted: () => {
-            setIsPlaying(false)
-        },
+    const { mutate: pausePlayback, isLoading: loadingPause } = usePausePlaybackMutation({
+        onSuccess: () => { setIsPlaying(false) },
         onError: () => toast.success("Failed to pause playback."),
     })
 
-    const [playTrack, { loading: loadingPlay }] = useStartPlaybackMutation({
-        variables: { input: {} },
-        onError: () => toast.error('Failed to start playback.'),
-        onCompleted: () => {
-            setIsPlaying(true)
-        }
-    });
+    const { mutate: playTrack, isLoading: loadingPlay } = useStartPlaybackMutation();
 
-    const [toggleShuffle, { }] = useToggleShuffleMutation({
-        variables: { input: !isShuffled },
-        onCompleted: () => {
+    // variables: { input: !isShuffled },
+    const { mutate: toggleShuffle } = useToggleShuffleMutation({
+        onSuccess: () => {
             setIsShuffled(!isShuffled)
         },
         onError: () => toast.error('Failed to toggle shuffle.')
@@ -199,9 +188,14 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
     const onTogglePlayback = () => {
         if (!isLoading) {
             if (isPlaying) {
-                pausePlayback()
+                pausePlayback({})
             } else {
-                playTrack()
+                playTrack({ input: {} }, {
+                    onError: () => toast.error('Failed to start playback.'),
+                    onSuccess: () => {
+                        setIsPlaying(true)
+                    }
+                })
             }
         }
     }
@@ -215,17 +209,17 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
 
     const shuffleButton = useMemo(() => {
         const shuffleButtonClass = isShuffled ? commonClass + ' btn btn-success' : commonClass
-        return (<button className={shuffleButtonClass} onClick={() => toggleShuffle()}><ShuffleIcon /></button>)
+        return (<button className={shuffleButtonClass} onClick={() => toggleShuffle({ input: !isShuffled })}><ShuffleIcon /></button>)
     }, [isShuffled])
 
     return (
         <>
             <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} />
-            <button className={commonClass} onClick={() => prevTrack()}><PreviousTrackIcon /></button>
+            <button className={commonClass} onClick={() => prevTrack({})}><PreviousTrackIcon /></button>
             <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
             {playButton}
             <button className={commonClass} onClick={seekForward}><SkipForwardIcon /></button>
-            <button className={commonClass} onClick={() => nextTrack()}><NextTrackIcon /></button>
+            <button className={commonClass} onClick={() => nextTrack({})}><NextTrackIcon /></button>
             {shuffleButton}
         </>
     )
@@ -243,20 +237,18 @@ function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>
 const LikeButton = ({ trackId, isLiked: isLikedProp, className }: { trackId: string, isLiked: boolean, className: string }) => {
     const [isLiked, , toggleLiked] = useBoolToggleSynced(isLikedProp)
 
-    const [likeTrack, { loading: loadingLike }] = useSaveTracksMutation({
-        variables: { trackIds: [trackId] },
-        onCompleted: () => toggleLiked(),
+    const { mutate: likeTrack, isLoading: loadingLike } = useSaveTracksMutation({
+        onSuccess: () => toggleLiked(),
         onError: () => toast.error('Failed to toggle like.'),
     });
 
-    const [unlikeTrack, { loading: loadingUnlike }] = useRemoveSavedTracksMutation({
-        variables: { trackIds: [trackId] },
-        onCompleted: () => toggleLiked(),
+    const { mutate: unlikeTrack, isLoading: loadingUnlike } = useRemoveSavedTracksMutation({
+        onSuccess: () => toggleLiked(),
         onError: () => toast.error('Failed to toggle like.'),
     });
+    const input = { trackIds: [trackId] }
+    const handleClick = () => isLiked ? unlikeTrack(input) : likeTrack(input)
 
-    const handleClick = () => isLiked ? unlikeTrack() : likeTrack()
-    
     const likedButtonClass = useMemo(() => isLiked ? className + ' btn btn-success' : className, [className, isLiked])
     return (
         <button className={likedButtonClass} onClick={() => handleClick()}>

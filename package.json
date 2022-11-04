@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "npx http-server ./dist -a 0.0.0.0 -p",
-    "generate": "graphql-codegen"
+    "generate": "graphql-codegen && graphql-codegen -c codegenSubscription.yaml"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
@@ -20,7 +20,7 @@
     "@tanstack/react-query": "^4.13.5",
     "@types/react-window": "^1.8.5",
     "daisyui": "^2.31.0",
-    "graphql": "^16.5.0",
+    "graphql": "^16.6.0",
     "graphql-ws": "^5.11.2",
     "jotai": "^1.8.4",
     "markdown-to-jsx": "^7.1.7",
@@ -30,10 +30,12 @@
     "react-router-dom": "^6.3.0",
     "react-split": "^2.0.14",
     "react-virtuoso": "^2.19.1",
+    "urql": "^3.0.3",
     "vite-tsconfig-paths": "^3.5.0"
   },
   "devDependencies": {
     "@graphql-codegen/typescript-react-query": "^4.0.3",
+    "@graphql-codegen/typescript-urql": "^3.7.3",
     "@tailwindcss/typography": "^0.5.7",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

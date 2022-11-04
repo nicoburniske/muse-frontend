@@ -5,6 +5,8 @@ import App from './App'
 import { Toaster } from 'react-hot-toast';
 import { AppConfig } from 'util/AppConfig';
 import React from 'react';
+import { createClient, subscriptionExchange, Provider } from 'urql';
+import { createClient as createWSClient } from 'graphql-ws';
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -14,63 +16,51 @@ const getSession = () => {
     .catch(e => console.error("Failed to get session", e))
 }
 
-// const wsLink = new GraphQLWsLink(createClient({
-//   url: AppConfig.websocketGraphEndpoint,
-//   connectionParams: getSession as () => Promise<{ Authorization: string }>
-// }));
+const wsClient = createWSClient({
+  url: AppConfig.websocketGraphEndpoint,
+  connectionParams: getSession as () => Promise<{ Authorization: string }>
+});
+
+const urqlClient = createClient({
+  url: '/graphql',
+  exchanges: [
+    // ...defaultExchanges,
+    subscriptionExchange({
+      forwardSubscription: (operation) => ({
+        subscribe: (sink) => ({
+          unsubscribe: wsClient.subscribe(operation, sink),
+        }),
+      }),
+    }),
+  ],
+});
 
 const queryClient = new QueryClient()
-
-// const httpLink = createHttpLink({
-//   uri: AppConfig.httpGraphEndpoint,
-//   credentials: 'include'
-// })
-
-// The split function takes three parameters:
-//
-// * A function that's called for each operation to execute
-// * The Link to use for an operation if the function returns a "truthy" value
-// * The Link to use for an operation if the function returns a "falsy" value
-// const splitLink = split(
-//   ({ query }) => {
-//     const definition = getMainDefinition(query);
-//     return (
-//       definition.kind === 'OperationDefinition' &&
-//       definition.operation === 'subscription'
-//     );
-//   },
-//   wsLink,
-//   httpLink,
-// );
-
-// const clientGraphQL = new ApolloClient({
-//   cache: new InMemoryCache({ possibleTypes: PossibleTypesResultData.possibleTypes }),
-//   link: splitLink,
-//   connectToDevTools: true
-// });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <QueryClientProvider client={queryClient} contextSharing={true}>
-        <>
-          <App />
-          <Toaster
-            position="bottom-right"
-            reverseOrder={false}
-            gutter={8}
-            toastOptions={{
-              duration: 3000,
-              success: {
-                className: 'bg-success text-success-content',
-              },
-              error: {
-                className: 'bg-error text-error-content'
-              },
-            }}
-          />
-        </>
-      </QueryClientProvider>
+      <Provider value={urqlClient}>
+        <QueryClientProvider client={queryClient} contextSharing={true}>
+          <>
+            <App />
+            <Toaster
+              position="bottom-right"
+              reverseOrder={false}
+              gutter={8}
+              toastOptions={{
+                duration: 3000,
+                success: {
+                  className: 'bg-success text-success-content',
+                },
+                error: {
+                  className: 'bg-error text-error-content'
+                },
+              }}
+            />
+          </>
+        </QueryClientProvider>
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 )
