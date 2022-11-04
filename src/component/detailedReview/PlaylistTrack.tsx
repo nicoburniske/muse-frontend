@@ -1,10 +1,11 @@
-import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useStartPlaybackMutation } from "graphql/generated/schema"
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from "graphql/generated/schema"
 import toast from 'react-hot-toast';
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
+import { useQueryClient } from '@tanstack/react-query'
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
@@ -13,6 +14,7 @@ export interface PlaylistTrackProps {
 
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId }: PlaylistTrackProps) {
+    const queryClient = useQueryClient()
     // useEffect(() => {
     //     console.log("mounting playlist track")
     //     return () => console.log("unmounting playlist track ")
@@ -28,7 +30,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
     // Get track styles.
-    const isSelected = useAtomValue(selectedTrackAtom) == track.id
+    const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
     const [currentlyPlaying, setPlaying] = useAtom(currentlyPlayingTrackAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
     const [bgStyle, textStyle, hoverStyle] =
@@ -39,10 +41,11 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
-    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: resetState })
-    const onSubmit = (comment: string) =>
-        createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
-
+    const { mutateAsync: createComment } = useCreateCommentMutation({ onSuccess: resetState })
+    const onSubmit = async (comment: string) => {
+        await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
+        queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+    }
 
     const { mutate: playTrack, isLoading } = useStartPlaybackMutation({
         onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
@@ -75,8 +78,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
             ref={playOnDoubleClickRef}
             className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
-            <div className="avatar" onClick={showModal}>
-                <div className="w-8 md:w-16 rounded">
+            <div className="avatar">
+                <div className="w-8 md:w-16 rounded" onClick={showModal}>
                     <img loading='lazy' src={albumImage} />
                 </div>
             </div>

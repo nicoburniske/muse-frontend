@@ -1,6 +1,6 @@
 import { CheckIcon, CrossIcon } from "component/Icons"
 import { entityIdAtom } from "component/searchSpotify/SearchSpotify"
-import { EntityType, useCreateReviewMutation } from "graphql/generated/schema"
+import { EntityType, useCreateReviewMutation, useDetailedReviewQuery } from "graphql/generated/schema"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useMemo } from "react"
 import { refreshOverviewAtom } from "state/Atoms"
@@ -31,7 +31,9 @@ export const CreateReviewButtons = () => {
                 setIsPublic(0)
                 setReviewName("")
                 updateReviews()
-                queryClient.invalidateQueries({queryKey: ["DetailedReview"]})
+                if (parentReviewId !== undefined) {
+                    queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
+                }
             }
         })
 

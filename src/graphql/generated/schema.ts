@@ -1269,6 +1269,10 @@ export const useDetailedReviewQuery = <
       fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables),
       options
     );
+
+useDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview', variables];
+;
+
 export const useInfiniteDetailedReviewQuery = <
       TData = DetailedReviewQuery,
       TError = unknown
@@ -1282,6 +1286,10 @@ export const useInfiniteDetailedReviewQuery = <
       (metaData) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview.infinite', variables];
+;
 
 useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables);
 export const DetailedReviewCommentsDocument = `
@@ -1306,6 +1314,10 @@ export const useDetailedReviewCommentsQuery = <
       fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables),
       options
     );
+
+useDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryVariables) => ['DetailedReviewComments', variables];
+;
+
 export const useInfiniteDetailedReviewCommentsQuery = <
       TData = DetailedReviewCommentsQuery,
       TError = unknown
@@ -1319,6 +1331,10 @@ export const useInfiniteDetailedReviewCommentsQuery = <
       (metaData) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryVariables) => ['DetailedReviewComments.infinite', variables];
+;
 
 useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables);
 export const GetPlaylistDocument = `
@@ -1343,6 +1359,10 @@ export const useGetPlaylistQuery = <
       fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables),
       options
     );
+
+useGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist', variables];
+;
+
 export const useInfiniteGetPlaylistQuery = <
       TData = GetPlaylistQuery,
       TError = unknown
@@ -1356,6 +1376,10 @@ export const useInfiniteGetPlaylistQuery = <
       (metaData) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist.infinite', variables];
+;
 
 useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables);
 export const ProfileAndReviewsDocument = `
@@ -1389,6 +1413,10 @@ export const useProfileAndReviewsQuery = <
       fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables),
       options
     );
+
+useProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) => variables === undefined ? ['ProfileAndReviews'] : ['ProfileAndReviews', variables];
+;
+
 export const useInfiniteProfileAndReviewsQuery = <
       TData = ProfileAndReviewsQuery,
       TError = unknown
@@ -1402,6 +1430,10 @@ export const useInfiniteProfileAndReviewsQuery = <
       (metaData) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) => variables === undefined ? ['ProfileAndReviews.infinite'] : ['ProfileAndReviews.infinite', variables];
+;
 
 useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables);
 export const SearchSpotifyDocument = `
@@ -1440,6 +1472,10 @@ export const useSearchSpotifyQuery = <
       fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables),
       options
     );
+
+useSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify', variables];
+;
+
 export const useInfiniteSearchSpotifyQuery = <
       TData = SearchSpotifyQuery,
       TError = unknown
@@ -1453,6 +1489,10 @@ export const useInfiniteSearchSpotifyQuery = <
       (metaData) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify.infinite', variables];
+;
 
 useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables);
 export const UserPlaylistsDocument = `
@@ -1482,6 +1522,10 @@ export const useUserPlaylistsQuery = <
       fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables),
       options
     );
+
+useUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists', variables];
+;
+
 export const useInfiniteUserPlaylistsQuery = <
       TData = UserPlaylistsQuery,
       TError = unknown
@@ -1495,6 +1539,10 @@ export const useInfiniteUserPlaylistsQuery = <
       (metaData) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
       options
     );
+
+
+useInfiniteUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists.infinite', variables];
+;
 
 useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables);
 export const AvailableDevicesDocument = `

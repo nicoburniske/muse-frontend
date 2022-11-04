@@ -3,7 +3,8 @@ import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
 export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')
-export const selectedTrackAtom = atom<string | undefined>(undefined)
+export interface SelectedTrack { reviewId: string, trackId: string }
+export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
 export const currentlyPlayingTrackAtom = atom<string | undefined>(undefined)
 export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
 export const searchAtom = atom<string>('')

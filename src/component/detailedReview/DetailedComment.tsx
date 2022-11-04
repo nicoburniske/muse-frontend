@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
+import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation, useUpdateCommentMutation } from "graphql/generated/schema"
 import { useMemo, useState } from "react"
 import toast from 'react-hot-toast';
 import Markdown from "markdown-to-jsx"
@@ -7,6 +7,7 @@ import { currentUserIdAtom } from "state/Atoms"
 import { useAtomValue } from "jotai"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, HazardIcon, ReplyIcon, SearchIcon, TrashIcon } from "component/Icons"
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface DetailedCommentProps {
   reviewId: string
@@ -75,6 +76,7 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTim
 }
 
 export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
+  const queryClient = useQueryClient()
   const currentUserId = useAtomValue(currentUserIdAtom)
   const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
 
@@ -83,9 +85,10 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const [deleteComment, { loading: loadingDelete }] = useDeleteCommentMutation({ variables: { input: { reviewId, commentId: detailedComment.id } } })
-  const [updateComment, { loading: loadingUpdate }] = useUpdateCommentMutation()
-  const [replyComment, { loading: loadingReply }] = useCreateCommentMutation()
+  const { mutateAsync: deleteCommentMutation, isLoading: loadingDelete } = useDeleteCommentMutation()
+  const deleteComment = async () => deleteCommentMutation({ input: { reviewId, commentId: detailedComment.id } })
+  const { mutateAsync: updateComment, isLoading: loadingUpdate } = useUpdateCommentMutation()
+  const { mutateAsync: replyComment, isLoading: loadingReply } = useCreateCommentMutation()
 
   const isChild = detailedComment.parentCommentId != null
   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
@@ -96,23 +99,30 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
     return `${date.toLocaleDateString()}  ${date.getHours()}:${date.getMinutes()}`
   })()
 
+  const reloadComments = () => queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+
   const onDelete = async () => {
     await deleteComment()
+    reloadComments()
   }
 
   const onUpdate = async (content: string) => {
     const input = { reviewId, commentId: detailedComment.id, comment: content }
-    await updateComment({ variables: { input } })
+    await updateComment({ input })
     resetState()
+    reloadComments()
   }
 
   const onReply = async (content: string) => {
     const input = {
-      reviewId, comment: content, parentCommentId: detailedComment.id,
-      entityType: detailedComment.entityType, entityId: detailedComment.entityId
+      reviewId,
+      comment: content,
+      parentCommentId: detailedComment.id,
+      entities: detailedComment?.entities?.map(e => ({ entityId: e.id, entityType: EntityType[e.__typename!] })) ?? []
     }
-    await replyComment({ variables: { input } })
+    await replyComment({ input })
     resetState()
+    reloadComments()
   }
 
   const resetState = () => {
@@ -121,7 +131,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   }
 
   const Stamp =
-    ({ at, comment }: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment.entityId, playlistId })
+    ({ at, comment }: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id!, playlistId })
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''

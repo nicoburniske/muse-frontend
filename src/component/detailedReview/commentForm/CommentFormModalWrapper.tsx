@@ -12,7 +12,7 @@ export const CommentFormModalWrapper = () => {
             open={open}
             title={modalData?.title ?? ""}
             onCancel={modalData?.onCancel ?? (() => { })}
-            onSubmit={modalData?.onSubmit ?? (() => Promise.resolve())}
+            onSubmit={modalData?.onSubmit ?? (async () => {return;})}
             initialValue={modalData?.initialValue}
         />
     )

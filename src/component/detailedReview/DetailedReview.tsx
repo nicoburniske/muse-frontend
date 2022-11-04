@@ -1,8 +1,8 @@
-import { DetailedPlaylistTrackFragment, EntityType, GetPlaylistDocument, GetPlaylistQuery, GetPlaylistQueryVariables, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
+import { DetailedCommentFragment, DetailedPlaylistTrackFragment, DetailedPlaylistTrackFragmentDoc, EntityType, GetPlaylistDocument, GetPlaylistQuery, GetPlaylistQueryVariables, ReviewDetailsFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
 import { RenderOptions } from "component/detailedReview/DetailedPlaylist"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useSetAtom, useAtomValue } from "jotai"
-import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom } from "state/Atoms"
+import { useSetAtom, useAtomValue, useAtom } from "jotai"
+import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
@@ -16,12 +16,13 @@ import Split from "react-split"
 import PlaylistTrackTable from "./PlaylistTrackTable"
 import { Components, GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
-import { nonNullable, findFirstImage } from "util/Utils"
+import { nonNullable, findFirstImage, groupBy } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
 import { useQueries } from "@tanstack/react-query"
 import PlaylistTrack, { PlaylistTrackProps } from "./PlaylistTrack"
 import React from "react"
+import DetailedComment from "./DetailedComment"
 
 export interface DetailedReviewProps {
   reviewId: string
@@ -236,19 +237,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         onCancel={() => setOpenEditReview(false)} />
       <CommentFormModalWrapper />
       <div className="w-full h-[80%] bg-base-300">
-        {/* {entity?.__typename === 'Playlist' ?
-          <DetailedPlaylist
-            reviewId={review?.id as string}
-            playlist={entity}
-            comments={comments}
-            options={renderOption}
-          /> : */
-          <DetailedReviewBody reviews={allReviews} />
-
-          // <Alert severity={AlertSeverity.Warning}>
-          //   <span> Not Implemented Yet. </span>
-          // </Alert >
-        }
+        <DetailedReviewBody reviews={allReviews} options={renderOption} />
       </div>
       <div className='w-full h-[10%]'>
         <PlaybackTimeWrapper
@@ -265,25 +254,31 @@ interface DetailedReviewBodyProps {
   options?: RenderOptions
 }
 
-const DetailedReviewBody = ({ reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => (
-  <div className="h-full px-1">
-    {(options == RenderOptions.Both) ?
-      <Split
-        className="flex h-full"
-        sizes={[40, 60]}
-        direction="horizontal"
-      >
-        <TrackSectionTable all={reviews} />
-        <ReviewCommentSection />
-      </Split>
-      : null
-      // <div className="flex h-full">
-      //   {(options == RenderOptions.Tracks) ?
-      //     displayTracks : displayComments}
-      // </div>
-    }
-  </div>
-)
+const DetailedReviewBody = ({ reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
+  const trackSection = useMemo(() => (<TrackSectionTable all={reviews} />), [reviews])
+  const commentSection = useMemo(() => (<ReviewCommentSection reviewIds={reviews.map(r => r.reviewId)} />), [reviews])
+  return (
+    <div className="h-full px-1">
+      {(options == RenderOptions.Both) ?
+        <Split
+          className="flex h-full"
+          sizes={[40, 60]}
+          direction="horizontal"
+        >
+          {trackSection}
+          {commentSection}
+        </Split>
+        :
+        <div className="flex h-full w-full">
+          {(options == RenderOptions.Tracks)
+            ?
+            trackSection :
+            commentSection}
+        </div>
+      }
+    </div>
+  )
+}
 
 interface ReviewOverview {
   reviewName: string
@@ -335,12 +330,17 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
   // Content info.
   const groupCounts = loadingNoData ? [] : validResults.flatMap((r, index) => openIndexes.includes(index)
     ? r.data!.getPlaylist?.tracks?.length ?? [] : [0])
-  const tracks = validResults.filter((_r, index) => openIndexes.includes(index)).flatMap(r => r.data!.getPlaylist?.tracks)
+  const tracks: DetailedPlaylistTrackFragment[] = validResults.filter((_r, index) => openIndexes.includes(index)).flatMap(r => r.data!.getPlaylist?.tracks ?? []) ?? []
 
   const indexToPlaylistId = validResults.flatMap((review) => {
     const playlist = review.data?.getPlaylist
     const playlistId = playlist?.id
     return playlist?.tracks?.map(_t => playlistId) ?? []
+  })
+
+  const indexToReviewId = validResults.flatMap((review, index) => {
+    const reviewId = validReviews[index].reviewId
+    return review.data?.getPlaylist?.tracks?.map(_t => reviewId) ?? []
   })
 
   const handleAccordionClick = (index: number) => {
@@ -366,9 +366,26 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
     }
   };
 
+  const selectedTrack = useAtomValue(selectedTrackAtom)
+  useEffect(() => {
+    if (selectedTrack !== undefined && !loadingNoData && tracks.length > 0) {
+      // @ts-ignore
+      const [track, index] = tracks.map((t, index) => [t, index]).find((trackAndIndex) => {
+        // @ts-ignore
+        const [track, index]: [DetailedPlaylistTrackFragment, number] = trackAndIndex
+        return track.track.id === selectedTrack.trackId && indexToReviewId[index] === selectedTrack.reviewId
+      });
+      if (index !== undefined) {
+        // TODO: need to expand section containing track.
+        virtuoso.current?.scrollToIndex({ index, behavior: 'smooth', align: 'center' })
+      }
+    }
+  }, [selectedTrack])
+
   // Do loading state. !
   return (
     <GroupedVirtuoso
+      className="w-full"
       ref={virtuoso}
       groupCounts={groupCounts}
       groupContent={(index) => (
@@ -393,9 +410,8 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
         const track = tracks[index]
         return track === undefined ?
           null :
-          trackContent(indexToPlaylistId[index]!, "", track)
-      }
-      }
+          trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, track)
+      }}
       overscan={800}
     />)
 }
@@ -426,10 +442,56 @@ const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   </div>
 )
 
-function ReviewCommentSection() {
+function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
+  const results = useQueries({
+    queries: reviewIds.map(reviewId => ({
+      queryKey: ['ReviewComments', reviewId],
+      queryFn: useDetailedReviewCommentsQuery.fetcher({ reviewId }),
+    }))
+  })
+
+  const validComments = results
+    .map(r => r.data?.review?.comments)
+    .filter(nonNullable)
+    .flatMap(c => c)
+
+  const comments = useMemo(() => {
+    return [...validComments]
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+  }, [validComments])
+
+  const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
+  const childComments = useMemo(() => {
+    const childComments = comments
+      .filter(comment => comment.parentCommentId !== null)
+      .filter(comment => comment.parentCommentId !== undefined)
+    return groupBy(childComments, c => c.parentCommentId)
+  }, [comments])
+
+  const setSelectedTrack = useSetAtom(selectedTrackAtom)
+
+  // We want to find the track that the comment is applied to and scroll to it.
+  const onCommentClick = (commentId: number, reviewId: string) => {
+    const trackId = comments.find(c => c.id == commentId)?.entities?.at(0)?.id
+    if (trackId) {
+      setSelectedTrack(undefined)
+      setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1);
+    }
+  }
+
   return (
-    <div>
-      yeet
+    <div className="flex flex-col space-y-0.5 lg:space-y-1 h-full w-full overflow-auto">
+      {rootComments.map((c: DetailedCommentFragment, index: number) =>
+        <div key={c.id}>
+          <DetailedComment
+            reviewId={c.reviewId}
+            playlistId={""}
+            comment={c}
+            children={childComments.get(c.id) ?? []}
+            onClick={() => onCommentClick(c.id, c.reviewId)}
+          />
+        </div>
+      )}
     </div>
   )
 }

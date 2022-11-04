@@ -12,6 +12,7 @@ generates:
     config:
       addInfiniteQuery: true
       exposeFetcher: true
+      exposeQueryKeys: true
       flattenGeneratedTypes: true
       flattenGeneratedTypesIncludeFragments: true
       dedupeFragments: true
