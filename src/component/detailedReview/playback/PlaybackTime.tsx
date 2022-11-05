@@ -24,7 +24,7 @@ interface PlaybackTimeProps {
     disabled: boolean
 }
 
-const commonClass = 'btn  btn-sm lg:btn-md neutral-focus p-0'
+const commonClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
 
 export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
@@ -212,9 +212,10 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
         return (<button className={shuffleButtonClass} onClick={() => toggleShuffle({ input: !isShuffled })}><ShuffleIcon /></button>)
     }, [isShuffled])
 
+    const calculateSvgStyle = (isLiked: boolean) => isLiked ? 'fill-success' : '' 
     return (
         <>
-            <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} svgClassName={'fill-success'} />
+            <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} getSvgClassName={calculateSvgStyle} />
             <button className={commonClass} onClick={() => prevTrack({})}><PreviousTrackIcon /></button>
             <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
             {playButton}

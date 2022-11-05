@@ -2,7 +2,7 @@ import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, us
 import toast from 'react-hot-toast';
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { RefObject, useEffect, useMemo, useRef } from "react"
+import { RefObject, useCallback, useEffect, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
 import { useQueryClient } from '@tanstack/react-query'
@@ -34,17 +34,18 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
     const [currentlyPlaying, setPlaying] = useAtom(currentlyPlayingTrackAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
-    const [bgStyle, textStyle, hoverStyle, likeFill] =
-        isPlaying ? ["bg-success", "text-success-content", '', 'fill-success-content'] :
-            isSelected ? ["bg-info", "text-info-content", '', ''] :
-                ["bg-neutral/30", "text-neutral-content", `hover:bg-neutral-focus`, '']
+    const [bgStyle, textStyle, hoverStyle] =
+        isPlaying ? ["bg-success", "text-success-content", ''] :
+            isSelected ? ["bg-info", "text-info-content", ''] :
+                ["bg-neutral/30", "text-neutral-content", `hover:bg-neutral-focus`]
 
     const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
     const { mutateAsync: createComment } = useCreateCommentMutation({ onSuccess: resetState })
     const onSubmit = async (comment: string) => {
-        await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
+        const createdComment = await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
+        createdComment.createComment
         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
     }
 
@@ -71,9 +72,18 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
         setCommentModal(values)
     }
     const isLiked = track.isLiked ?? false
-    const isLikedSvgClass = isLiked ?
-        isPlaying ? 'fill-success-content' : 'fill-success' :
-        ''
+
+    function isLikedSvgClass(isLiked: boolean): string {
+        if (isLiked && isPlaying) {
+            return 'fill-success-content'
+        } else if (isLiked) {
+            return 'fill-success'
+        } else if (isPlaying) { 
+            return 'stroke-success-content'
+        } else {
+            return 'stroke-neutral-content'
+        }
+    }
 
     // Play on div double click.
     const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
@@ -107,7 +117,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                     trackId={track.id}
                     isLiked={isLiked}
                     className={`btn btn-sm btn-ghost p-0`}
-                    svgClassName={isLikedSvgClass}
+                    getSvgClassName={isLikedSvgClass}
                 />
             </div>
         </div >

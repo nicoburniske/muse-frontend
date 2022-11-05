@@ -173,8 +173,8 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 
   return (
     < div className="w-full h-full flex flex-col relative">
-      <div className="grid grid-cols-3 items-center bg-base-100 z-50 h-[10%]">
-        <div className="flex flex-row items-center px-1 space-x-1">
+      <div className="grid grid-cols-4 items-center bg-base-100 z-50 h-[10%]">
+        <div className="col-span-2 flex flex-row items-center px-1 space-x-1">
           <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav(-1)}>
             <SkipBackwardIcon />
           </button>
@@ -184,31 +184,31 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                 <img loading='lazy' src={reviewEntityImage} />
               </div>
             </div>
-            <div className="stat">
+            <div className="stat ">
               <div className="stat-value text-sm lg:text-base text-clip">{title}</div>
               <div className="stat-title text-sm lg:text-base text-clip">{entityName}</div>
-              <div className="flex flex-row justify-around">
-                <div className="badge badge-primary text-clip overflow-hidden">playlist</div>
-                <div className="badge badge-secondary text-clip overflow-hidden">{creator}</div>
+              <div className="flex flex-row justify-around w-full">
+                <div className="badge badge-primary overflow-hidden whitespace-nowrap">playlist</div>
+                <div className="badge badge-secondary truncate overflow-hidden whitespace-nowrap">{creator}</div>
               </div>
             </div>
           </div>
           {
             isReviewOwner ?
-              <div className="btn-group btn-group-vertical lg:btn-group-horizontal">
+              <div className="grid grid-cols-2 lg:grid-cols-4">
                 <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
                 <div>
-                  <button className="btn btn-secondary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
+                  <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
                     <EllipsisIcon />
                   </button>
                 </div>
                 <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
-                <CreateReview title="create linked review" className="btn btn-primary btn-xs lg:btn-md" />
+                <CreateReview title="create linked review" className="btn btn-secondary btn-xs lg:btn-md" />
               </div>
               : null
           }
         </div>
-        <div className="tabs flex flex-row justify-center">
+        <div className="col-span-2 lg:col-span-1 tabs flex flex-row justify-center">
           <button className={`${tabStyle} ${renderOption === RenderOptions.Tracks ? 'tab-active' : ''}`}
             onClick={() => setRenderOption(RenderOptions.Tracks)}
           >
@@ -226,7 +226,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             <CommentIcon />
           </button>
         </div>
-        <div className='flex justify-end px-1'>
+        <div className='hidden lg:flex justify-end px-1'>
           <ThemeSetter />
         </div>
 
@@ -454,14 +454,14 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
   }
 
   return (
-    <div className="card py-0 w-full bg-primary shadow-xl"
+    <div className="card py-0 w-full bg-secondary shadow-xl"
       onClick={onClick}>
       <div className="card-body p-1 flex flex-row justify-evenly	 w-full items-center">
-        <h2 className="card-title text-primary-content">{name}</h2>
-        <div className="badge badge-secondary text-primary-content">{entityType}</div>
+        <h2 className="card-title text-secondary-content">{name}</h2>
+        <div className="badge badge-primary text-primary-content">{entityType}</div>
         {isChild ?
           <>
-            <button className="btn btn-sm" onClick={() => linkToReviewPage()} >
+            <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
               <ArrowTopRightIcon />
             </button>
             {isDeleting ?
@@ -474,7 +474,7 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
                 </button>
               </div>
               :
-              <button className="btn btn-sm" onClick={(e) => setIsDeleting(e)(true)}>
+              <button className="btn btn-sm btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
                 <TrashIcon />
               </button>
             }
@@ -514,7 +514,7 @@ const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
 function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
   const results = useQueries({
     queries: reviewIds.map(reviewId => ({
-      queryKey: ['ReviewComments', reviewId],
+      queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }),
       queryFn: useDetailedReviewCommentsQuery.fetcher({ reviewId }),
     }))
   })
@@ -595,7 +595,7 @@ const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: string, al
 
   return (
     <div>
-      <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setIsModalOpen(true)} >
+      <button className="btn btn-secondary btn-xs lg:btn-md" onClick={() => setIsModalOpen(true)} >
         <LinkIcon />
       </button>
       <ThemeModal open={isModalOpen} className="max-w-2xl h-[80%]">
@@ -605,16 +605,16 @@ const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: string, al
           </Dialog.Title>
 
           <Virtuoso
-            className="w-full overflow-y-auto"
+            className="w-full overflow-y-auto space-y-1"
             data={reviews}
             overscan={200}
             itemContent={(i, review) => {
               const image = getReviewOverviewImage(review)
               const [bgStyle, textStyle, hoverStyle] =
-                review.id === selectedReview ? ["bg-success", "text-success-content", ''] : ["bg-base", "text-base-content", 'hover:bg-base-focus']
+                review.id === selectedReview ? ["bg-success", "text-success-content", ''] : ["bg-base-200", "text-base-content", 'hover:bg-base-focus']
               return (
                 <div
-                  className={`w-full max-w-full h-24 card card-body flex flex-row justify-around items-center p-1 m-0 ${bgStyle} ${hoverStyle}`}
+                  className={`w-full max-w-full h-24 card card-body flex flex-row justify-around items-center p-0.5 m-1 ${bgStyle} ${hoverStyle}`}
                   key={i}
                   onClick={() => setSelectedReview(review.id)}>
                   <div className="avatar flex-none">
@@ -622,7 +622,7 @@ const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: string, al
                       <img src={image} />
                     </div>
                   </div>
-                  <div className="grow grid grid-cols-3 max-w-[80%] text-center">
+                  <div className="grow grid grid-cols-3 max-w-[75%] text-center">
                     <div className={`${searchTextResult} ${textStyle}`}> {review.reviewName} </div>
                     <div className={`${searchTextResult} ${textStyle}`}> {review.entity?.name} </div>
                     <div className={`${searchTextResult} ${textStyle}`}> {review.creator.id} </div>

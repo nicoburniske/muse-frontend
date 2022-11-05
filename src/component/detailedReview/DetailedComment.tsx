@@ -48,16 +48,16 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTim
   }
   const onSuccess = () => {
     if (timestamp === undefined) {
-      toast.warning("Successfully started playback from start. Invalid timestamp.")
+      toast.error("Successfully started playback from start. Invalid timestamp.")
     }
   }
 
-  const [playTrack] = useStartPlaybackMutation({ onError: handleError, onCompleted: onSuccess });
+  const { mutate: playTrack } = useStartPlaybackMutation({ onError: handleError, onSuccess });
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     const inner = { entityId: trackId, entityType: EntityType.Track }
     const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-    playTrack({ variables: { input: { entityOffset: { outer, inner }, positionMs: timestamp } } })
+    playTrack({ input: { entityOffset: { outer, inner }, positionMs: timestamp } })
   }
 
   const text = comment !== undefined ? comment : timestamp ? `@${time}` : time
