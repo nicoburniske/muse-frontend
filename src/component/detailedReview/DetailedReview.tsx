@@ -380,15 +380,12 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
   const selectedTrack = useAtomValue(selectedTrackAtom)
   useEffect(() => {
     if (selectedTrack !== undefined && !loadingNoData && tracks.length > 0) {
-      // @ts-ignore
-      const [track, index] = tracks.map((t, index) => [t, index]).find((trackAndIndex) => {
-        // @ts-ignore
-        const [track, index]: [DetailedPlaylistTrackFragment, number] = trackAndIndex
+      const maybeTrack = tracks.map((track, index) => ({ track, index })).find(({ track, index }) => {
         return track.track.id === selectedTrack.trackId && indexToReviewId[index] === selectedTrack.reviewId
       });
-      if (index !== undefined) {
+      if (maybeTrack !== undefined) {
         // TODO: need to expand section containing track.
-        virtuoso.current?.scrollToIndex({ index, behavior: 'smooth', align: 'center' })
+        virtuoso.current?.scrollToIndex({ index: maybeTrack.index, behavior: 'smooth', align: 'center' })
       }
     }
   }, [selectedTrack])
