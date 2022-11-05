@@ -1,7 +1,7 @@
-import { HeartIcon, NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from "component/Icons";
-import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useRemoveSavedTracksMutation, useSaveTracksMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
+import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from "component/Icons";
+import LikeButton from "component/LikeButton";
+import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
-import { useBoolToggleSynced } from "hook/useToggle";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
 import toast from 'react-hot-toast';
@@ -214,7 +214,7 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
 
     return (
         <>
-            <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} />
+            <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} svgClassName={'fill-success'} />
             <button className={commonClass} onClick={() => prevTrack({})}><PreviousTrackIcon /></button>
             <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
             {playButton}
@@ -234,25 +234,3 @@ function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>
     return undefined
 }
 
-const LikeButton = ({ trackId, isLiked: isLikedProp, className }: { trackId: string, isLiked: boolean, className: string }) => {
-    const [isLiked, , toggleLiked] = useBoolToggleSynced(isLikedProp)
-
-    const { mutate: likeTrack, isLoading: loadingLike } = useSaveTracksMutation({
-        onSuccess: () => toggleLiked(),
-        onError: () => toast.error('Failed to toggle like.'),
-    });
-
-    const { mutate: unlikeTrack, isLoading: loadingUnlike } = useRemoveSavedTracksMutation({
-        onSuccess: () => toggleLiked(),
-        onError: () => toast.error('Failed to toggle like.'),
-    });
-    const input = { trackIds: [trackId] }
-    const handleClick = () => isLiked ? unlikeTrack(input) : likeTrack(input)
-
-    const likedButtonClass = useMemo(() => isLiked ? className + ' btn btn-success' : className, [className, isLiked])
-    return (
-        <button className={likedButtonClass} onClick={() => handleClick()}>
-            <HeartIcon />
-        </button>
-    )
-}

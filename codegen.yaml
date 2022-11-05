@@ -1,7 +1,7 @@
 schema:
   - http://localhost:8883/api/graphql:
       headers:
-        Authorization: 3eb346ba-2b83-4a69-840e-802ac014d5e9 
+        Authorization: 28b79341-dfcc-4c7a-b7f1-faf8231d5fac 
 documents: './src/**/*.graphql'
 generates:
   ./src/graphql/generated/schema.ts:

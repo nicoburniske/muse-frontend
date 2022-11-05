@@ -6,6 +6,7 @@ import { RefObject, useEffect, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
 import { useQueryClient } from '@tanstack/react-query'
+import LikeButton from "component/LikeButton";
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
@@ -33,10 +34,10 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
     const [currentlyPlaying, setPlaying] = useAtom(currentlyPlayingTrackAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
-    const [bgStyle, textStyle, hoverStyle] =
-        isPlaying ? ["bg-success", "text-success-content", ''] :
-            isSelected ? ["bg-info", "text-info-content", ''] :
-                ["bg-neutral/30", "text-neutral-content", `hover:bg-neutral-focus`]
+    const [bgStyle, textStyle, hoverStyle, likeFill] =
+        isPlaying ? ["bg-success", "text-success-content", '', 'fill-success-content'] :
+            isSelected ? ["bg-info", "text-info-content", '', ''] :
+                ["bg-neutral/30", "text-neutral-content", `hover:bg-neutral-focus`, '']
 
     const resetState = () => setCommentModal(undefined)
 
@@ -69,6 +70,10 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
         const values = { title: "create comment", onCancel: resetState, onSubmit }
         setCommentModal(values)
     }
+    const isLiked = track.isLiked ?? false
+    const isLikedSvgClass = isLiked ?
+        isPlaying ? 'fill-success-content' : 'fill-success' :
+        ''
 
     // Play on div double click.
     const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
@@ -76,7 +81,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-4 md:grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="avatar">
                 <div className="w-8 md:w-16 rounded" onClick={showModal}>
@@ -89,13 +94,21 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
                 <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
             </div>
 
-            <div className="hidden md:grid place-items-center select-none	text-sm text-neutral-content lg:text-base">
+            <div className={`hidden md:grid place-items-center select-none text-sm lg:text-base ${textStyle}`}>
                 <p> {new Date(addedAt).toLocaleDateString()} </p>
             </div>
             {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
             {/* TODO: This needs to get centered vertically */}
             <div className="grid place-items-center">
                 <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
+            </div>
+            <div className="grid place-items-center">
+                <LikeButton
+                    trackId={track.id}
+                    isLiked={isLiked}
+                    className={`btn btn-sm btn-ghost p-0`}
+                    svgClassName={isLikedSvgClass}
+                />
             </div>
         </div >
     )
