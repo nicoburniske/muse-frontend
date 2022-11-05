@@ -1,4 +1,4 @@
-import { ReviewEntityOverviewFragment } from "graphql/generated/schema";
+import { ReviewDetailsFragment, ReviewEntityOverviewFragment } from "graphql/generated/schema";
 
 export type BoolNum = 0 | 1
 
@@ -43,6 +43,12 @@ export function nonNullable<T>(value: T): value is NonNullable<T> {
 
 export function orElse<T extends {}>(value: T | undefined, defaultValue: T): NonNullable<T> {
     return nonNullable(value) ? value : defaultValue;
+}
+
+export const getReviewOverviewImage = (review: ReviewDetailsFragment) => {
+    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
+    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
+    return findFirstImage(allEntities)
 }
 
 export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {

@@ -49,7 +49,7 @@ export const CreateReviewButtons = () => {
         setModalOpen(false)
         setEntityId(undefined)
         setReviewName("")
-        setEntityType(EntityType.Album)
+        setEntityType(EntityType.Playlist)
     }
 
     return (

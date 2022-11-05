@@ -79,7 +79,7 @@ export default function SearchSpotify({ onClear }: { onClear: () => void }) {
                     <CrossIcon />
                 </button>
             </div>
-            <div className="h-80 w-full bg-base-200">
+            <div className="h-80 lg:h-96 w-full bg-base-200">
                 <SearchResults fetchMore={fetchNextPage} />
             </div>
         </>

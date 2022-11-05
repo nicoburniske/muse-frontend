@@ -1,4 +1,4 @@
-import { DetailedCommentFragment, DetailedPlaylistTrackFragment, EntityType, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
+import { DetailedCommentFragment, DetailedPlaylistTrackFragment, EntityType, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from "graphql/generated/schema"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useSetAtom, useAtomValue, useAtom } from "jotai"
 import { currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
@@ -7,14 +7,14 @@ import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
 import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { EditReview } from "./editReview/EditReview"
-import { ArrowRightLeftIcon, ArrowTopRightIcon, CommentIcon, EllipsisIcon, HazardIcon, MusicIcon, ReplyIcon, SkipBackwardIcon, TrashIcon } from "component/Icons"
+import { ArrowRightLeftIcon, ArrowTopRightIcon, CheckIcon, CommentIcon, CrossIcon, EllipsisIcon, HazardIcon, LinkIcon, MusicIcon, ReplyIcon, SkipBackwardIcon, TrashIcon } from "component/Icons"
 import { useNavigate } from "react-router-dom"
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
 import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
-import { nonNullable, findFirstImage, groupBy } from "util/Utils"
+import { nonNullable, findFirstImage, groupBy, getReviewOverviewImage } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
@@ -22,6 +22,8 @@ import PlaylistTrack, { PlaylistTrackProps } from "./PlaylistTrack"
 import React from "react"
 import DetailedComment from "./DetailedComment"
 import toast from 'react-hot-toast'
+import { Dialog } from "@headlessui/react"
+import { ThemeModal } from "component/ThemeModal"
 
 export interface DetailedReviewProps {
   reviewId: string
@@ -200,6 +202,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                     <EllipsisIcon />
                   </button>
                 </div>
+                <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
                 <CreateReview title="create linked review" className="btn btn-primary btn-xs lg:btn-md" />
               </div>
               : null
@@ -431,6 +434,7 @@ interface ReviewGroupHeaderProps {
   entityType: EntityType
   onClick: () => void
 }
+
 const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick }: ReviewGroupHeaderProps) => {
   const isChild = reviewId !== parentReviewId
   const [isDeleting, setIsDeletingRaw] = useState(false)
@@ -560,6 +564,88 @@ function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
           />
         </div>
       )}
+    </div>
+  )
+}
+
+const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5"
+
+const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: string, alreadyLinkedIds: string[] }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useProfileAndReviewsQuery({}, { onError: () => toast.error("Failed to load user reviews.") })
+  const { mutateAsync: createReviewLink } = useLinkReviewsMutation({ onError: () => toast.error("Failed to link review.") })
+  // We don't want to include any unlinkable reviews.
+  const reviews = (data?.user?.reviews ?? [])
+    .filter(r => !alreadyLinkedIds.includes(r.id))
+    .filter(r => r.id !== reviewId)
+  const [selectedReview, setSelectedReview] = useState<undefined | string>(undefined)
+
+  const handleLinkReview = async () => {
+    if (selectedReview) {
+      await createReviewLink({ input: { parentReviewId: reviewId, childReviewId: selectedReview } })
+      queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
+      onCancel()
+    }
+  }
+
+  const canSubmit = selectedReview !== undefined
+
+  const onCancel = () => {
+    setIsModalOpen(false)
+    setSelectedReview(undefined)
+  }
+
+  return (
+    <div>
+      <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setIsModalOpen(true)} >
+        <LinkIcon />
+      </button>
+      <ThemeModal open={isModalOpen} className="max-w-2xl h-[80%]">
+        <div className="flex flex-col w-full h-full items-center justify-between space-y-5 p-3 " >
+          <Dialog.Title>
+            <h3 className="font-bold text-lg text-base-content flex-1"> link review </h3>
+          </Dialog.Title>
+
+          <Virtuoso
+            className="w-full overflow-y-auto"
+            data={reviews}
+            overscan={200}
+            itemContent={(i, review) => {
+              const image = getReviewOverviewImage(review)
+              const [bgStyle, textStyle, hoverStyle] =
+                review.id === selectedReview ? ["bg-success", "text-success-content", ''] : ["bg-base", "text-base-content", 'hover:bg-base-focus']
+              return (
+                <div
+                  className={`w-full max-w-full h-24 card card-body flex flex-row justify-around items-center p-1 m-0 ${bgStyle} ${hoverStyle}`}
+                  key={i}
+                  onClick={() => setSelectedReview(review.id)}>
+                  <div className="avatar flex-none">
+                    <div className="w-8 md:w-16 rounded">
+                      <img src={image} />
+                    </div>
+                  </div>
+                  <div className="grow grid grid-cols-3 max-w-[80%] text-center">
+                    <div className={`${searchTextResult} ${textStyle}`}> {review.reviewName} </div>
+                    <div className={`${searchTextResult} ${textStyle}`}> {review.entity?.name} </div>
+                    <div className={`${searchTextResult} ${textStyle}`}> {review.creator.id} </div>
+                  </div>
+                </div>)
+            }} />
+          <div className="flex flex-row items-center justify-around w-full m-0" >
+            <button
+              className={`btn btn-success disabled:btn-outline ${isLoading ? 'loading' : ''}`}
+              disabled={!canSubmit}
+              onClick={handleLinkReview}
+            >
+              <CheckIcon />
+            </button>
+            <button className="btn btn-info" onClick={onCancel}>
+              <CrossIcon />
+            </button>
+          </div>
+        </div>
+      </ThemeModal>
     </div>
   )
 }

@@ -22,7 +22,7 @@ export default function CreateReview({ title, icon , className}: { title?: strin
     return (
         <div>
             <ThemeModal open={isModalOpen} className="max-w-2xl">
-                <div className="flex flex-col w-full items-center justify-between space-y-5 p-3 " >
+                <div className="flex flex-col w-full items-center justify-between space-y-5 p-3" >
                     <Dialog.Title>
                         <h3 className="font-bold text-lg text-base-content flex-1"> {modalTitle} </h3>
                     </Dialog.Title>

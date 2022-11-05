@@ -86,8 +86,8 @@ interface CreateCardProps {
 function CreateCard({ review }: CreateCardProps) {
   const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
   const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
-  const entityName = allEntities.map(e => e.name).find(nonNullable)
   const image = findFirstImage(allEntities)
+  const entityName = allEntities.map(e => e.name).find(nonNullable)
   const nav = useNavigate()
   const linkToReviewPage = () => nav(`/reviews/${review.id}`)
   const creatorName = review?.creator?.spotifyProfile?.displayName ?? "Unknown"
