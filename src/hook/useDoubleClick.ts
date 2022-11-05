@@ -12,28 +12,28 @@ export default function useDoubleClick({
     onDoubleClick?: () => void
 }) {
     useEffect(() => {
-        const clickRef = ref.current;
-        if (clickRef == null) return;
+        const clickRef = ref.current
+        if (clickRef == null) return
 
-        let clickCount = 0;
+        let clickCount = 0
         const handleClick = () => {
-            clickCount += 1;
+            clickCount += 1
 
             setTimeout(() => {
-                if (clickCount === 1) onSingleClick();
-                else if (clickCount === 2) onDoubleClick();
+                if (clickCount === 1) onSingleClick()
+                else if (clickCount === 2) onDoubleClick()
 
-                clickCount = 0;
-            }, latency);
+                clickCount = 0
+            }, latency)
         };
 
         // Add event listener for click events
-        clickRef.addEventListener('click', handleClick);
+        clickRef.addEventListener('click', handleClick)
 
         // Remove event listener
         return () => {
-            clickRef.removeEventListener('click', handleClick);
-        };
-    });
-};
+            clickRef.removeEventListener('click', handleClick)
+        }
+    })
+}
 

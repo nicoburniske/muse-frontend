@@ -170,6 +170,8 @@ export type Mutations = {
   createReview?: Maybe<Review>;
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
+  deleteReviewLink?: Maybe<Scalars['Boolean']>;
+  linkReviews?: Maybe<Scalars['Boolean']>;
   pausePlayback?: Maybe<Scalars['Boolean']>;
   removeSavedTracks?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
@@ -202,6 +204,16 @@ export type MutationsDeleteCommentArgs = {
 
 export type MutationsDeleteReviewArgs = {
   input: DeleteReviewInput;
+};
+
+
+export type MutationsDeleteReviewLinkArgs = {
+  input: ReviewLinkInput;
+};
+
+
+export type MutationsLinkReviewsArgs = {
+  input: ReviewLinkInput;
 };
 
 
@@ -425,6 +437,11 @@ export type ReviewEntity = {
 export type ReviewEntityInput = {
   entityId: Scalars['String'];
   entityType: EntityType;
+};
+
+export type ReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  parentReviewId: Scalars['ID'];
 };
 
 export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment;

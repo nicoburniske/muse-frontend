@@ -1,28 +1,27 @@
-import { DetailedCommentFragment, DetailedPlaylistTrackFragment, DetailedPlaylistTrackFragmentDoc, EntityType, GetPlaylistDocument, GetPlaylistQuery, GetPlaylistQueryVariables, ReviewDetailsFragment, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
-import { RenderOptions } from "component/detailedReview/DetailedPlaylist"
+import { DetailedCommentFragment, DetailedPlaylistTrackFragment, EntityType, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery } from "graphql/generated/schema"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useSetAtom, useAtomValue, useAtom } from "jotai"
-import { playbackDevicesAtom, currentlyPlayingTrackAtom, currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
+import { currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
 import { HeroLoading } from "component/HeroLoading"
 import { CommentFormModalWrapper } from "./commentForm/CommentFormModalWrapper"
 import { EditReview } from "./editReview/EditReview"
-import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, LinkIcon, MusicIcon, SkipBackwardIcon } from "component/Icons"
+import { ArrowRightLeftIcon, ArrowTopRightIcon, CommentIcon, EllipsisIcon, HazardIcon, MusicIcon, ReplyIcon, SkipBackwardIcon, TrashIcon } from "component/Icons"
 import { useNavigate } from "react-router-dom"
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
-import PlaylistTrackTable from "./PlaylistTrackTable"
-import { Components, GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
+import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
 import { nonNullable, findFirstImage, groupBy } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
-import { useQueries } from "@tanstack/react-query"
+import { useQueries, useQueryClient } from "@tanstack/react-query"
 import PlaylistTrack, { PlaylistTrackProps } from "./PlaylistTrack"
 import React from "react"
 import DetailedComment from "./DetailedComment"
+import toast from 'react-hot-toast'
 
 export interface DetailedReviewProps {
   reviewId: string
@@ -66,6 +65,11 @@ export interface DetailedReviewProps {
 //   })
 //   return comments
 // }
+export enum RenderOptions {
+  Tracks,
+  Comments,
+  Both
+}
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
   // Subscriptions.
@@ -169,7 +173,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
     < div className="w-full h-full flex flex-col relative">
       <div className="grid grid-cols-3 items-center bg-base-100 z-50 h-[10%]">
         <div className="flex flex-row items-center px-1 space-x-1">
-          <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav('/')}>
+          <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav(-1)}>
             <SkipBackwardIcon />
           </button>
           <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
@@ -237,7 +241,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         onCancel={() => setOpenEditReview(false)} />
       <CommentFormModalWrapper />
       <div className="w-full h-[80%] bg-base-300">
-        <DetailedReviewBody reviews={allReviews} options={renderOption} />
+        <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
       </div>
       <div className='w-full h-[10%]'>
         <PlaybackTimeWrapper
@@ -250,12 +254,13 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 }
 
 interface DetailedReviewBodyProps {
+  rootReview: string
   reviews: ReviewOverview[]
   options?: RenderOptions
 }
 
-const DetailedReviewBody = ({ reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
-  const trackSection = useMemo(() => (<TrackSectionTable all={reviews} />), [reviews])
+const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
+  const trackSection = useMemo(() => (<TrackSectionTable rootReview={rootReview} all={reviews} />), [reviews])
   const commentSection = useMemo(() => (<ReviewCommentSection reviewIds={reviews.map(r => r.reviewId)} />), [reviews])
   return (
     <div className="h-full px-1">
@@ -292,7 +297,7 @@ function zip<A, B>(i: A[], j: B[]): [A, B][] {
 }
 
 // Need to filter out errors.
-const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
+const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
   const entityIds = all.map(r => r.entityId)
   const results = useQueries({
     queries: entityIds.map(id => ({
@@ -325,12 +330,15 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
 
   // Group info.
   const entityTypes = validReviews.map(r => r.entityType)
+  const reviewIds = validReviews.map(r => r.reviewId)
   const groupHeader = validResults.map(r => r.data!.getPlaylist!.name)
 
   // Content info.
   const groupCounts = loadingNoData ? [] : validResults.flatMap((r, index) => openIndexes.includes(index)
     ? r.data!.getPlaylist?.tracks?.length ?? [] : [0])
-  const tracks: DetailedPlaylistTrackFragment[] = validResults.filter((_r, index) => openIndexes.includes(index)).flatMap(r => r.data!.getPlaylist?.tracks ?? []) ?? []
+  const tracks: DetailedPlaylistTrackFragment[] = validResults
+    .filter((_r, index) => openIndexes.includes(index))
+    .flatMap(r => r.data!.getPlaylist?.tracks ?? []) ?? []
 
   const indexToPlaylistId = validResults.flatMap((review) => {
     const playlist = review.data?.getPlaylist
@@ -382,6 +390,7 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
     }
   }, [selectedTrack])
 
+
   // Do loading state. !
   return (
     <GroupedVirtuoso
@@ -389,13 +398,12 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
       ref={virtuoso}
       groupCounts={groupCounts}
       groupContent={(index) => (
-        <div className="card py-0 w-full bg-primary shadow-xl"
-          onClick={() => handleAccordionClick(index)}>
-          <div className="card-body p-1 flex flex-row justify-around items-center">
-            <h2 className="card-title text-primary-content">{groupHeader[index]}</h2>
-            <div className="badge badge-secondary">{entityTypes[index]}</div>
-          </div>
-        </div>
+        <ReviewGroupHeader
+          reviewId={reviewIds[index]}
+          parentReviewId={rootReview}
+          name={groupHeader[index]}
+          entityType={entityTypes[index]}
+          onClick={() => handleAccordionClick(index)} />
       )}
       components={{
         // Scroller,
@@ -414,6 +422,66 @@ const TrackSectionTable = ({ all }: { all: ReviewOverview[] }) => {
       }}
       overscan={800}
     />)
+}
+
+interface ReviewGroupHeaderProps {
+  reviewId: string,
+  parentReviewId: string,
+  name: string,
+  entityType: EntityType
+  onClick: () => void
+}
+const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick }: ReviewGroupHeaderProps) => {
+  const isChild = reviewId !== parentReviewId
+  const [isDeleting, setIsDeletingRaw] = useState(false)
+  const nav = useNavigate()
+  const queryClient = useQueryClient()
+  const linkToReviewPage = () => nav(`/reviews/${reviewId}`)
+  const { mutateAsync: deleteReviewLink } = useDeleteReviewLinkMutation({
+    onError: () => toast.error('Failed to delete review link'),
+  })
+
+  const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
+    e.stopPropagation()
+    queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
+  }
+
+  const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
+    setIsDeletingRaw(isDeleting)
+    e.stopPropagation()
+  }
+
+  return (
+    <div className="card py-0 w-full bg-primary shadow-xl"
+      onClick={onClick}>
+      <div className="card-body p-1 flex flex-row justify-evenly	 w-full items-center">
+        <h2 className="card-title text-primary-content">{name}</h2>
+        <div className="badge badge-secondary text-primary-content">{entityType}</div>
+        {isChild ?
+          <>
+            <button className="btn btn-sm" onClick={() => linkToReviewPage()} >
+              <ArrowTopRightIcon />
+            </button>
+            {isDeleting ?
+              <div className="btn-group" >
+                <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-bottom" data-tip="delete review" onClick={e => handleDeleteReviewLink(e)}>
+                  <HazardIcon />
+                </button>
+                <button className="btn btn-sm btn-info tooltip tooltip-info" data-tip="cancel delete" onClick={(e) => setIsDeleting(e)(false)}>
+                  <ReplyIcon />
+                </button>
+              </div>
+              :
+              <button className="btn btn-sm" onClick={(e) => setIsDeleting(e)(true)}>
+                <TrashIcon />
+              </button>
+            }
+          </>
+          : null
+        }
+      </div>
+    </div>)
 }
 
 const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment) =>
@@ -492,43 +560,6 @@ function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
           />
         </div>
       )}
-    </div>
-  )
-}
-
-interface TrackSectionCollapsibleProps {
-  isOpen: boolean
-  onToggle: () => void
-  reviewName: string
-  reviewId: string
-  entityId: string
-  entityType: EntityType
-}
-
-
-function TrackSectionCollapsible({ reviewId, reviewName, entityId, entityType, isOpen, onToggle }: TrackSectionCollapsibleProps) {
-  const { data } = useGetPlaylistQuery({ id: entityId })
-  const name = reviewName ?? data?.getPlaylist?.name
-  const tracks = data?.getPlaylist?.tracks ?? []
-
-  return (
-    <div className={`w-full flex flex-col justify-start p-1 h-full`}>
-      <div className="text-xl font-medium bg-neutral text-neutral-content"
-        onClick={onToggle}
-      >
-        {name}
-      </div>
-      {isOpen ?
-        <div className="h-max overflow-y-hidden">
-          <PlaylistTrackTable
-            playlistId={entityId}
-            reviewId={reviewId}
-            playlistTracks={tracks}
-          />
-        </div>
-        : null
-      }
-
     </div>
   )
 }

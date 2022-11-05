@@ -169,6 +169,8 @@ export type Mutations = {
   createReview?: Maybe<Review>;
   deleteComment?: Maybe<Scalars['Boolean']>;
   deleteReview?: Maybe<Scalars['Boolean']>;
+  deleteReviewLink?: Maybe<Scalars['Boolean']>;
+  linkReviews?: Maybe<Scalars['Boolean']>;
   pausePlayback?: Maybe<Scalars['Boolean']>;
   removeSavedTracks?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
@@ -201,6 +203,16 @@ export type MutationsDeleteCommentArgs = {
 
 export type MutationsDeleteReviewArgs = {
   input: DeleteReviewInput;
+};
+
+
+export type MutationsDeleteReviewLinkArgs = {
+  input: ReviewLinkInput;
+};
+
+
+export type MutationsLinkReviewsArgs = {
+  input: ReviewLinkInput;
 };
 
 
@@ -426,6 +438,11 @@ export type ReviewEntityInput = {
   entityType: EntityType;
 };
 
+export type ReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  parentReviewId: Scalars['ID'];
+};
+
 export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment;
 
 export type SearchResult = {
@@ -603,6 +620,20 @@ export type DeleteReviewMutationVariables = Exact<{
 
 
 export type DeleteReviewMutation = { __typename?: 'Mutations', deleteReview?: boolean | null };
+
+export type DeleteReviewLinkMutationVariables = Exact<{
+  input: ReviewLinkInput;
+}>;
+
+
+export type DeleteReviewLinkMutation = { __typename?: 'Mutations', deleteReviewLink?: boolean | null };
+
+export type LinkReviewsMutationVariables = Exact<{
+  input: ReviewLinkInput;
+}>;
+
+
+export type LinkReviewsMutation = { __typename?: 'Mutations', linkReviews?: boolean | null };
 
 export type PausePlaybackMutationVariables = Exact<{
   deviceId?: InputMaybe<Scalars['String']>;
@@ -1059,6 +1090,36 @@ export const useDeleteReviewMutation = <
       options
     );
 useDeleteReviewMutation.fetcher = (variables: DeleteReviewMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables, options);
+export const DeleteReviewLinkDocument = `
+    mutation DeleteReviewLink($input: ReviewLinkInput!) {
+  deleteReviewLink(input: $input)
+}
+    `;
+export const useDeleteReviewLinkMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteReviewLinkMutation, TError, DeleteReviewLinkMutationVariables, TContext>) =>
+    useMutation<DeleteReviewLinkMutation, TError, DeleteReviewLinkMutationVariables, TContext>(
+      ['DeleteReviewLink'],
+      (variables?: DeleteReviewLinkMutationVariables) => fetcher<DeleteReviewLinkMutation, DeleteReviewLinkMutationVariables>(DeleteReviewLinkDocument, variables)(),
+      options
+    );
+useDeleteReviewLinkMutation.fetcher = (variables: DeleteReviewLinkMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteReviewLinkMutation, DeleteReviewLinkMutationVariables>(DeleteReviewLinkDocument, variables, options);
+export const LinkReviewsDocument = `
+    mutation LinkReviews($input: ReviewLinkInput!) {
+  linkReviews(input: $input)
+}
+    `;
+export const useLinkReviewsMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<LinkReviewsMutation, TError, LinkReviewsMutationVariables, TContext>) =>
+    useMutation<LinkReviewsMutation, TError, LinkReviewsMutationVariables, TContext>(
+      ['LinkReviews'],
+      (variables?: LinkReviewsMutationVariables) => fetcher<LinkReviewsMutation, LinkReviewsMutationVariables>(LinkReviewsDocument, variables)(),
+      options
+    );
+useLinkReviewsMutation.fetcher = (variables: LinkReviewsMutationVariables, options?: RequestInit['headers']) => fetcher<LinkReviewsMutation, LinkReviewsMutationVariables>(LinkReviewsDocument, variables, options);
 export const PausePlaybackDocument = `
     mutation PausePlayback($deviceId: String) {
   pausePlayback(deviceId: $deviceId)

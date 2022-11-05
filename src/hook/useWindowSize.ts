@@ -16,7 +16,7 @@ export default function useWindowSize(): Size {
         isMd: false,
         isLg: false,
         isXl: false,
-    });
+    })
     useEffect(() => {
         // Handler to call on window resize
         function handleResize() {
@@ -28,14 +28,14 @@ export default function useWindowSize(): Size {
                 isMd: window.innerWidth >= 640,
                 isLg: window.innerWidth >= 768,
                 isXl: window.innerWidth >= 1024,
-            });
+            })
         }
         // Add event listener
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("resize", handleResize)
         // Call handler right away so state gets updated with initial window size
-        handleResize();
+        handleResize()
         // Remove event listener on cleanup
-        return () => window.removeEventListener("resize", handleResize);
-    }, []); // Empty array ensures that effect is only run on mount
-    return windowSize;
+        return () => window.removeEventListener("resize", handleResize)
+    }, []) // Empty array ensures that effect is only run on mount
+    return windowSize
 }

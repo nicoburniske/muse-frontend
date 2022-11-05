@@ -16,8 +16,11 @@ export const ReviewProperties = () => {
                 value={entityType}
                 onChange={(e) => setEntityType(e.target.value as EntityType)}
                 className="select select-bordered w-full">
-                {Object.values(EntityType).map((e) =>
-                    <option key={e} value={e}>{e.toLowerCase()}</option>)
+                {
+                    // For now only allow playlists.
+                    // Object.values(EntityType)
+                    [EntityType.Playlist].map((e) =>
+                        <option key={e} value={e}>{e.toLowerCase()}</option>)
                 }
             </select>
         </div>

@@ -1,0 +1,3 @@
+mutation DeleteReviewLink($input: ReviewLinkInput!) {
+    deleteReviewLink(input: $input)
+}
