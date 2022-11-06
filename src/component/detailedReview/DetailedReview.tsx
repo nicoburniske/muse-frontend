@@ -269,7 +269,7 @@ interface DetailedReviewBodyProps {
 
 const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
   const trackSection = useMemo(() => (<TrackSectionTable rootReview={rootReview} all={reviews} />), [reviews])
-  const commentSection = useMemo(() => (<ReviewCommentSection reviewIds={reviews.map(r => r.reviewId)} />), [reviews])
+  const commentSection = useMemo(() => (<ReviewCommentSection reviews={reviews} />), [reviews])
   return (
     <div className="h-full px-1">
       {(options == RenderOptions.Both) ?
@@ -293,7 +293,7 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
   )
 }
 
-interface ReviewOverview {
+export interface ReviewOverview {
   reviewName: string
   reviewId: string
   entityId: string
@@ -553,7 +553,8 @@ const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   </div>
 )
 
-function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
+function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
+  const reviewIds = reviews.map(r => r.reviewId)
   const results = useQueries({
     queries: reviewIds.map(reviewId => ({
       queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }),
@@ -565,6 +566,8 @@ function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
     .map(r => r.data?.review?.comments)
     .filter(nonNullable)
     .flatMap(c => c)
+
+  const reviewOverviews = groupBy(reviews, r => r.reviewId)
 
   const comments = useMemo(() => {
     return [...validComments]
@@ -595,8 +598,7 @@ function ReviewCommentSection({ reviewIds }: { reviewIds: string[] }) {
       {rootComments.map((c: DetailedCommentFragment, index: number) =>
         <div key={c.id}>
           <DetailedComment
-            reviewId={c.reviewId}
-            playlistId={""}
+            review={reviewOverviews.get(c.reviewId)?.at(0)!}
             comment={c}
             children={childComments.get(c.id) ?? []}
             onClick={() => onCommentClick(c.id, c.reviewId)}

@@ -8,10 +8,10 @@ import { useAtomValue } from "jotai"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import { ArrowDownIcon, ArrowUpIcon, CrossIcon, EditIcon, HazardIcon, ReplyIcon, SearchIcon, TrashIcon } from "component/Icons"
 import { useQueryClient } from '@tanstack/react-query'
+import { ReviewOverview } from "./DetailedReview";
 
 export interface DetailedCommentProps {
-  reviewId: string
-  playlistId: string
+  review: ReviewOverview
   comment: DetailedCommentFragment
   children: DetailedCommentFragment[]
   onClick: () => void
@@ -24,11 +24,11 @@ interface TrackTimestampProps {
 interface ConvertToTimestampProps {
   time: string
   trackId: string
-  playlistId: string
+  review: ReviewOverview
   comment?: string
 }
 
-function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTimestampProps) {
+function ConvertToTimestamp({ time, trackId, review, comment }: ConvertToTimestampProps) {
   // Timestamp converted to millis if valid.
   const timestamp = useMemo(() => {
     const timeSplit = time.split(":")
@@ -56,7 +56,7 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTim
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     const inner = { entityId: trackId, entityType: EntityType.Track }
-    const outer = { entityId: playlistId, entityType: EntityType.Playlist }
+    const outer = { entityId: review.entityId, entityType: review.entityType }
     playTrack({ input: { entityOffset: { outer, inner }, positionMs: timestamp } })
   }
 
@@ -75,7 +75,8 @@ function ConvertToTimestamp({ time, trackId, playlistId, comment }: ConvertToTim
     internal
 }
 
-export default function DetailedComment({ reviewId, playlistId, comment: detailedComment, children, onClick }: DetailedCommentProps) {
+export default function DetailedComment({ review, comment: detailedComment, children, onClick }: DetailedCommentProps) {
+  const reviewId = review.reviewId
   const queryClient = useQueryClient()
   const currentUserId = useAtomValue(currentUserIdAtom)
   const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
@@ -131,7 +132,8 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
   }
 
   const Stamp =
-    ({ at, comment }: TrackTimestampProps) => ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id!, playlistId })
+    ({ at, comment }: TrackTimestampProps) =>
+      ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id!, review })
 
   const expanded = (isExpanded && children.length > 0) ? "collapse-open" : "collapse-close"
   const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
@@ -213,7 +215,7 @@ export default function DetailedComment({ reviewId, playlistId, comment: detaile
           (<div tabIndex={0} className={`collapse-content ${childrenBg} space-y-0.5 px-1`}>
             {
               children.map(child =>
-                <DetailedComment key={child.id} playlistId={playlistId} reviewId={reviewId} comment={child} children={[]} onClick={onClick} />
+                <DetailedComment key={child.id} review={review} comment={child} children={[]} onClick={onClick} />
               )
             }
           </div>
