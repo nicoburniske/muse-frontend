@@ -302,8 +302,9 @@ function zip<A, B>(i: A[], j: B[]): [A, B][] {
 }
 
 function useTrackAtIndexAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string) {
-  // return useMemo(() => focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId)), [tracksAtom, trackId])
-  return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
+  return useMemo(() => {
+    return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
+  }, [tracksAtom, trackId])
 }
 
 // Need to filter out errors.
@@ -324,6 +325,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
       // Non Null Entity.
       .filter(([res, _rev]) => nonNullable(res.data?.getPlaylist)),
     [results])
+  const validCount = validZipped.length
   const validReviews = validZipped.map(([_, rev]) => rev)
   const validResults = validZipped.map(([res, _rev]) => res)
 
@@ -331,12 +333,20 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
 
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+  // After initial load
   useEffect(() => {
     if (!loadingNoData) {
       // Open all indicies after initial load.
       setOpenIndexes([...Array(validZipped.length).keys()])
     }
   }, [loadingNoData])
+
+  // Ensures that on single review page, the review is always open. 
+  useEffect(() => {
+    if (validCount === 1) {
+      setOpenIndexes([0])
+    }
+  }, [validCount])
 
   // Group info.
   const entityTypes = validReviews.map(r => r.entityType)
@@ -429,12 +439,9 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
         if (playlistTrack === undefined) {
           return null
         }
-        // how to handle undefined? 
-        // try and fit useMemo here.
-        const trackAtom = useTrackAtIndexAtom(tracksAtom, playlistTrack.track.id)
-        return trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, playlistTrack, trackAtom)
+        return trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, playlistTrack, tracksAtom)
       }}
-      overscan={800}
+      overscan={500}
     />)
 }
 
@@ -445,6 +452,7 @@ interface ReviewGroupHeaderProps {
   entityType: EntityType
   onClick: () => void
 }
+
 
 const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick }: ReviewGroupHeaderProps) => {
   const isChild = reviewId !== parentReviewId
@@ -467,23 +475,25 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
     e.stopPropagation()
   }
 
+  const gridStyle = isChild ? 'grid-cols-4' : 'grid-cols-2'
+
   return (
     <div className="card py-0 w-full bg-secondary shadow-xl"
       onClick={onClick}>
-      <div className="card-body p-1 flex flex-row justify-evenly	 w-full items-center">
-        <h2 className="card-title text-secondary-content">{name}</h2>
-        <div className="badge badge-primary text-primary-content">{entityType}</div>
+      <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
+        <h2 className="card-title text-secondary-content w-full">{name}</h2>
+        <div className="badge badge-primary text-primary-content text-center w-full">{entityType}</div>
         {isChild ?
           <>
             <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
               <ArrowTopRightIcon />
             </button>
             {isDeleting ?
-              <div className="btn-group" >
-                <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-bottom" data-tip="delete review" onClick={e => handleDeleteReviewLink(e)}>
+              <div className="btn-group justify-center" >
+                <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-left" data-tip="remove review link" onClick={e => handleDeleteReviewLink(e)}>
                   <HazardIcon />
                 </button>
-                <button className="btn btn-sm btn-info tooltip tooltip-info" data-tip="cancel delete" onClick={(e) => setIsDeleting(e)(false)}>
+                <button className="btn btn-sm btn-info" onClick={(e) => setIsDeleting(e)(false)}>
                   <ReplyIcon />
                 </button>
               </div>
@@ -499,21 +509,32 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
     </div>)
 }
 
-const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment, atom: PrimitiveAtom<DetailedTrackFragment>) =>
+const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment, atom: PrimitiveAtom<DetailedTrackFragment[]>) =>
   <MemoizedTrack playlistId={playlistId} reviewId={reviewId} playlistTrack={playlistTrack} atom={atom} />
 
-const MemoizedTrack = React.memo(({ playlistId, reviewId, playlistTrack, atom }: PlaylistTrackProps) => {
+export interface MemoPlaylistTrackProps {
+  playlistTrack: DetailedPlaylistTrackFragment
+  reviewId: string
+  playlistId: string
+  atom: PrimitiveAtom<DetailedTrackFragment[]>
+}
+
+const MemoizedTrack = React.memo(({ playlistId, reviewId, playlistTrack, atom }: MemoPlaylistTrackProps) => {
+  const trackAtom = useTrackAtIndexAtom(atom, playlistTrack.track.id)
   return (
     <div className="py-0.5 m-0">
       <PlaylistTrack
         playlistId={playlistId}
         reviewId={reviewId}
         playlistTrack={playlistTrack}
-        atom={atom}
+        atom={trackAtom}
       />
     </div>
   )
-}, (a, b) => a.playlistId === b.playlistId && a.reviewId === b.reviewId && a.playlistTrack.track.id === b.playlistTrack.track.id)
+}, (a, b) =>
+  a.playlistId === b.playlistId &&
+  a.reviewId === b.reviewId &&
+  a.playlistTrack.track.id === b.playlistTrack.track.id)
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <div className="py-0.5">

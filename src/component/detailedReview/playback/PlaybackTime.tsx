@@ -3,6 +3,7 @@ import LikeButton from "component/LikeButton";
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
 import { atom, useAtomValue, useSetAtom } from "jotai";
+import React from "react";
 import { useMemo } from "react";
 import toast from 'react-hot-toast';
 import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
@@ -97,7 +98,7 @@ export function PlaybackTime({
             </div>
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
                 <div className="flex flex-row justify-between md:justify-around items-center text-neutral-content md:w-full lg:w-3/4">
-                    <PlayerButtons
+                    <PlayerButtonsMemo
                         trackId={trackId}
                         isPlaying={isPlaying}
                         isShuffled={isShuffled}
@@ -227,6 +228,8 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
         </>
     )
 }
+
+const PlayerButtonsMemo = React.memo(PlayerButtons, (a, b) => a.isLiked === b.isLiked && a.isPlaying === b.isPlaying && a.isShuffled === b.isShuffled)
 
 function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
     const offsetLeft = e.currentTarget.offsetLeft

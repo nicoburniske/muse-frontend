@@ -39,10 +39,6 @@ const useLikeAtom = (trackAtom: PrimitiveAtom<DetailedTrackFragment>) =>
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, atom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
-    // useEffect(() => {
-    //     console.log("mounting playlist track")
-    //     return () => console.log("unmounting playlist track ")
-    // }, [])
     // We want to know what devices are available so we can start playback on the correct device.
     const devices = useAtomValue(playbackDevicesAtom)
     const track = useAtomValue(atom)
@@ -61,7 +57,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const [bgStyle, textStyle, hoverStyle] =
         isPlaying ? ["bg-success", "text-success-content", ''] :
             isSelected ? ["bg-info", "text-info-content", ''] :
-                ["bg-neutral/30", "text-neutral-content", `hover:bg-neutral-focus`]
+                ["bg-neutral/30", "text-neutral-content", `active:bg-neutral-focus`]
 
     const resetState = () => setCommentModal(undefined)
 
@@ -130,7 +126,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
                 <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
             </div>
 
-            <div className={`hidden md:grid place-items-center select-none text-sm lg:text-base ${textStyle}`}>
+            <div className={`hidden md:grid place-items-center select-none text-xs lg:text-sm ${textStyle}`}>
                 <p> {new Date(addedAt).toLocaleDateString()} </p>
             </div>
             {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
