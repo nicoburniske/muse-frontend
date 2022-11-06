@@ -2,7 +2,7 @@ import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, Ski
 import LikeButton from "component/LikeButton";
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
-import { useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
 import toast from 'react-hot-toast';
 import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
@@ -212,10 +212,12 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
         return (<button className={shuffleButtonClass} onClick={() => toggleShuffle({ input: !isShuffled })}><ShuffleIcon /></button>)
     }, [isShuffled])
 
-    const calculateSvgStyle = (isLiked: boolean) => isLiked ? 'fill-success' : '' 
+    const likeAtom = atom(isLiked)
+
+    const calculateSvgStyle = (isLiked: boolean) => isLiked ? 'fill-success' : ''
     return (
         <>
-            <LikeButton trackId={trackId} isLiked={isLiked} className={commonClass} getSvgClassName={calculateSvgStyle} />
+            <LikeButton trackId={trackId} likeAtom={likeAtom} className={commonClass} getSvgClassName={calculateSvgStyle} />
             <button className={commonClass} onClick={() => prevTrack({})}><PreviousTrackIcon /></button>
             <button className={commonClass} onClick={seekBackward}><SkipBackwardIcon /></button>
             {playButton}

@@ -1,20 +1,43 @@
-import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from "graphql/generated/schema"
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from "graphql/generated/schema"
 import toast from 'react-hot-toast';
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react"
+import { RefObject, SetStateAction, useCallback, useEffect, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
 import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from "component/LikeButton";
+import { focusAtom } from "jotai/optics";
+import * as O from 'optics-ts'
+
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
+    atom: PrimitiveAtom<DetailedTrackFragment>
 }
 
+function valueOrIfNull<T>(defaultValue: T) {
+    O.optic<T | null>().lens(
+        (source) => (source === null ? defaultValue : source),
+        (value, _source) => value
+    )
+}
+
+function valueOrNullAtom<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
+    return atom<T, SetStateAction<T>>((get) => {
+        const value = get(atomParam)
+        return value === null ? defaultValue : value
+    },
+        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
+    )
+}
+
+const useLikeAtom = (trackAtom: PrimitiveAtom<DetailedTrackFragment>) =>
+    useMemo(() => focusAtom(trackAtom, atom => atom.prop('isLiked').valueOr(false)), [trackAtom])
+
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track }, reviewId, playlistId }: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, atom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
     // useEffect(() => {
     //     console.log("mounting playlist track")
@@ -22,6 +45,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
     // }, [])
     // We want to know what devices are available so we can start playback on the correct device.
     const devices = useAtomValue(playbackDevicesAtom)
+    const track = useAtomValue(atom)
     const setCommentModal = useSetAtom(openCommentModalAtom)
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
@@ -71,14 +95,16 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
         const values = { title: "create comment", onCancel: resetState, onSubmit }
         setCommentModal(values)
     }
-    const isLiked = track.isLiked ?? false
+
+    const isLikedAtom = valueOrNullAtom(useLikeAtom(atom), false)
+    // const isLikedAtom = useLikeAtom(atom)
 
     function isLikedSvgClass(isLiked: boolean): string {
         if (isLiked && isPlaying) {
             return 'fill-success-content'
         } else if (isLiked) {
             return 'fill-success'
-        } else if (isPlaying) { 
+        } else if (isPlaying) {
             return 'stroke-success-content'
         } else {
             return 'stroke-neutral-content'
@@ -115,7 +141,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy, track
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}
-                    isLiked={isLiked}
+                    likeAtom={isLikedAtom}
                     className={`btn btn-sm btn-ghost p-0`}
                     getSvgClassName={isLikedSvgClass}
                 />

@@ -37,6 +37,10 @@ export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K
     return map;
 }
 
+export function uniqueByProperty<Item, UniqueProperty>(items: Item[], func: (t: Item) => UniqueProperty): Item[] {
+    return [...new Map(items.map(item => [func(item), item])).values()];
+}
+
 export function nonNullable<T>(value: T): value is NonNullable<T> {
     return value !== null && value !== undefined;
 }

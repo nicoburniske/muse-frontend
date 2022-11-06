@@ -1,5 +1,5 @@
 import { PlaybackDeviceFragment } from 'graphql/generated/schema'
-import { atom } from 'jotai'
+import { Atom, atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
 export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')

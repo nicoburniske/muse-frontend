@@ -1,6 +1,8 @@
-import { DetailedCommentFragment, DetailedPlaylistTrackFragment, EntityType, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from "graphql/generated/schema"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { useSetAtom, useAtomValue, useAtom } from "jotai"
+import { DetailedCommentFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from "graphql/generated/schema"
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react"
+import { useSetAtom, useAtomValue, useAtom, atom, PrimitiveAtom, WritableAtom } from "jotai"
+import { selectAtom, splitAtom } from "jotai/utils";
+import { focusAtom } from 'jotai/optics'
 import { currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
 import { Alert, AlertSeverity } from "component/Alert"
@@ -14,7 +16,7 @@ import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
 import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
-import { nonNullable, findFirstImage, groupBy, getReviewOverviewImage } from "util/Utils"
+import { nonNullable, findFirstImage, groupBy, getReviewOverviewImage, uniqueByProperty } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
@@ -299,13 +301,18 @@ function zip<A, B>(i: A[], j: B[]): [A, B][] {
   return i.map((a, index) => [a, j[index]])
 }
 
+function useTrackAtIndexAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string) {
+  // return useMemo(() => focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId)), [tracksAtom, trackId])
+  return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
+}
+
 // Need to filter out errors.
 const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
   const entityIds = all.map(r => r.entityId)
   const results = useQueries({
     queries: entityIds.map(id => ({
-      queryKey: ['entity', id],
-      queryFn: useGetPlaylistQuery.fetcher({ id }),
+      queryKey: useGetPlaylistQuery.getKey({ id }),
+      queryFn: useGetPlaylistQuery.fetcher({ id })
     }))
   })
 
@@ -342,6 +349,9 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
   const tracks: DetailedPlaylistTrackFragment[] = validResults
     .filter((_r, index) => openIndexes.includes(index))
     .flatMap(r => r.data!.getPlaylist?.tracks ?? []) ?? []
+
+  // Want one atom PER TRACK.
+  const tracksAtom = atom(uniqueByProperty(tracks.map(t => t.track), t => t.id))
 
   const indexToPlaylistId = validResults.flatMap((review) => {
     const playlist = review.data?.getPlaylist
@@ -391,7 +401,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
   }, [selectedTrack])
 
 
-  // Do loading state. !
+  // Do empty state!
   return (
     <GroupedVirtuoso
       className="w-full"
@@ -415,10 +425,14 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
         exit: (velocity) => Math.abs(velocity) < 100,
       }}
       itemContent={(index) => {
-        const track = tracks[index]
-        return track === undefined ?
-          null :
-          trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, track)
+        const playlistTrack = tracks[index]
+        if (playlistTrack === undefined) {
+          return null
+        }
+        // how to handle undefined? 
+        // try and fit useMemo here.
+        const trackAtom = useTrackAtIndexAtom(tracksAtom, playlistTrack.track.id)
+        return trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, playlistTrack, trackAtom)
       }}
       overscan={800}
     />)
@@ -485,19 +499,21 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
     </div>)
 }
 
-const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment) =>
-  <MemoizedTrack playlistId={playlistId} reviewId={reviewId} playlistTrack={playlistTrack} />
+const trackContent = (playlistId: string, reviewId: string, playlistTrack: DetailedPlaylistTrackFragment, atom: PrimitiveAtom<DetailedTrackFragment>) =>
+  <MemoizedTrack playlistId={playlistId} reviewId={reviewId} playlistTrack={playlistTrack} atom={atom} />
 
-const MemoizedTrack = React.memo(({ playlistId, reviewId, playlistTrack }: PlaylistTrackProps) => {
+const MemoizedTrack = React.memo(({ playlistId, reviewId, playlistTrack, atom }: PlaylistTrackProps) => {
   return (
     <div className="py-0.5 m-0">
       <PlaylistTrack
         playlistId={playlistId}
         reviewId={reviewId}
-        playlistTrack={playlistTrack} />
+        playlistTrack={playlistTrack}
+        atom={atom}
+      />
     </div>
   )
-})
+}, (a, b) => a.playlistId === b.playlistId && a.reviewId === b.reviewId && a.playlistTrack.track.id === b.playlistTrack.track.id)
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <div className="py-0.5">
