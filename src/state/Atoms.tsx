@@ -10,12 +10,6 @@ export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
 export const searchAtom = atom<string>('')
 export const searchLoweredAtom = atom<string>(get => get(searchAtom).toLowerCase())
 
-const refreshOverviewCountAtom = atom<number>(0)
-export const refreshOverviewAtom = atom(
-    (get) => get(refreshOverviewCountAtom),
-    (get, set, _arg) => set(refreshOverviewCountAtom, get(refreshOverviewCountAtom) + 1),
-)
-
 interface CommentModalData {
     onSubmit: (comment: string) => void
     onCancel: () => void

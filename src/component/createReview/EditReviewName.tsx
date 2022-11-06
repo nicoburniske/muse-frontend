@@ -1,7 +1,7 @@
-import { useAtomValue, useSetAtom } from "jotai"
-import { currentReviewNameAtom, debouncedReviewNameAtom } from "./createReviewAtoms"
+import { Atom, PrimitiveAtom, useAtomValue, useSetAtom } from "jotai"
 
-export const EditReviewName = () => {
+export const EditReviewName = ({
+    debouncedReviewNameAtom, currentReviewNameAtom }: { debouncedReviewNameAtom: PrimitiveAtom<string>, currentReviewNameAtom: Atom<string> }) => {
     const setReviewName = useSetAtom(debouncedReviewNameAtom)
     const reviewName = useAtomValue(currentReviewNameAtom)
 

@@ -1,14 +1,24 @@
 import { CheckIcon, CrossIcon } from "component/Icons"
-import { entityIdAtom } from "component/searchSpotify/SearchSpotify"
-import { EntityType, useCreateReviewMutation, useDetailedReviewQuery } from "graphql/generated/schema"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { EntityType, useCreateReviewMutation, useDetailedReviewQuery, useProfileAndReviewsQuery } from "graphql/generated/schema"
+import { Atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useMemo } from "react"
 import { refreshOverviewAtom } from "state/Atoms"
-import { createReviewModalOpenAtom, debouncedReviewNameAtom, entityTypeAtom, isPublicAtom, parentReviewIdAtom } from "./createReviewAtoms"
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query'
+import { nonNullable } from "util/Utils"
 
-export const CreateReviewButtons = () => {
+interface CreateReviewButtonProps {
+    entityTypeAtom: PrimitiveAtom<EntityType>
+    entityIdAtom: PrimitiveAtom<string | undefined>
+    isPublicAtom: PrimitiveAtom<boolean>
+    parentReviewIdAtom: Atom<string | undefined>
+    debouncedReviewNameAtom: PrimitiveAtom<string>
+    createReviewModalOpenAtom: PrimitiveAtom<boolean>
+}
+
+export const CreateReviewButtons = ({
+    entityTypeAtom, entityIdAtom, isPublicAtom, parentReviewIdAtom,
+    debouncedReviewNameAtom, createReviewModalOpenAtom }: CreateReviewButtonProps) => {
     const [entityType, setEntityType] = useAtom(entityTypeAtom)
     const [isPublic, setIsPublic] = useAtom(isPublicAtom)
     const [entityId, setEntityId] = useAtom(entityIdAtom)
@@ -18,9 +28,6 @@ export const CreateReviewButtons = () => {
     const [name, setReviewName] = useAtom(debouncedReviewNameAtom)
     const setModalOpen = useSetAtom(createReviewModalOpenAtom)
 
-    // Invalidate cache.
-    const updateReviews = useSetAtom(refreshOverviewAtom)
-
     const { isLoading, mutate } = useCreateReviewMutation(
         {
             onError: () => toast.error(`Failed to create ${entityType} review.`),
@@ -28,10 +35,10 @@ export const CreateReviewButtons = () => {
                 toast.success(`Successfully created ${entityType} review.`)
                 setModalOpen(false)
                 setEntityId(undefined)
-                setIsPublic(0)
+                setIsPublic(false)
                 setReviewName("")
-                updateReviews()
-                if (parentReviewId !== undefined) {
+                queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
+                if (nonNullable(parentReviewId)) {
                     queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
                 }
             }

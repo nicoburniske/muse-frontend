@@ -1,20 +1,36 @@
-import { useAtom, useSetAtom } from 'jotai'
-import SearchSpotify, { entityIdAtom } from 'component/searchSpotify/SearchSpotify';
+import { Atom, atom, useAtom, useSetAtom } from 'jotai'
+import SearchSpotify from 'component/searchSpotify/SearchSpotify';
 import { PlusIcon } from 'component/Icons';
 import { ThemeModal } from 'component/ThemeModal';
 import { Dialog } from '@headlessui/react';
-import { createReviewModalOpenAtom, debouncedReviewNameAtom } from './createReviewAtoms';
 import { EditReviewName } from './EditReviewName';
 import { CreateReviewButtons } from './CreateReviewButtons';
 import { ReviewProperties } from './ReviewProperties';
 import { orElse } from 'util/Utils';
+import { EntityType } from 'graphql/generated/schema';
+import atomWithDebounce from 'state/atomWithDebounce';
 
+interface CreateReviewProps {
+    title?: string
+    icon?: JSX.Element
+    className?: string
+    parentReviewIdAtom: Atom<string | undefined>
+}
 
+const createReviewModalOpenAtom = atom(false)
 
-export default function CreateReview({ title, icon , className}: { title?: string, icon?: JSX.Element , className?: string }) {
+export default function CreateReview({ title, icon, className, parentReviewIdAtom }: CreateReviewProps) {
+    const entityTypeAtom = atom(EntityType.Playlist)
+    const entityIdAtom = atom<string | undefined>(undefined)
+    const isPublicAtom = atom<boolean>(false)
+    const {
+        isDebouncingAtom: isReviewNameDebouncing,
+        debouncedValueAtom: debouncedReviewNameAtom,
+        currentValueAtom: currentReviewNameAtom
+    } = atomWithDebounce("")
     const [isModalOpen, setModalOpen] = useAtom(createReviewModalOpenAtom)
-    const setEntityId = useSetAtom(entityIdAtom)
     const setReviewName = useSetAtom(debouncedReviewNameAtom)
+    const setEntityId = useSetAtom(entityIdAtom)
 
     const modalTitle = orElse(title, "create review")
     const openModalIcon = icon ?? <PlusIcon />
@@ -26,15 +42,27 @@ export default function CreateReview({ title, icon , className}: { title?: strin
                     <Dialog.Title>
                         <h3 className="font-bold text-lg text-base-content flex-1"> {modalTitle} </h3>
                     </Dialog.Title>
-                    <EditReviewName />
-                    <ReviewProperties />
-                    <SearchSpotify onClear={
-                        () => {
-                            setEntityId(undefined)
-                            setReviewName("")
-                        }
-                    } />
-                    <CreateReviewButtons />
+                    <EditReviewName
+                        debouncedReviewNameAtom={debouncedReviewNameAtom}
+                        currentReviewNameAtom={currentReviewNameAtom} />
+                    <ReviewProperties entityTypeAtom={entityTypeAtom} isPublicAtom={isPublicAtom} />
+                    <SearchSpotify
+                        entityIdAtom={entityIdAtom}
+                        entityTypeAtom={entityTypeAtom}
+                        onClear={
+                            () => {
+                                setEntityId(undefined)
+                                setReviewName("")
+                            }
+                        } />
+                    <CreateReviewButtons
+                        entityTypeAtom={entityTypeAtom}
+                        entityIdAtom={entityIdAtom}
+                        isPublicAtom={isPublicAtom}
+                        parentReviewIdAtom={parentReviewIdAtom}
+                        debouncedReviewNameAtom={debouncedReviewNameAtom}
+                        createReviewModalOpenAtom={createReviewModalOpenAtom}
+                    />
                 </div>
             </ThemeModal>
 

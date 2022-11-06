@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast';
 import { HeroLoading } from "component/HeroLoading";
-import { currentUserIdAtom, refreshOverviewAtom, searchLoweredAtom } from "state/Atoms";
+import { currentUserIdAtom, searchLoweredAtom } from "state/Atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import NavbarRhs from "component/NavbarRhs";
@@ -38,10 +38,6 @@ export default function BrowsePage() {
     }
   }, [data])
 
-  // We to update the reviews in case one gets created.
-  const refreshCount = useAtomValue(refreshOverviewAtom)
-  useMemo(() => refetch(), [refreshCount])
-
   const { isSm } = useWindowSize()
   useEffect(() => isSm ? setNumPerRow(2) : undefined, [isSm])
 
@@ -73,17 +69,17 @@ export default function BrowsePage() {
             onChange={e => { setNumPerRow(parseInt(e.currentTarget.value)) }} />
         </div>
         <div className={gridStyle}>
-          {reviews.map(review => <CreateCard key={review.id} review={review} />)}
+          {reviews.map(review => <BrowseCard key={review.id} review={review} />)}
         </div>
       </div>
     )
   }
 }
-interface CreateCardProps {
+interface BrowseCardProps {
   review: ReviewDetailsFragment
 }
 
-function CreateCard({ review }: CreateCardProps) {
+function BrowseCard({ review }: BrowseCardProps) {
   const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
   const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
   const image = findFirstImage(allEntities)

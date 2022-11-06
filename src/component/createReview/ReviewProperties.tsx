@@ -1,9 +1,7 @@
 import { EntityType } from "graphql/generated/schema"
-import { useAtom } from "jotai"
-import { BoolNum } from "util/Utils"
-import { entityTypeAtom, isPublicAtom } from "./createReviewAtoms"
+import { PrimitiveAtom, useAtom } from "jotai"
 
-export const ReviewProperties = () => {
+export const ReviewProperties = ({ entityTypeAtom, isPublicAtom }: { entityTypeAtom: PrimitiveAtom<EntityType>, isPublicAtom: PrimitiveAtom<boolean> }) => {
     const [entityType, setEntityType] = useAtom(entityTypeAtom)
     const [isPublic, setIsPublic] = useAtom(isPublicAtom)
 
@@ -29,7 +27,7 @@ export const ReviewProperties = () => {
                 <span className="label-text text-base-content">is public</span>
             </label>
             <select
-                value={isPublic} onChange={(e) => setIsPublic(+e.target.value as BoolNum)}
+                value={fromBool(isPublic)} onChange={(e) => setIsPublic(toBool(+e.target.value))}
                 className="select select-bordered w-full">
                 <option value={0}>false</option>
                 <option value={1}>true</option>
@@ -37,3 +35,6 @@ export const ReviewProperties = () => {
         </div>
     </div>)
 }
+
+const fromBool = (b: boolean) => b ? 1 : 0
+const toBool = (num: number) => num === 1

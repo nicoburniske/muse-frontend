@@ -15,7 +15,6 @@ import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
 import { PlaybackTimeWrapper } from "./playback/PlaybackTimeWrapper"
 import Split from "react-split"
 import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
-import { parentReviewIdAtom } from "component/createReview/createReviewAtoms"
 import { nonNullable, findFirstImage, groupBy, getReviewOverviewImage, uniqueByProperty } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
@@ -125,6 +124,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
   const [openEditReview, setOpenEditReview] = useState(false)
   const nav = useNavigate()
   const userId = useAtomValue(currentUserIdAtom)
+  const parentReviewIdAtom = atom<string | undefined>(undefined)
   const setParentReviewId = useSetAtom(parentReviewIdAtom)
 
   const isReviewOwner = userId === review?.creator?.id
@@ -205,7 +205,10 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                   </button>
                 </div>
                 <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
-                <CreateReview title="create linked review" className="btn btn-secondary btn-xs lg:btn-md" />
+                <CreateReview
+                  parentReviewIdAtom={parentReviewIdAtom}
+                  title="create linked review"
+                  className="btn btn-secondary btn-xs lg:btn-md" />
               </div>
               : null
           }

@@ -1,17 +1,21 @@
-import { SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from "graphql/generated/schema"
+import { EntityType, SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from "graphql/generated/schema"
 import toast from 'react-hot-toast';
 import { Virtuoso } from "react-virtuoso"
 import { CrossIcon } from "../Icons";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import atomWithDebounce from "state/atomWithDebounce";
 import { useEffect } from "react";
-import { entityTypeAtom } from "../createReview/createReviewAtoms";
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment
 const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]"
 const DEFAULT_PAGINATION = { first: 20, offset: 0 }
 
-export const entityIdAtom = atom<string | undefined>("")
+interface SearchSpotifyProps {
+    onClear: () => void
+    entityTypeAtom: PrimitiveAtom<EntityType>
+    entityIdAtom: PrimitiveAtom<string | undefined>
+}
+
 const searchResultAtom = atom<SearchResult[]>([])
 const paginationAtom = atom(DEFAULT_PAGINATION)
 const {
@@ -21,8 +25,7 @@ const {
     currentValueAtom: currentSearchAtom
 } = atomWithDebounce("");
 
-
-export default function SearchSpotify({ onClear }: { onClear: () => void }) {
+export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }: SearchSpotifyProps) {
     const entityType = useAtomValue(entityTypeAtom)
     const [debouncedSearch, setDebouncedSearch] = useAtom(debouncedSearchAtom)
     const isDebouncing = useAtomValue(isSearchDebouncing)
@@ -74,19 +77,28 @@ export default function SearchSpotify({ onClear }: { onClear: () => void }) {
     return (
         <>
             <div className="w-full flex flex-row items-center justify-center">
-                <SearchInput />
+                <SearchInput currentSearchAtom={currentSearchAtom} debouncedSearchAtom={debouncedSearchAtom} />
                 <button className="btn btn-accent w-[10%]" onClick={resetState}>
                     <CrossIcon />
                 </button>
             </div>
             <div className="h-80 lg:h-96 w-full bg-base-200">
-                <SearchResults fetchMore={fetchNextPage} />
+                <SearchResults
+                    searchResultAtom={searchResultAtom}
+                    entityIdAtom={entityIdAtom}
+                    fetchMore={fetchNextPage}
+                />
             </div>
         </>
     )
 }
 
-const SearchInput = () => {
+interface SearchInputProps {
+    currentSearchAtom: Atom<string>
+    debouncedSearchAtom: PrimitiveAtom<string>
+}
+
+const SearchInput = ({ currentSearchAtom, debouncedSearchAtom }: SearchInputProps) => {
     const currentValue = useAtomValue(currentSearchAtom)
     const setDebouncedValue = useSetAtom(debouncedSearchAtom)
 
@@ -98,7 +110,13 @@ const SearchInput = () => {
     )
 }
 
-const SearchResults = ({ fetchMore }: { fetchMore: () => void }) => {
+interface SearchResultsProps {
+    fetchMore: () => void
+    searchResultAtom: Atom<SearchResult[]>
+    entityIdAtom: PrimitiveAtom<string | undefined>
+}
+
+const SearchResults = ({ fetchMore, searchResultAtom, entityIdAtom }: SearchResultsProps) => {
     const searchResults = useAtomValue(searchResultAtom)
     const [entityId, setEntityId] = useAtom(entityIdAtom)
 
