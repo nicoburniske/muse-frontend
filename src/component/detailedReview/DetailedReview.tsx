@@ -485,7 +485,9 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, onClick
       onClick={onClick}>
       <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
         <h2 className="card-title text-secondary-content w-full">{name}</h2>
-        <div className="badge badge-primary text-primary-content text-center w-full">{entityType}</div>
+        <div className="m-auto">
+          <div className="badge badge-primary text-primary-content text-center">{entityType}</div>
+        </div>
         {isChild ?
           <>
             <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >

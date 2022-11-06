@@ -2,7 +2,7 @@ import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCr
 import toast from 'react-hot-toast';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from "jotai"
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { RefObject, SetStateAction, useCallback, useEffect, useMemo, useRef } from "react"
+import { RefObject, SetStateAction, useMemo, useRef } from "react"
 import UserAvatar, { TooltipPos } from "component/UserAvatar"
 import useDoubleClick from "hook/useDoubleClick"
 import { useQueryClient } from '@tanstack/react-query'
@@ -93,7 +93,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     const isLikedAtom = valueOrNullAtom(useLikeAtom(atom), false)
-    // const isLikedAtom = useLikeAtom(atom)
 
     function isLikedSvgClass(isLiked: boolean): string {
         if (isLiked && isPlaying) {
