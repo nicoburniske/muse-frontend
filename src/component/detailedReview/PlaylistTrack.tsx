@@ -46,7 +46,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
     // Sorted biggest to smallest.
-    const albumImage = track.album?.images?.at(-2)
+    const albumImage = track.album?.images?.at(-1)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
     const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
@@ -115,8 +115,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
             className={`card card-body grid grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="avatar">
-                <div className="w-8 md:w-16 rounded" onClick={showModal}>
-                    <img loading='lazy' src={albumImage} />
+                <div className="w-8 md:w-12 rounded" onClick={showModal}>
+                    <img src={albumImage} />
                 </div>
             </div>
 
