@@ -411,6 +411,17 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
     }
   }, [selectedTrack])
 
+  const memoTracks = useMemo(() => {
+    const result = []
+    for (let index = 0; index < tracks.length; index++) {
+      const playlistTrack = tracks[index]
+      if (playlistTrack === undefined) {
+        continue
+      }
+      result.push(trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, playlistTrack, tracksAtom))
+    }
+    return result
+  }, [tracks, tracksAtom])
 
   // Do empty state!
   return (
@@ -435,13 +446,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
         enter: (velocity) => Math.abs(velocity) > 1500,
         exit: (velocity) => Math.abs(velocity) < 100,
       }}
-      itemContent={(index) => {
-        const playlistTrack = tracks[index]
-        if (playlistTrack === undefined) {
-          return null
-        }
-        return trackContent(indexToPlaylistId[index]!, indexToReviewId[index]!, playlistTrack, tracksAtom)
-      }}
+      itemContent={(index) => memoTracks.at(index)}
       overscan={500}
     />)
 }
