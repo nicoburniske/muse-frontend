@@ -1,7 +1,6 @@
 import { DetailedCommentFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, ReviewDetailsFragment, useDeleteReviewLinkMutation, useDetailedReviewCommentsQuery, useDetailedReviewQuery, useGetPlaylistQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from "graphql/generated/schema"
-import { SetStateAction, useEffect, useMemo, useRef, useState } from "react"
-import { useSetAtom, useAtomValue, useAtom, atom, PrimitiveAtom, WritableAtom } from "jotai"
-import { selectAtom, splitAtom } from "jotai/utils";
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useSetAtom, useAtomValue, atom, PrimitiveAtom } from "jotai"
 import { focusAtom } from 'jotai/optics'
 import { currentUserIdAtom, selectedTrackAtom } from "state/Atoms"
 import { ShareReview } from "./ShareReview"
@@ -175,22 +174,21 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 
   return (
     < div className="w-full h-full flex flex-col relative">
-      <div className="grid grid-cols-4 items-center bg-base-100 z-50 h-[10%]">
-        <div className="col-span-2 flex flex-row items-center px-1 space-x-1">
+      <div className="grid grid-cols-5 lg:grid-cols-4 items-center bg-base-100">
+        <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center px-1 space-x-1">
           <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav(-1)}>
             <SkipBackwardIcon />
           </button>
           <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
-            <div className="h-10 hidden md:avatar md:h-20" >
+            <div className="h-10 hidden sm:avatar sm:h-20" >
               <div className="rounded">
                 <img loading='lazy' src={reviewEntityImage} />
               </div>
             </div>
-            <div className="stat ">
+            <div className="flex flex-col">
               <div className="stat-value text-sm lg:text-base text-clip">{title}</div>
               <div className="stat-title text-sm lg:text-base text-clip">{entityName}</div>
-              <div className="flex flex-row justify-around w-full">
-                <div className="badge badge-primary overflow-hidden whitespace-nowrap">playlist</div>
+              <div className="flex flex-row justify-start w-full">
                 <div className="badge badge-secondary truncate overflow-hidden whitespace-nowrap">{creator}</div>
               </div>
             </div>
@@ -248,10 +246,10 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         isOpen={openEditReview}
         onCancel={() => setOpenEditReview(false)} />
       <CommentFormModalWrapper />
-      <div className="w-full h-[80%] bg-base-300">
+      <div className="grow w-full bg-base-300">
         <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
       </div>
-      <div className='w-full h-[10%]'>
+      <div className='w-full'>
         <PlaybackTimeWrapper
           reviewId={reviewId}
           disabled={false}
