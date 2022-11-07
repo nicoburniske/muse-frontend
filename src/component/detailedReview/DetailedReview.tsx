@@ -17,13 +17,15 @@ import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from "react-virtuoso"
 import { nonNullable, findFirstImage, groupBy, getReviewOverviewImage, uniqueByProperty } from "util/Utils"
 import CreateReview from "component/createReview/CreateReview"
 import { ThemeSetter } from "component/ThemeSetter"
-import { useQueries, useQueryClient } from "@tanstack/react-query"
+import { useQueries, useQueryClient, UseQueryResult } from "@tanstack/react-query"
 import PlaylistTrack, { PlaylistTrackProps } from "./PlaylistTrack"
 import React from "react"
 import DetailedComment from "./DetailedComment"
 import toast from 'react-hot-toast'
 import { Dialog } from "@headlessui/react"
 import { ThemeModal } from "component/ThemeModal"
+import { useVirtualizer } from "@tanstack/react-virtual"
+import { VirtualTest } from "./VirtualTest"
 
 export interface DetailedReviewProps {
   reviewId: string
@@ -173,7 +175,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
   const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
   return (
-    < div className="w-full h-full flex flex-col relative">
+    < div className="w-full h-screen flex flex-col relative">
       <div className="grid grid-cols-5 lg:grid-cols-4 items-center bg-base-100">
         <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center px-1 space-x-1">
           <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav(-1)}>
@@ -182,7 +184,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
           <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
             <div className="h-10 hidden sm:avatar sm:h-20" >
               <div className="rounded">
-                <img loading='lazy' src={reviewEntityImage} />
+                <img src={reviewEntityImage} />
               </div>
             </div>
             <div className="flex flex-col">
@@ -246,7 +248,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         isOpen={openEditReview}
         onCancel={() => setOpenEditReview(false)} />
       <CommentFormModalWrapper />
-      <div className="grow w-full bg-base-300">
+      <div className="grow min-h-0 w-full bg-base-300">
         <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
       </div>
       <div className='w-full'>
@@ -276,7 +278,7 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
           sizes={[40, 60]}
           direction="horizontal"
         >
-          {trackSection}
+          <TrackSectionTable rootReview={rootReview} all={reviews} />
           {commentSection}
         </Split>
         :
@@ -319,6 +321,56 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
   })
 
   // Ensure that indicies line up.
+  const validZipped: [UseQueryResult<GetPlaylistQuery, unknown>, ReviewOverview][] = useMemo(() =>
+    zip(results, all)
+      // Success from API.
+      .filter(([res, _rev]) => res.isSuccess)
+      // Non Null Entity.
+      .filter(([res, _rev]) => nonNullable(res.data?.getPlaylist)),
+    [results])
+  // Do empty state!
+
+  return (
+    <VirtualTest results={validZipped} rootReview={rootReview} />
+  )
+
+  // return (
+  //   <GroupedVirtuoso
+  //     className="w-full"
+  //     ref={virtuoso}
+  //     groupCounts={groupCounts}
+  //     groupContent={(index) => (
+  //       <ReviewGroupHeader
+  //         reviewId={reviewIds[index]}
+  //         parentReviewId={rootReview}
+  //         name={groupHeader[index]}
+  //         entityType={entityTypes[index]}
+  //         onClick={() => handleAccordionClick(index)} />
+  //     )}
+  //     components={{
+  //       // Scroller,
+  //       ScrollSeekPlaceholder,
+  //       EmptyPlaceholder: () => (<HeroLoading />)
+  //     }}
+  //     // scrollSeekConfiguration={{
+  //     //   enter: (velocity) => Math.abs(velocity) > 1500,
+  //     //   exit: (velocity) => Math.abs(velocity) < 100,
+  //     // }}
+  //     itemContent={(index) => memoTracks.at(index)}
+  //     overscan={500}
+  //   />)
+}
+
+const TrackSectionTable2 = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
+  const entityIds = all.map(r => r.entityId)
+  const results = useQueries({
+    queries: entityIds.map(id => ({
+      queryKey: useGetPlaylistQuery.getKey({ id }),
+      queryFn: useGetPlaylistQuery.fetcher({ id })
+    }))
+  })
+
+  // Ensure that indicies line up.  
   const validZipped = useMemo(() =>
     zip(results, all)
       // Success from API.
@@ -332,7 +384,6 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
 
   const loadingNoData = results.some(r => r.isLoading) && results.every(r => r.data === undefined)
 
-  const virtuoso = useRef<VirtuosoHandle>(null);
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
   // After initial load
   useEffect(() => {
@@ -375,42 +426,6 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
     return review.data?.getPlaylist?.tracks?.map(_t => reviewId) ?? []
   })
 
-  const handleAccordionClick = (index: number) => {
-    if (validResults.length == 1) {
-      return;
-    }
-    const exists = openIndexes.includes(index);
-    if (exists) {
-      setOpenIndexes(
-        openIndexes.filter((c) => {
-          return c !== index;
-        })
-      );
-    } else {
-      setOpenIndexes([...openIndexes, index]);
-      const scrollIndex = groupCounts.slice(0, index).reduce((a, b) => a + b, 0);
-      if (scrollIndex !== undefined && scrollIndex !== 0) {
-        // Need timeout to wait for render of list elements.
-        setTimeout(() =>
-          virtuoso.current?.scrollToIndex({ index: scrollIndex, behavior: 'smooth', align: 'start' })
-          , 100)
-      }
-    }
-  };
-
-  const selectedTrack = useAtomValue(selectedTrackAtom)
-  useEffect(() => {
-    if (selectedTrack !== undefined && !loadingNoData && tracks.length > 0) {
-      const maybeTrack = tracks.map((track, index) => ({ track, index })).find(({ track, index }) => {
-        return track.track.id === selectedTrack.trackId && indexToReviewId[index] === selectedTrack.reviewId
-      });
-      if (maybeTrack !== undefined) {
-        // TODO: need to expand section containing track.
-        virtuoso.current?.scrollToIndex({ index: maybeTrack.index, behavior: 'smooth', align: 'center' })
-      }
-    }
-  }, [selectedTrack])
-
   const memoTracks = useMemo(() => {
     const result = []
     for (let index = 0; index < tracks.length; index++) {
@@ -423,33 +438,20 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
     return result
   }, [tracks, tracksAtom])
 
-  // Do empty state!
-  return (
-    <GroupedVirtuoso
-      className="w-full"
-      ref={virtuoso}
-      groupCounts={groupCounts}
-      groupContent={(index) => (
-        <ReviewGroupHeader
-          reviewId={reviewIds[index]}
-          parentReviewId={rootReview}
-          name={groupHeader[index]}
-          entityType={entityTypes[index]}
-          onClick={() => handleAccordionClick(index)} />
-      )}
-      components={{
-        // Scroller,
-        ScrollSeekPlaceholder,
-        EmptyPlaceholder: () => (<HeroLoading />)
-      }}
-      scrollSeekConfiguration={{
-        enter: (velocity) => Math.abs(velocity) > 1500,
-        exit: (velocity) => Math.abs(velocity) < 100,
-      }}
-      itemContent={(index) => memoTracks.at(index)}
-      overscan={500}
-    />)
+  const parentRef = useRef<HTMLDivElement>(null)
+  const trackVirtualizer = useVirtualizer({
+    count: tracks.length,
+    getScrollElement: () => parentRef.current!,
+    estimateSize: () => 50,
+    overscan: 10
+  })
+
+
+
+  // return
+
 }
+
 
 interface ReviewGroupHeaderProps {
   reviewId: string,
