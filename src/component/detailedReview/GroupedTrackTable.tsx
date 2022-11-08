@@ -223,7 +223,7 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
     )
 }
 
-const GroupHeaderMemo = memo(ReviewGroupHeader)
+const GroupHeaderMemo = memo(ReviewGroupHeader, (a, b) => a.reviewId === b.reviewId)
 
 export interface MemoPlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment

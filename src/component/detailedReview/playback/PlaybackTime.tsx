@@ -3,11 +3,13 @@ import LikeButton from "component/LikeButton";
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
 import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useMemo } from "react";
 import toast from 'react-hot-toast';
 import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
 import { msToTime } from "util/Utils";
+import * as Slider from '@radix-ui/react-slider';
+
 
 interface PlaybackTimeProps {
     trackId: string,
@@ -41,8 +43,8 @@ export function PlaybackTime({
         onError: () => toast.error('Failed to seek playback.'),
     });
 
-    const seekForward = () => seekTrack({ input: { positionMs: progressMs + 10000 } })
-    const seekBackward = () => seekTrack({ input: { positionMs: progressMs - 10000 } })
+    const seekForward = () => seekTrack({ input: { positionMs: progressProp + 10000 } })
+    const seekBackward = () => seekTrack({ input: { positionMs: progressProp - 10000 } })
 
     // TODO: how to handle this?
     // const selectNowPlaying = () => {
@@ -62,13 +64,10 @@ export function PlaybackTime({
     const { minutes, seconds } = msToTime(progressMs)
     const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
 
-    function onProgressClick(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
-        const progress = getPercentProgress(e)
-        if (progress !== undefined && !loading) {
-            const position = Math.floor(progress * durationMs)
-            seekTrack({ input: { positionMs: position } })
-                .then(() => setProgressMs(position))
-        }
+    function onProgressChange(p: number) {
+        const position = Math.floor(p * durationMs)
+        seekTrack({ input: { positionMs: position } })
+            .then(() => setProgressMs(position))
     }
 
     const showModal = () => {
@@ -109,7 +108,7 @@ export function PlaybackTime({
                 </div>
                 <PlaybackProgress
                     progress={progress}
-                    onProgressClick={onProgressClick}
+                    onProgressChange={onProgressChange}
                     minProgress={minutes}
                     secProgress={seconds}
                     minDuration={minDuration}
@@ -122,7 +121,7 @@ export function PlaybackTime({
 
 interface PlayerButtonsProps {
     progress: number
-    onProgressClick: (e: React.MouseEvent<HTMLProgressElement, MouseEvent>) => void
+    onProgressChange: (e: number) => void
 
     minProgress: number
     secProgress: number
@@ -131,13 +130,38 @@ interface PlayerButtonsProps {
     secDuration: number
 }
 
-const PlaybackProgress = ({ progress: progProp, onProgressClick, minProgress: minProg, secProgress: secProg, minDuration: minDur, secDuration: secDur }: PlayerButtonsProps) => {
-    const progress = useMemo(() => progProp, [progProp])
+const PlaybackProgress = ({ progress, onProgressChange, minProgress: minProg, secProgress: secProg, minDuration: minDur, secDuration: secDur }: PlayerButtonsProps) => {
     const minutesProgress = useMemo(() => minProg, [minProg])
     const secondsProgress = useMemo(() => secProg, [secProg])
-
     const minutesDuration = useMemo(() => minDur, [minDur])
     const secondsDuration = useMemo(() => secDur, [secDur])
+
+    const [progressState, setProgressState] = useState<number[] | undefined>([progress])
+    const [isSeeking, setIsSeeking] = useState(false)
+
+    useEffect(() => {
+        if (!isSeeking) {
+            setProgressState([progress])
+        }
+    }, [progress, isSeeking])
+
+    const commitChange = (value: [number]) => {
+        onProgressChange(value.at(0)! / 1000)
+        setIsSeeking(false)
+        setProgressState([progress])
+        setTimeout(() => {
+        }, 100)
+    }
+
+    const enableSeeking = () => {
+        setIsSeeking(true)
+        setProgressState(undefined)
+    }
+
+    // TODO: tooltip with time to change to. 
+    const handleSeek = (value: number[]) => {
+        enableSeeking()
+    }
 
     return (
         <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
@@ -145,7 +169,27 @@ const PlaybackProgress = ({ progress: progProp, onProgressClick, minProgress: mi
                 <span style={{ "--value": minutesProgress }}></span>:
                 <span style={{ "--value": secondsProgress }}></span>
             </span>
-            <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress>
+            <Slider.Root
+                onValueCommit={commitChange}
+                defaultValue={progressState}
+                value={progressState}
+                onValueChange={handleSeek}
+                onMouseDown={enableSeeking}
+                max={1000}
+                step={10}
+                aria-label="value"
+                className="relative flex h-5 w-5/6 touch-none items-center"
+            >
+                <Slider.Track className="relative h-3  grow rounded-full bg-neutral-focus">
+                    <Slider.Range className="absolute h-full rounded-full bg-purple-600 dark:bg-success" />
+                </Slider.Track>
+                <Slider.Thumb
+                    className={
+                        "block h-5 w-5 rounded-full bg-purple-600 dark:bg-white focus:outline-none focus-visible:ring focus-visible:ring-primary focus-visible:ring-opacity-75"
+                    }
+                />
+            </Slider.Root>
+            {/* <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress> */}
             <span className="countdown font-mono text-sm lg:text-lg">
                 <span style={{ "--value": minutesDuration }}></span>:
                 <span style={{ "--value": secondsDuration }}></span>
