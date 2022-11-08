@@ -12,6 +12,10 @@ export function msToTime(duration: number) {
     return { hours, minutes, seconds, ms }
 }
 
+export function zip<A, B>(i: A[], j: B[]): [A, B][] {
+    return i.map((a, index) => [a, j[index]])
+}
+
 /**
  * @description
  * Takes an Array<V>, and a grouping function,
