@@ -4,13 +4,14 @@ import { ReviewOverview } from './DetailedReview';
 import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema';
 import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtomValue } from 'jotai';
+import { atom, PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { focusAtom } from 'jotai/optics';
 import PlaylistTrack from './PlaylistTrack';
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils';
 import { useNavigate } from 'react-router-dom';
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons';
 import { selectedTrackAtom } from 'state/Atoms';
+import { flushSync } from 'react-dom';
 
 const useKeepMountedRangeExtractor = () => {
     const renderedRef = useRef(new Set<number>());
@@ -29,14 +30,59 @@ const useKeepMountedRangeExtractor = () => {
 export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [UseQueryResult<GetPlaylistQuery, unknown>, ReviewOverview][] }) => {
     const parentRef = useRef<HTMLDivElement>(null)
 
-    const validGroups = results
+    const allGroups = useMemo(() => results
         .map(group => ({ tracks: group[0].data!.getPlaylist!.tracks, overview: group[1] }))
-        .filter(group => nonNullable(group.tracks))
+        .filter(group => nonNullable(group.tracks)), [results])
+
+    const loadingNoData = results.map(r => r[0]).some(r => r.isLoading) && results.every(r => r[0].data === undefined)
+
+    // ONLY FOR ATOMS/STATE. Does not account for collapse.
+    const tracks = useMemo(() => allGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable), [allGroups])
+
+    const [expandedGroups, setExpandedGroups] = useState<string[]>([])
+
+    useEffect(() => {
+        setExpandedGroups(allGroups.map(g => g.overview.reviewId))
+    }, [loadingNoData])
+
+    const toggleExpandedGroup = useCallback((reviewId: string) => {
+        const exists = expandedGroups.includes(reviewId);
+        if (exists) {
+            const postRemove = expandedGroups.filter(group => group !== reviewId)
+            setExpandedGroups(postRemove)
+        } else {
+            const postAdd = [...expandedGroups, reviewId]
+            setExpandedGroups(postAdd)
+            const maybeHeaderIndex = headerIndices.find(i => {
+                const header = indexToHeader.get(i)
+                return nonNullable(header) ? header.reviewId === reviewId : false
+            })
+            if (nonNullable(maybeHeaderIndex)) {
+                rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start', smoothScroll: true })
+            }
+        }
+
+    }, [expandedGroups, setExpandedGroups])
+
+    const validGroups = useMemo(() => allGroups.map(({ tracks, overview }) => {
+        if (expandedGroups.includes(overview.reviewId)) {
+            return { overview, tracks }
+        } else {
+            return { overview, tracks: [] }
+        }
+    }), [allGroups, expandedGroups])
 
     // True is track. False is Group header.
-    const rows: boolean[] = validGroups.reduce((acc, k) => [...acc, false, ...k.tracks!.map(_t => true)], new Array<boolean>())
+    const rows: boolean[] = useMemo(() => validGroups.reduce((acc, k) => {
+        if (expandedGroups.includes(k.overview.reviewId)) {
+            // Add the group header and all tracks. 
+            return [...acc, false, ...k.tracks!.map(_t => true)]
+        } else {
+            // Only add the header.
+            return [...acc, false]
+        }
+    }, new Array<boolean>()), [validGroups, expandedGroups])
 
-    const tracks = validGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable)
 
     // Cache stuff for lookups.
     // Is there any case where there can be a conflict?
@@ -52,12 +98,14 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     const isSticky = (index: number) => headerIndices.includes(index)
     const isActiveSticky = (index: number) => activeStickyIndexRef.current === index
 
+    // Keep all previously rendered tracks mounted for performance. 
     const keepMounted = useKeepMountedRangeExtractor()
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
         count: rows.length,
         estimateSize: (index) => rows[index] ? 60 : 40,
         getScrollElement: () => parentRef.current,
+        // Combining sticky headers + keepMounted performance.
         rangeExtractor: useCallback((range: Range) => {
             activeStickyIndexRef.current = [...headerIndices]
                 .find((index) => range.startIndex >= index) ?? 0
@@ -70,25 +118,33 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
         }, [headerIndices])
     })
 
-    const loadingNoData = results.map(r => r[0]).some(r => r.isLoading) && results.every(r => r[0].data === undefined)
-
     // Need to consider same song in different contexts.
     const selectedTrack = useAtomValue(selectedTrackAtom)
     useEffect(() => {
         if (selectedTrack !== undefined && !loadingNoData && tracks.length > 0) {
-            var maybeTrack = undefined
-            indexToTrack.forEach((track, index) => {
-                const trackId = track.track.id
-                if (trackId === selectedTrack.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
-                    maybeTrack = index
-                }
-            })
-            if (maybeTrack !== undefined) {
-                // TODO: need to expand section containing track.
-                rowVirtualizer.scrollToIndex(maybeTrack, { align: 'center', smoothScroll: true })
+            if (!expandedGroups.includes(selectedTrack.reviewId)) {
+                setExpandedGroups([...expandedGroups, selectedTrack.reviewId])
+                // Not working as intended.
+                setTimeout(() => scrollToSelected(), 1000)
+            } else {
+                scrollToSelected()
             }
         }
     }, [selectedTrack])
+
+    const scrollToSelected = () => {
+        var maybeTrack = undefined
+        indexToTrack.forEach((track, index) => {
+            const trackId = track.track.id
+            if (trackId === selectedTrack?.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
+                maybeTrack = index
+            }
+        })
+        if (maybeTrack !== undefined) {
+            // TODO: need to expand section containing track.
+            rowVirtualizer.scrollToIndex(maybeTrack, { align: 'center', smoothScroll: true })
+        }
+    }
 
     const indexToStyle = (virtualRow: VirtualItem<unknown>) => ({
         ...(isSticky(virtualRow.index)
@@ -125,9 +181,18 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 >
                     {
                         rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                            // Track Maybies.
                             const maybeTrack = indexToTrack.get(virtualRow.index)
                             const maybeId = trackIdToEntityOverview.get(maybeTrack?.track?.id ?? '')
                             const maybeReviewId = trackIdToReviewId.get(maybeTrack?.track?.id ?? '')
+
+                            // Header Maybies.
+                            const maybeOverview = indexToHeader.get(virtualRow.index)
+                            const maybeHeaderReviewId = maybeOverview?.reviewId
+                            // This should probably be the entity name.
+                            const maybeHeaderName = maybeOverview?.reviewName
+
+                            // Consider a compound key.
                             return (
                                 <div
                                     key={virtualRow.index}
@@ -135,11 +200,12 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                                     {
                                         rows[virtualRow.index] ?
                                             <MemoizedTrack playlistId={maybeId!} playlistTrack={maybeTrack!} reviewId={maybeReviewId!} atom={tracksAtom} /> :
-                                            <GroupHeaderMemo
-                                                reviewId={indexToHeader.get(virtualRow.index)!.reviewId}
+                                            <ReviewGroupHeader
+                                                reviewId={maybeHeaderReviewId!}
                                                 parentReviewId={rootReview}
-                                                name={indexToHeader.get(virtualRow.index)!.reviewName}
-                                                entityType={EntityType.Playlist} onClick={() => { }} />
+                                                name={maybeHeaderName!}
+                                                entityType={EntityType.Playlist}
+                                                onClick={() => toggleExpandedGroup(maybeHeaderReviewId!)} />
                                     }
                                 </div>
                             )
@@ -186,7 +252,7 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
 
     return (
         <div className="bg-blue">
-            <div className={`card py-0 w-full bg-secondary shadow-xl ${className}`}
+            <div className={`card py-0 w-full bg-secondary  ${className}`}
                 onClick={onClick}>
                 <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                     <div className={`${nameStyle} m-auto`}>
