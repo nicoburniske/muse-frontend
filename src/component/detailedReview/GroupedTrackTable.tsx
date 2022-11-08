@@ -4,14 +4,13 @@ import { ReviewOverview } from './DetailedReview';
 import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema';
 import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
+import { atom, PrimitiveAtom, useAtomValue } from 'jotai';
 import { focusAtom } from 'jotai/optics';
 import PlaylistTrack from './PlaylistTrack';
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils';
 import { useNavigate } from 'react-router-dom';
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons';
 import { selectedTrackAtom } from 'state/Atoms';
-import { flushSync } from 'react-dom';
 
 const useKeepMountedRangeExtractor = () => {
     const renderedRef = useRef(new Set<number>());
@@ -41,6 +40,13 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
 
     const [expandedGroups, setExpandedGroups] = useState<string[]>([])
 
+    // TODO: revise this. Eventually will need lazy loading. 
+    useEffect(() => {
+        if (!loadingNoData) {
+            setExpandedGroups(allGroups.map(g => g.overview.reviewId))
+        }
+    }, [loadingNoData, allGroups])
+
     useEffect(() => {
         setExpandedGroups(allGroups.map(g => g.overview.reviewId))
     }, [loadingNoData])
@@ -58,7 +64,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 return nonNullable(header) ? header.reviewId === reviewId : false
             })
             if (nonNullable(maybeHeaderIndex)) {
-                rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start', smoothScroll: true })
+                setTimeout(() => rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start', smoothScroll: true }), 200)
             }
         }
 
@@ -141,7 +147,6 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
             }
         })
         if (maybeTrack !== undefined) {
-            // TODO: need to expand section containing track.
             rowVirtualizer.scrollToIndex(maybeTrack, { align: 'center', smoothScroll: true })
         }
     }
@@ -251,12 +256,12 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
     const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
     return (
-        <div className="bg-blue">
+        <div className="bg-blue h-10">
             <div className={`card py-0 w-full bg-secondary  ${className}`}
                 onClick={onClick}>
                 <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
-                    <div className={`${nameStyle} m-auto`}>
-                        <h2 className={`card-title text-secondary-content w-full`}>{name}</h2>
+                    <div className={`${nameStyle}`}>
+                        <h2 className={`text-md md:text-xl text-secondary-content w-full truncate`}>{name}</h2>
                     </div>
                     <div className="m-auto">
                         <div className="badge badge-primary text-primary-content text-center">{entityType}</div>
