@@ -42,6 +42,13 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
   // This only needs to happen so that playlist tracks are refreshed.
   const { data, isLoading, error, refetch } = useDetailedReviewQuery({ reviewId })
 
+  const setSelectedTrack = useSetAtom(selectedTrackAtom)
+
+  // On unmount reset selected track. Avoids scroll to track on review mount.
+  useEffect(
+    () => () => setSelectedTrack(undefined)
+  , [])
+
   if (isLoading && data == undefined) {
     return <HeroLoading />
   } else if (data?.review) {
@@ -117,7 +124,9 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
   // This is for creating child reviews in modal.
   useEffect(() => {
     setParentReviewId(reviewId)
-    return () => setParentReviewId(undefined)
+    return () => {
+      setParentReviewId(undefined)
+    }
   })
 
   const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'

@@ -1,12 +1,15 @@
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import App from './App'
 import { Toaster } from 'react-hot-toast';
 import { AppConfig } from 'util/AppConfig';
 import React from 'react';
 import { createClient, subscriptionExchange, Provider } from 'urql';
 import { createClient as createWSClient } from 'graphql-ws';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -35,13 +38,22 @@ const urqlClient = createClient({
   ],
 });
 
-const queryClient = new QueryClient()
+// Cache is persisted to local storage. 24 hours.
+const queryClient = new QueryClient({ defaultOptions: { queries: { cacheTime: 24 * 60 * 60 * 1000 } } })
+
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Provider value={urqlClient}>
-        <QueryClientProvider client={queryClient} contextSharing={true}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister }}
+          contextSharing={true}
+        >
           <>
             <App />
             <Toaster
@@ -59,7 +71,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               }}
             />
           </>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </Provider>
     </BrowserRouter>
   </React.StrictMode>
