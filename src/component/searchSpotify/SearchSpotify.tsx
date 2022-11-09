@@ -1,13 +1,13 @@
-import { EntityType, SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from "graphql/generated/schema"
-import toast from 'react-hot-toast';
-import { Virtuoso } from "react-virtuoso"
-import { CrossIcon } from "../Icons";
-import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import atomWithDebounce from "state/atomWithDebounce";
-import { useEffect } from "react";
+import { EntityType, SearchAlbumFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from 'graphql/generated/schema'
+import toast from 'react-hot-toast'
+import { Virtuoso } from 'react-virtuoso'
+import { CrossIcon } from '../Icons'
+import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import atomWithDebounce from 'state/atomWithDebounce'
+import { useEffect } from 'react'
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment
-const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]"
+const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]'
 const DEFAULT_PAGINATION = { first: 20, offset: 0 }
 
 interface SearchSpotifyProps {
@@ -23,7 +23,7 @@ const {
     debouncedValueAtom: debouncedSearchAtom,
     clearTimeoutAtom,
     currentValueAtom: currentSearchAtom
-} = atomWithDebounce("");
+} = atomWithDebounce('')
 
 export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }: SearchSpotifyProps) {
     const entityType = useAtomValue(entityTypeAtom)
@@ -40,7 +40,7 @@ export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }:
     const { data, fetchNextPage } = useInfiniteSearchSpotifyQuery('pagination', {
         query: debouncedSearch, types: [entityType], pagination
     }, {
-        onError: () => toast.error("Error searching for entity"),
+        onError: () => toast.error('Error searching for entity'),
         enabled: !isDebouncing && debouncedSearch.length > 0,
         staleTime: 1000 * 30,
         getNextPageParam: (last, all) => {
@@ -60,13 +60,13 @@ export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }:
     useEffect(() => {
         const latestData = data?.pages?.flatMap(p =>
             [...p.search?.albums?.items ?? [],
-            ...p.search?.playlists?.items ?? []]
+                ...p.search?.playlists?.items ?? []]
         ) ?? []
         setSearchResults(latestData)
     }, [data])
 
     const resetState = () => {
-        setDebouncedSearch("")
+        setDebouncedSearch('')
         clearSearchResults()
         onClear()
     }
@@ -121,12 +121,12 @@ const SearchResults = ({ fetchMore, searchResultAtom, entityIdAtom }: SearchResu
     const [entityId, setEntityId] = useAtom(entityIdAtom)
 
     const getSecondRow = (result: SearchResult) => {
-        if (result.__typename === "Album") {
-            return result?.artists?.map(a => a.name).join(", ")
-        } else if (result.__typename === "Playlist") {
+        if (result.__typename === 'Album') {
+            return result?.artists?.map(a => a.name).join(', ')
+        } else if (result.__typename === 'Playlist') {
             return result?.owner?.spotifyProfile?.displayName ?? result?.owner?.id
         } else {
-            return ""
+            return ''
         }
     }
     return (
@@ -139,7 +139,7 @@ const SearchResults = ({ fetchMore, searchResultAtom, entityIdAtom }: SearchResu
                 const image = result.images?.at(-1)
                 const second = getSecondRow(result)
                 const [bgStyle, textStyle, hoverStyle] =
-                    result.id === entityId ? ["bg-success", "text-success-content", ''] : ["bg-base", "text-base-content", 'hover:bg-base-focus']
+                    result.id === entityId ? ['bg-success', 'text-success-content', ''] : ['bg-base', 'text-base-content', 'hover:bg-base-focus']
                 return (
                     <div
                         className={`w-full max-w-full card card-body flex flex-row justify-around items-center p-1 m-0 ${bgStyle} ${hoverStyle}`}

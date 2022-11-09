@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState } from 'react'
 import { Dialog } from '@headlessui/react'
-import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from "graphql/generated/schema"
-import toast from 'react-hot-toast';
-import { ThemeModal } from "component/ThemeModal"
-import { CheckIcon, CrossIcon, ReplyIcon, ShareIcon } from "component/Icons"
-import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
+import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
+import toast from 'react-hot-toast'
+import { ThemeModal } from 'component/ThemeModal'
+import { CheckIcon, CrossIcon, ReplyIcon, ShareIcon } from 'component/Icons'
+import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 
 export interface ShareReviewProps {
     reviewId: string
@@ -16,13 +16,13 @@ const DEFAULT_ACCESS_LEVEL = AccessLevel.Viewer
 // TODO: integrate markdown here!
 export function ShareReview({ reviewId, onChange, collaborators: collabProp }: ShareReviewProps) {
     const [accessLevel, setAccessLevel] = useState(DEFAULT_ACCESS_LEVEL)
-    const [username, setUsername] = useState("")
+    const [username, setUsername] = useState('')
     const [isModalOpen, setModalOpen] = useState(false)
     const [collaborators, setCollaborators, resetCollaborators] = useStateWithSyncedDefault(collabProp)
 
     const { mutate: shareReview, isLoading } = useShareReviewMutation(
         {
-            onError: () => toast.error("Failed to update review sharing."),
+            onError: () => toast.error('Failed to update review sharing.'),
             onSuccess: () => onChange()
         }
     )
@@ -46,14 +46,14 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
         try {
             await Promise.all([addCollaborator, ...removeCollaborators])
         } catch (e) {
-
+            toast.error('Failed to update review sharing.')
         }
         onCancel()
     }
 
     const onCancel = () => {
         setModalOpen(false)
-        setUsername("")
+        setUsername('')
         setAccessLevel(DEFAULT_ACCESS_LEVEL)
         resetCollaborators()
     }
@@ -62,7 +62,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
     const disabled = useMemo(() =>
         isLoading || username.length === 0 && disabledUndo
-        , [username, disabledUndo])
+    , [username, disabledUndo])
 
     return (
         <div>

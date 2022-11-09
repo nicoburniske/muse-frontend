@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
-import * as Urql from 'urql';
+import gql from 'graphql-tag'
+import * as Urql from 'urql'
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -595,7 +595,7 @@ export const PlaybackDeviceFragmentDoc = gql`
   type
   volumePercent
 }
-    `;
+    `
 export const PlaybackStateFragmentDoc = gql`
     fragment PlaybackState on PlaybackState {
   device {
@@ -620,29 +620,29 @@ export const PlaybackStateFragmentDoc = gql`
     }
   }
 }
-    `;
+    `
 export const AvailableDevicesDocument = gql`
     subscription AvailableDevices {
   availableDevices {
     ...PlaybackDevice
   }
 }
-    ${PlaybackDeviceFragmentDoc}`;
+    ${PlaybackDeviceFragmentDoc}`
 
 export function useAvailableDevicesSubscription<TData = AvailableDevicesSubscription>(options: Omit<Urql.UseSubscriptionArgs<AvailableDevicesSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<AvailableDevicesSubscription, TData>) {
-  return Urql.useSubscription<AvailableDevicesSubscription, TData, AvailableDevicesSubscriptionVariables>({ query: AvailableDevicesDocument, ...options }, handler);
-};
+    return Urql.useSubscription<AvailableDevicesSubscription, TData, AvailableDevicesSubscriptionVariables>({ query: AvailableDevicesDocument, ...options }, handler)
+}
 export const NowPlayingDocument = gql`
     subscription NowPlaying($input: Int!) {
   nowPlaying(tickInterval: $input) {
     ...PlaybackState
   }
 }
-    ${PlaybackStateFragmentDoc}`;
+    ${PlaybackStateFragmentDoc}`
 
 export function useNowPlayingSubscription<TData = NowPlayingSubscription>(options: Omit<Urql.UseSubscriptionArgs<NowPlayingSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NowPlayingSubscription, TData>) {
-  return Urql.useSubscription<NowPlayingSubscription, TData, NowPlayingSubscriptionVariables>({ query: NowPlayingDocument, ...options }, handler);
-};
+    return Urql.useSubscription<NowPlayingSubscription, TData, NowPlayingSubscriptionVariables>({ query: NowPlayingDocument, ...options }, handler)
+}
 export const NowPlayingOffsetDocument = gql`
     subscription NowPlayingOffset($input: Int!) {
   nowPlaying(tickInterval: $input) {
@@ -666,8 +666,8 @@ export const NowPlayingOffsetDocument = gql`
     }
   }
 }
-    `;
+    `
 
 export function useNowPlayingOffsetSubscription<TData = NowPlayingOffsetSubscription>(options: Omit<Urql.UseSubscriptionArgs<NowPlayingOffsetSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NowPlayingOffsetSubscription, TData>) {
-  return Urql.useSubscription<NowPlayingOffsetSubscription, TData, NowPlayingOffsetSubscriptionVariables>({ query: NowPlayingOffsetDocument, ...options }, handler);
-};
+    return Urql.useSubscription<NowPlayingOffsetSubscription, TData, NowPlayingOffsetSubscriptionVariables>({ query: NowPlayingOffsetDocument, ...options }, handler)
+}

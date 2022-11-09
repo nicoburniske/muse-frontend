@@ -1,20 +1,20 @@
-import { useDetailedReviewQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from "graphql/generated/schema"
-import { useState } from "react"
-import { CheckIcon, CrossIcon, LinkIcon } from "component/Icons"
-import { Virtuoso } from "react-virtuoso"
-import { getReviewOverviewImage } from "util/Utils"
-import { useQueryClient } from "@tanstack/react-query"
+import { useDetailedReviewQuery, useLinkReviewsMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { useState } from 'react'
+import { CheckIcon, CrossIcon, LinkIcon } from 'component/Icons'
+import { Virtuoso } from 'react-virtuoso'
+import { getReviewOverviewImage } from 'util/Utils'
+import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { Dialog } from "@headlessui/react"
-import { ThemeModal } from "component/ThemeModal"
+import { Dialog } from '@headlessui/react'
+import { ThemeModal } from 'component/ThemeModal'
 
-const searchTextResult = "select-none truncate text-sm lg:text-base p-0.5"
+const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5'
 
 export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: string, alreadyLinkedIds: string[] }) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const queryClient = useQueryClient()
-    const { data, isLoading } = useProfileAndReviewsQuery({}, { onError: () => toast.error("Failed to load user reviews.") })
-    const { mutateAsync: createReviewLink } = useLinkReviewsMutation({ onError: () => toast.error("Failed to link review.") })
+    const { data, isLoading } = useProfileAndReviewsQuery({}, { onError: () => toast.error('Failed to load user reviews.') })
+    const { mutateAsync: createReviewLink } = useLinkReviewsMutation({ onError: () => toast.error('Failed to link review.') })
     // We don't want to include any unlinkable reviews.
     const reviews = (data?.user?.reviews ?? [])
         .filter(r => !alreadyLinkedIds.includes(r.id))
@@ -54,7 +54,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
                         itemContent={(i, review) => {
                             const image = getReviewOverviewImage(review)
                             const [bgStyle, textStyle, hoverStyle] =
-                                review.id === selectedReview ? ["bg-success", "text-success-content", ''] : ["bg-base-200", "text-base-content", 'hover:bg-base-focus']
+                                review.id === selectedReview ? ['bg-success', 'text-success-content', ''] : ['bg-base-200', 'text-base-content', 'hover:bg-base-focus']
                             return (
                                 <div
                                     className={`w-full max-w-full h-24 card card-body flex flex-row justify-around items-center p-0.5 m-1 ${bgStyle} ${hoverStyle}`}

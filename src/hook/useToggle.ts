@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react"
-import useStateWithSyncedDefault from "./useStateWithSyncedDefault"
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
+import useStateWithSyncedDefault from './useStateWithSyncedDefault'
 
 type ToggleFunc<T> = (value: T) => T
 type StateSupplier<S> = (defaultState: S) => [S, Dispatch<SetStateAction<S>>]

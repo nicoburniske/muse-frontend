@@ -1,8 +1,8 @@
-import { useNowPlayingOffsetSubscription } from "graphql/generated/urqlSchema"
-import { useSetAtom } from "jotai"
-import { useEffect } from "react"
-import { currentlyPlayingTrackAtom } from "state/Atoms"
-import { PlaybackTime } from "./PlaybackTime"
+import { useNowPlayingOffsetSubscription } from 'graphql/generated/urqlSchema'
+import { useSetAtom } from 'jotai'
+import { useEffect } from 'react'
+import { currentlyPlayingTrackAtom } from 'state/Atoms'
+import { PlaybackTime } from './PlaybackTime'
 
 export const PlaybackTimeWrapper = ({ reviewId, disabled }: { reviewId: string, disabled: boolean }) => {
     const [ latest ]= useNowPlayingOffsetSubscription({ variables: { input: 1 } })
@@ -12,10 +12,10 @@ export const PlaybackTimeWrapper = ({ reviewId, disabled }: { reviewId: string, 
     const isLiked = nowPlayingTime?.item?.isLiked ?? false
     const isPlaying = nowPlayingTime?.isPlaying ?? false
     const isShuffled = nowPlayingTime?.shuffleState ?? false
-    const nowPlayingImage = nowPlayingTime?.item?.album?.images?.at(1) ?? ""
-    const nowPlayingArtist = nowPlayingTime?.item?.artists?.map(a => a.name).join(", ") ?? ""
+    const nowPlayingImage = nowPlayingTime?.item?.album?.images?.at(1) ?? ''
+    const nowPlayingArtist = nowPlayingTime?.item?.artists?.map(a => a.name).join(', ') ?? ''
     const nowPlayingAlbum = nowPlayingTime?.item?.album?.name
-    const nowPlayingTrackName = nowPlayingTime?.item?.name ?? ""
+    const nowPlayingTrackName = nowPlayingTime?.item?.name ?? ''
 
     const setNowPlaying = useSetAtom(currentlyPlayingTrackAtom)
     const nowPlaying = nowPlayingTime?.item?.id
@@ -30,7 +30,7 @@ export const PlaybackTimeWrapper = ({ reviewId, disabled }: { reviewId: string, 
             isShuffled={isShuffled}
             progressMs={progressMs}
             durationMs={totalDuration}
-            trackId={nowPlaying ?? ""}
+            trackId={nowPlaying ?? ''}
             reviewId={reviewId}
             disabled={disabled}
             trackImage={nowPlayingImage}

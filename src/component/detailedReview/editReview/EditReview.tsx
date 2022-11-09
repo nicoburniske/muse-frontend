@@ -1,11 +1,11 @@
-import { Dialog } from "@headlessui/react"
-import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from "component/Icons"
-import { ThemeModal } from "component/ThemeModal"
-import { useUpdateReviewMutation, useDeleteReviewMutation } from "graphql/generated/schema"
-import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault"
-import { useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import toast from 'react-hot-toast';
+import { Dialog } from '@headlessui/react'
+import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
+import { ThemeModal } from 'component/ThemeModal'
+import { useUpdateReviewMutation, useDeleteReviewMutation } from 'graphql/generated/schema'
+import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 interface EditReviewProps {
     isOpen: boolean
@@ -16,7 +16,7 @@ interface EditReviewProps {
     onCancel: () => void
 }
 
-const deleteStyle = "btn btn-error absolute top-0 right-5"
+const deleteStyle = 'btn btn-error absolute top-0 right-5'
 
 export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPublic: isPublicProp, onSuccess, onCancel }: EditReviewProps) => {
     const defaultIsPublic = useMemo(() => isPublicProp ? 1 : 0, [isPublicProp])
@@ -63,7 +63,7 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
 
     const disabled = useMemo(() =>
         isLoading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
-        [isLoading, isPublic, reviewName])
+    [isLoading, isPublic, reviewName])
 
     return (
         <ThemeModal open={isOpen} className="max-w-md">

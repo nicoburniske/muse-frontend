@@ -1,11 +1,11 @@
-import { DetailedCommentFragment, useDetailedReviewCommentsQuery } from "graphql/generated/schema"
-import { useSetAtom } from "jotai"
-import { useMemo } from "react"
-import { groupBy, nonNullable } from "util/Utils"
-import DetailedComment from "./DetailedComment"
-import { ReviewOverview } from "./DetailedReview"
+import { DetailedCommentFragment, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
+import { useSetAtom } from 'jotai'
+import { useMemo } from 'react'
+import { groupBy, nonNullable } from 'util/Utils'
+import DetailedComment from './DetailedComment'
+import { ReviewOverview } from './DetailedReview'
 import { useQueries } from '@tanstack/react-query'
-import { selectedTrackAtom } from "state/Atoms"
+import { selectedTrackAtom } from 'state/Atoms'
 
 
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
@@ -44,7 +44,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
         const trackId = comments.find(c => c.id == commentId)?.entities?.at(0)?.id
         if (trackId) {
             setSelectedTrack(undefined)
-            setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1);
+            setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
         }
     }
 

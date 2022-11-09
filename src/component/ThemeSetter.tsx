@@ -1,5 +1,5 @@
-import { useAtom } from "jotai"
-import { Theme, themeAtom } from "state/Atoms"
+import { useAtom } from 'jotai'
+import { Theme, themeAtom } from 'state/Atoms'
 
 
 export const ThemeSetter = () => {

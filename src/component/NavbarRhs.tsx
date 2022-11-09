@@ -1,7 +1,7 @@
-import { atom } from "jotai"
-import CreateReview from "./createReview/CreateReview"
-import SearchBar from "./SearchBar"
-import { ThemeSetter } from "./ThemeSetter"
+import { atom } from 'jotai'
+import CreateReview from './createReview/CreateReview'
+import SearchBar from './SearchBar'
+import { ThemeSetter } from './ThemeSetter'
 
 export default function NavbarRhs({ className, createReviewTitle }: { className?: string, createReviewTitle?: string }) {
     const parentAtom = atom(undefined)

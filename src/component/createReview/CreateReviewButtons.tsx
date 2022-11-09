@@ -1,11 +1,11 @@
-import { CheckIcon, CrossIcon } from "component/Icons"
-import { EntityType, useCreateReviewMutation, useDetailedReviewQuery, useProfileAndReviewsQuery } from "graphql/generated/schema"
-import { Atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai"
-import { useMemo } from "react"
-import { refreshOverviewAtom } from "state/Atoms"
-import toast from 'react-hot-toast';
+import { CheckIcon, CrossIcon } from 'component/Icons'
+import { EntityType, useCreateReviewMutation, useDetailedReviewQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { Atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useMemo } from 'react'
+import { refreshOverviewAtom } from 'state/Atoms'
+import toast from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
-import { nonNullable } from "util/Utils"
+import { nonNullable } from 'util/Utils'
 
 interface CreateReviewButtonProps {
     entityTypeAtom: PrimitiveAtom<EntityType>
@@ -36,7 +36,7 @@ export const CreateReviewButtons = ({
                 setModalOpen(false)
                 setEntityId(undefined)
                 setIsPublic(false)
-                setReviewName("")
+                setReviewName('')
                 queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
                 if (nonNullable(parentReviewId)) {
                     queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
@@ -48,14 +48,14 @@ export const CreateReviewButtons = ({
     const entity = entityId !== undefined ? { entityId, entityType } : undefined
     const input = { isPublic: isPublic ? true : false, name, entity, link: parentLink }
 
-    const createReviewMutation = () => mutate({ input });
+    const createReviewMutation = () => mutate({ input })
 
     const canSubmit = useMemo(() => !isLoading && name.length > 0, [isLoading, name])
 
     const onCancel = () => {
         setModalOpen(false)
         setEntityId(undefined)
-        setReviewName("")
+        setReviewName('')
         setEntityType(EntityType.Playlist)
     }
 

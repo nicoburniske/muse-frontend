@@ -1,4 +1,4 @@
-import { ReviewDetailsFragment, ReviewEntityOverviewFragment } from "graphql/generated/schema";
+import { ReviewDetailsFragment, ReviewEntityOverviewFragment } from 'graphql/generated/schema'
 
 export type BoolNum = 0 | 1
 
@@ -28,29 +28,29 @@ export function zip<A, B>(i: A[], j: B[]): [A, B][] {
  * @returns Map of the array grouped by the grouping function.
  */
 export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
-    const map = new Map<K, Array<V>>();
+    const map = new Map<K, Array<V>>()
     list.forEach((item) => {
-        const key = keyGetter(item);
-        const collection = map.get(key);
+        const key = keyGetter(item)
+        const collection = map.get(key)
         if (!collection) {
-            map.set(key, [item]);
+            map.set(key, [item])
         } else {
-            collection.push(item);
+            collection.push(item)
         }
-    });
-    return map;
+    })
+    return map
 }
 
 export function uniqueByProperty<Item, UniqueProperty>(items: Item[], func: (t: Item) => UniqueProperty): Item[] {
-    return [...new Map(items.map(item => [func(item), item])).values()];
+    return [...new Map(items.map(item => [func(item), item])).values()]
 }
 
 export function nonNullable<T>(value: T): value is NonNullable<T> {
-    return value !== null && value !== undefined;
+    return value !== null && value !== undefined
 }
 
 export function orElse<T extends {}>(value: T | undefined, defaultValue: T): NonNullable<T> {
-    return nonNullable(value) ? value : defaultValue;
+    return nonNullable(value) ? value : defaultValue
 }
 
 export const getReviewOverviewImage = (review: ReviewDetailsFragment) => {
@@ -63,13 +63,13 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
     return reviews.map(entity =>
         (() => {
             switch (entity?.__typename) {
-                case "Artist":
-                    return entity?.artistImages?.at(0)
-                case "Playlist":
-                case "Album":
-                    return entity?.images?.at(0)
-                case "Track":
-                    return entity?.album?.images.at(0)
+            case 'Artist':
+                return entity?.artistImages?.at(0)
+            case 'Playlist':
+            case 'Album':
+                return entity?.images?.at(0)
+            case 'Track':
+                return entity?.album?.images.at(0)
             }
         })()
     )

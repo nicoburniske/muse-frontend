@@ -1,30 +1,30 @@
 import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect } from 'react'
 import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem } from '@tanstack/react-virtual'
-import { ReviewOverview } from './DetailedReview';
+import { ReviewOverview } from './DetailedReview'
 import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema';
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtomValue } from 'jotai';
-import { focusAtom } from 'jotai/optics';
-import PlaylistTrack from './PlaylistTrack';
-import { nonNullable, uniqueByProperty, zip } from 'util/Utils';
-import { useNavigate } from 'react-router-dom';
-import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons';
-import { selectedTrackAtom } from 'state/Atoms';
+import { atom, PrimitiveAtom, useAtomValue } from 'jotai'
+import { focusAtom } from 'jotai/optics'
+import PlaylistTrack from './PlaylistTrack'
+import { nonNullable, uniqueByProperty, zip } from 'util/Utils'
+import { useNavigate } from 'react-router-dom'
+import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
+import { selectedTrackAtom } from 'state/Atoms'
 
 const useKeepMountedRangeExtractor = () => {
-    const renderedRef = useRef(new Set<number>());
+    const renderedRef = useRef(new Set<number>())
 
     const rangeExtractor = useCallback((range: Range) => {
         renderedRef.current = new Set([
             ...renderedRef.current,
             ...defaultRangeExtractor(range)
-        ]);
-        return Array.from(renderedRef.current);
-    }, []);
+        ])
+        return Array.from(renderedRef.current)
+    }, [])
 
-    return rangeExtractor;
-};
+    return rangeExtractor
+}
 
 export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [UseQueryResult<GetPlaylistQuery, unknown>, ReviewOverview][] }) => {
     const parentRef = useRef<HTMLDivElement>(null)
@@ -52,7 +52,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     }, [loadingNoData])
 
     const toggleExpandedGroup = useCallback((reviewId: string) => {
-        const exists = expandedGroups.includes(reviewId);
+        const exists = expandedGroups.includes(reviewId)
         if (exists) {
             const postRemove = expandedGroups.filter(group => group !== reviewId)
             setExpandedGroups(postRemove)
@@ -139,7 +139,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     }, [selectedTrack])
 
     const scrollToSelected = () => {
-        var maybeTrack = undefined
+        let maybeTrack = undefined
         indexToTrack.forEach((track, index) => {
             const trackId = track.track.id
             if (trackId === selectedTrack?.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
@@ -261,7 +261,7 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
                 onClick={onClick}>
                 <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                     <div className={`${nameStyle}`}>
-                        <h2 className={`text-md md:text-xl text-secondary-content w-full truncate`}>{name}</h2>
+                        <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
                     </div>
                     <div className="m-auto">
                         <div className="badge badge-primary text-primary-content text-center">{entityType}</div>

@@ -1,7 +1,7 @@
-import { useAtomValue } from "jotai"
-import { useMemo } from "react"
-import { openCommentModalAtom } from "state/Atoms"
-import { CommentFormModal } from "./CommentFormModal"
+import { useAtomValue } from 'jotai'
+import { useMemo } from 'react'
+import { openCommentModalAtom } from 'state/Atoms'
+import { CommentFormModal } from './CommentFormModal'
 
 export const CommentFormModalWrapper = () => {
     const modalData = useAtomValue(openCommentModalAtom)
@@ -10,9 +10,9 @@ export const CommentFormModalWrapper = () => {
     return (
         <CommentFormModal
             open={open}
-            title={modalData?.title ?? ""}
+            title={modalData?.title ?? ''}
             onCancel={modalData?.onCancel ?? (() => { })}
-            onSubmit={modalData?.onSubmit ?? (async () => {return;})}
+            onSubmit={modalData?.onSubmit ?? (async () => {return})}
             initialValue={modalData?.initialValue}
         />
     )

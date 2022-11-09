@@ -1,14 +1,14 @@
 import { Atom, atom, useAtom, useSetAtom } from 'jotai'
-import SearchSpotify from 'component/searchSpotify/SearchSpotify';
-import { PlusIcon } from 'component/Icons';
-import { ThemeModal } from 'component/ThemeModal';
-import { Dialog } from '@headlessui/react';
-import { EditReviewName } from './EditReviewName';
-import { CreateReviewButtons } from './CreateReviewButtons';
-import { ReviewProperties } from './ReviewProperties';
-import { orElse } from 'util/Utils';
-import { EntityType } from 'graphql/generated/schema';
-import atomWithDebounce from 'state/atomWithDebounce';
+import SearchSpotify from 'component/searchSpotify/SearchSpotify'
+import { PlusIcon } from 'component/Icons'
+import { ThemeModal } from 'component/ThemeModal'
+import { Dialog } from '@headlessui/react'
+import { EditReviewName } from './EditReviewName'
+import { CreateReviewButtons } from './CreateReviewButtons'
+import { ReviewProperties } from './ReviewProperties'
+import { orElse } from 'util/Utils'
+import { EntityType } from 'graphql/generated/schema'
+import atomWithDebounce from 'state/atomWithDebounce'
 
 interface CreateReviewProps {
     title?: string
@@ -24,15 +24,14 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
     const entityIdAtom = atom<string | undefined>(undefined)
     const isPublicAtom = atom<boolean>(false)
     const {
-        isDebouncingAtom: isReviewNameDebouncing,
         debouncedValueAtom: debouncedReviewNameAtom,
         currentValueAtom: currentReviewNameAtom
-    } = atomWithDebounce("")
+    } = atomWithDebounce('')
     const [isModalOpen, setModalOpen] = useAtom(createReviewModalOpenAtom)
     const setReviewName = useSetAtom(debouncedReviewNameAtom)
     const setEntityId = useSetAtom(entityIdAtom)
 
-    const modalTitle = orElse(title, "create review")
+    const modalTitle = orElse(title, 'create review')
     const openModalIcon = icon ?? <PlusIcon />
 
     return (
@@ -52,7 +51,7 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
                         onClear={
                             () => {
                                 setEntityId(undefined)
-                                setReviewName("")
+                                setReviewName('')
                             }
                         } />
                     <CreateReviewButtons

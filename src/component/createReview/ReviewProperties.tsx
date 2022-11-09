@@ -1,5 +1,5 @@
-import { EntityType } from "graphql/generated/schema"
-import { PrimitiveAtom, useAtom } from "jotai"
+import { EntityType } from 'graphql/generated/schema'
+import { PrimitiveAtom, useAtom } from 'jotai'
 
 export const ReviewProperties = ({ entityTypeAtom, isPublicAtom }: { entityTypeAtom: PrimitiveAtom<EntityType>, isPublicAtom: PrimitiveAtom<boolean> }) => {
     const [entityType, setEntityType] = useAtom(entityTypeAtom)

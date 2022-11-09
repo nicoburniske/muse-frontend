@@ -1,14 +1,14 @@
-import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from "component/Icons";
-import LikeButton from "component/LikeButton";
-import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from "graphql/generated/schema";
-import useStateWithSyncedDefault from "hook/useStateWithSyncedDefault";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import React, { useEffect, useState } from "react";
-import { useMemo } from "react";
-import toast from 'react-hot-toast';
-import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from "state/Atoms";
-import { msToTime } from "util/Utils";
-import * as Slider from '@radix-ui/react-slider';
+import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
+import LikeButton from 'component/LikeButton'
+import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
+import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import React, { useEffect, useState } from 'react'
+import { useMemo } from 'react'
+import toast from 'react-hot-toast'
+import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
+import { msToTime } from 'util/Utils'
+import * as Slider from '@radix-ui/react-slider'
 
 
 interface PlaybackTimeProps {
@@ -36,12 +36,10 @@ export function PlaybackTime({
 
     const [progressMs, setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
     const setCommentModal = useSetAtom(openCommentModalAtom)
-    const setSelectedTrack = useSetAtom(selectedTrackAtom)
-    const nowPlaying = useAtomValue(currentlyPlayingTrackAtom)
 
-    const { mutateAsync: seekTrack, isLoading: loading } = useSeekPlaybackMutation({
+    const { mutateAsync: seekTrack } = useSeekPlaybackMutation({
         onError: () => toast.error('Failed to seek playback.'),
-    });
+    })
 
     const seekForward = () => seekTrack({ input: { positionMs: progressProp + 10000 } })
     const seekBackward = () => seekTrack({ input: { positionMs: progressProp - 10000 } })
@@ -52,7 +50,7 @@ export function PlaybackTime({
     //     setTimeout(() => setSelectedTrack(nowPlaying), 1);
     // }
 
-    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: () => { toast.success("comment created"); setCommentModal(undefined) } })
+    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) } })
     // TODO: how do I get review in here? 
     const onSubmit = (comment: string) =>
         createComment({ input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } },)
@@ -73,11 +71,11 @@ export function PlaybackTime({
     const showModal = () => {
         const paddedS = seconds < 10 ? `0${seconds}` : seconds
         const initialValue = `<Stamp at="${minutes}:${paddedS}" />`
-        const values = { title: "create comment", onCancel: () => setCommentModal(undefined), onSubmit, initialValue }
+        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue }
         setCommentModal(values)
     }
 
-    const tooltipContent = useMemo(() => disabled ? "Not part of this review" : "Comment at timestamp", [disabled])
+    const tooltipContent = useMemo(() => disabled ? 'Not part of this review' : 'Comment at timestamp', [disabled])
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full h-full border-accent border bg-neutral">
@@ -90,7 +88,7 @@ export function PlaybackTime({
                     </div>
                 </button>
                 {/* <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}> */}
-                <div className={`flex flex-col justify-around w-full`}>
+                <div className={'flex flex-col justify-around w-full'}>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackName} </div>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackArtist} </div>
                 </div>
@@ -166,8 +164,8 @@ const PlaybackProgress = ({ progress, onProgressChange, minProgress: minProg, se
     return (
         <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
             <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ "--value": minutesProgress }}></span>:
-                <span style={{ "--value": secondsProgress }}></span>
+                <span style={{ '--value': minutesProgress }}></span>:
+                <span style={{ '--value': secondsProgress }}></span>
             </span>
             <Slider.Root
                 onValueCommit={commitChange}
@@ -185,14 +183,14 @@ const PlaybackProgress = ({ progress, onProgressChange, minProgress: minProg, se
                 </Slider.Track>
                 <Slider.Thumb
                     className={
-                        "block h-5 w-5 rounded-full bg-purple-600 dark:bg-white focus:outline-none focus-visible:ring focus-visible:ring-primary focus-visible:ring-opacity-75"
+                        'block h-5 w-5 rounded-full bg-purple-600 dark:bg-white focus:outline-none focus-visible:ring focus-visible:ring-primary focus-visible:ring-opacity-75'
                     }
                 />
             </Slider.Root>
             {/* <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress> */}
             <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ "--value": minutesDuration }}></span>:
-                <span style={{ "--value": secondsDuration }}></span>
+                <span style={{ '--value': minutesDuration }}></span>:
+                <span style={{ '--value': secondsDuration }}></span>
             </span>
         </div>)
 }
@@ -210,16 +208,16 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
     const [isShuffled, setIsShuffled] = useStateWithSyncedDefault(isShuffledProp)
     const [isPlaying, setIsPlaying] = useStateWithSyncedDefault(isPlayingProp)
 
-    const { mutate: nextTrack } = useSkipToNextMutation({ onError: () => toast.error('Failed to skip to next track.') });
+    const { mutate: nextTrack } = useSkipToNextMutation({ onError: () => toast.error('Failed to skip to next track.') })
 
-    const { mutate: prevTrack } = useSkipToPreviousMutation({ onError: () => toast.error('Failed to skip to previous track.') });
+    const { mutate: prevTrack } = useSkipToPreviousMutation({ onError: () => toast.error('Failed to skip to previous track.') })
 
     const { mutate: pausePlayback, isLoading: loadingPause } = usePausePlaybackMutation({
         onSuccess: () => { setIsPlaying(false) },
-        onError: () => toast.success("Failed to pause playback."),
+        onError: () => toast.success('Failed to pause playback.'),
     })
 
-    const { mutate: playTrack, isLoading: loadingPlay } = useStartPlaybackMutation();
+    const { mutate: playTrack, isLoading: loadingPlay } = useStartPlaybackMutation()
 
     // variables: { input: !isShuffled },
     const { mutate: toggleShuffle } = useToggleShuffleMutation({

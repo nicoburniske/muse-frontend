@@ -1,6 +1,6 @@
-import { Dialog } from "@headlessui/react"
-import { ThemeModal } from "component/ThemeModal"
-import { CommentForm } from "./CommentForm"
+import { Dialog } from '@headlessui/react'
+import { ThemeModal } from 'component/ThemeModal'
+import { CommentForm } from './CommentForm'
 
 export interface CommentFormModalProps {
     open: boolean

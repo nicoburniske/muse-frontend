@@ -1,5 +1,5 @@
-import { CheckIcon, CrossIcon } from "component/Icons"
-import { useMemo, useState } from "react"
+import { CheckIcon, CrossIcon } from 'component/Icons'
+import { useMemo, useState } from 'react'
 
 export interface CommentFormProps {
     initialValue?: string
@@ -8,7 +8,7 @@ export interface CommentFormProps {
 }
 
 // TODO: integrate markdown here!
-export function CommentForm({ onSubmit, onCancel, initialValue = "" }: CommentFormProps) {
+export function CommentForm({ onSubmit, onCancel, initialValue = '' }: CommentFormProps) {
     const [comment, setComment] = useState(initialValue)
     const canSubmit = useMemo(() => comment != initialValue, [comment, initialValue])
 

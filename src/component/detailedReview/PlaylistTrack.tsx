@@ -1,13 +1,13 @@
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from "graphql/generated/schema"
-import toast from 'react-hot-toast';
-import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from "jotai"
-import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from "state/Atoms"
-import { RefObject, SetStateAction, useMemo, useRef } from "react"
-import UserAvatar, { TooltipPos } from "component/UserAvatar"
-import useDoubleClick from "hook/useDoubleClick"
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from 'graphql/generated/schema'
+import toast from 'react-hot-toast'
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from 'jotai'
+import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
+import { RefObject, SetStateAction, useMemo, useRef } from 'react'
+import UserAvatar, { TooltipPos } from 'component/UserAvatar'
+import useDoubleClick from 'hook/useDoubleClick'
 import { useQueryClient } from '@tanstack/react-query'
-import LikeButton from "component/LikeButton";
-import { focusAtom } from "jotai/optics";
+import LikeButton from 'component/LikeButton'
+import { focusAtom } from 'jotai/optics'
 import * as O from 'optics-ts'
 
 export interface PlaylistTrackProps {
@@ -29,7 +29,7 @@ function valueOrNullAtom<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T)
         const value = get(atomParam)
         return value === null ? defaultValue : value
     },
-        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
+    (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
     )
 }
 
@@ -44,7 +44,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const track = useAtomValue(atom)
     const setCommentModal = useSetAtom(openCommentModalAtom)
 
-    const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(", ")
+    const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
     // Sorted biggest to smallest.
     const albumImage = track.album?.images?.at(-1)
     const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
@@ -55,9 +55,9 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const [currentlyPlaying, setPlaying] = useAtom(currentlyPlayingTrackAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
     const [bgStyle, textStyle, hoverStyle] =
-        isPlaying ? ["bg-success", "text-success-content", ''] :
-            isSelected ? ["bg-info", "text-info-content", ''] :
-                ["bg-neutral/30", "text-neutral-content", `active:bg-neutral-focus`]
+        isPlaying ? ['bg-success', 'text-success-content', ''] :
+            isSelected ? ['bg-info', 'text-info-content', ''] :
+                ['bg-neutral/30', 'text-neutral-content', 'active:bg-neutral-focus']
 
     const resetState = () => setCommentModal(undefined)
 
@@ -70,11 +70,11 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     const { mutate: playTrack, isLoading } = useStartPlaybackMutation({
-        onError: () => toast.error(`Failed to start playback. Please start a playback session and try again.`),
+        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
         onSuccess: () => {
             setPlaying(track.id)
         }
-    });
+    })
 
     const onPlayTrack = () => {
         if (!isLoading) {
@@ -89,7 +89,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     const showModal = () => {
-        const values = { title: "create comment", onCancel: resetState, onSubmit }
+        const values = { title: 'create comment', onCancel: resetState, onSubmit }
         setCommentModal(values)
     }
 
@@ -108,7 +108,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     // Play on div double click.
-    const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
+    const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
     useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: onPlayTrack })
     return (
         <div
@@ -123,7 +123,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
 
             <div className={`col-span-2 flex flex-col grow ${textStyle}`}>
                 <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.name} </div>
-                <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ""} </div>
+                <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
             </div>
 
             <div className={`hidden md:grid place-items-center select-none text-xs lg:text-sm ${textStyle}`}>
@@ -138,7 +138,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
                 <LikeButton
                     trackId={track.id}
                     likeAtom={isLikedAtom}
-                    className={`btn btn-sm btn-ghost p-0`}
+                    className={'btn btn-sm btn-ghost p-0'}
                     getSvgClassName={isLikedSvgClass}
                 />
             </div>

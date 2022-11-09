@@ -1,5 +1,5 @@
-import { useAtom } from "jotai"
-import { searchAtom } from "state/Atoms"
+import { useAtom } from 'jotai'
+import { searchAtom } from 'state/Atoms'
 
 export default function SearchBar() {
     const [search, setSearch] = useAtom(searchAtom)

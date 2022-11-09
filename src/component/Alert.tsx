@@ -7,9 +7,9 @@ export enum AlertSeverity {
 
 export const Alert = ({ severity, children }: { severity: AlertSeverity, children: JSX.Element }) => {
     const className =
-        severity === AlertSeverity.Error ? "alert alert-error" :
-            severity === AlertSeverity.Warning ? "alert alert-warning" :
-                "alert alert-success"
+        severity === AlertSeverity.Error ? 'alert alert-error' :
+            severity === AlertSeverity.Warning ? 'alert alert-warning' :
+                'alert alert-success'
     return (
         <div className={`alert ${className} shadow-lg`}>
             <div>

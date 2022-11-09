@@ -1,7 +1,7 @@
-import { DetailedTrackFragment, GetPlaylistQuery, useGetPlaylistQuery, useRemoveSavedTracksMutation, useSaveTracksMutation } from "graphql/generated/schema";
-import { HeartOutlineIcon, HeartSolidIcon } from "./Icons";
-import toast from 'react-hot-toast';
-import { PrimitiveAtom, useAtom } from "jotai";
+import { useRemoveSavedTracksMutation, useSaveTracksMutation } from 'graphql/generated/schema'
+import { HeartOutlineIcon, HeartSolidIcon } from './Icons'
+import toast from 'react-hot-toast'
+import { PrimitiveAtom, useAtom } from 'jotai'
 
 
 interface LikeButtonProps {
@@ -15,7 +15,7 @@ export default function LikeButton({ trackId, likeAtom, className, getSvgClassNa
     const [isLiked, setIsLiked] = useAtom(likeAtom)
     const toggleLiked = () => setIsLiked(!isLiked)
 
-    const { mutate: likeTrack, isLoading: loadingLike } = useSaveTracksMutation({
+    const { mutate: likeTrack } = useSaveTracksMutation({
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
             toggleLiked()
@@ -23,7 +23,7 @@ export default function LikeButton({ trackId, likeAtom, className, getSvgClassNa
     })
 
 
-    const { mutate: unlikeTrack, isLoading: loadingUnlike } = useRemoveSavedTracksMutation({
+    const { mutate: unlikeTrack } = useRemoveSavedTracksMutation({
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
             toggleLiked()
