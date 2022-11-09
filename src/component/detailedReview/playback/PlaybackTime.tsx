@@ -2,11 +2,11 @@ import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, Ski
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useSetAtom } from 'jotai'
 import React, { useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { currentlyPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
+import { openCommentModalAtom } from 'state/Atoms'
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 

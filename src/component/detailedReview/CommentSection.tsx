@@ -22,7 +22,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
         .filter(nonNullable)
         .flatMap(c => c)
 
-    const reviewOverviews = groupBy(reviews, r => r.reviewId)
+    const reviewOverviews = groupBy(reviews, r => r.reviewId, r => r)
 
     const comments = useMemo(() => {
         return [...validComments]
@@ -34,7 +34,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
         const childComments = comments
             .filter(comment => comment.parentCommentId !== null)
             .filter(comment => comment.parentCommentId !== undefined)
-        return groupBy(childComments, c => c.parentCommentId)
+        return groupBy(childComments, c => c.parentCommentId, c => c)
     }, [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)

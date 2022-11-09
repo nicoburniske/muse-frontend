@@ -386,10 +386,16 @@ export type PositionOffsetInput = {
 export type Queries = {
   __typename?: 'Queries';
   availableDevices?: Maybe<Array<PlaybackDevice>>;
+  getAlbum?: Maybe<Album>;
   getPlaylist?: Maybe<Playlist>;
   review?: Maybe<Review>;
   search?: Maybe<SearchResult>;
   user?: Maybe<User>;
+};
+
+
+export type QueriesGetAlbumArgs = {
+  id: Scalars['String'];
 };
 
 

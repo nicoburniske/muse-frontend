@@ -1,8 +1,8 @@
 import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect } from 'react'
 import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem } from '@tanstack/react-virtual'
 import { ReviewOverview } from './DetailedReview'
-import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, GetPlaylistQuery, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
+import { useQueryClient } from '@tanstack/react-query'
+import { DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { atom, PrimitiveAtom, useAtomValue } from 'jotai'
 import { focusAtom } from 'jotai/optics'
@@ -26,30 +26,18 @@ const useKeepMountedRangeExtractor = () => {
     return rangeExtractor
 }
 
-export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [UseQueryResult<GetPlaylistQuery, unknown>, ReviewOverview][] }) => {
+export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
+
     const parentRef = useRef<HTMLDivElement>(null)
 
     const allGroups = useMemo(() => results
-        .map(group => ({ tracks: group[0].data!.getPlaylist!.tracks, overview: group[1] }))
+        .map(group => ({ tracks: group[0].tracks, overview: group[1] }))
         .filter(group => nonNullable(group.tracks)), [results])
-
-    const loadingNoData = results.map(r => r[0]).some(r => r.isLoading) && results.every(r => r[0].data === undefined)
 
     // ONLY FOR ATOMS/STATE. Does not account for collapse.
     const tracks = useMemo(() => allGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable), [allGroups])
 
     const [expandedGroups, setExpandedGroups] = useState<string[]>([])
-
-    // TODO: revise this. Eventually will need lazy loading. 
-    useEffect(() => {
-        if (!loadingNoData) {
-            setExpandedGroups(allGroups.map(g => g.overview.reviewId))
-        }
-    }, [loadingNoData, allGroups])
-
-    useEffect(() => {
-        setExpandedGroups(allGroups.map(g => g.overview.reviewId))
-    }, [loadingNoData])
 
     const toggleExpandedGroup = useCallback((reviewId: string) => {
         const exists = expandedGroups.includes(reviewId)
@@ -127,7 +115,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     // Need to consider same song in different contexts.
     const selectedTrack = useAtomValue(selectedTrackAtom)
     useEffect(() => {
-        if (selectedTrack !== undefined && !loadingNoData && tracks.length > 0) {
+        if (selectedTrack !== undefined && tracks.length > 0) {
             if (!expandedGroups.includes(selectedTrack.reviewId)) {
                 setExpandedGroups([...expandedGroups, selectedTrack.reviewId])
                 // Not working as intended.
@@ -170,53 +158,49 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     })
 
     return (
-        loadingNoData || rows.length === 0 ?
-            <div className="w-full grid place-items-center">
-                <div className="border-t-transparent border-solid animate-spin  rounded-full border-primary border-8 h-56 w-56"></div>
-            </div> :
+        <div
+            ref={parentRef}
+            className="overflow-y-auto w-full"
+        >
             <div
-                ref={parentRef}
-                className="overflow-y-auto w-full"
+                className="w-full relative"
+                style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                }}
             >
-                <div
-                    className="w-full relative"
-                    style={{
-                        height: `${rowVirtualizer.getTotalSize()}px`,
-                    }}
-                >
-                    {
-                        rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                            // Track Maybies.
-                            const maybeTrack = indexToTrack.get(virtualRow.index)
-                            const maybeId = trackIdToEntityOverview.get(maybeTrack?.track?.id ?? '')
-                            const maybeReviewId = trackIdToReviewId.get(maybeTrack?.track?.id ?? '')
+                {
+                    rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        // Track Maybies.
+                        const maybeTrack = indexToTrack.get(virtualRow.index)
+                        const maybeId = trackIdToEntityOverview.get(maybeTrack?.track?.id ?? '')
+                        const maybeReviewId = trackIdToReviewId.get(maybeTrack?.track?.id ?? '')
 
-                            // Header Maybies.
-                            const maybeOverview = indexToHeader.get(virtualRow.index)
-                            const maybeHeaderReviewId = maybeOverview?.reviewId
-                            // This should probably be the entity name.
-                            const maybeHeaderName = maybeOverview?.reviewName
+                        // Header Maybies.
+                        const maybeOverview = indexToHeader.get(virtualRow.index)
+                        const maybeHeaderReviewId = maybeOverview?.reviewId
+                        // This should probably be the entity name.
+                        const maybeHeaderName = maybeOverview?.reviewName
 
-                            // Consider a compound key.
-                            return (
-                                <div
-                                    key={virtualRow.index}
-                                    style={indexToStyle(virtualRow) as CSSProperties}>
-                                    {
-                                        rows[virtualRow.index] ?
-                                            <MemoizedTrack playlistId={maybeId!} playlistTrack={maybeTrack!} reviewId={maybeReviewId!} atom={tracksAtom} /> :
-                                            <ReviewGroupHeader
-                                                reviewId={maybeHeaderReviewId!}
-                                                parentReviewId={rootReview}
-                                                name={maybeHeaderName!}
-                                                entityType={EntityType.Playlist}
-                                                onClick={() => toggleExpandedGroup(maybeHeaderReviewId!)} />
-                                    }
-                                </div>
-                            )
-                        })}
-                </div>
+                        // Consider a compound key.
+                        return (
+                            <div
+                                key={virtualRow.index}
+                                style={indexToStyle(virtualRow) as CSSProperties}>
+                                {
+                                    rows[virtualRow.index] ?
+                                        <MemoizedTrack playlistId={maybeId!} playlistTrack={maybeTrack!} reviewId={maybeReviewId!} atom={tracksAtom} /> :
+                                        <ReviewGroupHeader
+                                            reviewId={maybeHeaderReviewId!}
+                                            parentReviewId={rootReview}
+                                            name={maybeHeaderName!}
+                                            entityType={EntityType.Playlist}
+                                            onClick={() => toggleExpandedGroup(maybeHeaderReviewId!)} />
+                                }
+                            </div>
+                        )
+                    })}
             </div>
+        </div>
     )
 }
 

@@ -1,4 +1,4 @@
-import { EntityType, GetPlaylistQuery, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
+import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment } from 'graphql/generated/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { useSetAtom, useAtomValue, atom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import { PlaybackTimeWrapper } from './playback/PlaybackTimeWrapper'
 import Split from 'react-split'
-import { nonNullable, findFirstImage, zip } from 'util/Utils'
+import { nonNullable, findFirstImage, zip, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
 import { ThemeSetter } from 'component/ThemeSetter'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
@@ -21,14 +21,14 @@ import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
 
 export interface DetailedReviewProps {
-  reviewId: string
-  isSm: boolean
+    reviewId: string
+    isSm: boolean
 }
 
 export enum RenderOptions {
-  Tracks,
-  Comments,
-  Both
+    Tracks,
+    Comments,
+    Both
 }
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
@@ -65,10 +65,10 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
 }
 
 interface DetailedReviewContentProps {
-  renderOption: RenderOptions
-  reviewId: string
-  review: ReviewDetailsFragment
-  reload: () => void
+    renderOption: RenderOptions
+    reviewId: string
+    review: ReviewDetailsFragment
+    reload: () => void
 }
 
 const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
@@ -211,14 +211,14 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 }
 
 interface DetailedReviewBodyProps {
-  rootReview: string
-  reviews: ReviewOverview[]
-  options?: RenderOptions
+    rootReview: string
+    reviews: ReviewOverview[]
+    options?: RenderOptions
 }
 
 const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
-    const trackSection = useMemo(() => (<TrackSectionTable rootReview={rootReview} all={reviews} />), [reviews])
-    const commentSection = useMemo(() => (<ReviewCommentSection reviews={reviews} />), [reviews])
+    const trackSection = () => (<TrackSectionTable rootReview={rootReview} all={reviews} />)
+    const commentSection = () => (<ReviewCommentSection reviews={reviews} />)
     return (
         <div className="h-full px-1">
             {(options == RenderOptions.Both) ?
@@ -227,15 +227,15 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
                     sizes={[40, 60]}
                     direction="horizontal"
                 >
-                    <TrackSectionTable rootReview={rootReview} all={reviews} />
-                    {commentSection}
+                    {trackSection()}
+                    {commentSection()}
                 </Split>
                 :
                 <div className="flex h-full w-full">
                     {(options == RenderOptions.Tracks)
                         ?
-                        trackSection :
-                        commentSection}
+                        trackSection() :
+                        commentSection()}
                 </div>
             }
         </div>
@@ -243,33 +243,58 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
 }
 
 export interface ReviewOverview {
-  reviewName: string
-  reviewId: string
-  entityId: string
-  entityType: EntityType
+    reviewName: string
+    reviewId: string
+    entityId: string
+    entityType: EntityType
 }
 
 const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
-    const entityIds = all.map(r => r.entityId)
-    const results = useQueries({
-        queries: entityIds.map(id => ({
+    const allIds = groupBy(all, r => r.entityType, r => r.entityId)
+    const playlistIds = allIds.get(EntityType.Playlist) ?? []
+    const albumIds = allIds.get(EntityType.Album) ?? []
+    const playlistResults = useQueries({
+        queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
             queryFn: useGetPlaylistQuery.fetcher({ id })
         }))
     })
+    const albumResults = useQueries({
+        queries: albumIds.map(id => ({
+            queryKey: useGetAlbumQuery.getKey({ id }),
+            queryFn: useGetAlbumQuery.fetcher({ id })
+        }))
+    })
 
     // Ensure that indicies line up.
-    const validZipped: [UseQueryResult<GetPlaylistQuery, unknown>, ReviewOverview][] = useMemo(() =>
-        zip(results, all)
-        // Success from API.
-            .filter(([res, ]) => res.isSuccess)
-        // Non Null Entity.
-            .filter(([res, ]) => nonNullable(res.data?.getPlaylist)),
-    [results])
+    const validZipped: [DetailedPlaylistFragment, ReviewOverview][] = useMemo(() =>
+        zip(playlistResults, all)
+            // Success from API.
+            .filter(([res,]) => res.isSuccess)
+            // Non Null result.
+            .filter(([res,]) => nonNullable(res.data?.getPlaylist))
+            // Extract entity.
+            .map(([res, review]) => [res.data!.getPlaylist!, review]),
+    [playlistResults])
 
-    return (
-        <GroupedTrackTable results={validZipped} rootReview={rootReview} />
-    )
+    const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
+
+    return (<div className="w-full flex" >
+        {
+            isLoading ?
+                (
+                    <div className="w-full grid place-items-center">
+                        <div className="border-t-transparent border-solid animate-spin rounded-full border-primary border-8 h-56 w-56" />
+                    </div>
+                ) :
+                <GroupedTrackTable results={validZipped} rootReview={rootReview} />
+        }
+    </div >)
+
+}
+
+const areAllLoadingNoData = (results: UseQueryResult<any, unknown>[]) => {
+    return results.some(r => r.isLoading) && results.every(r => r.data === undefined)
 }
 
 // const useLatestReviewComments = (reviewId: string) => {

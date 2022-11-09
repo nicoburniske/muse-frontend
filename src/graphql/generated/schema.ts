@@ -385,10 +385,16 @@ export type PositionOffsetInput = {
 export type Queries = {
   __typename?: 'Queries';
   availableDevices?: Maybe<Array<PlaybackDevice>>;
+  getAlbum?: Maybe<Album>;
   getPlaylist?: Maybe<Playlist>;
   review?: Maybe<Review>;
   search?: Maybe<SearchResult>;
   user?: Maybe<User>;
+};
+
+
+export type QueriesGetAlbumArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -579,6 +585,8 @@ export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: A
 
 export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null };
 
+export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null };
+
 export type DetailedPlaylistFragment = { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null };
 
 export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
@@ -725,6 +733,13 @@ export type DetailedReviewCommentsQueryVariables = Exact<{
 
 
 export type DetailedReviewCommentsQuery = { __typename?: 'Queries', review?: { __typename?: 'Review', comments?: Array<{ __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null }> | null } | null };
+
+export type GetAlbumQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetAlbumQuery = { __typename?: 'Queries', getAlbum?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null }> | null } | null };
 
 export type GetPlaylistQueryVariables = Exact<{
   id: Scalars['String'];
@@ -1383,6 +1398,49 @@ useInfiniteDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommen
 
 
 useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables, options?: RequestInit['headers']) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables, options)
+export const GetAlbumDocument = `
+    query GetAlbum($id: String!) {
+  getAlbum(id: $id) {
+    ...DetailedAlbum
+  }
+}
+    ${DetailedAlbumFragmentDoc}`
+export const useGetAlbumQuery = <
+      TData = GetAlbumQuery,
+      TError = unknown
+    >(
+        variables: GetAlbumQueryVariables,
+        options?: UseQueryOptions<GetAlbumQuery, TError, TData>
+    ) =>
+        useQuery<GetAlbumQuery, TError, TData>(
+            ['GetAlbum', variables],
+            fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, variables),
+            options
+        )
+
+useGetAlbumQuery.getKey = (variables: GetAlbumQueryVariables) => ['GetAlbum', variables]
+
+
+export const useInfiniteGetAlbumQuery = <
+      TData = GetAlbumQuery,
+      TError = unknown
+    >(
+        pageParamKey: keyof GetAlbumQueryVariables,
+        variables: GetAlbumQueryVariables,
+        options?: UseInfiniteQueryOptions<GetAlbumQuery, TError, TData>
+    ) =>{
+    
+    return useInfiniteQuery<GetAlbumQuery, TError, TData>(
+        ['GetAlbum.infinite', variables],
+        (metaData) => fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
+        options
+    )}
+
+
+useInfiniteGetAlbumQuery.getKey = (variables: GetAlbumQueryVariables) => ['GetAlbum.infinite', variables]
+
+
+useGetAlbumQuery.fetcher = (variables: GetAlbumQueryVariables, options?: RequestInit['headers']) => fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, variables, options)
 export const GetPlaylistDocument = `
     query GetPlaylist($id: String!) {
   getPlaylist(id: $id) {

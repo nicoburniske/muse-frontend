@@ -27,15 +27,16 @@ export function zip<A, B>(i: A[], j: B[]): [A, B][] {
  *
  * @returns Map of the array grouped by the grouping function.
  */
-export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
-    const map = new Map<K, Array<V>>()
+export function groupBy<K, V, R>(list: Array<V>, keyGetter: (input: V) => K, mapFunc: (value: V) => R): Map<K, Array<R>> {
+    const map = new Map<K, Array<R>>()
     list.forEach((item) => {
         const key = keyGetter(item)
+        const value = mapFunc(item)
         const collection = map.get(key)
         if (!collection) {
-            map.set(key, [item])
+            map.set(key, [value])
         } else {
-            collection.push(item)
+            collection.push(value)
         }
     })
     return map

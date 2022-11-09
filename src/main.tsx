@@ -52,7 +52,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 <PersistQueryClientProvider
                     client={queryClient}
                     persistOptions={{ persister }}
-                    contextSharing={true}
                 >
                     <>
                         <App />
