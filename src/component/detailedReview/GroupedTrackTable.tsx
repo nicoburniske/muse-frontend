@@ -37,7 +37,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     // ONLY FOR ATOMS/STATE. Does not account for collapse.
     const tracks = useMemo(() => allGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable), [allGroups])
 
-    const [expandedGroups, setExpandedGroups] = useState<string[]>([])
+    const [expandedGroups, setExpandedGroups] = useState<string[]>(results.length === 0 ? [] : [results[0][1].reviewId])
 
     const toggleExpandedGroup = useCallback((reviewId: string) => {
         const exists = expandedGroups.includes(reviewId)
@@ -277,8 +277,6 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
         </div>
     )
 }
-
-const GroupHeaderMemo = memo(ReviewGroupHeader, (a, b) => a.reviewId === b.reviewId)
 
 export interface MemoPlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment

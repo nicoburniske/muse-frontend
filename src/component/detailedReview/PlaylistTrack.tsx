@@ -78,7 +78,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
 
     const onPlayTrack = () => {
         if (!isLoading) {
-            console.log(playlistId)
             // We only want to include device when one is not active.
             const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
             const inner = { entityId: track.id, entityType: EntityType.Track }

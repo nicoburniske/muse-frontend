@@ -262,8 +262,10 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
     const albumResults = useQueries({
         queries: albumIds.map(id => ({
             queryKey: useGetAlbumQuery.getKey({ id }),
-            queryFn: useGetAlbumQuery.fetcher({ id })
-        }))
+            queryFn: useGetAlbumQuery.fetcher({ id }),
+            // Never have to refetch albums because they don't update.
+            staleTime: Infinity
+        })),
     })
 
     // Ensure that indicies line up.

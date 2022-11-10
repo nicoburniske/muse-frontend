@@ -95,7 +95,7 @@ export function PlaybackTime({
             </div>
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
                 <div className="flex flex-row justify-between md:justify-around items-center text-neutral-content md:w-full lg:w-3/4">
-                    <PlayerButtonsMemo
+                    <PlayerButtons
                         trackId={trackId}
                         isPlaying={isPlaying}
                         isShuffled={isShuffled}
@@ -270,8 +270,6 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
         </>
     )
 }
-
-const PlayerButtonsMemo = React.memo(PlayerButtons, (a, b) => a.isLiked === b.isLiked && a.isPlaying === b.isPlaying && a.isShuffled === b.isShuffled)
 
 function getPercentProgress(e: React.MouseEvent<HTMLProgressElement, MouseEvent>) {
     const offsetLeft = e.currentTarget.offsetLeft

@@ -37,6 +37,7 @@ module.exports = {
             'never'
         ],
         'react/react-in-jsx-scope': 'off',
+        'react/display-name': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/ban-types': 'off',

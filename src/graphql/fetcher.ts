@@ -9,13 +9,15 @@ export function fetcher<TData, TVariables>(query: string, variables?: TVariables
         })
   
         const json = await res.json()
-  
-        if (json.errors) {
-            const { message } = json.errors[0]
+        // TODO: Consider if there's a way to handle partial errors.
+        const errors = json.errors
+        const data = json.data
+        if (errors && (data === null || data === undefined)) {
+            const { message } = errors[0]
   
             throw new Error(message)
         }
   
-        return json.data
+        return data
     }
 }
