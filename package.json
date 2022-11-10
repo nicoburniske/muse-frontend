@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "npx http-server ./dist -a 0.0.0.0 -p",
-    "generate": "graphql-codegen && graphql-codegen -c codegenSubscription.yaml",
+    "generate": "graphql-codegen && graphql-codegen -c codegenSubscription.yaml && npm run lint",
     "lint": "eslint --fix --ext .ts,.tsx ."
   },
   "dependencies": {

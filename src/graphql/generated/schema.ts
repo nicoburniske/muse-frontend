@@ -99,10 +99,9 @@ export type ContextInput = {
 };
 
 export type CreateCommentInput = {
-  comment?: InputMaybe<Scalars['String']>;
+  comment: Scalars['String'];
   entities: Array<ReviewEntityInput>;
   parentCommentId?: InputMaybe<Scalars['Int']>;
-  rating?: InputMaybe<Scalars['Int']>;
   reviewId: Scalars['ID'];
 };
 

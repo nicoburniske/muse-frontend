@@ -62,7 +62,10 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
-    const { mutateAsync: createComment } = useCreateCommentMutation({ onSuccess: resetState })
+    const { mutateAsync: createComment } = useCreateCommentMutation({ 
+        onSuccess: resetState,
+        onError: () => toast.error('Failed to create comment.')
+    })
     const onSubmit = async (comment: string) => {
         const createdComment = await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
         createdComment.createComment
