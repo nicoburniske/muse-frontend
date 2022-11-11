@@ -1,9 +1,9 @@
-import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextInputMutation, usePlayEntityContextMutation, usePlayTracksMutation, useUpdateCommentMutation } from 'graphql/generated/schema'
+import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, usePlayTracksMutation, useUpdateCommentMutation } from 'graphql/generated/schema'
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { CommentFormModal } from '../commentForm/CommentFormModal'
-import { nowPlayingTrackIdAtom, currentUserIdAtom } from 'state/Atoms'
-import { useAtom, useAtomValue } from 'jotai'
+import { currentUserIdAtom } from 'state/Atoms'
+import { useAtomValue } from 'jotai'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
@@ -17,12 +17,11 @@ export interface DetailedCommentProps {
     onClick: () => void
 }
 
+// TODO: CHANGE STYLING BASED ON NOW PLAYING!
 export default function DetailedComment({ review, comment: detailedComment, children, onClick }: DetailedCommentProps) {
     const reviewId = review.reviewId
     const queryClient = useQueryClient()
     const currentUserId = useAtomValue(currentUserIdAtom)
-    // TODO: CHANGE STYLING BASED ON NOW PLAYING!
-    const [currentlyPlaying, setCurrentlyPlaying] = useAtom(nowPlayingTrackIdAtom)
     const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
 
     const [isEditing, setIsEditing] = useState(false)
@@ -61,10 +60,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const tracks = (detailedComment.entities ?? []).map(e => e.id)
     const { mutate: playTrack, isLoading } = usePlayTracksMutation({
         onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
-        onSuccess: () => {
-            // Ok because we won't play if there are no tracks.
-            setCurrentlyPlaying(tracks.at(0)!)
-        }
+        onSuccess: () => { }
     })
 
     const onPlayTrack = () => {

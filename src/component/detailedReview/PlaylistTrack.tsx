@@ -76,23 +76,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         }
     }
 
-    const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
-        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
-        onSuccess: () => {
-            setPlaying(track.id)
-        }
-    })
-
-    const onPlayTrack = () => {
-        if (!isLoading) {
-            // We only want to include device when one is not active.
-            const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
-            const inner = { entityId: track.id, entityType: EntityType.Track }
-            const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            const input = { input: { offset: { outer, inner }, deviceId: device } }
-            playTrack(input)
-        }
-    }
 
     const showModal = () => {
         const values = { title: 'create comment', onCancel: resetState, onSubmit, trackId: track.id }
@@ -110,6 +93,21 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
             return 'stroke-success-content'
         } else {
             return 'stroke-neutral-content'
+        }
+    }
+
+    const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
+        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.')
+    })
+
+    const onPlayTrack = () => {
+        if (!isLoading) {
+            // We only want to include device when one is not active.
+            const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
+            const inner = { entityId: track.id, entityType: EntityType.Track }
+            const outer = { entityId: playlistId, entityType: EntityType.Playlist }
+            const input = { input: { offset: { outer, inner }, deviceId: device } }
+            playTrack(input)
         }
     }
 

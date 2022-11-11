@@ -72,8 +72,8 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
             <ThemeModal open={isModalOpen} className="max-w-md">
                 <div className="flex flex-col items-center justify-between space-y-5 p-3">
-                    <Dialog.Title>
-                        <h3 className="font-bold text-lg text-neutral-content"> share review </h3>
+                    <Dialog.Title className="font-bold text-lg text-base-content">
+                        share review 
                     </Dialog.Title>
                     <div className="form-control w-full items-center">
                         <label className="label">

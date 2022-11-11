@@ -63,13 +63,13 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
 
     const disabled = useMemo(() =>
         isLoading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
-    [isLoading, isPublic, reviewName])
+        [isLoading, isPublic, reviewName])
 
     return (
         <ThemeModal open={isOpen} className="max-w-md">
             <div className="flex flex-col items-center justify-between space-y-5 p-3 relative" >
-                <Dialog.Title>
-                    <h3 className="font-bold text-lg text-neutral-content"> edit review </h3>
+                <Dialog.Title className="font-bold text-lg text-base-content">
+                    edit review
                 </Dialog.Title>
                 <div className="w-full">
                     <label className="label">

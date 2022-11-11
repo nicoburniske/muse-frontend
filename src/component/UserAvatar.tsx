@@ -16,6 +16,7 @@ interface UserAvatarProps { displayName?: string, image?: string, tooltipPos?: T
 
 export default function UserAvatar({ displayName, image, tooltipPos = TooltipPos.None, className }: UserAvatarProps) {
     const tooltip = useMemo(() => displayName ? 'md:tooltip md:tooltip-primary ' + tooltipPos : '', [])
+    const name = (displayName?.length ?? 0) > 0 ? displayName! : 'Spotify'
 
     if (nonNullable(image) && image.length > 0) {
         return (
@@ -27,9 +28,11 @@ export default function UserAvatar({ displayName, image, tooltipPos = TooltipPos
         )
     } else {
         return (
-            <div className={`avatar ${className} ${tooltip}`} data-tip={displayName}>
-                <div className={`bg-neutral-focus text-neutral-content rounded-full ${size}`}>
-                    <span>{displayName}</span>
+            <div className={`avatar placeholder ${className} ${tooltip}`} data-tip={displayName}>
+                <div className={`bg-neutral-focus text-neutral-content rounded-full w-12 ${size}`}>
+                    <span>
+                        {name.slice(0, 1)}
+                    </span>
                 </div>
             </div>
         )

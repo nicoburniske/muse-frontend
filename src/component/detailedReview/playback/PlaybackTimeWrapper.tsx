@@ -10,7 +10,6 @@ export const PlaybackTimeWrapper = ({ reviewId }: { reviewId: string }) => {
     const nowPlayingTime = latest.data?.nowPlaying
     const progressMs = nowPlayingTime?.progressMs ?? 0
     const totalDuration = nowPlayingTime?.item?.durationMs ?? Number.MAX_SAFE_INTEGER
-    const isLiked = nowPlayingTime?.item?.isLiked ?? false
     const isPlaying = nowPlayingTime?.isPlaying ?? false
     const isShuffled = nowPlayingTime?.shuffleState ?? false
     const nowPlayingImage = nowPlayingTime?.item?.album?.images?.at(1) ?? ''
@@ -18,13 +17,9 @@ export const PlaybackTimeWrapper = ({ reviewId }: { reviewId: string }) => {
     const nowPlayingAlbum = nowPlayingTime?.item?.album?.name
     const nowPlayingTrackName = nowPlayingTime?.item?.name ?? ''
 
-    const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
     const nowPlaying = nowPlayingTime?.item?.id
-    useEffect(() => {
-        if (nonNullable(nowPlaying)) {
-            setNowPlaying({ trackId: nowPlaying, isLiked: isLiked })
-        }
-    }, [nowPlayingTime, isLiked])
+    const isLiked = nowPlayingTime?.item?.isLiked
+    updateNowPlaying(nowPlaying, isLiked)
 
     const allTracks = useAtomValue(allReviewTracks)
     const disabled = !allTracks.has(nowPlaying ?? '')
@@ -32,7 +27,7 @@ export const PlaybackTimeWrapper = ({ reviewId }: { reviewId: string }) => {
     return (
         <PlaybackTime
             isPlaying={isPlaying}
-            isLiked={isLiked}
+            isLiked={isLiked ?? false}
             isShuffled={isShuffled}
             progressMs={progressMs}
             durationMs={totalDuration}
@@ -44,4 +39,19 @@ export const PlaybackTimeWrapper = ({ reviewId }: { reviewId: string }) => {
             trackArtist={nowPlayingArtist}
         />
     )
+}
+
+const updateNowPlaying = (nowPlaying: string | undefined, isLiked: boolean | undefined | null) => {
+    const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
+    useEffect(() => {
+        if (nonNullable(nowPlaying) && nonNullable(isLiked)) {
+            setNowPlaying(t => {
+                if (t?.isLiked != isLiked || t?.trackId != nowPlaying) {
+                    return { trackId: nowPlaying, isLiked: isLiked }
+                }
+            })
+        } else {
+            setNowPlaying(undefined)
+        }
+    }, [nowPlaying, isLiked])
 }
