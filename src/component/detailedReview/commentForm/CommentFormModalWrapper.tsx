@@ -14,6 +14,7 @@ export const CommentFormModalWrapper = () => {
             onCancel={modalData?.onCancel ?? (() => { })}
             onSubmit={modalData?.onSubmit ?? (async () => {return})}
             initialValue={modalData?.initialValue}
+            trackId={modalData?.trackId ?? ''}
         />
     )
 }

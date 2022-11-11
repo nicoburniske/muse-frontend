@@ -1,23 +1,36 @@
 import { PlaybackDeviceFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
+import { focusAtom } from 'jotai/optics'
 import { atomWithStorage } from 'jotai/utils'
 
 export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')
 export interface SelectedTrack { reviewId: string, trackId: string }
 export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
-export const currentlyPlayingTrackAtom = atom<string | undefined>(undefined)
+
 export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
 export const searchAtom = atom<string>('')
 export const searchLoweredAtom = atom<string>(get => get(searchAtom).toLowerCase())
 
 interface CommentModalData {
-    onSubmit: (comment: string) => void
+    onSubmit: (comment: string) => Promise<void>
+    trackId: string
     onCancel: () => void
     title: string
     initialValue?: string
 }
 
 export const openCommentModalAtom = atom<undefined | CommentModalData>(undefined)
+
+interface NowPlaying {
+    trackId: string
+    isLiked: boolean
+}
+export const allReviewTracks = atom<Set<string>>(new Set<string>())
+export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
+export const nowPlayingTrackIdAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
+export const nowPlayingIsLikedAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
 export enum Theme {
     Light = 'light',

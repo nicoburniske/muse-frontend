@@ -1,13 +1,15 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from 'jotai'
-import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
+import { nowPlayingTrackIdAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
 import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
+import { useLongPress } from 'use-long-press';
+
 import * as O from 'optics-ts'
 
 export interface PlaylistTrackProps {
@@ -24,12 +26,12 @@ function valueOrIfNull<T>(defaultValue: T) {
     )
 }
 
-function valueOrNullAtom<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
+function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
     return atom<T, SetStateAction<T>>((get) => {
         const value = get(atomParam)
         return value === null ? defaultValue : value
     },
-    (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
+        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
     )
 }
 
@@ -52,7 +54,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
 
     // Get track styles.
     const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
-    const [currentlyPlaying, setPlaying] = useAtom(currentlyPlayingTrackAtom)
+    const [currentlyPlaying, setPlaying] = useAtom(nowPlayingTrackIdAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
     const [bgStyle, textStyle, hoverStyle] =
         isPlaying ? ['bg-success', 'text-success-content', ''] :
@@ -68,8 +70,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     })
     const onSubmit = async (comment: string) => {
         if (!isLoadingComment) {
-            const createdComment = await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
-            createdComment.createComment
+            // TODO: insert into cache? 
+            await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
         }
     }
@@ -93,11 +95,11 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     const showModal = () => {
-        const values = { title: 'create comment', onCancel: resetState, onSubmit }
+        const values = { title: 'create comment', onCancel: resetState, onSubmit, trackId: track.id }
         setCommentModal(values)
     }
 
-    const isLikedAtom = valueOrNullAtom(useLikeAtom(atom), false)
+    const isLikedAtom = valueOrDefault(useLikeAtom(atom), false)
 
     function isLikedSvgClass(isLiked: boolean): string {
         if (isLiked && isPlaying) {
@@ -114,8 +116,13 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     // Play on div double click.
     const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
     useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: onPlayTrack })
+    const bind = useLongPress(() => {
+        showModal()
+    }, { threshold: 500 })
+
     return (
         <div
+            {...bind()}
             ref={playOnDoubleClickRef}
             className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 

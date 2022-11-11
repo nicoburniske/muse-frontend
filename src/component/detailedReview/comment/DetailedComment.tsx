@@ -1,14 +1,14 @@
 import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextInputMutation, usePlayEntityContextMutation, usePlayTracksMutation, useUpdateCommentMutation } from 'graphql/generated/schema'
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import Markdown from 'markdown-to-jsx'
-import { CommentFormModal } from './commentForm/CommentFormModal'
-import { currentlyPlayingTrackAtom, currentUserIdAtom } from 'state/Atoms'
+import { CommentFormModal } from '../commentForm/CommentFormModal'
+import { nowPlayingTrackIdAtom, currentUserIdAtom } from 'state/Atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
-import { ReviewOverview } from './DetailedReview'
+import { ReviewOverview } from '../DetailedReview'
+import CommentMarkdown from './CommentMarkdown'
 
 export interface DetailedCommentProps {
     review: ReviewOverview
@@ -17,72 +17,12 @@ export interface DetailedCommentProps {
     onClick: () => void
 }
 
-interface TrackTimestampProps {
-    at: string
-    comment?: string
-}
-interface ConvertToTimestampProps {
-    time: string
-    trackId: string
-    comment?: string
-}
-
-function ConvertToTimestamp({ time, trackId, comment }: ConvertToTimestampProps) {
-    // Timestamp converted to millis if valid.
-    const [timestamp, formattedTime] = useMemo(() => {
-        const timeSplit = time.split(':')
-        if (timeSplit.length === 2) {
-            const mins = parseInt(timeSplit[0])
-            const seconds = parseInt(timeSplit[1])
-            if (isNaN(mins) || mins > 60 || mins < 0 || isNaN(seconds) || seconds > 60 || seconds < 0) {
-                return [undefined, undefined]
-            }
-            return [(mins * 60 + seconds) * 1000, `${mins}:${seconds}`]
-        } else if (timeSplit.length === 1) {
-            const seconds = parseInt(timeSplit[0])
-            if (!isNaN(seconds) || seconds < 60 || seconds >= 0) {
-                return [seconds * 1000, `0:${seconds}`]
-            }
-        }
-        return [undefined, undefined]
-    }, [time])
-
-    const handleError = () => {
-        toast.error('Failed to start playback. Please start a playback session and try again.')
-    }
-
-    const onSuccess = () => {
-        if (timestamp === undefined) {
-            toast.error('Successfully started playback from start. Invalid timestamp.')
-        }
-    }
-
-    const { mutate: playTrack } = usePlayTracksMutation({ onError: handleError, onSuccess })
-
-    const onClick = () => {
-        playTrack({ input: { trackIds: [trackId], positionMs: timestamp } })
-    }
-
-    const text = comment !== undefined ? comment : timestamp ? `@${formattedTime}` : formattedTime
-    const internal = (
-        <a
-            className="link link-base-content link-hover"
-            onClick={e => onClick(e)}
-        >
-            {text}
-        </a>)
-    return comment !== undefined ?
-        (<a className="tooltip tooltip-bottom link link-base-content link-hover" data-tip={`@${time}`}>
-            {internal}
-        </a>) :
-        internal
-}
-
 export default function DetailedComment({ review, comment: detailedComment, children, onClick }: DetailedCommentProps) {
     const reviewId = review.reviewId
     const queryClient = useQueryClient()
     const currentUserId = useAtomValue(currentUserIdAtom)
-    const [currentlyPlaying, setCurrentlyPlaying] = useAtom(currentlyPlayingTrackAtom)
+    // TODO: CHANGE STYLING BASED ON NOW PLAYING!
+    const [currentlyPlaying, setCurrentlyPlaying] = useAtom(nowPlayingTrackIdAtom)
     const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
 
     const [isEditing, setIsEditing] = useState(false)
@@ -122,7 +62,8 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const { mutate: playTrack, isLoading } = usePlayTracksMutation({
         onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
         onSuccess: () => {
-            setCurrentlyPlaying(tracks.at(0))
+            // Ok because we won't play if there are no tracks.
+            setCurrentlyPlaying(tracks.at(0)!)
         }
     })
 
@@ -149,9 +90,6 @@ export default function DetailedComment({ review, comment: detailedComment, chil
         setIsReplying(false)
     }
 
-    const Stamp =
-        ({ at, comment }: TrackTimestampProps) =>
-            ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id! })
 
     const expanded = (isExpanded && children.length > 0) ? 'collapse-open' : 'collapse-close'
     const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
@@ -161,12 +99,12 @@ export default function DetailedComment({ review, comment: detailedComment, chil
             <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center justify-around bg-base-200 space-y-px py-0.5 md:py-1 px-0 relative">
                 {/* Delete confirmation */}
                 {isDeleting ?
-                    <div className="absolute inset-0 z-10 bg-base-300/10">
+                    <div className="absolute inset-0 z-10 bg-base-300/60">
                         <div className="w-full h-full grid place-items-center">
                             <div className="flex flex-col items-center" >
                                 <p>are you sure?</p>
                                 <div className="btn-group btn-group-horizontal " >
-                                    <button className="btn btn-error tooltip tooltip-bottom tooltip-error" data-tip="delete comment" onClick={onDelete}>
+                                    <button className={`btn btn-error tooltip tooltip-bottom tooltip-error ${loadingDelete ?? 'loading'}`} data-tip="delete comment" onClick={onDelete}>
                                         <HazardIcon />
                                     </button>
                                     <button className="btn btn-info tooltip tooltip-bottom tooltip-info" data-tip="cancel delete" onClick={() => setIsDeleting(false)}>
@@ -186,15 +124,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                     </div>
                     <div className="grid place-items-center w-full mx-1" >
                         <article className="card card-body p-0.5 lg:p-2 min-w-full min-h-full prose text-base-content bg-base-100 text-sm md:text-base">
-                            <Markdown
-                                options={{
-                                    overrides: {
-                                        Stamp,
-                                    },
-                                }}
-                            >
-                                {comment}
-                            </Markdown>
+                            <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
                         </article>
                     </div>
                 </div>
@@ -203,7 +133,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                         <SearchIcon />
                     </button>
                     <button className={`${buttonClass} btn-success`} onClick={onPlayTrack}>
-                        <PlayIcon/>
+                        <PlayIcon />
                     </button>
                     {/* For now we don't want to permit infinite nesting */}
                     <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>
@@ -252,12 +182,14 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                 open={isEditing}
                 onSubmit={onUpdate}
                 onCancel={resetState}
+                trackId={detailedComment?.entities?.at(0)?.id!}
                 initialValue={comment}
             />
             <CommentFormModal
                 title={'reply to comment'}
                 open={isReplying}
                 onSubmit={onReply}
+                trackId={detailedComment?.entities?.at(0)?.id!}
                 onCancel={resetState}
             />
         </div >

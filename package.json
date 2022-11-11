@@ -38,6 +38,7 @@
     "react-split": "^2.0.14",
     "react-virtuoso": "^2.19.1",
     "urql": "^3.0.3",
+    "use-long-press": "^2.0.2",
     "vite-tsconfig-paths": "^3.5.0"
   },
   "devDependencies": {

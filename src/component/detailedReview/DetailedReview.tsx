@@ -201,10 +201,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
             </div>
             <div className='w-full'>
-                <PlaybackTimeWrapper
-                    reviewId={reviewId}
-                    disabled={false}
-                />
+                <PlaybackTimeWrapper reviewId={reviewId} />
             </div>
         </div >
     )
@@ -277,7 +274,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
             .filter(([res,]) => nonNullable(res.data?.getPlaylist))
             // Extract entity.
             .map(([res, review]) => [res.data!.getPlaylist!, review]),
-    [playlistResults])
+        [playlistResults])
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 

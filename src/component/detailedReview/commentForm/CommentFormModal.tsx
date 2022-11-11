@@ -7,17 +7,18 @@ export interface CommentFormModalProps {
     onSubmit: (comment: string) => Promise<void>
     onCancel: () => void
     title: string
+    trackId: string
     initialValue?: string
 }
 
-export const CommentFormModal = ({ open, onSubmit, onCancel, title, initialValue }: CommentFormModalProps) => {
+export const CommentFormModal = ({ open, onSubmit, onCancel, title, trackId, initialValue }: CommentFormModalProps) => {
     return (
         <ThemeModal open={open} className="max-w-4xl">
             <div className="flex flex-col items-center justify-between space-y-5 p-3" >
-                <Dialog.Title>
-                    <h3 className="font-bold text-lg text-neutral-content"> {title} </h3>
+                <Dialog.Title className="font-bold text-lg text-neutral-content">
+                    {title}
                 </Dialog.Title>
-                <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} />
+                <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} trackId={trackId}/>
             </div>
         </ThemeModal>
     )

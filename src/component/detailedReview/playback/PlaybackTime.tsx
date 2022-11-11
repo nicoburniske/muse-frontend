@@ -1,6 +1,6 @@
 import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
-import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, usePlayMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
+import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePausePlaybackMutation, usePlayMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import { atom, useSetAtom } from 'jotai'
 import React, { useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import { openCommentModalAtom } from 'state/Atoms'
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
+import { useQueryClient } from '@tanstack/react-query'
 
 
 interface PlaybackTimeProps {
@@ -33,6 +34,7 @@ export function PlaybackTime({
     progressMs: progressProp, durationMs: durationProp,
     trackId, reviewId, disabled, isPlaying, isShuffled,
     trackImage, trackName, trackArtist, isLiked }: PlaybackTimeProps) {
+    const queryClient = useQueryClient()
 
     const [progressMs, setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
     const setCommentModal = useSetAtom(openCommentModalAtom)
@@ -50,10 +52,15 @@ export function PlaybackTime({
     //     setTimeout(() => setSelectedTrack(nowPlaying), 1);
     // }
 
-    const { mutate: createComment } = useCreateCommentMutation({ onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) } })
-    // TODO: how do I get review in here? 
-    const onSubmit = (comment: string) =>
-        createComment({ input: { comment, entityId: trackId, entityType: EntityType.Track, reviewId } },)
+    const { mutateAsync: createComment } = useCreateCommentMutation({
+        onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) },
+        onError: () => toast.error('failed to create comment')
+    })
+
+    const onSubmit = async (comment: string) => {
+        await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId }], reviewId } })
+        queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+    }
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const durationMs = durationProp > 0 ? durationProp : 1
@@ -71,7 +78,7 @@ export function PlaybackTime({
     const showModal = () => {
         const paddedS = seconds < 10 ? `0${seconds}` : seconds
         const initialValue = `<Stamp at="${minutes}:${paddedS}" />`
-        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue }
+        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue, trackId }
         setCommentModal(values)
     }
 

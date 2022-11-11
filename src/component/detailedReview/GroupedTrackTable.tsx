@@ -4,13 +4,13 @@ import { ReviewOverview } from './DetailedReview'
 import { useQueryClient } from '@tanstack/react-query'
 import { DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtomValue } from 'jotai'
+import { atom, PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai'
 import { focusAtom } from 'jotai/optics'
 import PlaylistTrack from './PlaylistTrack'
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils'
 import { useNavigate } from 'react-router-dom'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
-import { selectedTrackAtom } from 'state/Atoms'
+import { allReviewTracks, selectedTrackAtom } from 'state/Atoms'
 
 const useKeepMountedRangeExtractor = () => {
     const renderedRef = useRef(new Set<number>())
@@ -36,6 +36,10 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
 
     // ONLY FOR ATOMS/STATE. Does not account for collapse.
     const tracks = useMemo(() => allGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable), [allGroups])
+    const setReviewTracks = useSetAtom(allReviewTracks)
+    useEffect(() => {
+        setReviewTracks(new Set<string>(tracks.map(t => t.id)))
+    }, tracks)
 
     const [expandedGroups, setExpandedGroups] = useState<string[]>(results.length === 0 ? [] : [results[0][1].reviewId])
 
@@ -307,3 +311,7 @@ const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoP
     a.playlistId === b.playlistId &&
     a.reviewId === b.reviewId &&
     a.playlistTrack.track.id === b.playlistTrack.track.id)
+
+function setAtom(allReviewTracks: PrimitiveAtom<Set<string>> & { init: Set<string> }) {
+    throw new Error('Function not implemented.')
+}

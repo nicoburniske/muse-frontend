@@ -2,7 +2,7 @@ import { DetailedCommentFragment, useDetailedReviewCommentsQuery } from 'graphql
 import { useSetAtom } from 'jotai'
 import { useMemo } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
-import DetailedComment from './DetailedComment'
+import DetailedComment from './comment/DetailedComment'
 import { ReviewOverview } from './DetailedReview'
 import { useQueries } from '@tanstack/react-query'
 import { selectedTrackAtom } from 'state/Atoms'
