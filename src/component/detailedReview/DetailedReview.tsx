@@ -135,7 +135,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                         <SkipBackwardIcon />
                     </button>
                     <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
-                        <img className="object-scale-down object-center h-24 w-24" src={reviewEntityImage} />
+                        <img className="hidden md:flex object-scale-down object-center h-24 w-24" src={reviewEntityImage} />
                         <div className="flex flex-col">
                             <div className="stat-value text-sm lg:text-base text-clip">{title}</div>
                             <div className="stat-title text-sm lg:text-base text-clip">{entityName}</div>

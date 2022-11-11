@@ -117,9 +117,9 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
-            <div className="avatar">
+            <div className="hidden sm:flex avatar">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
                     <img src={albumImage} />
                 </div>

@@ -155,7 +155,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
 
     const expanded = (isExpanded && children.length > 0) ? 'collapse-open' : 'collapse-close'
     const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
-    const buttonClass = 'btn btn-xs p-0 lg:btn-md'
+    const buttonClass = 'btn btn-ghost btn-xs p-0 lg:btn-md'
     return (
         <div tabIndex={0} className={`collapse group rounded-box ${expanded} py-1`}>
             <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center justify-around bg-base-200 space-y-px py-0.5 md:py-1 px-0 relative">
@@ -180,7 +180,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                 }
 
                 <div className="flex flex-row w-full ">
-                    <div className="self-start flex items-center justify-around flex-col md:space-y-2 justify-self-start py-1">
+                    <div className="self-start flex items-center justify-around flex-col space-y-2 justify-self-start py-1">
                         <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down} />
                         <div className="text-base-content text-wrap text-xs text-center lg:w-full md:text-base"> {createdAt} </div>
                     </div>
