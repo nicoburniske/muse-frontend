@@ -1,66 +1,69 @@
-import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation, useUpdateCommentMutation } from 'graphql/generated/schema'
+import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDeleteCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextInputMutation, usePlayEntityContextMutation, usePlayTracksMutation, useUpdateCommentMutation } from 'graphql/generated/schema'
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Markdown from 'markdown-to-jsx'
 import { CommentFormModal } from './commentForm/CommentFormModal'
-import { currentUserIdAtom } from 'state/Atoms'
-import { useAtomValue } from 'jotai'
+import { currentlyPlayingTrackAtom, currentUserIdAtom } from 'state/Atoms'
+import { useAtom, useAtomValue } from 'jotai'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
-import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
+import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from './DetailedReview'
 
 export interface DetailedCommentProps {
-  review: ReviewOverview
-  comment: DetailedCommentFragment
-  children: DetailedCommentFragment[]
-  onClick: () => void
+    review: ReviewOverview
+    comment: DetailedCommentFragment
+    children: DetailedCommentFragment[]
+    onClick: () => void
 }
 
 interface TrackTimestampProps {
-  at: string
-  comment?: string
+    at: string
+    comment?: string
 }
 interface ConvertToTimestampProps {
-  time: string
-  trackId: string
-  review: ReviewOverview
-  comment?: string
+    time: string
+    trackId: string
+    comment?: string
 }
 
-function ConvertToTimestamp({ time, trackId, review, comment }: ConvertToTimestampProps) {
+function ConvertToTimestamp({ time, trackId, comment }: ConvertToTimestampProps) {
     // Timestamp converted to millis if valid.
-    const timestamp = useMemo(() => {
+    const [timestamp, formattedTime] = useMemo(() => {
         const timeSplit = time.split(':')
         if (timeSplit.length === 2) {
             const mins = parseInt(timeSplit[0])
             const seconds = parseInt(timeSplit[1])
             if (isNaN(mins) || mins > 60 || mins < 0 || isNaN(seconds) || seconds > 60 || seconds < 0) {
-                return undefined
+                return [undefined, undefined]
             }
-            return (mins * 60 + seconds) * 1000
+            return [(mins * 60 + seconds) * 1000, `${mins}:${seconds}`]
+        } else if (timeSplit.length === 1) {
+            const seconds = parseInt(timeSplit[0])
+            if (!isNaN(seconds) || seconds < 60 || seconds >= 0) {
+                return [seconds * 1000, `0:${seconds}`]
+            }
         }
-        return undefined
+        return [undefined, undefined]
     }, [time])
 
     const handleError = () => {
         toast.error('Failed to start playback. Please start a playback session and try again.')
     }
+
     const onSuccess = () => {
         if (timestamp === undefined) {
             toast.error('Successfully started playback from start. Invalid timestamp.')
         }
     }
 
-    const { mutate: playTrack } = useStartPlaybackMutation({ onError: handleError, onSuccess })
+    const { mutate: playTrack } = usePlayTracksMutation({ onError: handleError, onSuccess })
 
     const onClick = () => {
-        const inner = { entityId: trackId, entityType: EntityType.Track }
-        const outer = { entityId: review.entityId, entityType: review.entityType }
-        playTrack({ input: { entityOffset: { outer, inner }, positionMs: timestamp } })
+        playTrack({ input: { trackIds: [trackId], positionMs: timestamp } })
     }
 
-    const text = comment !== undefined ? comment : timestamp ? `@${time}` : time
+    const text = comment !== undefined ? comment : timestamp ? `@${formattedTime}` : formattedTime
     const internal = (
         <a
             className="link link-base-content link-hover"
@@ -79,6 +82,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const reviewId = review.reviewId
     const queryClient = useQueryClient()
     const currentUserId = useAtomValue(currentUserIdAtom)
+    const [currentlyPlaying, setCurrentlyPlaying] = useAtom(currentlyPlayingTrackAtom)
     const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
 
     const [isEditing, setIsEditing] = useState(false)
@@ -114,6 +118,20 @@ export default function DetailedComment({ review, comment: detailedComment, chil
         reloadComments()
     }
 
+    const tracks = (detailedComment.entities ?? []).map(e => e.id)
+    const { mutate: playTrack, isLoading } = usePlayTracksMutation({
+        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
+        onSuccess: () => {
+            setCurrentlyPlaying(tracks.at(0))
+        }
+    })
+
+    const onPlayTrack = () => {
+        if (tracks.length > 0 && !isLoading) {
+            playTrack({ input: { trackIds: tracks } })
+        }
+    }
+
     const onReply = async (content: string) => {
         const input = {
             reviewId,
@@ -132,15 +150,15 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     }
 
     const Stamp =
-    ({ at, comment }: TrackTimestampProps) =>
-        ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id!, review })
+        ({ at, comment }: TrackTimestampProps) =>
+            ConvertToTimestamp({ time: at, comment, trackId: detailedComment?.entities?.at(0)?.id! })
 
     const expanded = (isExpanded && children.length > 0) ? 'collapse-open' : 'collapse-close'
     const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
-    const buttonClass = 'btn btn-xs p-0 lg:btn-sm'
+    const buttonClass = 'btn btn-xs p-0 lg:btn-md'
     return (
-        <div tabIndex={0} className={`collapse group rounded-box ${expanded}`}>
-            <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center lg:justify-around bg-base-200 md:flex-row space-y-px py-0.5 md:py-1 px-0 relative">
+        <div tabIndex={0} className={`collapse group rounded-box ${expanded} py-1`}>
+            <div className="collapse-title card card-body w-full text-base-content flex flex-col items-center justify-around bg-base-200 space-y-px py-0.5 md:py-1 px-0 relative">
                 {/* Delete confirmation */}
                 {isDeleting ?
                     <div className="absolute inset-0 z-10 bg-base-300/10">
@@ -160,26 +178,32 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                     </div>
                     : null
                 }
-                <div className="flex flex-row items-center justify-around md:flex-col md:space-y-2 justify-self-start w-full py-1 md:w-[20%]">
-                    <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down} />
-                    <div className="text-base-content text-wrap text-xs text-center lg:w-full md:text-center md:text-base"> {createdAt} </div>
-                </div>
 
-                <div className="grid place-items-center w-full mx-1 md:min-h-[75%]" >
-                    <article className="card card-body p-0.5 lg:p-2 min-w-full md:min-h-full prose text-base-content bg-base-100 text-sm md:text-base">
-                        <Markdown
-                            children={comment}
-                            options={{
-                                overrides: {
-                                    Stamp,
-                                },
-                            }}
-                        />
-                    </article>
+                <div className="flex flex-row w-full ">
+                    <div className="self-start flex items-center justify-around flex-col md:space-y-2 justify-self-start py-1">
+                        <UserAvatar displayName={commenterName as string} image={avatar as string} tooltipPos={TooltipPos.Down} />
+                        <div className="text-base-content text-wrap text-xs text-center lg:w-full md:text-base"> {createdAt} </div>
+                    </div>
+                    <div className="grid place-items-center w-full mx-1" >
+                        <article className="card card-body p-0.5 lg:p-2 min-w-full min-h-full prose text-base-content bg-base-100 text-sm md:text-base">
+                            <Markdown
+                                options={{
+                                    overrides: {
+                                        Stamp,
+                                    },
+                                }}
+                            >
+                                {comment}
+                            </Markdown>
+                        </article>
+                    </div>
                 </div>
-                <div className="flex-grow-1 flex flex-row justify-around w-full md:flex-col md:w-fit md:pr-1 md:py-5">
+                <div className="flex-grow-1 flex flex-row justify-around w-full">
                     <button className={`${buttonClass} btn-success`} onClick={onClick}>
                         <SearchIcon />
+                    </button>
+                    <button className={`${buttonClass} btn-success`} onClick={onPlayTrack}>
+                        <PlayIcon/>
                     </button>
                     {/* For now we don't want to permit infinite nesting */}
                     <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>

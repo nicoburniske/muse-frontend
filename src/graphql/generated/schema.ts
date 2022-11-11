@@ -171,13 +171,16 @@ export type Mutations = {
   deleteReviewLink?: Maybe<Scalars['Boolean']>;
   linkReviews?: Maybe<Scalars['Boolean']>;
   pausePlayback?: Maybe<Scalars['Boolean']>;
+  play?: Maybe<Scalars['Boolean']>;
+  playEntityContext?: Maybe<Scalars['Boolean']>;
+  playOffsetContext?: Maybe<Scalars['Boolean']>;
+  playTracks?: Maybe<Scalars['Boolean']>;
   removeSavedTracks?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
   seekPlayback?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
   skipToNext?: Maybe<Scalars['Boolean']>;
   skipToPrevious?: Maybe<Scalars['Boolean']>;
-  startPlayback?: Maybe<Scalars['Boolean']>;
   toggleShuffle?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
@@ -220,6 +223,26 @@ export type MutationsPausePlaybackArgs = {
 };
 
 
+export type MutationsPlayArgs = {
+  input: PlayInput;
+};
+
+
+export type MutationsPlayEntityContextArgs = {
+  input: PlayEntityContextInput;
+};
+
+
+export type MutationsPlayOffsetContextArgs = {
+  input: PlayOffsetContextInput;
+};
+
+
+export type MutationsPlayTracksArgs = {
+  input: PlayTracksInput;
+};
+
+
 export type MutationsRemoveSavedTracksArgs = {
   input: Array<Scalars['String']>;
 };
@@ -247,11 +270,6 @@ export type MutationsSkipToNextArgs = {
 
 export type MutationsSkipToPreviousArgs = {
   deviceId?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationsStartPlaybackArgs = {
-  input: PlaybackContextInput;
 };
 
 
@@ -311,6 +329,28 @@ export type PaginationResultTrack = {
   nextOffset?: Maybe<Scalars['Int']>;
 };
 
+export type PlayEntityContextInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  offset: EntityOffsetInput;
+  positionMs?: InputMaybe<Scalars['Int']>;
+};
+
+export type PlayInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+};
+
+export type PlayOffsetContextInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  offset: PositionOffsetInput;
+  positionMs?: InputMaybe<Scalars['Int']>;
+};
+
+export type PlayTracksInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  positionMs?: InputMaybe<Scalars['Int']>;
+  trackIds: Array<Scalars['String']>;
+};
+
 export type PlaybackContext = {
   __typename?: 'PlaybackContext';
   externalUrls: Array<KvStringString>;
@@ -318,15 +358,6 @@ export type PlaybackContext = {
   metadata?: Maybe<Array<KvStringString>>;
   type: Scalars['String'];
   uri: Scalars['String'];
-};
-
-export type PlaybackContextInput = {
-  /** If device id is specified, playback will be transferred to that device. Otherwise, playback will be executed on user's active device. */
-  deviceId?: InputMaybe<Scalars['String']>;
-  entityOffset?: InputMaybe<EntityOffsetInput>;
-  positionMs?: InputMaybe<Scalars['Int']>;
-  positionOffset?: InputMaybe<PositionOffsetInput>;
-  uris?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type PlaybackDevice = {
@@ -649,6 +680,27 @@ export type PausePlaybackMutationVariables = Exact<{
 
 export type PausePlaybackMutation = { __typename?: 'Mutations', pausePlayback?: boolean | null };
 
+export type PlayMutationVariables = Exact<{
+  input: PlayInput;
+}>;
+
+
+export type PlayMutation = { __typename?: 'Mutations', play?: boolean | null };
+
+export type PlayEntityContextMutationVariables = Exact<{
+  input: PlayEntityContextInput;
+}>;
+
+
+export type PlayEntityContextMutation = { __typename?: 'Mutations', playEntityContext?: boolean | null };
+
+export type PlayTracksMutationVariables = Exact<{
+  input: PlayTracksInput;
+}>;
+
+
+export type PlayTracksMutation = { __typename?: 'Mutations', playTracks?: boolean | null };
+
 export type RemoveSavedTracksMutationVariables = Exact<{
   trackIds: Array<Scalars['String']> | Scalars['String'];
 }>;
@@ -697,13 +749,6 @@ export type SkipToPreviousMutationVariables = Exact<{
 
 
 export type SkipToPreviousMutation = { __typename?: 'Mutations', skipToPrevious?: boolean | null };
-
-export type StartPlaybackMutationVariables = Exact<{
-  input: PlaybackContextInput;
-}>;
-
-
-export type StartPlaybackMutation = { __typename?: 'Mutations', startPlayback?: boolean | null };
 
 export type UpdateCommentMutationVariables = Exact<{
   input: UpdateCommentInput;
@@ -1151,6 +1196,51 @@ export const usePausePlaybackMutation = <
             options
         )
 usePausePlaybackMutation.fetcher = (variables?: PausePlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables, options)
+export const PlayDocument = `
+    mutation Play($input: PlayInput!) {
+  play(input: $input)
+}
+    `
+export const usePlayMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<PlayMutation, TError, PlayMutationVariables, TContext>) =>
+        useMutation<PlayMutation, TError, PlayMutationVariables, TContext>(
+            ['Play'],
+            (variables?: PlayMutationVariables) => fetcher<PlayMutation, PlayMutationVariables>(PlayDocument, variables)(),
+            options
+        )
+usePlayMutation.fetcher = (variables: PlayMutationVariables, options?: RequestInit['headers']) => fetcher<PlayMutation, PlayMutationVariables>(PlayDocument, variables, options)
+export const PlayEntityContextDocument = `
+    mutation PlayEntityContext($input: PlayEntityContextInput!) {
+  playEntityContext(input: $input)
+}
+    `
+export const usePlayEntityContextMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<PlayEntityContextMutation, TError, PlayEntityContextMutationVariables, TContext>) =>
+        useMutation<PlayEntityContextMutation, TError, PlayEntityContextMutationVariables, TContext>(
+            ['PlayEntityContext'],
+            (variables?: PlayEntityContextMutationVariables) => fetcher<PlayEntityContextMutation, PlayEntityContextMutationVariables>(PlayEntityContextDocument, variables)(),
+            options
+        )
+usePlayEntityContextMutation.fetcher = (variables: PlayEntityContextMutationVariables, options?: RequestInit['headers']) => fetcher<PlayEntityContextMutation, PlayEntityContextMutationVariables>(PlayEntityContextDocument, variables, options)
+export const PlayTracksDocument = `
+    mutation PlayTracks($input: PlayTracksInput!) {
+  playTracks(input: $input)
+}
+    `
+export const usePlayTracksMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<PlayTracksMutation, TError, PlayTracksMutationVariables, TContext>) =>
+        useMutation<PlayTracksMutation, TError, PlayTracksMutationVariables, TContext>(
+            ['PlayTracks'],
+            (variables?: PlayTracksMutationVariables) => fetcher<PlayTracksMutation, PlayTracksMutationVariables>(PlayTracksDocument, variables)(),
+            options
+        )
+usePlayTracksMutation.fetcher = (variables: PlayTracksMutationVariables, options?: RequestInit['headers']) => fetcher<PlayTracksMutation, PlayTracksMutationVariables>(PlayTracksDocument, variables, options)
 export const RemoveSavedTracksDocument = `
     mutation RemoveSavedTracks($trackIds: [String!]!) {
   removeSavedTracks(input: $trackIds)
@@ -1256,21 +1346,6 @@ export const useSkipToPreviousMutation = <
             options
         )
 useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables, options)
-export const StartPlaybackDocument = `
-    mutation StartPlayback($input: PlaybackContextInput!) {
-  startPlayback(input: $input)
-}
-    `
-export const useStartPlaybackMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<StartPlaybackMutation, TError, StartPlaybackMutationVariables, TContext>) =>
-        useMutation<StartPlaybackMutation, TError, StartPlaybackMutationVariables, TContext>(
-            ['StartPlayback'],
-            (variables?: StartPlaybackMutationVariables) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables)(),
-            options
-        )
-useStartPlaybackMutation.fetcher = (variables: StartPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<StartPlaybackMutation, StartPlaybackMutationVariables>(StartPlaybackDocument, variables, options)
 export const UpdateCommentDocument = `
     mutation UpdateComment($input: UpdateCommentInput!) {
   updateComment(input: $input) {

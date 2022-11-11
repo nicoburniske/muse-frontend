@@ -1,0 +1,3 @@
+mutation Play($input: PlayInput!) {
+    play(input: $input) 
+}

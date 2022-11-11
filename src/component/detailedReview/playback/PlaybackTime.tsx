@@ -1,6 +1,6 @@
 import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
-import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useStartPlaybackMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
+import { EntityType, useCreateCommentMutation, usePausePlaybackMutation, usePlayMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import { atom, useSetAtom } from 'jotai'
 import React, { useEffect, useState } from 'react'
@@ -217,7 +217,7 @@ const PlayerButtons = ({ trackId, isPlaying: isPlayingProp, isShuffled: isShuffl
         onError: () => toast.success('Failed to pause playback.'),
     })
 
-    const { mutate: playTrack, isLoading: loadingPlay } = useStartPlaybackMutation()
+    const { mutate: playTrack, isLoading: loadingPlay } = usePlayMutation()
 
     // variables: { input: !isShuffled },
     const { mutate: toggleShuffle } = useToggleShuffleMutation({

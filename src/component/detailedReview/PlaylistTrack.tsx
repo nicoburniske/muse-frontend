@@ -1,4 +1,4 @@
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, useStartPlaybackMutation } from 'graphql/generated/schema'
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from 'jotai'
 import { currentlyPlayingTrackAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
@@ -62,17 +62,19 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
-    const { mutateAsync: createComment } = useCreateCommentMutation({ 
+    const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
         onSuccess: resetState,
         onError: () => toast.error('Failed to create comment.')
     })
     const onSubmit = async (comment: string) => {
-        const createdComment = await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
-        createdComment.createComment
-        queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+        if (!isLoadingComment) {
+            const createdComment = await createComment({ input: { comment, entities: [{ entityId: track.id, entityType: EntityType.Track }], reviewId } })
+            createdComment.createComment
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+        }
     }
 
-    const { mutate: playTrack, isLoading } = useStartPlaybackMutation({
+    const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
         onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
         onSuccess: () => {
             setPlaying(track.id)
@@ -85,7 +87,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
             const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
             const inner = { entityId: track.id, entityType: EntityType.Track }
             const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            const input = { input: { entityOffset: { outer, inner }, deviceId: device } }
+            const input = { input: { offset: { outer, inner }, deviceId: device } }
             playTrack(input)
         }
     }

@@ -172,13 +172,16 @@ export type Mutations = {
   deleteReviewLink?: Maybe<Scalars['Boolean']>;
   linkReviews?: Maybe<Scalars['Boolean']>;
   pausePlayback?: Maybe<Scalars['Boolean']>;
+  play?: Maybe<Scalars['Boolean']>;
+  playEntityContext?: Maybe<Scalars['Boolean']>;
+  playOffsetContext?: Maybe<Scalars['Boolean']>;
+  playTracks?: Maybe<Scalars['Boolean']>;
   removeSavedTracks?: Maybe<Scalars['Boolean']>;
   saveTracks?: Maybe<Scalars['Boolean']>;
   seekPlayback?: Maybe<Scalars['Boolean']>;
   shareReview?: Maybe<Scalars['Boolean']>;
   skipToNext?: Maybe<Scalars['Boolean']>;
   skipToPrevious?: Maybe<Scalars['Boolean']>;
-  startPlayback?: Maybe<Scalars['Boolean']>;
   toggleShuffle?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
@@ -221,6 +224,26 @@ export type MutationsPausePlaybackArgs = {
 };
 
 
+export type MutationsPlayArgs = {
+  input: PlayInput;
+};
+
+
+export type MutationsPlayEntityContextArgs = {
+  input: PlayEntityContextInput;
+};
+
+
+export type MutationsPlayOffsetContextArgs = {
+  input: PlayOffsetContextInput;
+};
+
+
+export type MutationsPlayTracksArgs = {
+  input: PlayTracksInput;
+};
+
+
 export type MutationsRemoveSavedTracksArgs = {
   input: Array<Scalars['String']>;
 };
@@ -248,11 +271,6 @@ export type MutationsSkipToNextArgs = {
 
 export type MutationsSkipToPreviousArgs = {
   deviceId?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationsStartPlaybackArgs = {
-  input: PlaybackContextInput;
 };
 
 
@@ -312,6 +330,28 @@ export type PaginationResultTrack = {
   nextOffset?: Maybe<Scalars['Int']>;
 };
 
+export type PlayEntityContextInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  offset: EntityOffsetInput;
+  positionMs?: InputMaybe<Scalars['Int']>;
+};
+
+export type PlayInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+};
+
+export type PlayOffsetContextInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  offset: PositionOffsetInput;
+  positionMs?: InputMaybe<Scalars['Int']>;
+};
+
+export type PlayTracksInput = {
+  deviceId?: InputMaybe<Scalars['String']>;
+  positionMs?: InputMaybe<Scalars['Int']>;
+  trackIds: Array<Scalars['String']>;
+};
+
 export type PlaybackContext = {
   __typename?: 'PlaybackContext';
   externalUrls: Array<KvStringString>;
@@ -319,15 +359,6 @@ export type PlaybackContext = {
   metadata?: Maybe<Array<KvStringString>>;
   type: Scalars['String'];
   uri: Scalars['String'];
-};
-
-export type PlaybackContextInput = {
-  /** If device id is specified, playback will be transferred to that device. Otherwise, playback will be executed on user's active device. */
-  deviceId?: InputMaybe<Scalars['String']>;
-  entityOffset?: InputMaybe<EntityOffsetInput>;
-  positionMs?: InputMaybe<Scalars['Int']>;
-  positionOffset?: InputMaybe<PositionOffsetInput>;
-  uris?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type PlaybackDevice = {

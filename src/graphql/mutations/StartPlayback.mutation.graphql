@@ -1,3 +1,0 @@
-mutation StartPlayback($input: PlaybackContextInput!) {
-    startPlayback(input: $input) 
-}

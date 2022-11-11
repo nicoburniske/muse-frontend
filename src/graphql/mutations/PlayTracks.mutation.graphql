@@ -1,0 +1,3 @@
+mutation PlayTracks($input: PlayTracksInput!) {
+   playTracks(input: $input) 
+}
