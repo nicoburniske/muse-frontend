@@ -48,7 +48,6 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
         } catch (e) {
             toast.error('Failed to update review sharing.')
         }
-        onCancel()
     }
 
     const onCancel = () => {
