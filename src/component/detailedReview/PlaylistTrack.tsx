@@ -8,7 +8,7 @@ import useDoubleClick from 'hook/useDoubleClick'
 import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
-import { useLongPress } from 'use-long-press';
+import { useLongPress } from 'use-long-press'
 
 import * as O from 'optics-ts'
 
@@ -19,19 +19,13 @@ export interface PlaylistTrackProps {
     atom: PrimitiveAtom<DetailedTrackFragment>
 }
 
-function valueOrIfNull<T>(defaultValue: T) {
-    O.optic<T | null>().lens(
-        (source) => (source === null ? defaultValue : source),
-        (value, _source) => value
-    )
-}
 
 function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
     return atom<T, SetStateAction<T>>((get) => {
         const value = get(atomParam)
         return value === null ? defaultValue : value
     },
-        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
+    (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
     )
 }
 
@@ -54,7 +48,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
 
     // Get track styles.
     const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
-    const [currentlyPlaying, setPlaying] = useAtom(nowPlayingTrackIdAtom)
+    const currentlyPlaying = useAtomValue(nowPlayingTrackIdAtom)
     const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
     const [bgStyle, textStyle, hoverStyle] =
         isPlaying ? ['bg-success', 'text-success-content', ''] :
@@ -124,7 +118,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
             ref={playOnDoubleClickRef}
             className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
-            <div className="hidden sm:flex avatar">
+            <div className="hidden sm:flex avatar ml-1">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
                     <img src={albumImage} />
                 </div>

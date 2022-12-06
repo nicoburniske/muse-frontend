@@ -63,7 +63,7 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
 
     const disabled = useMemo(() =>
         isLoading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
-        [isLoading, isPublic, reviewName])
+    [isLoading, isPublic, reviewName])
 
     return (
         <ThemeModal open={isOpen} className="max-w-md">

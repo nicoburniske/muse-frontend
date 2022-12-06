@@ -13,12 +13,12 @@ import CommentMarkdown from './CommentMarkdown'
 export interface DetailedCommentProps {
     review: ReviewOverview
     comment: DetailedCommentFragment
-    children: DetailedCommentFragment[]
+    childComments: DetailedCommentFragment[]
     onClick: () => void
 }
 
 // TODO: CHANGE STYLING BASED ON NOW PLAYING!
-export default function DetailedComment({ review, comment: detailedComment, children, onClick }: DetailedCommentProps) {
+export default function DetailedComment({ review, comment: detailedComment, childComments, onClick }: DetailedCommentProps) {
     const reviewId = review.reviewId
     const queryClient = useQueryClient()
     const currentUserId = useAtomValue(currentUserIdAtom)
@@ -39,8 +39,9 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const comment = detailedComment?.comment ?? 'Failed to retrieve comment'
     const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
     const createdAt = (() => {
+        const pad = (num: number) => String(num).padStart(2, '0')
         const date = new Date(detailedComment?.updatedAt)
-        return `${date.toLocaleDateString()}  ${date.getHours()}:${date.getMinutes()}`
+        return `${date.toLocaleDateString()}  ${pad(date.getHours())}:${pad(date.getMinutes())}`
     })()
 
     const reloadComments = () => queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
@@ -87,7 +88,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     }
 
 
-    const expanded = (isExpanded && children.length > 0) ? 'collapse-open' : 'collapse-close'
+    const expanded = (isExpanded && childComments.length > 0) ? 'collapse-open' : 'collapse-close'
     const childrenBg = (isExpanded) ? 'bg-primary card p-2' : ''
     const buttonClass = 'btn btn-ghost btn-xs p-0 lg:btn-s'
     return (
@@ -146,7 +147,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                         </>)
                         : null
                     }
-                    {(children.length > 0) ?
+                    {(childComments.length > 0) ?
                         (
                             <button className={`${buttonClass} btn-info`} onClick={() => setIsExpanded(!isExpanded)}>
                                 {
@@ -161,11 +162,11 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                 </div >
             </div>
             {
-                (children.length > 0) ?
+                (childComments.length > 0) ?
                     (<div tabIndex={0} className={`collapse-content ${childrenBg} space-y-0.5 px-1`}>
                         {
-                            children.map(child =>
-                                <DetailedComment key={child.id} review={review} comment={child} children={[]} onClick={onClick} />
+                            childComments.map(child =>
+                                <DetailedComment key={child.id} review={review} comment={child} childComments={[]} onClick={onClick} />
                             )
                         }
                     </div>

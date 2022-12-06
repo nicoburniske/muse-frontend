@@ -182,6 +182,7 @@ export type Mutations = {
   skipToNext?: Maybe<Scalars['Boolean']>;
   skipToPrevious?: Maybe<Scalars['Boolean']>;
   toggleShuffle?: Maybe<Scalars['Boolean']>;
+  transferPlayback?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
   updateReviewEntity?: Maybe<Review>;
@@ -275,6 +276,11 @@ export type MutationsSkipToPreviousArgs = {
 
 export type MutationsToggleShuffleArgs = {
   input: Scalars['Boolean'];
+};
+
+
+export type MutationsTransferPlaybackArgs = {
+  input: TransferPlaybackInput;
 };
 
 
@@ -417,6 +423,7 @@ export type Queries = {
   availableDevices?: Maybe<Array<PlaybackDevice>>;
   getAlbum?: Maybe<Album>;
   getPlaylist?: Maybe<Playlist>;
+  getTrack?: Maybe<Track>;
   review?: Maybe<Review>;
   search?: Maybe<SearchResult>;
   user?: Maybe<User>;
@@ -429,6 +436,11 @@ export type QueriesGetAlbumArgs = {
 
 
 export type QueriesGetPlaylistArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueriesGetTrackArgs = {
   id: Scalars['String'];
 };
 
@@ -559,6 +571,11 @@ export type Track = ReviewEntity & {
   previewUrl?: Maybe<Scalars['String']>;
   trackNumber: Scalars['Int'];
   uri: Scalars['String'];
+};
+
+export type TransferPlaybackInput = {
+  deviceId: Scalars['String'];
+  play?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type UpdateCommentInput = {
@@ -750,6 +767,13 @@ export type SkipToPreviousMutationVariables = Exact<{
 
 export type SkipToPreviousMutation = { __typename?: 'Mutations', skipToPrevious?: boolean | null };
 
+export type TransferPlaybackMutationVariables = Exact<{
+  input: TransferPlaybackInput;
+}>;
+
+
+export type TransferPlaybackMutation = { __typename?: 'Mutations', transferPlayback?: boolean | null };
+
 export type UpdateCommentMutationVariables = Exact<{
   input: UpdateCommentInput;
 }>;
@@ -805,6 +829,13 @@ export type SearchSpotifyQueryVariables = Exact<{
 
 
 export type SearchSpotifyQuery = { __typename?: 'Queries', search?: { __typename?: 'SearchResult', playlists?: { __typename?: 'PaginationResultPlaylist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> } | null, albums?: { __typename?: 'PaginationResultAlbum', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null }> } | null } | null };
+
+export type TrackLikeQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type TrackLikeQuery = { __typename?: 'Queries', getTrack?: { __typename?: 'Track', id: string, isLiked?: boolean | null } | null };
 
 export type UserPlaylistsQueryVariables = Exact<{
   input: SearchUserPlaylistsInput;
@@ -1346,6 +1377,21 @@ export const useSkipToPreviousMutation = <
             options
         )
 useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables, options)
+export const TransferPlaybackDocument = `
+    mutation TransferPlayback($input: TransferPlaybackInput!) {
+  transferPlayback(input: $input)
+}
+    `
+export const useTransferPlaybackMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<TransferPlaybackMutation, TError, TransferPlaybackMutationVariables, TContext>) =>
+        useMutation<TransferPlaybackMutation, TError, TransferPlaybackMutationVariables, TContext>(
+            ['TransferPlayback'],
+            (variables?: TransferPlaybackMutationVariables) => fetcher<TransferPlaybackMutation, TransferPlaybackMutationVariables>(TransferPlaybackDocument, variables)(),
+            options
+        )
+useTransferPlaybackMutation.fetcher = (variables: TransferPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<TransferPlaybackMutation, TransferPlaybackMutationVariables>(TransferPlaybackDocument, variables, options)
 export const UpdateCommentDocument = `
     mutation UpdateComment($input: UpdateCommentInput!) {
   updateComment(input: $input) {
@@ -1676,6 +1722,50 @@ useInfiniteSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) 
 
 
 useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables, options?: RequestInit['headers']) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables, options)
+export const TrackLikeDocument = `
+    query TrackLike($id: String!) {
+  getTrack(id: $id) {
+    id
+    isLiked
+  }
+}
+    `
+export const useTrackLikeQuery = <
+      TData = TrackLikeQuery,
+      TError = unknown
+    >(
+        variables: TrackLikeQueryVariables,
+        options?: UseQueryOptions<TrackLikeQuery, TError, TData>
+    ) =>
+        useQuery<TrackLikeQuery, TError, TData>(
+            ['TrackLike', variables],
+            fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, variables),
+            options
+        )
+
+useTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike', variables]
+
+
+export const useInfiniteTrackLikeQuery = <
+      TData = TrackLikeQuery,
+      TError = unknown
+    >(
+        pageParamKey: keyof TrackLikeQueryVariables,
+        variables: TrackLikeQueryVariables,
+        options?: UseInfiniteQueryOptions<TrackLikeQuery, TError, TData>
+    ) =>{
+    
+    return useInfiniteQuery<TrackLikeQuery, TError, TData>(
+        ['TrackLike.infinite', variables],
+        (metaData) => fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
+        options
+    )}
+
+
+useInfiniteTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike.infinite', variables]
+
+
+useTrackLikeQuery.fetcher = (variables: TrackLikeQueryVariables, options?: RequestInit['headers']) => fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, variables, options)
 export const UserPlaylistsDocument = `
     query UserPlaylists($input: SearchUserPlaylistsInput!) {
   user {

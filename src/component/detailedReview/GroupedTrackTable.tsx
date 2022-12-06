@@ -245,7 +245,7 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
 
     return (
         <div className="bg-blue h-10">
-            <div className={`card py-0 w-full bg-secondary  ${className}`}
+            <div className={`card py-0 w-full bg-secondary ${className}`}
                 onClick={onClick}>
                 <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                     <div className={`${nameStyle}`}>
@@ -311,7 +311,3 @@ const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoP
     a.playlistId === b.playlistId &&
     a.reviewId === b.reviewId &&
     a.playlistTrack.track.id === b.playlistTrack.track.id)
-
-function setAtom(allReviewTracks: PrimitiveAtom<Set<string>> & { init: Set<string> }) {
-    throw new Error('Function not implemented.')
-}

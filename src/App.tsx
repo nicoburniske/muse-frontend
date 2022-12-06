@@ -1,5 +1,6 @@
 import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
+import { useSetupSpotifySDK, useSetupPlaybackState } from 'component/playbackSDK/PlaybackSDK'
 import { useAtomValue } from 'jotai'
 import { Routes, Route } from 'react-router-dom'
 import { themeAtom } from 'state/Atoms'
@@ -8,6 +9,8 @@ import './index.css'
 
 export default function App() {
     const theme = useAtomValue(themeAtom)
+    useSetupSpotifySDK()
+    useSetupPlaybackState()
 
     return (
         <div data-theme={theme} className="h-screen bg-base-300">

@@ -3,13 +3,14 @@ import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'gr
 import toast from 'react-hot-toast'
 import { HeroLoading } from 'component/HeroLoading'
 import { currentUserIdAtom, searchLoweredAtom } from 'state/Atoms'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useState } from 'react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useEffect, useMemo } from 'react'
 import NavbarRhs from 'component/NavbarRhs'
 import useWindowSize from 'hook/useWindowSize'
 import { findFirstImage, nonNullable } from 'util/Utils'
+import { atomWithStorage } from 'jotai/utils'
 
-// const gridSizeAtom = atomWithStorage('muse-browse-grid-cols', 3)
+const gridSizeAtom = atomWithStorage<number>('muse-browse-grid-cols', 3)
 
 export default function BrowsePage() {
     const nav = useNavigate()
@@ -20,16 +21,16 @@ export default function BrowsePage() {
 
     const reviews = useMemo(() =>
         data?.user?.reviews?.filter(r =>
-        // Titles.
+            // Titles.
             r.reviewName.toLowerCase().includes(search) ||
-      r.creator?.id.toLowerCase().includes(search) ||
-      r.entity?.name.toLowerCase().includes(search) ||
-      // playlist owner.
-      (r.entity?.__typename === EntityType.Playlist &&
-        (r.entity?.owner?.id.toLowerCase().includes(search) ||
-          r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
-      // review owner.
-      || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
+            r.creator?.id.toLowerCase().includes(search) ||
+            r.entity?.name.toLowerCase().includes(search) ||
+            // playlist owner.
+            (r.entity?.__typename === EntityType.Playlist &&
+                (r.entity?.owner?.id.toLowerCase().includes(search) ||
+                    r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
+            // review owner.
+            || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
         ) ?? [], [search, data])
 
     // Set current user name.
@@ -44,7 +45,7 @@ export default function BrowsePage() {
     const { isSm } = useWindowSize()
     useEffect(() => isSm ? setNumPerRow(2) : undefined, [isSm])
 
-    const [numPerRow, setNumPerRow] = useState(isSm ? 2 : 5)
+    const [numPerRow, setNumPerRow] = useAtom(gridSizeAtom)
     const gridStyle = useMemo(() => `grid gap-4 pt-2 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
 
     if (isLoading && data == undefined) {
@@ -79,7 +80,7 @@ export default function BrowsePage() {
     }
 }
 interface BrowseCardProps {
-  review: ReviewDetailsFragment
+    review: ReviewDetailsFragment
 }
 
 function BrowseCard({ review }: BrowseCardProps) {

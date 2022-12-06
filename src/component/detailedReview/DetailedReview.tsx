@@ -1,5 +1,5 @@
 import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment } from 'graphql/generated/schema'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSetAtom, useAtomValue, atom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
@@ -10,7 +10,6 @@ import { EditReview } from './editReview/EditReview'
 import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardIcon } from 'component/Icons'
 import { useNavigate } from 'react-router-dom'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
-import { PlaybackTimeWrapper } from './playback/PlaybackTimeWrapper'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, zip, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
@@ -19,6 +18,7 @@ import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTable } from './GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
+import { PlaybackTimeSdkWrapper } from './playback/PlaybackTimeWrapperSDK'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -192,7 +192,10 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
           {collaboratorImages}
         </div> */}
             </div>
-            <EditReview reviewId={reviewId} reviewName={title!} isPublic={isPublic === undefined ? false : isPublic}
+            <EditReview
+                reviewId={reviewId}
+                reviewName={title!}
+                isPublic={isPublic === undefined ? false : isPublic}
                 onSuccess={() => { setOpenEditReview(false); reload() }}
                 isOpen={openEditReview}
                 onCancel={() => setOpenEditReview(false)} />
@@ -200,9 +203,11 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             <div className="grow min-h-0 w-full bg-base-300">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
             </div>
-            <div className='w-full'>
-                <PlaybackTimeWrapper reviewId={reviewId} />
-            </div>
+            <Suspense fallback={<progress className="progress w-full progress-primary" />}>
+                <div className='w-full'>
+                    <PlaybackTimeSdkWrapper reviewId={reviewId} />
+                </div>
+            </Suspense>
         </div >
     )
 }

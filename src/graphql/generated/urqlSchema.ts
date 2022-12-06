@@ -183,6 +183,7 @@ export type Mutations = {
   skipToNext?: Maybe<Scalars['Boolean']>;
   skipToPrevious?: Maybe<Scalars['Boolean']>;
   toggleShuffle?: Maybe<Scalars['Boolean']>;
+  transferPlayback?: Maybe<Scalars['Boolean']>;
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
   updateReviewEntity?: Maybe<Review>;
@@ -276,6 +277,11 @@ export type MutationsSkipToPreviousArgs = {
 
 export type MutationsToggleShuffleArgs = {
   input: Scalars['Boolean'];
+};
+
+
+export type MutationsTransferPlaybackArgs = {
+  input: TransferPlaybackInput;
 };
 
 
@@ -418,6 +424,7 @@ export type Queries = {
   availableDevices?: Maybe<Array<PlaybackDevice>>;
   getAlbum?: Maybe<Album>;
   getPlaylist?: Maybe<Playlist>;
+  getTrack?: Maybe<Track>;
   review?: Maybe<Review>;
   search?: Maybe<SearchResult>;
   user?: Maybe<User>;
@@ -430,6 +437,11 @@ export type QueriesGetAlbumArgs = {
 
 
 export type QueriesGetPlaylistArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueriesGetTrackArgs = {
   id: Scalars['String'];
 };
 
@@ -560,6 +572,11 @@ export type Track = ReviewEntity & {
   previewUrl?: Maybe<Scalars['String']>;
   trackNumber: Scalars['Int'];
   uri: Scalars['String'];
+};
+
+export type TransferPlaybackInput = {
+  deviceId: Scalars['String'];
+  play?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type UpdateCommentInput = {

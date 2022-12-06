@@ -1,0 +1,3 @@
+mutation TransferPlayback($input: TransferPlaybackInput!) {
+    transferPlayback(input: $input) 
+}

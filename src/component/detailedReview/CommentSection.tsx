@@ -50,12 +50,12 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
     return (
         <div className="flex flex-col space-y-0.5 lg:space-y-1 h-full w-full overflow-auto">
-            {rootComments.map((c: DetailedCommentFragment, index: number) =>
+            {rootComments.map((c: DetailedCommentFragment) =>
                 <div key={c.id}>
                     <DetailedComment
                         review={reviewOverviews.get(c.reviewId)?.at(0)!}
                         comment={c}
-                        children={childComments.get(c.id) ?? []}
+                        childComments={childComments.get(c.id) ?? []}
                         onClick={() => onCommentClick(c.id, c.reviewId)}
                     />
                 </div>

@@ -1,0 +1,6 @@
+query TrackLike($id: String!) {
+    getTrack(id: $id) {
+      id
+      isLiked
+    }
+}

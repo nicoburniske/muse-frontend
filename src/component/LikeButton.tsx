@@ -1,10 +1,11 @@
-import { useRemoveSavedTracksMutation, useSaveTracksMutation } from 'graphql/generated/schema'
+import { useRemoveSavedTracksMutation, useSaveTracksMutation, useTrackLikeQuery } from 'graphql/generated/schema'
 import { HeartOutlineIcon, HeartSolidIcon } from './Icons'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai'
 import { nowPlayingTrackAtom } from 'state/Atoms'
 import { useEffect } from 'react'
 import { nonNullable } from 'util/Utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 
 interface LikeButtonProps {
@@ -16,20 +17,26 @@ interface LikeButtonProps {
 
 export default function LikeButton({ trackId, likeAtom, className, getSvgClassName }: LikeButtonProps) {
     const [isLiked, setIsLiked] = useAtom(likeAtom)
-    const toggleLiked = () => setIsLiked(!isLiked)
+    const queryClient = useQueryClient()
 
     // Sychronizing state with now playing track.
     const nowPlaying = useAtomValue(nowPlayingTrackAtom)
+    const isPlaying = nonNullable(nowPlaying) && nowPlaying.trackId == trackId
     useEffect(() => {
-        if (nonNullable(nowPlaying) && nowPlaying.trackId == trackId) {
+        if (isPlaying) {
             setIsLiked(nowPlaying.isLiked)
         }
     }, [nowPlaying])
+
+    const toggleLiked = () => {if (!isPlaying) {setIsLiked(!isLiked)}}
+
+    const invalidateLikeQuery = () => queryClient.invalidateQueries(useTrackLikeQuery.getKey({ id: trackId }))
 
     const { mutate: likeTrack } = useSaveTracksMutation({
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
             toggleLiked()
+            invalidateLikeQuery()
         },
     })
 
@@ -37,6 +44,7 @@ export default function LikeButton({ trackId, likeAtom, className, getSvgClassNa
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
             toggleLiked()
+            invalidateLikeQuery()
         }
     })
 

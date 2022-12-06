@@ -1,4 +1,4 @@
-import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
+import { NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePausePlaybackMutation, usePlayMutation, useSeekPlaybackMutation, useSkipToNextMutation, useSkipToPreviousMutation, useToggleShuffleMutation } from 'graphql/generated/schema'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
@@ -6,7 +6,7 @@ import { atom, useSetAtom } from 'jotai'
 import React, { useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { openCommentModalAtom } from 'state/Atoms'
+import { openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
@@ -31,26 +31,25 @@ interface PlaybackTimeProps {
 const commonClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
 
 export function PlaybackTime({
-    progressMs: progressProp, durationMs: durationProp,
+    progressMs, durationMs: durationProp,
     trackId, reviewId, disabled, isPlaying, isShuffled,
     trackImage, trackName, trackArtist, isLiked }: PlaybackTimeProps) {
     const queryClient = useQueryClient()
 
-    const [progressMs, setProgressMs] = useStateWithSyncedDefault(progressProp >= 0 ? progressProp : 0)
     const setCommentModal = useSetAtom(openCommentModalAtom)
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
     const { mutateAsync: seekTrack } = useSeekPlaybackMutation({
         onError: () => toast.error('Failed to seek playback.'),
     })
 
-    const seekForward = () => seekTrack({ input: { positionMs: progressProp + 10000 } })
-    const seekBackward = () => seekTrack({ input: { positionMs: progressProp - 10000 } })
+    const seekForward = () => seekTrack({ input: { positionMs: progressMs + 10000 } })
+    const seekBackward = () => seekTrack({ input: { positionMs: progressMs - 10000 } })
 
-    // TODO: how to handle this?
-    // const selectNowPlaying = () => {
-    //     setSelectedTrack('')
-    //     setTimeout(() => setSelectedTrack(nowPlaying), 1);
-    // }
+    const selectNowPlaying = () => {
+        setSelectedTrack(undefined)
+        setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
+    }
 
     const { mutateAsync: createComment } = useCreateCommentMutation({
         onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) },
@@ -64,17 +63,12 @@ export function PlaybackTime({
 
     // Sometimes spotify sends crap. need to ensure that the positions makes sense.
     const durationMs = durationProp > 0 ? durationProp : 1
-    const progress = (progressMs / durationMs) * 1000
 
-    const { minutes, seconds } = msToTime(progressMs)
-    const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
-
-    function onProgressChange(p: number) {
-        const position = Math.floor(p * durationMs)
-        seekTrack({ input: { positionMs: position } })
-            .then(() => setProgressMs(position))
+    async function onProgressChange(positionMs: number) {
+        await seekTrack({ input: { positionMs } })
     }
 
+    const { minutes, seconds } = msToTime(progressMs)
     const showModal = () => {
         const paddedS = seconds < 10 ? `0${seconds}` : seconds
         const initialValue = `<Stamp at="${minutes}:${paddedS}" />`
@@ -94,11 +88,17 @@ export function PlaybackTime({
                         </div>
                     </div>
                 </button>
-                {/* <div className={`flex flex-col justify-around w-full`} onClick={selectNowPlaying}> */}
                 <div className={'flex flex-col justify-around w-full'}>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackName} </div>
                     <div className="text-left truncate md:p-0.5 prose w-full text-neutral-content text-xs lg:text-md"> {trackArtist} </div>
                 </div>
+                {
+                    disabled ? null : (
+                        <button className="btn-sm md:btn-md text-neutral-content" onClick={selectNowPlaying}>
+                            <SearchIcon />
+                        </button>
+                    )
+                }
             </div>
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
                 <div className="flex flex-row justify-between md:justify-around items-center text-neutral-content md:w-full lg:w-3/4">
@@ -112,12 +112,9 @@ export function PlaybackTime({
                     />
                 </div>
                 <PlaybackProgress
-                    progress={progress}
+                    progressMs={progressMs}
+                    durationMs={durationMs}
                     onProgressChange={onProgressChange}
-                    minProgress={minutes}
-                    secProgress={seconds}
-                    minDuration={minDuration}
-                    secDuration={secDuration}
                 />
             </div>
         </div >
@@ -125,23 +122,15 @@ export function PlaybackTime({
 }
 
 interface PlayerButtonsProps {
-    progress: number
-    onProgressChange: (e: number) => void
-
-    minProgress: number
-    secProgress: number
-
-    minDuration: number
-    secDuration: number
+    progressMs: number
+    durationMs: number
+    onProgressChange: (positionMs: number) => Promise<void>
 }
 
-const PlaybackProgress = ({ progress, onProgressChange, minProgress: minProg, secProgress: secProg, minDuration: minDur, secDuration: secDur }: PlayerButtonsProps) => {
-    const minutesProgress = useMemo(() => minProg, [minProg])
-    const secondsProgress = useMemo(() => secProg, [secProg])
-    const minutesDuration = useMemo(() => minDur, [minDur])
-    const secondsDuration = useMemo(() => secDur, [secDur])
-
-    const [progressState, setProgressState] = useState<number[] | undefined>([progress])
+const PlaybackProgress = ({ progressMs, durationMs, onProgressChange }: PlayerButtonsProps) => {
+    // Convert to percentage.
+    const progress = (progressMs / durationMs) * 1000
+    const [progressState, setProgressState] = useState<[number] | undefined>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
 
     useEffect(() => {
@@ -150,54 +139,50 @@ const PlaybackProgress = ({ progress, onProgressChange, minProgress: minProg, se
         }
     }, [progress, isSeeking])
 
-    const commitChange = (value: [number]) => {
-        onProgressChange(value.at(0)! / 1000)
+    const commitChange = async (value: [number]) => {
+        const asMillis = Math.floor((value.at(0)! / 1000) * durationMs)
+        await onProgressChange(asMillis)
+        // Don't sync with current progress until change has gone through.
         setIsSeeking(false)
-        setProgressState([progress])
-        setTimeout(() => {
-        }, 100)
-    }
-
-    const enableSeeking = () => {
-        setIsSeeking(true)
-        setProgressState(undefined)
     }
 
     // TODO: tooltip with time to change to. 
     const handleSeek = (value: number[]) => {
-        enableSeeking()
+        setIsSeeking(true)
+        setProgressState(value as [number])
     }
+
+    const { minutes: minProgress, seconds: secProgress } = msToTime(progressMs)
+    const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
 
     return (
         <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
             <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ '--value': minutesProgress }}></span>:
-                <span style={{ '--value': secondsProgress }}></span>
+                <span style={{ '--value': minProgress }}></span>:
+                <span style={{ '--value': secProgress }}></span>
             </span>
             <Slider.Root
                 onValueCommit={commitChange}
                 defaultValue={progressState}
                 value={progressState}
                 onValueChange={handleSeek}
-                onMouseDown={enableSeeking}
                 max={1000}
                 step={10}
                 aria-label="value"
                 className="relative flex h-5 w-5/6 touch-none items-center"
             >
-                <Slider.Track className="relative h-3  grow rounded-full bg-neutral-focus">
-                    <Slider.Range className="absolute h-full rounded-full bg-purple-600 dark:bg-success" />
+                <Slider.Track className="relative h-3 grow rounded-full bg-neutral-focus">
+                    <Slider.Range className="absolute h-full rounded-full bg-success" />
                 </Slider.Track>
                 <Slider.Thumb
                     className={
-                        'block h-5 w-5 rounded-full bg-purple-600 dark:bg-white focus:outline-none focus-visible:ring focus-visible:ring-primary focus-visible:ring-opacity-75'
+                        'block h-5 w-5 rounded-full bg-neutral-content'
                     }
                 />
             </Slider.Root>
-            {/* <progress className="progress progress-success h-2 lg:h-3 bg-neutral-focus" value={progress} max="1000" onClick={onProgressClick}></progress> */}
             <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ '--value': minutesDuration }}></span>:
-                <span style={{ '--value': secondsDuration }}></span>
+                <span style={{ '--value': minDuration }}></span>:
+                <span style={{ '--value': secDuration }}></span>
             </span>
         </div>)
 }

@@ -15,6 +15,7 @@ export const AppConfig = (() => {
         httpBase,
         httpGraphEndpoint: `${httpBase}/api/graphql`,
         httpSessionEndpoint: `${httpBase}/session`,
+        httpAccessTokenEndpoint: `${httpBase}/token`,
         websocketGraphEndpoint:`${wsPrefix}://${backendUrl}/ws/graphql`
     }
 })()
