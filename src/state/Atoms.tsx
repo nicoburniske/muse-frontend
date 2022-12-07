@@ -27,6 +27,12 @@ interface NowPlaying {
 }
 export const allReviewTracks = atom<Set<string>>(new Set<string>())
 export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
+export const nowPlayingEnabledAtom = atom((get) => {
+    const trackId = get(nowPlayingTrackAtom)?.trackId
+    const allTracks = get(allReviewTracks)
+    return (trackId !== undefined && allTracks.has(trackId))
+})
+
 export const nowPlayingTrackIdAtom =
     focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
 export const nowPlayingIsLikedAtom =

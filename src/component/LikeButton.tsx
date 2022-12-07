@@ -28,14 +28,12 @@ export default function LikeButton({ trackId, likeAtom, className, getSvgClassNa
         }
     }, [nowPlaying])
 
-    const toggleLiked = () => {if (!isPlaying) {setIsLiked(!isLiked)}}
-
     const invalidateLikeQuery = () => queryClient.invalidateQueries(useTrackLikeQuery.getKey({ id: trackId }))
 
     const { mutate: likeTrack } = useSaveTracksMutation({
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
-            toggleLiked()
+            setIsLiked(true)
             invalidateLikeQuery()
         },
     })
@@ -43,7 +41,7 @@ export default function LikeButton({ trackId, likeAtom, className, getSvgClassNa
     const { mutate: unlikeTrack } = useRemoveSavedTracksMutation({
         onError: () => toast.error('Failed to toggle like.'),
         onSuccess: () => {
-            toggleLiked()
+            setIsLiked(false)
             invalidateLikeQuery()
         }
     })

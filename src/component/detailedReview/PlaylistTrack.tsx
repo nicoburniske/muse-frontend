@@ -1,6 +1,6 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom, atom } from 'jotai'
+import { PrimitiveAtom, useAtomValue, useSetAtom, atom } from 'jotai'
 import { nowPlayingTrackIdAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
@@ -10,7 +10,6 @@ import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
 import { useLongPress } from 'use-long-press'
 
-import * as O from 'optics-ts'
 
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
@@ -69,7 +68,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
         }
     }
-
 
     const showModal = () => {
         const values = { title: 'create comment', onCancel: resetState, onSubmit, trackId: track.id }

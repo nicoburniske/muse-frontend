@@ -2,14 +2,25 @@ import { ReviewDetailsFragment, ReviewEntityOverviewFragment } from 'graphql/gen
 
 export type BoolNum = 0 | 1
 
-export function msToTime(duration: number) {
+export function msToTime(duration: number, padRes = false) {
+    const pad = (num: number) => String(num).padStart(2, '0')
+
     const
         hours = Math.floor((duration / (1000 * 60 * 60)) % 24),
         minutes = Math.floor((duration / (1000 * 60)) % 60),
         seconds = Math.floor((duration / 1000) % 60),
         ms = Math.floor((duration % 1000) / 100)
 
-    return { hours, minutes, seconds, ms }
+    if (padRes) {
+        return {
+            hours: pad(hours),
+            minutes: pad(minutes),
+            seconds: pad(seconds),
+            ms: pad(ms)
+        }
+    } else {
+        return { hours, minutes, seconds, ms }
+    }
 }
 
 export function zip<A, B>(i: A[], j: B[]): [A, B][] {
@@ -64,13 +75,13 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
     return reviews.map(entity =>
         (() => {
             switch (entity?.__typename) {
-            case 'Artist':
-                return entity?.artistImages?.at(0)
-            case 'Playlist':
-            case 'Album':
-                return entity?.images?.at(0)
-            case 'Track':
-                return entity?.album?.images.at(0)
+                case 'Artist':
+                    return entity?.artistImages?.at(0)
+                case 'Playlist':
+                case 'Album':
+                    return entity?.images?.at(0)
+                case 'Track':
+                    return entity?.album?.images.at(0)
             }
         })()
     )

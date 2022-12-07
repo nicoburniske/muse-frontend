@@ -1,47 +1,41 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 import { useEffect } from 'react'
 import { AppConfig } from 'util/AppConfig'
 import { nonNullable } from 'util/Utils'
 
+
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
-const sdkReadyAtom = atom<boolean>(false)
+export const sdkReadyAtom = atom<boolean>(false)
+sdkReadyAtom.onMount = (setAtom) => {
+    const script = document.createElement('script')
+    script.src = SPOTIFY_WEB_PLAYBACK_SDK_URL
+    document.body.appendChild(script)
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        setAtom(true)
+    }
+
+    return () => {
+        document.body.removeChild(script)
+    }
+}
 
 export const useSetupSpotifySDK = () => {
-    const setSdkReady = useSetAtom(sdkReadyAtom)
-
-    // load Web Playback SDK.
-    useEffect(() => {
-        const script = document.createElement('script')
-        script.src = SPOTIFY_WEB_PLAYBACK_SDK_URL
-        document.body.appendChild(script)
-
-        return () => {
-            document.body.removeChild(script)
-        }
-    }, [])
-
-
-    // set sdk ready.
-    useEffect(() => {
-        window.onSpotifyWebPlaybackSDKReady = () => {
-            setSdkReady(true)
-        }
-    }, [])
+    useAtom(sdkReadyAtom)
 }
 
-
-const getAccessToken = async () => {
+const accessTokenAtom = atom(async () => {
     const r = await fetch(AppConfig.httpAccessTokenEndpoint, { method: 'GET', credentials: 'include' })
     return await r.text()
-}
-const accessTokenAtom = atom(() => getAccessToken())
+})
 
 export const useAccessToken = () => {
     return useAtomValue(accessTokenAtom)
 }
 
-const playerAtom = atom(async (get) => {
+const playerAtom = atom<Promise<Spotify.Player | null>>(async (get) => {
     const isSdkReady = get(sdkReadyAtom)
     const accessToken = get(accessTokenAtom)
     if (isSdkReady && accessToken) {
@@ -49,11 +43,16 @@ const playerAtom = atom(async (get) => {
             name: 'Muse',
             getOAuthToken: (callback) => callback(accessToken),
         })
-
         const success = await player.connect()
-        return success ? player : null
+
+        if (success) {
+            return player
+        } else {
+            throw new Error('Failed to connect to Spotify player.')
+        }
     }
-    return undefined
+    // return await new Promise((res, rej) => { signal.addEventListener('abort', () => rej('aborted'))})
+    return null
 })
 
 export const useSpotifyPlayer = () => {
@@ -63,13 +62,13 @@ export const useSpotifyPlayer = () => {
 const deviceIdAtom = atom<Promise<string | null>>(async (get) => {
     const player = get(playerAtom)
     if (player) {
-        return await new Promise((resolve) => {
+        return await new Promise((resolve, reject) => {
             player.addListener('ready', ({ device_id }) => {
                 resolve(device_id)
             })
 
             player.addListener('not_ready', () => {
-                resolve(null)
+                reject('Spotify player not ready.')
             })
         })
     } else {
@@ -99,7 +98,7 @@ export const useSetupPlaybackState = () => {
 export const useSetupPlaybackStateAutoRefresh = ({ refreshInterval }: { refreshInterval: number }) => {
     const player = useAtomValue(playerAtom)
     const [playbackState, setPlaybackState] = useAtom(playbackStateAtom)
-    
+
     const isValidState = nonNullable(playbackState)
     const isPlaying = !playbackState?.paused
 
@@ -120,4 +119,115 @@ export const useSetupPlaybackStateAutoRefresh = ({ refreshInterval }: { refreshI
     ])
 }
 
+interface PlayerActions {
+    trackId: string
+    positionMs: number
+    durationMs: number
+    isShuffled: boolean
 
+    isPlaying: boolean
+    togglePlayDisabled: boolean
+    togglePlay: () => Promise<void>
+    pause: () => Promise<void>
+    play: () => Promise<void>
+
+    seekDisabled: boolean
+    seekForward: () => Promise<void>
+    seekBackward: () => Promise<void>
+    seekTo: (positionMs: number) => Promise<void>
+
+    nextTrackDisabled: boolean
+    nextTrack: () => Promise<void>
+    prevTrackDisabled: boolean
+    previousTrack: () => Promise<void>
+}
+
+export const usePlayerActions = (seekInterval: number): PlayerActions => {
+    const player = useSpotifyPlayer()
+    const current = usePlaybackState()
+
+    if (current && player) {
+        const disallows = current.disallows
+        const positionMs = current.position
+        return {
+            // TODO: is track id safe? 
+            trackId: current.track_window.current_track.id!,
+            positionMs,
+            durationMs: current.duration,
+            isShuffled: current.shuffle,
+
+            isPlaying: !current.paused,
+            togglePlayDisabled: (current.paused ? disallows.resuming : disallows.pausing) ?? false,
+            togglePlay: () => current.paused ? player.resume() : player.pause(),
+            pause: () => player.pause(),
+            play: () => player.resume(),
+
+            seekDisabled: disallows.seeking ?? false,
+            seekForward: () => player.seek(positionMs + seekInterval),
+            seekBackward: () => player.seek(positionMs - seekInterval),
+            seekTo: (positionMs: number) => player.seek(positionMs),
+            nextTrackDisabled: disallows.skipping_next ?? false,
+            nextTrack: () => player.nextTrack(),
+            prevTrackDisabled: disallows.skipping_prev ?? false,
+            previousTrack: () => player.previousTrack(),
+        }
+    } else {
+        return {
+            trackId: '',
+            positionMs: 0,
+            durationMs: 60 * 1000,
+            isShuffled: false,
+
+            isPlaying: false,
+            togglePlayDisabled: true,
+            pause: async () => { },
+            play: async () => { },
+            togglePlay: async () => { },
+
+            seekDisabled: true,
+            seekForward: async () => { },
+            seekBackward: async () => { },
+            seekTo: async () => { },
+
+            nextTrackDisabled: true,
+            nextTrack: async () => { },
+            prevTrackDisabled: true,
+            previousTrack: async () => { },
+        }
+    }
+}
+
+// const volumeWithUpdateAtom = atom((get) => {
+//     return get(initialVolumeAtom) 
+// }, async (get, set, newVolume: number) => {
+//     const player = get(playerAtom)
+//     if (player) {
+//         await player.setVolume(newVolume)
+//         set(initialVolumeAtom, newVolume)
+//     }
+// })
+
+const volumeAtom = atomWithStorage('MusePlayerVolume', 0.5)
+export function useVolume(): [number, (volume: number) => Promise<void>] {
+    const player = useSpotifyPlayer()
+    const [volume, setVolume] = useAtom(volumeAtom)
+
+    useEffect(() => {
+        if (player) {
+            player.setVolume(volume)
+        }
+    }, [player])
+
+
+    async function setVolumeWithUpdate(newVolume: number): Promise<void> {
+        if (newVolume < 0 || newVolume > 1) return
+
+        if (player) {
+            await player.setVolume(newVolume)
+            const playerVolume = await player.getVolume()
+            setVolume(playerVolume)
+        }
+    }
+
+    return [volume, setVolumeWithUpdate]
+} 
