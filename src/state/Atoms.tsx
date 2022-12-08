@@ -2,6 +2,7 @@ import { PlaybackDeviceFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
 import { focusAtom } from 'jotai/optics'
 import { atomWithStorage } from 'jotai/utils'
+import { useAtomsDebugValue } from 'jotai/devtools'
 
 export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')
 export interface SelectedTrack { reviewId: string, trackId: string }
@@ -25,7 +26,7 @@ interface NowPlaying {
     trackId: string
     isLiked: boolean
 }
-export const allReviewTracks = atom<Set<string>>(new Set<string>())
+export const allReviewTracks = atom(new Set<string>())
 export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
 export const nowPlayingEnabledAtom = atom((get) => {
     const trackId = get(nowPlayingTrackAtom)?.trackId
@@ -71,3 +72,8 @@ export enum Theme {
 }
 
 export const themeAtom = atomWithStorage<Theme>('muse-app-theme', Theme.Black)
+
+export const DebugAtoms = () => {
+    useAtomsDebugValue()
+    return null
+}

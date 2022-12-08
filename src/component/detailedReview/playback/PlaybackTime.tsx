@@ -9,44 +9,43 @@ import { nowPlayingEnabledAtom, nowPlayingTrackAtom, openCommentModalAtom, selec
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
-import { usePlayerActions, useVolume } from 'component/playbackSDK/PlaybackSDK'
+import { useCurrentTrack, useVolume, usePlayerActions } from 'component/playbackSDK/PlaybackSDK'
 
 interface PlaybackTimeProps {
-    trackId: string,
-    trackImage: string,
-    trackName: string,
-    trackArtist: string,
-    // Current playback position.
-    progressMs: number,
-    // Track total duration.
-    durationMs: number,
-    reviewId: string,
+    reviewId: string
 }
 
-const commonClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
+const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
 
-export function PlaybackTime({
-    progressMs, durationMs: durationProp,
-    trackId, reviewId,
-    trackImage, trackName, trackArtist }: PlaybackTimeProps) {
-    const queryClient = useQueryClient()
+export function PlaybackTime({ reviewId }: PlaybackTimeProps) {
+    const {
+        album,
+        artists,
+        id: trackId,
+        name: trackName,
+    } = useCurrentTrack()
+
+    // get largest image.
+    const nowPlayingImage = album.images.slice().reverse()[0].url
+    const nowPlayingArtist = artists.map(a => a.name).join(', ')
 
     const setCommentModal = useSetAtom(openCommentModalAtom)
-
     const { mutateAsync: createComment } = useCreateCommentMutation({
         onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) },
         onError: () => toast.error('failed to create comment')
     })
 
+    const queryClient = useQueryClient()
     const onSubmit = async (comment: string) => {
-        await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId }], reviewId } })
+        await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId } })
         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
     }
 
-    const { minutes, seconds } = msToTime(progressMs)
+    const { positionMs } = usePlayerActions()
+    const { minutes, seconds } = msToTime(positionMs)
     const showModal = () => {
         const initialValue = `<Stamp at="${minutes}:${seconds}" />`
-        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue, trackId }
+        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue, trackId: trackId! }
         setCommentModal(values)
     }
 
@@ -59,13 +58,13 @@ export function PlaybackTime({
                 <button className="hidden sm:grid place-items-center tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
                     <div className="avatar" >
                         <div className="w-12 md:w-16 lg:w-20 rounded">
-                            <img loading='lazy' src={trackImage} />
+                            <img loading='lazy' src={nowPlayingImage} />
                         </div>
                     </div>
                 </button>
                 <div className={'flex flex-col justify-around'}>
                     <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
-                    <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackArtist} </div>
+                    <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
                 </div>
             </div>
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
@@ -90,13 +89,13 @@ const LikeNowPlaying = () => {
             <LikeButton
                 trackId={nowPlaying.trackId}
                 likeAtom={likeAtom}
-                className={commonClass}
+                className={commonBtnClass}
                 getSvgClassName={calculateSvgStyle}
             />
         )
     } else {
         return (
-            <button className={commonClass} disabled={true}>
+            <button className={commonBtnClass} disabled={true}>
                 <HeartOutlineIcon />
             </button>
         )
@@ -106,7 +105,7 @@ const LikeNowPlaying = () => {
 
 const PlaybackProgress = () => {
     // Convert to percentage.
-    const { positionMs, durationMs, seekTo } = usePlayerActions(1)
+    const { positionMs, durationMs, seekTo } = usePlayerActions()
     const progress = (positionMs / durationMs) * 1000
     const [progressState, setProgressState] = useState<[number] | undefined>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
@@ -163,10 +162,9 @@ const PlaybackProgress = () => {
 
 const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     const {
-        trackId,
         isPlaying,
         isShuffled,
-        togglePlayDisabled: playDisabled,
+        togglePlayDisabled,
         togglePlay,
         seekDisabled,
         seekBackward,
@@ -175,15 +173,16 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
         previousTrack,
         nextTrackDisabled,
         nextTrack
-    } = usePlayerActions(10000)
+    } = usePlayerActions()
+    const { id: trackId } = useCurrentTrack()
 
     const toggleShuffle = () => { }
-    const shuffleButtonClass = isShuffled ? commonClass + ' btn btn-success' : commonClass
+    const shuffleButtonClass = isShuffled ? commonBtnClass + ' btn btn-success' : commonBtnClass
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const selectNowPlaying = () => {
         setSelectedTrack(undefined)
-        setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
+        setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
     }
 
     const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
@@ -191,18 +190,18 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     return (
         <>
             <LikeNowPlaying />
-            <button className={commonClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+            <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
                 <SearchIcon />
             </button>
-            <button className={commonClass} onClick={previousTrack} disabled={prevTrackDisabled}><PreviousTrackIcon /></button>
-            <button className={commonClass} onClick={seekBackward} disabled={seekDisabled}><SkipBackwardIcon /></button>
-            <button className={commonClass} onClick={togglePlay} disabled={playDisabled}>
+            <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}><PreviousTrackIcon /></button>
+            <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}><SkipBackwardIcon /></button>
+            <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
                 {isPlaying ? <PauseIcon /> : <PlayIcon />}
             </button>
-            <button className={commonClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
-            <button className={commonClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
+            <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
+            <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
             <button className={shuffleButtonClass} onClick={() => toggleShuffle()} ><ShuffleIcon /></button>
-            <button className={commonClass}><RepeatIcon /></button>
+            <button className={commonBtnClass}><RepeatIcon /></button>
         </>
     )
 }

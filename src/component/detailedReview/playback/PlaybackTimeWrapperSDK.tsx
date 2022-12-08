@@ -1,50 +1,26 @@
-import { useDeviceId, usePlaybackState, useSetupPlaybackState, useSetupPlaybackStateAutoRefresh, useSpotifyPlayer } from 'component/playbackSDK/PlaybackSDK'
+import { useDeviceId, usePlaybackStateSync, useSetupPlaybackState, useSetupPlaybackStateAutoRefresh } from 'component/playbackSDK/PlaybackSDK'
 import { useTrackLikeQuery, useTransferPlaybackMutation } from 'graphql/generated/schema'
 import { useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { nowPlayingTrackAtom } from 'state/Atoms'
 import { nonNullable } from 'util/Utils'
 import { PlaybackTime } from './PlaybackTime'
 
 export const PlaybackTimeSdkWrapper = ({ reviewId }: { reviewId: string }) => {
-    const playbackState = usePlaybackState()
-
     useSetupPlaybackState()
     useSetupPlaybackStateAutoRefresh({ refreshInterval: 1000 })
     useSetupNowPlayingLiked()
     useTransferPlayback()
 
-    if (playbackState === null) {
-        return <progress className="progress w-full progress-primary" />
-    } else {
-        const currentTrack = playbackState.track_window.current_track
-        const currentAlbum = currentTrack.album
-
-        const totalDuration = currentTrack.duration_ms
-        // get largest image.
-        const nowPlayingImage = currentAlbum.images.slice().reverse()[0].url
-        const nowPlayingArtist = currentTrack.artists.map(a => a.name).join(', ')
-        const nowPlayingTrackName = currentTrack.name
-
-        const nowPlaying = currentTrack.id!
-
-        return (
-            <PlaybackTime
-                progressMs={playbackState.position}
-                durationMs={totalDuration}
-                trackId={nowPlaying}
-                reviewId={reviewId}
-                trackImage={nowPlayingImage}
-                trackName={nowPlayingTrackName}
-                trackArtist={nowPlayingArtist}
-            />
-        )
-    }
+    return (
+        <Suspense fallback={<progress className="progress w-full progress-primary" />}>
+            <PlaybackTime reviewId={reviewId} />
+        </Suspense>
+    )
 }
 
-
 const useSetupNowPlayingLiked = () => {
-    const playbackState = usePlaybackState()
+    const playbackState = usePlaybackStateSync()
     const nowPlaying = playbackState?.track_window?.current_track?.id
     const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
 
@@ -68,7 +44,7 @@ const useSetupNowPlayingLiked = () => {
 }
 
 const useTransferPlayback = () => {
-    const playbackState = usePlaybackState()
+    const playbackState = usePlaybackStateSync()
     const deviceId = useDeviceId()
     // Transfer playback to browser on mount.
     const needToConnect = deviceId && playbackState === null

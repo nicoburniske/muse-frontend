@@ -8,6 +8,7 @@ import { createClient, subscriptionExchange, Provider } from 'urql'
 import { createClient as createWSClient } from 'graphql-ws'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { DebugAtoms } from 'state/Atoms'
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -52,6 +53,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 persistOptions={{ persister }}
             >
                 <>
+                    <DebugAtoms/>
                     <App />
                     <Toaster
                         position="bottom-right"
