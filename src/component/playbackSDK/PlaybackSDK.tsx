@@ -1,9 +1,8 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithStorage, loadable } from 'jotai/utils'
 import { useEffect } from 'react'
 import { AppConfig } from 'util/AppConfig'
 import { nonNullable } from 'util/Utils'
-
 
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
@@ -35,7 +34,7 @@ export const useAccessToken = () => {
     return useAtomValue(accessTokenAtom)
 }
 
-const playerAtom = atom<Promise<Spotify.Player | null>>(async (get) => {
+const playerAtom = atom<Promise<Spotify.Player>>(async (get) => {
     const isSdkReady = get(sdkReadyAtom)
     const accessToken = get(accessTokenAtom)
     if (isSdkReady && accessToken) {
@@ -51,29 +50,29 @@ const playerAtom = atom<Promise<Spotify.Player | null>>(async (get) => {
             throw new Error('Failed to connect to Spotify player.')
         }
     }
-    // return await new Promise((res, rej) => { signal.addEventListener('abort', () => rej('aborted'))})
-    return null
+    return await new Promise(() => { })
 })
+
+export function SpotifyAtomWatcher() {
+    useAtom(loadable(playerAtom))
+    return null
+}
 
 export const useSpotifyPlayer = () => {
     return useAtomValue(playerAtom)
 }
 
-const deviceIdAtom = atom<Promise<string | null>>(async (get) => {
+const deviceIdAtom = atom<Promise<string>>(async (get) => {
     const player = get(playerAtom)
-    if (player) {
-        return await new Promise((resolve, reject) => {
-            player.addListener('ready', ({ device_id }) => {
-                resolve(device_id)
-            })
-
-            player.addListener('not_ready', () => {
-                reject('Spotify player not ready.')
-            })
+    return await new Promise((resolve, reject) => {
+        player.addListener('ready', ({ device_id }) => {
+            resolve(device_id)
         })
-    } else {
-        return null
-    }
+
+        player.addListener('not_ready', () => {
+            reject('Spotify player not ready.')
+        })
+    })
 })
 
 export const useDeviceId = () => useAtomValue(deviceIdAtom)
@@ -87,10 +86,10 @@ export const useSetupPlaybackState = () => {
     const setPlaybackState = useSetAtom(playbackStateAtom)
 
     useEffect(() => {
-        if (player) {
-            player.addListener('player_state_changed', (state) => setPlaybackState(state))
-            return () => player.removeListener('player_state_changed')
-        }
+        player.addListener('player_state_changed', (state) => {
+            setPlaybackState(state)
+        })
+        return () => player.removeListener('player_state_changed')
     }, [player])
 }
 
@@ -103,7 +102,7 @@ export const useSetupPlaybackStateAutoRefresh = ({ refreshInterval }: { refreshI
     const isPlaying = !playbackState?.paused
 
     useEffect(() => {
-        if (player && isValidState && isPlaying) {
+        if (isValidState && isPlaying) {
             const intervalId = window.setInterval(async () => {
                 const newState = await player.getCurrentState()
                 setPlaybackState(newState)
@@ -146,7 +145,7 @@ export const usePlayerActions = (seekInterval: number): PlayerActions => {
     const player = useSpotifyPlayer()
     const current = usePlaybackState()
 
-    if (current && player) {
+    if (current) {
         const disallows = current.disallows
         const positionMs = current.position
         return {
@@ -213,20 +212,16 @@ export function useVolume(): [number, (volume: number) => Promise<void>] {
     const [volume, setVolume] = useAtom(volumeAtom)
 
     useEffect(() => {
-        if (player) {
-            player.setVolume(volume)
-        }
+        player.setVolume(volume)
     }, [player])
 
 
     async function setVolumeWithUpdate(newVolume: number): Promise<void> {
         if (newVolume < 0 || newVolume > 1) return
 
-        if (player) {
-            await player.setVolume(newVolume)
-            const playerVolume = await player.getVolume()
-            setVolume(playerVolume)
-        }
+        await player.setVolume(newVolume)
+        const playerVolume = await player.getVolume()
+        setVolume(playerVolume)
     }
 
     return [volume, setVolumeWithUpdate]

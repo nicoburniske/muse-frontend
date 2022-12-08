@@ -1,6 +1,6 @@
 import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
-import { useSetupSpotifySDK, useSetupPlaybackState, useAccessToken, useSpotifyPlayer } from 'component/playbackSDK/PlaybackSDK'
+import { useSetupSpotifySDK, SpotifyAtomWatcher } from 'component/playbackSDK/PlaybackSDK'
 import { useAtomValue } from 'jotai'
 import { Routes, Route } from 'react-router-dom'
 import { themeAtom } from 'state/Atoms'
@@ -10,13 +10,11 @@ import './index.css'
 export default function App() {
     const theme = useAtomValue(themeAtom)
     useSetupSpotifySDK()
-    useSetupPlaybackState()
-    useAccessToken()
-    useSpotifyPlayer()
 
     return (
         <div data-theme={theme} className="h-screen bg-base-300">
             <div className="h-screen">
+                <SpotifyAtomWatcher />
                 <Routes>
                     <Route path="/" element={<BrowsePage />} />
                     <Route path="/reviews" element={<BrowsePage />} />

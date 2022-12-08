@@ -7,19 +7,12 @@ import { nonNullable } from 'util/Utils'
 import { PlaybackTime } from './PlaybackTime'
 
 export const PlaybackTimeSdkWrapper = ({ reviewId }: { reviewId: string }) => {
-    const deviceId = useDeviceId()
     const playbackState = usePlaybackState()
+
+    useSetupPlaybackState()
     useSetupPlaybackStateAutoRefresh({ refreshInterval: 1000 })
     useSetupNowPlayingLiked()
-
-    // Transfer playback to browser on mount.
-    const needToConnect = nonNullable(deviceId) && playbackState === null
-    const { mutate, isLoading } = useTransferPlaybackMutation()
-    useEffect(() => {
-        if (needToConnect && !isLoading) {
-            mutate({ input: { deviceId } })
-        }
-    }, [needToConnect])
+    useTransferPlayback()
 
     if (playbackState === null) {
         return <progress className="progress w-full progress-primary" />
@@ -72,4 +65,17 @@ const useSetupNowPlayingLiked = () => {
     }, [nowPlaying, isLiked])
 
     return isLiked
+}
+
+const useTransferPlayback = () => {
+    const playbackState = usePlaybackState()
+    const deviceId = useDeviceId()
+    // Transfer playback to browser on mount.
+    const needToConnect = deviceId && playbackState === null
+    const { mutate, isLoading } = useTransferPlaybackMutation()
+    useEffect(() => {
+        if (needToConnect && !isLoading) {
+            mutate({ input: { deviceId } })
+        }
+    }, [needToConnect])
 }
