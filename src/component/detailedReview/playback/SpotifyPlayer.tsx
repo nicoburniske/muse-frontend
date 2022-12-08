@@ -1,15 +1,16 @@
-import { HeartOutlineIcon, NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon } from 'component/Icons'
+import { HeartOutlineIcon, MutedSpeakerIcon, NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCurrentTrack, useVolume, usePlayerActions } from 'component/playbackSDK/PlaybackSDK'
+import { useCurrentTrack, useVolume, usePlayerActions, useMaybeCurrentTrack } from 'component/playbackSDK/PlaybackSDK'
+import { useTransferPlayback } from './TransferPlayback'
 
 interface PlaybackTimeProps {
     reviewId: string
@@ -17,7 +18,17 @@ interface PlaybackTimeProps {
 
 const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
 
-export function PlaybackTime({ reviewId }: PlaybackTimeProps) {
+export function SpotifyPlayerFallback({ reviewId }: PlaybackTimeProps) {
+    const currentTrack = useMaybeCurrentTrack()
+    const { transfer } = useTransferPlayback()
+    if (currentTrack) {
+        return <SpotifyPlayer reviewId={reviewId} />
+    } else {
+        return <button onClick={() => transfer()}> Reconnect! </button>
+    }
+}
+
+export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
     const {
         album,
         artists,
@@ -62,7 +73,7 @@ export function PlaybackTime({ reviewId }: PlaybackTimeProps) {
                         </div>
                     </div>
                 </button>
-                <div className={'flex flex-col justify-around'}>
+                <div className={'flex flex-col justify-around overflow-hidden'}>
                     <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
                     <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
                 </div>
@@ -162,13 +173,22 @@ const PlaybackProgress = () => {
 
 const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     const {
-        isPlaying,
         isShuffled,
+        toggleShuffleDisabled,
+        setShuffle,
+
+        repeatMode,
+        repeatModeDisabled,
+        setRepeatMode,
+
+        isPlaying,
         togglePlayDisabled,
         togglePlay,
+
         seekDisabled,
         seekBackward,
         seekForward,
+
         prevTrackDisabled,
         previousTrack,
         nextTrackDisabled,
@@ -176,16 +196,20 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     } = usePlayerActions()
     const { id: trackId } = useCurrentTrack()
 
-    const toggleShuffle = () => { }
-    const shuffleButtonClass = isShuffled ? commonBtnClass + ' btn btn-success' : commonBtnClass
-
+    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const selectNowPlaying = () => {
         setSelectedTrack(undefined)
         setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
     }
 
-    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
+    const toggleShuffle = () => setShuffle(!isShuffled)
+    const shuffleButtonClass = isShuffled ? commonBtnClass + ' btn-success' : commonBtnClass
+
+    const repeatModeText = repeatMode === 2 ? '1' : undefined
+    const repeatModeColor = repeatMode !== 0 ? commonBtnClass + ' btn-success' : commonBtnClass
+    const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
+    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode) 
 
     return (
         <>
@@ -200,25 +224,37 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
             </button>
             <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
             <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
-            <button className={shuffleButtonClass} onClick={() => toggleShuffle()} ><ShuffleIcon /></button>
-            <button className={commonBtnClass}><RepeatIcon /></button>
+            <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}><ShuffleIcon /></button>
+            <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}><RepeatIcon text={repeatModeText} /></button>
         </>
     )
 }
 
 const VolumeSlider = () => {
-    const [volume, setVolume] = useVolume()
+    const [volume, setVolume, toggleMute] = useVolume()
 
     const asInt = Math.floor(volume * 100)
 
-    const convertAndSetVolume = (newVolumeInt: number) => {
+    const convertAndSetVolume = (e: ChangeEvent<HTMLInputElement>) => {
+        const newVolumeInt = parseInt(e.currentTarget.value)
         setVolume(newVolumeInt / 100)
     }
 
+    const isMuted = volume === 0
+    const onClick = () => toggleMute(undefined)
     return (
-        <input type="range" className="range range-primary"
-            min={1} max={100} value={asInt} step={1}
-            onChange={e => { convertAndSetVolume(parseInt(e.currentTarget.value)) }}
-        />
+        <div className="flex flex-row items-center w-full">
+            <button onClick={onClick} className={commonBtnClass}>
+                {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
+            </button>
+
+            <input
+                type="range"
+                className="range range-primary bg-primary/50"
+                min={0} max={100} step={1}
+                value={asInt}
+                onChange={e => convertAndSetVolume(e)}
+            />
+        </div>
     )
 }

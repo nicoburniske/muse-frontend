@@ -1,7 +1,7 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtomValue, useSetAtom, atom } from 'jotai'
-import { nowPlayingTrackIdAtom, openCommentModalAtom, playbackDevicesAtom, selectedTrackAtom } from 'state/Atoms'
+import { nowPlayingTrackIdAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
@@ -34,8 +34,6 @@ const useLikeAtom = (trackAtom: PrimitiveAtom<DetailedTrackFragment>) =>
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, atom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
-    // We want to know what devices are available so we can start playback on the correct device.
-    const devices = useAtomValue(playbackDevicesAtom)
     const track = useAtomValue(atom)
     const setCommentModal = useSetAtom(openCommentModalAtom)
 
@@ -95,10 +93,9 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const onPlayTrack = () => {
         if (!isLoading) {
             // We only want to include device when one is not active.
-            const device = devices?.some(d => d.isActive) ? null : devices?.at(0)?.id
             const inner = { entityId: track.id, entityType: EntityType.Track }
             const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            const input = { input: { offset: { outer, inner }, deviceId: device } }
+            const input = { input: { offset: { outer, inner } } }
             playTrack(input)
         }
     }

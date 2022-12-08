@@ -45,7 +45,6 @@ const persister = createSyncStoragePersister({
 })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    // <React.StrictMode>
     <BrowserRouter>
         <Provider value={urqlClient}>
             <PersistQueryClientProvider
@@ -53,7 +52,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 persistOptions={{ persister }}
             >
                 <>
-                    <DebugAtoms/>
+                    <DebugAtoms />
                     <App />
                     <Toaster
                         position="bottom-right"
@@ -73,5 +72,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             </PersistQueryClientProvider>
         </Provider>
     </BrowserRouter>
-    // </React.StrictMode>
 )

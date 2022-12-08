@@ -1,4 +1,3 @@
-import { PlaybackDeviceFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
 import { focusAtom } from 'jotai/optics'
 import { atomWithStorage } from 'jotai/utils'
@@ -8,7 +7,6 @@ export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')
 export interface SelectedTrack { reviewId: string, trackId: string }
 export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
 
-export const playbackDevicesAtom = atom<PlaybackDeviceFragment[]>([])
 export const searchAtom = atom<string>('')
 export const searchLoweredAtom = atom<string>(get => get(searchAtom).toLowerCase())
 

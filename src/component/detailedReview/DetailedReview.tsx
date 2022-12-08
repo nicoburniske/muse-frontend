@@ -18,7 +18,8 @@ import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTable } from './GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
-import { PlaybackTimeSdkWrapper } from './playback/PlaybackTimeWrapperSDK'
+import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
+import { ErrorBoundary } from 'react-error-boundary'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -32,11 +33,10 @@ export enum RenderOptions {
 }
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
-
     // Queries.
     // const comments = useLatestReviewComments(reviewId)
     // This only needs to happen so that playlist tracks are refreshed.
-    const { data, isLoading, error, refetch } = useDetailedReviewQuery({ reviewId })
+    const { data, isLoading, refetch } = useDetailedReviewQuery({ reviewId })
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
@@ -55,8 +55,7 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
                 review={data.review}
                 reload={() => refetch()} />
         )
-
-    } else if (error) {
+    } else {
         return (
             <Alert severity={AlertSeverity.Error}>
                 <span> Error Loading Review </span>
@@ -76,15 +75,14 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
     const [openEditReview, setOpenEditReview] = useState(false)
     const nav = useNavigate()
     const userId = useAtomValue(currentUserIdAtom)
-    const parentReviewIdAtom = atom<string | undefined>(undefined)
-    const setParentReviewId = useSetAtom(parentReviewIdAtom)
+    const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
     const isReviewOwner = userId === review?.creator?.id
     const collaborators = review?.collaborators ?? []
-    const isPublic = review?.isPublic
-    const title = review?.reviewName
-    const entityName = review?.entity?.name
-    const entityId = review?.entity?.id ?? ''
+    const isPublic = review.isPublic
+    const title = review.reviewName
+    const entityName = review.entity?.name
+    const entityId = review.entity?.id ?? ''
     const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
     const entity = review?.entity
 
@@ -115,15 +113,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         }
         : undefined
     const allReviews = [parent, ...children].filter(nonNullable)
-
-    // On unmount reset parent review id.
-    // This is for creating child reviews in modal.
-    useEffect(() => {
-        setParentReviewId(reviewId)
-        return () => {
-            setParentReviewId(undefined)
-        }
-    })
 
     const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
@@ -203,11 +192,17 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             <div className="grow min-h-0 w-full bg-base-300">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
             </div>
-            <Suspense fallback={<progress className="progress w-full progress-primary" />}>
-                <div className='w-full'>
-                    <PlaybackTimeSdkWrapper reviewId={reviewId} />
-                </div>
-            </Suspense>
+            <div className='w-full bg-neutral'>
+                <ErrorBoundary fallback={
+                    <Alert severity={AlertSeverity.Error}>
+                        <span> Error Starting Playback </span>
+                    </Alert >
+                }>
+                    <Suspense fallback={<progress className="progress progress-primary" />}>
+                        <SpotifyPlayerWrapper reviewId={reviewId} />
+                    </Suspense>
+                </ErrorBoundary>
+            </div>
         </div >
     )
 }

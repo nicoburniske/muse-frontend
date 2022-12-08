@@ -17,7 +17,13 @@ export default function BrowsePage() {
     const linkToHome = () => nav('/')
     const search = useAtomValue(searchLoweredAtom)
     const { data, isLoading } = useProfileAndReviewsQuery({},
-        { onError: () => toast.error('Failed to load profile.') })
+        {
+            onError: () => toast.error('Failed to load profile.'),
+            staleTime: 30 * 1000,
+            refetchOnWindowFocus: false,
+            refetchOnMount: false,
+        }
+    )
 
     const reviews = useMemo(() =>
         data?.user?.reviews?.filter(r =>
