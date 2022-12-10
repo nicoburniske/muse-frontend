@@ -39,8 +39,7 @@ const useSyncAccessToken = () => {
     }, {
         staleTime: 60 * 45 * 1000,
         refetchIntervalInBackground: true
-    }
-    )
+    })
     useEffect(() => {
         if (data) {
             setAccessToken(data)

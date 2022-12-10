@@ -4,7 +4,6 @@ import { useSetAtom, useAtomValue, atom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
 import { Alert, AlertSeverity } from 'component/Alert'
-import { HeroLoading } from 'component/HeroLoading'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReview } from './editReview/EditReview'
 import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardIcon } from 'component/Icons'
@@ -33,10 +32,7 @@ export enum RenderOptions {
 }
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
-    // Queries.
-    // const comments = useLatestReviewComments(reviewId)
-    // This only needs to happen so that playlist tracks are refreshed.
-    const { data, isLoading, refetch } = useDetailedReviewQuery({ reviewId })
+    const { data, refetch } = useDetailedReviewQuery({ reviewId }, { suspense: true })
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
@@ -45,22 +41,15 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
         () => () => setSelectedTrack(undefined)
         , [])
 
-    if (isLoading && data == undefined) {
-        return <HeroLoading />
-    } else if (data?.review) {
-        return (
-            <DetailedReviewContent
-                renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
-                reviewId={reviewId}
-                review={data.review}
-                reload={() => refetch()} />
-        )
-    } else {
-        return (
-            <Alert severity={AlertSeverity.Error}>
-                <span> Error Loading Review </span>
-            </Alert >)
-    }
+    return (
+        data?.review &&
+        < DetailedReviewContent
+            renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
+            reviewId={reviewId}
+            review={data.review}
+            reload={() => refetch()
+            } />
+    )
 }
 
 interface DetailedReviewContentProps {

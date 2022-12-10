@@ -2,15 +2,17 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage, loadable } from 'jotai/utils'
 import { useEffect } from 'react'
 import { nonNullable } from 'util/Utils'
+import { DeviceIdOptions, RepeatState, SpotifyClient } from 'component/playbackSDK/SpotifyClient'
 
-export const SPOTIFY_API_URL = 'https://api.spotify.com/v1'
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
 // This needs to be imported at top level to setup spotify sdk.
 export function SpotifyPlaybackSdk() {
     useAtom(sdkReadyAtom)
     useAtom(loadable(playerAtom))
+    useAtom(loadable(deviceIdAtom))
     useAtom(loadable(asyncPlaybackStateAtom))
+    useAtom(loadable(accessTokenAtom))
     return null
 }
 
@@ -31,12 +33,12 @@ sdkReadyAtom.onMount = (setAtom) => {
 }
 
 const maybeAccessTokenAtom = atom<string | null>(null)
-const accessTokenAtom = atom<string>((get) => {
+const accessTokenAtom = atom<Promise<string>>(async (get) => {
     const accessToken = get(maybeAccessTokenAtom)
     if (accessToken) {
         return accessToken
     } else {
-        throw new Error('Access token not set.')
+        return await new Promise(() => { })
     }
 })
 maybeAccessTokenAtom.debugLabel = 'accessTokenAtom'
@@ -47,8 +49,8 @@ export const useSetAccessToken = () => useSetAtom(maybeAccessTokenAtom)
  **/
 const playerAtom = atom<Promise<Spotify.Player>>(async (get) => {
     const isSdkReady = get(sdkReadyAtom)
-    const accessToken = get(maybeAccessTokenAtom)
-    if (isSdkReady && accessToken) {
+    const accessToken = get(accessTokenAtom)
+    if (isSdkReady) {
         const player = new Spotify.Player({
             name: 'Muse',
             getOAuthToken: (callback) => callback(accessToken),
@@ -88,13 +90,46 @@ export const useDeviceId = () => useAtomValue(deviceIdAtom)
 /**
  * Playback State.
  */
+const isPlaybackStateInitAtom = atom(false)
+const transferPlaybackOnMount = atom(false)
+const playbackStatesAtom = atom<(Spotify.PlaybackState | null)[]>([])
+// const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
+playbackStatesAtom.debugLabel = 'playbackStatesAtom'
+export const usePlaybackStates = () => useAtomValue(playbackStatesAtom)
+// First set will signal that player has been connected 
+const setPlaybackStateAtom = atom(null, (_get, set, state: Spotify.PlaybackState | null) => {
+    set(isPlaybackStateInitAtom, true)
+    set(playbackStatesAtom, (old) => [state, ...old].slice(0, 5))
+})
 
-const syncPlaybackStateAtom = atom<Spotify.PlaybackState | null>(null)
-syncPlaybackStateAtom.debugLabel = 'syncPlaybackStateAtom'
-export const usePlaybackStateSync = () => useAtomValue(syncPlaybackStateAtom)
+// Latest Playback State.
+const latestPlaybackStateAtom = atom<Spotify.PlaybackState | null>((get) => get(playbackStatesAtom)[0] ?? null)
+latestPlaybackStateAtom.debugLabel = 'latestPlaybackStateAtom'
+export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom)
+
+// Needs Reconnect.
+const needsReconnectAtom = atom<boolean>((get) => {
+    const isInit = get(isPlaybackStateInitAtom)
+    const latestValid = get(latestValidPlaybackStateMaybeAtom)
+    const latest = get(latestPlaybackStateAtom)
+
+    return !isInit || (!nonNullable(latestValid) || !nonNullable(latest)
+        || latestValid.timestamp !== latest.timestamp
+    )
+})
+needsReconnectAtom.debugLabel = 'needsReconnectAtom'
+export const useNeedsReconnect = () => useAtomValue(needsReconnectAtom)
+
+const latestValidPlaybackStateMaybeAtom = atom<Spotify.PlaybackState | null>((get) => {
+    const states = get(playbackStatesAtom)
+    return states.find(s => nonNullable(s?.track_window.current_track)) ?? null
+})
+const existsPlaybackStateAtom = atom<boolean>((get) => (get(latestValidPlaybackStateMaybeAtom)) !== null)
+export const useExistsPlaybackState = () => useAtomValue(existsPlaybackStateAtom)
+latestValidPlaybackStateMaybeAtom.debugLabel = 'latestValidPlaybackStateMaybeAtom'
 
 const asyncPlaybackStateAtom = atom<Promise<Spotify.PlaybackState>>(async (get) => {
-    const state = get(syncPlaybackStateAtom)
+    const state = get(latestValidPlaybackStateMaybeAtom)
     if (state) {
         return state
     } else {
@@ -104,23 +139,14 @@ const asyncPlaybackStateAtom = atom<Promise<Spotify.PlaybackState>>(async (get) 
 asyncPlaybackStateAtom.debugLabel = 'asyncPlaybackStateAtom'
 export const usePlaybackState = () => useAtomValue(asyncPlaybackStateAtom)
 
-// Current track will be null when transfered to another device.
-const currentTrackAtom = atom<Spotify.Track | null>((get) => get(asyncPlaybackStateAtom).track_window.current_track)
-currentTrackAtom.debugLabel = 'currentTrackAtom'
-export const useMaybeCurrentTrack = () => useAtomValue(syncPlaybackStateAtom)?.track_window.current_track ?? null
-export const useCurrentTrack = () => {
-    const current = useAtomValue(currentTrackAtom)
-    if (current) {
-        return current
-    } else {
-        throw new Error('No current track.')
-    }
-}
+const currentTrackAtom = atom<Spotify.Track>((get) => get(asyncPlaybackStateAtom).track_window.current_track)
+export const useCurrentTrack = () => useAtomValue(currentTrackAtom)
+
 
 // This can't be an atom because listener runs multiple times.
 export const useSyncPlaybackState = () => {
     const player = useSpotifyPlayer()
-    const setPlaybackState = useSetAtom(syncPlaybackStateAtom)
+    const setPlaybackState = useSetAtom(setPlaybackStateAtom)
 
     useEffect(() => {
         player.addListener('player_state_changed', (state) => {
@@ -136,7 +162,8 @@ export const useSyncPlaybackState = () => {
  */
 export const useSyncPlaybackStateInterval = ({ refreshInterval }: { refreshInterval: number }) => {
     const player = useSpotifyPlayer()
-    const [playbackState, setPlaybackState] = useAtom(syncPlaybackStateAtom)
+    const playbackState = useAtomValue(latestPlaybackStateAtom)
+    const setPlaybackState = useSetAtom(setPlaybackStateAtom)
 
     const isValidState = nonNullable(playbackState)
     const isPlaying = !playbackState?.paused
@@ -157,6 +184,13 @@ export const useSyncPlaybackStateInterval = ({ refreshInterval }: { refreshInter
         refreshInterval,
     ])
 }
+
+/**
+ * Spotify Client.
+ */
+
+const spotifyClientAtom = atom((get) => SpotifyClient(get(accessTokenAtom)))
+export const useSpotifyClient = () => useAtomValue(spotifyClientAtom)
 
 /**
  * Playback Actions
@@ -202,6 +236,7 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
     const current = get(asyncPlaybackStateAtom)
     const seekInterval = get(seekIntervalAtom)
     const client = get(spotifyClientAtom)
+    const needsReconnect = get(needsReconnectAtom)
 
     const disallows = current.disallows
     const positionMs = current.position
@@ -210,27 +245,27 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
         durationMs: current.duration,
 
         isShuffled: current.shuffle,
-        toggleShuffleDisabled: disallows.toggling_shuffle ?? false,
+        toggleShuffleDisabled: needsReconnect || (disallows.toggling_shuffle ?? false),
         setShuffle: client.setShuffle,
 
         repeatMode: current.repeat_mode as 0 & 1 & 2,
-        repeatModeDisabled: disallows.toggling_repeat_context ?? false,
+        repeatModeDisabled: needsReconnect || (disallows.toggling_repeat_context ?? false),
         setRepeatMode: client.setRepeat,
 
         isPlaying: !current.paused,
-        togglePlayDisabled: (current.paused ? disallows.resuming : disallows.pausing) ?? false,
+        togglePlayDisabled: needsReconnect || ((current.paused ? disallows.resuming : disallows.pausing) ?? false),
         togglePlay: () => player.togglePlay(),
         pause: () => player.pause(),
         play: () => player.resume(),
 
-        seekDisabled: disallows.seeking ?? false,
+        seekDisabled: needsReconnect || (disallows.seeking ?? false),
         seekForward: () => player.seek(positionMs + seekInterval),
         seekBackward: () => player.seek(positionMs - seekInterval),
         seekTo: (positionMs: number) => player.seek(positionMs),
 
-        nextTrackDisabled: disallows.skipping_next ?? false,
+        nextTrackDisabled: needsReconnect || (disallows.skipping_next ?? false),
         nextTrack: () => player.nextTrack(),
-        prevTrackDisabled: disallows.skipping_prev ?? false,
+        prevTrackDisabled: needsReconnect || (disallows.skipping_prev ?? false),
         previousTrack: () => player.previousTrack(),
     }
 })
@@ -256,8 +291,16 @@ const volumeWithMute = atom((get) => {
     const muted = get(isMutedAtom)
     return muted ? 0 : volume
 })
-export function useVolume(): [number, (volume: number) => void, (update: boolean | undefined) => void] {
+
+interface UseVolume {
+    disabled: boolean,
+    volume: number,
+    setVolume: (volume: number) => void,
+    toggleMute: (update: boolean | undefined) => void
+}
+export function useVolume(): UseVolume {
     const player = useSpotifyPlayer()
+    const disabled = useAtomValue(needsReconnectAtom)
     const volume = useAtomValue(volumeWithMute)
     const toggleMute = useSetAtom(isMutedAtom)
     const setVolume = useSetAtom(setVolumeAtom)
@@ -266,62 +309,7 @@ export function useVolume(): [number, (volume: number) => void, (update: boolean
         player.setVolume(volume)
     }, [player, volume])
 
-    return [volume, setVolume, toggleMute]
+    return { disabled, volume, setVolume, toggleMute }
 }
 
-/**
- * Spotify Client.
- */
 
-const spotifyClientAtom = atom((get) => spotifyClient(get(accessTokenAtom)))
-
-type RepeatState = 'track' | 'context' | 'off'
-type DeviceIdOptions = {
-    device_id?: string
-}
-
-const spotifyClient = (accessToken: string) => {
-    async function spotifyRequest<T>(endpoint: string, method: string, body?: any, params?: any): Promise<T> {
-        const paramString = params ? `?${new URLSearchParams(params)}` : ''
-        const url = `${SPOTIFY_API_URL}${endpoint}${paramString}`
-        const response = await fetch(url, {
-            method, body, headers: {
-                'Authorization': `Bearer ${accessToken}`,
-            }
-        })
-        return response.body as T
-    }
-
-    /**
-     * Set the Repeat Mode for the User's Playback
-     *
-     * Set the repeat mode for the user's playback.
-     *
-     * @param state The desired repeat mode.
-     * @param options Optional request information.
-     */
-    const setRepeat = (state: RepeatState, options?: DeviceIdOptions): Promise<void> =>
-        spotifyRequest<void>('/me/player/repeat', 'PUT', undefined, {
-            ...options,
-            state,
-        })
-
-    /**
-     * Toggle Shuffle For User's Playback
-     *
-     * Toggle shuffle on or off for user's playback.
-     *
-     * @param state The desired shuffle state.
-     * @param options Optional request information.
-     */
-    const setShuffle = (state: boolean, options?: DeviceIdOptions): Promise<void> =>
-        spotifyRequest<void>('/me/player/shuffle', 'PUT', undefined, {
-            ...options,
-            state,
-        })
-
-    return {
-        setRepeat,
-        setShuffle
-    }
-}

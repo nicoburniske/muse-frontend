@@ -1,22 +1,28 @@
-import { useDeviceId, useMaybeCurrentTrack } from 'component/playbackSDK/PlaybackSDK'
-import { useTransferPlaybackMutation } from 'graphql/generated/schema'
+import { useMutation } from '@tanstack/react-query'
+import { useDeviceId, useNeedsReconnect, useSpotifyClient, useSpotifyPlayer } from 'component/playbackSDK/PlaybackSDK'
 import { useEffect } from 'react'
 
 export const useTransferPlayback = () => {
     const deviceId = useDeviceId()
-    const maybePlaying = useMaybeCurrentTrack()
+    const client = useSpotifyClient()
+    const needsReconnect = useNeedsReconnect()
 
-    const { mutate, isLoading } = useTransferPlaybackMutation()
-    const transfer = () => {
-        mutate({ input: { deviceId } })
-    }
-    return { transfer, isLoading, isActive: maybePlaying !== null }
+    const { mutate, isLoading } = useMutation(['TransferPlayback'],
+        async () => client.transferPlayback({ deviceId })
+    )
+
+    return { transfer: mutate, isLoading, needsReconnect }
 }
 
 export const useTransferPlaybackOnMount = () => {
-    const { transfer, isActive } = useTransferPlayback()
+    const { transfer, needsReconnect } = useTransferPlayback()
+    const player = useSpotifyPlayer()
+
     useEffect(() => {
-        if (!isActive) {
+        if (needsReconnect) {
+            try {
+                player.activateElement()
+            } catch { /* empty */ }
             transfer()
         }
     }, [])
