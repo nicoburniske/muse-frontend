@@ -13,24 +13,6 @@ export type PlayOptions = {
 };
 
 export type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
-export type ContextType = 'Album' | 'Artist' | 'Playlist'
-
-export type Entity<T extends EntityType> = {
-    id: string
-    entityType: T
-}
-
-export type EntityList<T extends EntityType> = {
-    ids: string[]
-    entityType: T
-}
-
-// export type PlayType<ContextType> = ContextType extends 'Album' ? 'Track' : ContextType extends 'Artist' ? 'Album' | 'Track' : 'Track'
-export type PlayEntityOptions<Outer extends ContextType, Inner extends EntityType> = {
-    outer?: Entity<Outer>
-    inner?: EntityList<Inner>
-} & DeviceIdOptions
-
 
 export const toUri = (entityType: EntityType, id: string) => {
     return `spotify:${entityType.toLowerCase()}:${id}`
@@ -108,7 +90,7 @@ export const SpotifyClient = (accessToken: string) => {
         return spotifyRequest<void>(
             '/me/player/play',
             'PUT',
-            { bodyParams },
+            bodyParams,
             device_id ? { device_id } : undefined
         )
     }

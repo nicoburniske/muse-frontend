@@ -89,21 +89,14 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         }
     }
 
-    // const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
-    //     onError: () => toast.error('Failed to start playback. Please start a playback session and try again.')
-    // })
-    // const { mutate, isLoading } = useMutation(['TransferPlayback'],
-    //     async () => client.transferPlayback({ deviceId })
-    // )
-
     const client = useSpotifyClient()
     const { mutate: playTrack, isLoading } = useMutation(['PlayTrack'], async (input: PlayOptions) => client.play(input))
 
     const onPlayTrack = () => {
         if (!isLoading) {
-            const uris = [toUri(EntityType.Track, track.id)]
+            const trackUri = toUri(EntityType.Track, track.id)
             const context_uri = toUri(EntityType.Playlist, playlistId)
-            const input = { uris, context_uri }
+            const input = { context_uri, offset: { uri: trackUri } }
             playTrack(input)
         }
     }
