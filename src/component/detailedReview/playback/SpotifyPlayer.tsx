@@ -1,4 +1,4 @@
-import { HeartOutlineIcon, MutedSpeakerIcon, NextTrackIcon, PauseIcon, PlayIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon, SpeakerIcon } from 'component/Icons'
+import { HeartOutlineIcon, MutedSpeakerIcon, NextTrackIcon, PauseIcon, PlayIcon, PowerIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
@@ -9,26 +9,46 @@ import { nowPlayingEnabledAtom, nowPlayingTrackAtom, openCommentModalAtom, selec
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCurrentTrack, useVolume, usePlayerActions, useMaybeCurrentTrack } from 'component/playbackSDK/PlaybackSDK'
+import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState } from 'component/playbackSDK/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 
 interface PlaybackTimeProps {
     reviewId: string
 }
 
-const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
-
 export function SpotifyPlayerFallback({ reviewId }: PlaybackTimeProps) {
-    const currentTrack = useMaybeCurrentTrack()
-    const { transfer } = useTransferPlayback()
-    if (currentTrack) {
+    const exists = useExistsPlaybackState()
+    if (exists) {
         return <SpotifyPlayer reviewId={reviewId} />
     } else {
-        return <button onClick={() => transfer()}> Reconnect! </button>
+        return (
+            <div className="grid place-items-center w-full border border-accent rounded-xl bg-neutral">
+                <div className="py-2">
+                    <TransferPlaybackButton />
+                </div>
+            </div>
+        )
     }
 }
 
 export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full border border-accent bg-neutral">
+            <NowPlayingItem reviewId={reviewId}/>
+            <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
+                <div className="flex flex-row justify-evenly items-center text-neutral-content w-full">
+                    <PlayerButtons reviewId={reviewId} />
+                </div>
+                <PlaybackProgress />
+            </div>
+            <div className="hidden lg:grid lg:col-span-1 place-items-center m-1">
+                <VolumeSlider />
+            </div>
+        </div >
+    )
+}
+const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
     const {
         album,
         artists,
@@ -64,32 +84,24 @@ export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
     const tooltipContent = useMemo(() => nowPlayingEnabled ? 'Comment at timestamp' : 'Not part of this review', [nowPlayingEnabled])
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full h-full border-accent border bg-neutral">
-            <div className='flex flex-row px-1 items-center h-full'>
-                <button className="hidden sm:grid place-items-center tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
-                    <div className="avatar" >
-                        <div className="w-12 md:w-16 lg:w-20 rounded">
-                            <img loading='lazy' src={nowPlayingImage} />
-                        </div>
+        <div className='flex flex-row px-1 items-center'>
+            <button className="hidden sm:grid place-items-center tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
+                <div className="avatar" >
+                    <div className="w-12 md:w-16 lg:w-20 rounded">
+                        <img loading='lazy' src={nowPlayingImage} />
                     </div>
-                </button>
-                <div className={'flex flex-col justify-around overflow-hidden'}>
-                    <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
-                    <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
                 </div>
+            </button>
+            <div className={'flex flex-col justify-around overflow-hidden'}>
+                <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
+                <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
             </div>
-            <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
-                <div className="flex flex-row justify-evenly items-center text-neutral-content w-full">
-                    <PlayerButtons reviewId={reviewId} />
-                </div>
-                <PlaybackProgress />
-            </div>
-            <div className="hidden lg:grid lg:col-span-1 place-items-center m-1">
-                <VolumeSlider />
-            </div>
-        </div >
+        </div>
     )
 }
+
+const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
+const commonBtnClassExtra = (className?: string) => className ? `${commonBtnClass} ${className}` : commonBtnClass
 
 const LikeNowPlaying = () => {
     const nowPlaying = useAtomValue(nowPlayingTrackAtom)
@@ -116,7 +128,7 @@ const LikeNowPlaying = () => {
 
 const PlaybackProgress = () => {
     // Convert to percentage.
-    const { positionMs, durationMs, seekTo } = usePlayerActions()
+    const { positionMs, durationMs, seekTo, seekDisabled } = usePlayerActions()
     const progress = (positionMs / durationMs) * 1000
     const [progressState, setProgressState] = useState<[number] | undefined>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
@@ -150,6 +162,7 @@ const PlaybackProgress = () => {
                 <span style={{ '--value': secProgress }}></span>
             </span>
             <Slider.Root
+                disabled={seekDisabled}
                 onValueCommit={commitChange}
                 defaultValue={progressState}
                 value={progressState}
@@ -181,10 +194,6 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
         repeatModeDisabled,
         setRepeatMode,
 
-        isPlaying,
-        togglePlayDisabled,
-        togglePlay,
-
         seekDisabled,
         seekBackward,
         seekForward,
@@ -204,24 +213,21 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     }
 
     const toggleShuffle = () => setShuffle(!isShuffled)
-    const shuffleButtonClass = isShuffled ? commonBtnClass + ' btn-success' : commonBtnClass
+    const successButton = commonBtnClassExtra('btn-success')
+    const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
     const repeatModeText = repeatMode === 2 ? '1' : undefined
-    const repeatModeColor = repeatMode !== 0 ? commonBtnClass + ' btn-success' : commonBtnClass
+    const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
     const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
-    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode) 
+    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
 
     return (
         <>
             <LikeNowPlaying />
-            <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
-                <SearchIcon />
-            </button>
+            <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}><SearchIcon /></button>
             <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}><PreviousTrackIcon /></button>
             <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}><SkipBackwardIcon /></button>
-            <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
-                {isPlaying ? <PauseIcon /> : <PlayIcon />}
-            </button>
+            <PlayOrTransferButton />
             <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
             <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
             <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}><ShuffleIcon /></button>
@@ -230,8 +236,37 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     )
 }
 
+const TransferPlaybackButton = () => {
+    const { transfer, needsReconnect } = useTransferPlayback()
+    const className = commonBtnClassExtra(needsReconnect ? 'btn-error tooltip tooltip-info' : undefined)
+
+    return (
+        <button className={className} disabled={!needsReconnect} onClick={() => transfer()} data-tip="start playback">
+            <PowerIcon />
+        </button>
+    )
+}
+
+const PlayOrTransferButton = () => {
+    const {
+        isPlaying,
+        togglePlayDisabled,
+        togglePlay,
+    } = usePlayerActions()
+    const { needsReconnect } = useTransferPlayback()
+
+    return (
+        needsReconnect ?
+            <TransferPlaybackButton />
+            :
+            <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
+                {isPlaying ? <PauseIcon /> : <PlayIcon />}
+            </button >
+    )
+}
+
 const VolumeSlider = () => {
-    const [volume, setVolume, toggleMute] = useVolume()
+    const { disabled, volume, setVolume, toggleMute } = useVolume()
 
     const asInt = Math.floor(volume * 100)
 
@@ -244,13 +279,14 @@ const VolumeSlider = () => {
     const onClick = () => toggleMute(undefined)
     return (
         <div className="flex flex-row items-center w-full">
-            <button onClick={onClick} className={commonBtnClass}>
+            <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
                 {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
             </button>
 
             <input
                 type="range"
                 className="range range-primary bg-primary/50"
+                disabled={disabled}
                 min={0} max={100} step={1}
                 value={asInt}
                 onChange={e => convertAndSetVolume(e)}

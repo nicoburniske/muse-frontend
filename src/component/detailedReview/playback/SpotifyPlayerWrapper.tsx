@@ -1,4 +1,4 @@
-import { usePlaybackStateSync, useSyncPlaybackState, useSyncPlaybackStateInterval } from 'component/playbackSDK/PlaybackSDK'
+import { useLatestPlaybackState, useSyncPlaybackState, useSyncPlaybackStateInterval } from 'component/playbackSDK/PlaybackSDK'
 import { useTrackLikeQuery } from 'graphql/generated/schema'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
@@ -23,7 +23,7 @@ export const SpotifyPlayerWrapper = ({ reviewId }: { reviewId: string }) => {
 }
 
 const useSetupNowPlayingLiked = () => {
-    const playbackState = usePlaybackStateSync()
+    const playbackState = useLatestPlaybackState()
     const nowPlaying = playbackState?.track_window?.current_track?.id
     const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
 

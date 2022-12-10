@@ -5,10 +5,12 @@ import { nowPlayingTrackIdAtom, openCommentModalAtom, selectedTrackAtom } from '
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
 import { useLongPress } from 'use-long-press'
+import { useSpotifyClient } from 'component/playbackSDK/PlaybackSDK'
+import { PlayOptions, toUri } from 'component/playbackSDK/SpotifyClient'
 
 
 export interface PlaylistTrackProps {
@@ -20,11 +22,12 @@ export interface PlaylistTrackProps {
 
 
 function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
-    return atom<T, SetStateAction<T>>((get) => {
-        const value = get(atomParam)
-        return value === null ? defaultValue : value
-    },
-    (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
+    return atom<T, SetStateAction<T>>(
+        (get) => {
+            const value = get(atomParam)
+            return value === null ? defaultValue : value
+        },
+        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
     )
 }
 
@@ -86,16 +89,21 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         }
     }
 
-    const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
-        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.')
-    })
+    // const { mutate: playTrack, isLoading } = usePlayEntityContextMutation({
+    //     onError: () => toast.error('Failed to start playback. Please start a playback session and try again.')
+    // })
+    // const { mutate, isLoading } = useMutation(['TransferPlayback'],
+    //     async () => client.transferPlayback({ deviceId })
+    // )
+
+    const client = useSpotifyClient()
+    const { mutate: playTrack, isLoading } = useMutation(['PlayTrack'], async (input: PlayOptions) => client.play(input))
 
     const onPlayTrack = () => {
         if (!isLoading) {
-            // We only want to include device when one is not active.
-            const inner = { entityId: track.id, entityType: EntityType.Track }
-            const outer = { entityId: playlistId, entityType: EntityType.Playlist }
-            const input = { input: { offset: { outer, inner } } }
+            const uris = [toUri(EntityType.Track, track.id)]
+            const context_uri = toUri(EntityType.Playlist, playlistId)
+            const input = { uris, context_uri }
             playTrack(input)
         }
     }
