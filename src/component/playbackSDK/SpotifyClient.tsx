@@ -95,20 +95,11 @@ export const SpotifyClient = (accessToken: string) => {
         )
     }
 
-    const playEntityContext = <Outer extends ContextType, Inner extends EntityType>(options?: PlayEntityOptions<Outer, Inner>) => {
-        const { outer, inner, device_id } = options ?? {}
-        const context_uri = outer ? toUri(outer.entityType, outer.id) : undefined
-        const uris = inner ? inner.ids.map(id => toUri(inner.entityType, id)) : undefined
-
-        return play({ device_id, context_uri, uris })
-    }
-
     return {
         setRepeat,
         setShuffle,
         transferPlayback,
         play,
-        playEntityContext
     }
 }
 
