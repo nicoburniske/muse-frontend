@@ -35,7 +35,7 @@ export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full border border-accent bg-neutral">
-            <NowPlayingItem reviewId={reviewId}/>
+            <NowPlayingItem reviewId={reviewId} />
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
                 <div className="flex flex-row justify-evenly items-center text-neutral-content w-full">
                     <PlayerButtons reviewId={reviewId} />
@@ -101,7 +101,10 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
 }
 
 const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
-const commonBtnClassExtra = (className?: string) => className ? `${commonBtnClass} ${className}` : commonBtnClass
+const commonBtnClassExtra = (extraClasses?: (string | undefined)[]) => {
+    const valid = extraClasses?.filter(c => c !== undefined)
+    return valid ? `${commonBtnClass} ${valid.join(' ')}` : commonBtnClass
+}
 
 const LikeNowPlaying = () => {
     const nowPlaying = useAtomValue(nowPlayingTrackAtom)
@@ -130,7 +133,7 @@ const PlaybackProgress = () => {
     // Convert to percentage.
     const { positionMs, durationMs, seekTo, seekDisabled } = usePlayerActions()
     const progress = (positionMs / durationMs) * 1000
-    const [progressState, setProgressState] = useState<[number] | undefined>([progress])
+    const [progressState, setProgressState] = useState<[number]>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
 
     useEffect(() => {
@@ -213,12 +216,11 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     }
 
     const toggleShuffle = () => setShuffle(!isShuffled)
-    const successButton = commonBtnClassExtra('btn-success')
+    const successButton = commonBtnClassExtra(['btn-success'])
     const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
-    const repeatModeText = repeatMode === 2 ? '1' : undefined
     const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
-    const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
+    const nextRepeatMode = repeatMode !== 0 ? 'off' : 'context'
     const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
 
     return (
@@ -231,17 +233,20 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
             <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
             <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
             <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}><ShuffleIcon /></button>
-            <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}><RepeatIcon text={repeatModeText} /></button>
+            <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}><RepeatIcon /></button>
         </>
     )
 }
 
 const TransferPlaybackButton = () => {
-    const { transfer, needsReconnect } = useTransferPlayback()
-    const className = commonBtnClassExtra(needsReconnect ? 'btn-error tooltip tooltip-info' : undefined)
+    const { transfer: { mutate, isLoading }, needsReconnect } = useTransferPlayback({
+        onError: () => toast.error('Failed to transfer playback')
+    })
+    const extraClasses = [needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined, isLoading ? 'loading' : undefined]
+    const className = commonBtnClassExtra(extraClasses)
 
     return (
-        <button className={className} disabled={!needsReconnect} onClick={() => transfer()} data-tip="start playback">
+        <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip="start">
             <PowerIcon />
         </button>
     )

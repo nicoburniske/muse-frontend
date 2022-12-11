@@ -19,6 +19,7 @@ import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
 import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
 import { ErrorBoundary } from 'react-error-boundary'
+import { NotFound } from 'pages/NotFound'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -41,15 +42,21 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
         () => () => setSelectedTrack(undefined)
         , [])
 
-    return (
-        data?.review &&
-        < DetailedReviewContent
-            renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
-            reviewId={reviewId}
-            review={data.review}
-            reload={() => refetch()
-            } />
-    )
+
+    if (data?.review) {
+        return (
+            < DetailedReviewContent
+                renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
+                reviewId={reviewId}
+                review={data.review}
+                reload={() => refetch()
+                } />
+        )
+    } else {
+        return (
+            <NotFound />
+        )
+    }
 }
 
 interface DetailedReviewContentProps {
@@ -210,7 +217,7 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
             {(options == RenderOptions.Both) ?
                 <Split
                     className="flex h-full"
-                    sizes={[40, 60]}
+                    sizes={[50, 50]}
                     direction="horizontal"
                 >
                     {trackSection()}
