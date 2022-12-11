@@ -3,6 +3,7 @@ import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { SpotifyPlaybackSdk, useSetAccessToken } from 'component/playbackSDK/PlaybackSDK'
 import { useAtomValue } from 'jotai'
+import { NotFound } from 'pages/NotFound'
 import { StrictMode, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { themeAtom } from 'state/Atoms'
@@ -23,6 +24,7 @@ export default function App() {
                         <Route path="/" element={<BrowsePage />} />
                         <Route path="/reviews" element={<BrowsePage />} />
                         <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </StrictMode>
             </div>

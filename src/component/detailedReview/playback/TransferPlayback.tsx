@@ -1,17 +1,18 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 import { useDeviceId, useNeedsReconnect, useSpotifyClient, useSpotifyPlayer } from 'component/playbackSDK/PlaybackSDK'
 import { useEffect } from 'react'
 
-export const useTransferPlayback = () => {
+export const useTransferPlayback = (options?: UseMutationOptions) => {
     const deviceId = useDeviceId()
     const client = useSpotifyClient()
     const needsReconnect = useNeedsReconnect()
 
-    const { mutate, isLoading } = useMutation(['TransferPlayback'],
-        async () => client.transferPlayback({ deviceId })
+    const transfer = useMutation(['TransferPlayback'],
+        () => client.transferPlayback({ deviceId }),
+        options
     )
 
-    return { transfer: mutate, isLoading, needsReconnect }
+    return { transfer, needsReconnect }
 }
 
 export const useTransferPlaybackOnMount = () => {
@@ -19,11 +20,11 @@ export const useTransferPlaybackOnMount = () => {
     const player = useSpotifyPlayer()
 
     useEffect(() => {
-        if (needsReconnect) {
-            try {
-                player.activateElement()
-            } catch { /* empty */ }
-            transfer()
-        }
+        // if (needsReconnect) {
+        //     try {
+        //         player.activateElement()
+        //     } catch { /* empty */ }
+        //     transfer.mutate()
+        // }
     }, [])
 }
