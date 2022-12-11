@@ -8,7 +8,7 @@ export const useTransferPlayback = (options?: UseMutationOptions) => {
     const needsReconnect = useNeedsReconnect()
 
     const transfer = useMutation(['TransferPlayback'],
-        () => client.transferPlayback({ deviceId }),
+        () => client.player.transferPlayback(deviceId),
         options
     )
 

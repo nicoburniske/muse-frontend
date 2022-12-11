@@ -71,21 +71,21 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
             <ThemeModal open={isModalOpen} className="max-w-md">
                 <div className="flex flex-col items-center justify-between space-y-5 p-3">
-                    <Dialog.Title className="font-bold text-lg text-base-content">
+                    <Dialog.Title className="font-bold text-lg">
                         share review
                     </Dialog.Title>
-                    <div className="form-control w-full items-center">
+                    <div className="form-control w-full">
                         <label className="label">
-                            <span className="label-text text-neutral-content">who do you want to share with?</span>
+                            <span className="label-text">who do you want to share with?</span>
                         </label>
                         <input type="text" placeholder="spotify username" className="input input-bordered w-full"
                             onChange={(e) => setUsername(e.target.value as string)}
                             value={username}
                         />
                     </div>
-                    <div className="form-control w-full items-center">
+                    <div className="form-control w-full">
                         <label className="label">
-                            <span className="label-text text-neutral-content">access level</span>
+                            <span className="label-text">access level</span>
                         </label>
                         <select value={accessLevel}
                             onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
@@ -99,8 +99,9 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                         collabProp.length > 0 &&
                         <div className="form-control w-full items-center">
                             <label className="label">
-                                <span className="label-text text-neutral-content"> collaborators </span>
+                                <span className="label-text"> collaborators </span>
                             </label>
+                            {/* TODO: do I need this color? */}
                             <ul className="menu bg-base-100 w-full">
                                 {collaborators.map((c) =>
                                     <li key={c.user.id}>

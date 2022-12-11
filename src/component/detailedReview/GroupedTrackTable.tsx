@@ -39,7 +39,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     const setReviewTracks = useSetAtom(allReviewTracks)
     useEffect(() => {
         setReviewTracks(new Set<string>(tracks.map(t => t.id)))
-    }, tracks)
+    }, [tracks])
 
     const [expandedGroups, setExpandedGroups] = useState<string[]>(results.length === 0 ? [] : [results[0][1].reviewId])
 
@@ -252,7 +252,7 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
                         <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
                     </div>
                     <div className="m-auto">
-                        <div className="badge badge-primary text-primary-content text-center">{entityType}</div>
+                        <div className="badge badge-primary text-secondary-content text-center">{entityType}</div>
                     </div>
                     {isChild ?
                         <>
@@ -289,11 +289,6 @@ export interface MemoPlaylistTrackProps {
     atom: PrimitiveAtom<DetailedTrackFragment[]>
 }
 
-function useTrackAtIndexAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string) {
-    return useMemo(() => {
-        return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
-    }, [tracksAtom, trackId])
-}
 
 const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoPlaylistTrackProps) => {
     const trackAtom = useTrackAtIndexAtom(atom, playlistTrack.track.id)
@@ -311,3 +306,9 @@ const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoP
     a.playlistId === b.playlistId &&
     a.reviewId === b.reviewId &&
     a.playlistTrack.track.id === b.playlistTrack.track.id)
+
+function useTrackAtIndexAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string) {
+    return useMemo(() => {
+        return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
+    }, [tracksAtom, trackId])
+}

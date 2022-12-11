@@ -1,8 +1,10 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage, loadable } from 'jotai/utils'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { nonNullable } from 'util/Utils'
-import { DeviceIdOptions, RepeatState, SpotifyClient } from 'component/playbackSDK/SpotifyClient'
+import { SpotifyClient } from 'component/playbackSDK/SpotifyClient'
+import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
+import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
@@ -92,8 +94,8 @@ export const useDeviceId = () => useAtomValue(deviceIdAtom)
  */
 const isPlaybackStateInitAtom = atom(false)
 const transferPlaybackOnMount = atom(false)
-const playbackStatesAtom = atom<(Spotify.PlaybackState | null)[]>([])
-// const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
+// const playbackStatesAtom = atom<(Spotify.PlaybackState | null)[]>([])
+const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
 playbackStatesAtom.debugLabel = 'playbackStatesAtom'
 export const usePlaybackStates = () => useAtomValue(playbackStatesAtom)
 // First set will signal that player has been connected 
@@ -230,7 +232,16 @@ interface PlayerActions {
     previousTrack: () => Promise<void>
 }
 
+export const playerPosition = atom((get) => {
+    const state = get(asyncPlaybackStateAtom)
+    return {
+        position: state.position,
+        duration: state.duration,
+    }
+})
+
 export const seekIntervalAtom = atom(10000)
+export const isShuffledAtom = atom<boolean>((get) => get(asyncPlaybackStateAtom).shuffle)
 export const playerActionsAtom = atom<PlayerActions>((get) => {
     const player = get(playerAtom)
     const current = get(asyncPlaybackStateAtom)
@@ -240,17 +251,18 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
 
     const disallows = current.disallows
     const positionMs = current.position
+
     return {
         positionMs,
         durationMs: current.duration,
 
         isShuffled: current.shuffle,
         toggleShuffleDisabled: needsReconnect || (disallows.toggling_shuffle ?? false),
-        setShuffle: client.setShuffle,
+        setShuffle: (state: boolean, options?: DeviceIdOptions) => client.player.setShuffle(state, options),
 
         repeatMode: current.repeat_mode as 0 & 1 & 2,
         repeatModeDisabled: needsReconnect || (disallows.toggling_repeat_context ?? false),
-        setRepeatMode: client.setRepeat,
+        setRepeatMode: (state: RepeatState, options?: DeviceIdOptions) => client.player.setRepeat(state, options),
 
         isPlaying: !current.paused,
         togglePlayDisabled: needsReconnect || ((current.paused ? disallows.resuming : disallows.pausing) ?? false),

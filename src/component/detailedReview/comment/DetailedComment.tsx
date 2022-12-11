@@ -9,6 +9,7 @@ import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, 
 import { useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from '../DetailedReview'
 import CommentMarkdown from './CommentMarkdown'
+import { usePlay } from 'component/playbackSDK/hooks'
 
 export interface DetailedCommentProps {
     review: ReviewOverview
@@ -59,14 +60,14 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     }
 
     const tracks = (detailedComment.entities ?? []).map(e => e.id)
-    const { mutate: playTrack, isLoading } = usePlayTracksMutation({
-        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
-        onSuccess: () => { }
-    })
+    const { playTracks, isLoading } = usePlay(
+        {
+            onError: () => toast.error('Failed to play track.'),
+        })
 
     const onPlayTrack = () => {
         if (tracks.length > 0 && !isLoading) {
-            playTrack({ input: { trackIds: tracks } })
+            playTracks(tracks)
         }
     }
 

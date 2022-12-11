@@ -1,16 +1,15 @@
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery, usePlayEntityContextMutation } from 'graphql/generated/schema'
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtomValue, useSetAtom, atom } from 'jotai'
 import { nowPlayingTrackIdAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
 import { useLongPress } from 'use-long-press'
-import { useSpotifyClient } from 'component/playbackSDK/PlaybackSDK'
-import { PlayOptions, toUri } from 'component/playbackSDK/SpotifyClient'
+import { usePlay } from 'component/playbackSDK/hooks'
 
 
 export interface PlaylistTrackProps {
@@ -89,15 +88,11 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         }
     }
 
-    const client = useSpotifyClient()
-    const { mutate: playTrack, isLoading } = useMutation(['PlayTrack'], async (input: PlayOptions) => client.play(input))
+    const { playlistOffset, isLoading } = usePlay()
 
     const onPlayTrack = () => {
         if (!isLoading) {
-            const trackUri = toUri(EntityType.Track, track.id)
-            const context_uri = toUri(EntityType.Playlist, playlistId)
-            const input = { context_uri, offset: { uri: trackUri } }
-            playTrack(input)
+            playlistOffset(playlistId, track.id)
         }
     }
 

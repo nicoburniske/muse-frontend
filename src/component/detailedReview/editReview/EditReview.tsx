@@ -68,12 +68,12 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
     return (
         <ThemeModal open={isOpen} className="max-w-md">
             <div className="flex flex-col items-center justify-between space-y-5 p-3 relative" >
-                <Dialog.Title className="font-bold text-lg text-base-content">
+                <Dialog.Title className="font-bold text-lg">
                     edit review
                 </Dialog.Title>
                 <div className="w-full">
                     <label className="label">
-                        <span className="label-text text-neutral-content"> review name </span>
+                        <span className="label-text"> review name </span>
                     </label>
                     <input type="text" placeholder="Review Name" className="input input-bordered w-full"
                         onChange={(e) => setReviewName(e.target.value as string)}
@@ -82,7 +82,7 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
                 </div>
                 <div className="form-control w-full">
                     <label className="label">
-                        <span className="label-text text-neutral-content">is public</span>
+                        <span className="label-text">is public</span>
                     </label>
                     <select
                         value={isPublic} onChange={(e) => setIsPublic(+e.target.value)}

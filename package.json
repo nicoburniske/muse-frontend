@@ -39,6 +39,7 @@
     "react-router-dom": "^6.3.0",
     "react-split": "^2.0.14",
     "react-virtuoso": "^2.19.1",
+    "spotify-web-api-ts": "^1.4.5",
     "urql": "^3.0.3",
     "use-long-press": "^2.0.2",
     "vite-tsconfig-paths": "^3.5.0"

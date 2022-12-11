@@ -1,4 +1,4 @@
-import { usePlayTracksMutation } from 'graphql/generated/schema'
+import { usePlay } from 'component/playbackSDK/hooks'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 
@@ -39,35 +39,27 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
         return [undefined, undefined]
     }, [time])
 
-    const handleError = () => {
-        toast.error('Failed to start playback. Please start a playback session and try again.')
-    }
 
-    const onSuccess = () => {
-        if (timestamp === undefined) {
-            toast.error('Successfully started playback from start. Invalid timestamp.')
+    const { playTrackOffset } = usePlay({
+        onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
+        onSuccess: () => {
+            if (timestamp === undefined) {
+                toast.error('Successfully started playback from start. Invalid timestamp.')
+            }
         }
-    }
-
-    const { mutate: playTrack } = usePlayTracksMutation({ onError: handleError, onSuccess })
+    })
 
     // TODO: Eventually we want to play WITH CONTEXT. 
     // It's hard for playlists because we need to check if it is still contained in the playlist
-    const onClick = () => {
-        playTrack({ input: { trackIds: [trackId], positionMs: timestamp } })
-    }
+    const onClick = () => playTrackOffset(trackId, timestamp)
 
+    // Only want to include tooltip if there is a comment.
     const text = comment !== undefined ? comment : timestamp ? `@${formattedTime}` : formattedTime
-    const internal = (
-        <a
-            className="link link-base-content link-hover"
-            onClick={onClick}
-        >
+    const className = `link link-base-content link-hover ${comment !== undefined ? 'tooltip tooltip-bottom' : ''}`
+
+    return (
+        <button className={className} data-tip={`@${time}`} onClick={onClick}>
             {text}
-        </a>)
-    return comment !== undefined ?
-        (<a className="tooltip tooltip-bottom link link-base-content link-hover" data-tip={`@${time}`}>
-            {internal}
-        </a>) :
-        internal
+        </button>
+    )
 }

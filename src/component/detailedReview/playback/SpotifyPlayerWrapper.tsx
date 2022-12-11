@@ -1,5 +1,5 @@
+import { useTrackLikeQuery } from 'component/playbackSDK/hooks'
 import { useLatestPlaybackState, useSyncPlaybackState, useSyncPlaybackStateInterval } from 'component/playbackSDK/PlaybackSDK'
-import { useTrackLikeQuery } from 'graphql/generated/schema'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
 import { nowPlayingTrackAtom } from 'state/Atoms'
@@ -28,13 +28,13 @@ const useSetupNowPlayingLiked = () => {
     const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
 
     const { data } = useTrackLikeQuery(
-        { id: nowPlaying! },
+        nowPlaying!,
         {
             enabled: nonNullable(nowPlaying),
-            staleTime: 5 * 1000
+            staleTime: 10 * 1000
         },
     )
-    const isLiked = data?.getTrack?.isLiked ?? undefined
+    const isLiked = data ?? undefined
     useEffect(() => {
         if (nonNullable(nowPlaying) && nonNullable(isLiked)) {
             setNowPlaying({ trackId: nowPlaying, isLiked })

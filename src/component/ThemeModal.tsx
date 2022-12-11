@@ -9,18 +9,38 @@ export const ThemeModal = ({ open, children, className }: { className?: string, 
     return (
         <Transition
             show={open}
-            enter="transition ease-in-out duration-100"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
             as={Fragment}
         >
             <Dialog onClose={() => null} data-theme={theme}>
-                <div className="fixed inset-x-0 top-0 sm:inset-0 bg-neutral/60 z-10" aria-hidden="true" />
-                <div className="fixed inset-x-0 top-0 sm:inset-0 grid place-items-center p-4 w-full h-full z-50">
-                    <Dialog.Panel className={'w-full rounded bg-base-300 border-primary relative ' + className}>
-                        {children}
-                    </Dialog.Panel>
-                </div>
+                {/* Background transition */}
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-100"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-x-0 top-0 sm:inset-0 bg-neutral/60 z-20" aria-hidden="true" />
+                </Transition.Child>
+
+                {/* Panel transition */}
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-100"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in duration-100"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                >
+                    <div className="fixed inset-x-0 top-0 sm:inset-0 grid place-items-center p-4 w-full h-full z-20">
+                        <Dialog.Panel className={'w-full rounded bg-base-300 border-primary relative ' + className}>
+                            {children}
+                        </Dialog.Panel>
+                    </div>
+                </Transition.Child>
             </Dialog>
         </Transition>
     )
