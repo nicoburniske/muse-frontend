@@ -1,21 +1,58 @@
-import { useAtomValue } from 'jotai'
-import { useMemo } from 'react'
-import { openCommentModalAtom } from 'state/Atoms'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import ReactDOM from 'react-dom'
 import { CommentFormModal } from './CommentFormModal'
+
+interface CommentModalData {
+    trackId: string
+    title: string
+    initialValue?: string
+
+    onSubmit: (comment: string) => Promise<void>
+    onCancel: () => void
+}
+
+const defaultModalValue = Object.freeze({
+    trackId: '',
+    title: '',
+    onSubmit: async () => { },
+    onCancel: () => { },
+})
+const openCommentModalAtom = atom<CommentModalData>(defaultModalValue)
+const isOpenModalAtom = atom(false)
+
+const openModalAtom = atom(null, (_get, set, value: CommentModalData) => {
+    set(openCommentModalAtom, value)
+    set(isOpenModalAtom, true)
+})
+const closeModalAtom = atom(null, (_get, set) => {
+    set(isOpenModalAtom, false)
+    setTimeout(() => set(openCommentModalAtom, defaultModalValue), 500)
+})
+
+export const useCommentModal = () => {
+    // TODO: This breaks?
+    // const openCommentModal = useMemo(() => useSetAtom(openModalAtom), [])
+    // const closeCommentModal = useMemo(() => useSetAtom(closeModalAtom), [])
+    const openCommentModal = useSetAtom(openModalAtom)
+    const closeCommentModal = useSetAtom(closeModalAtom)
+    return {
+        openCommentModal,
+        closeCommentModal
+    }
+}
 
 export const CommentFormModalWrapper = () => {
     const modalData = useAtomValue(openCommentModalAtom)
-    // TODO: Title is changing too fast. Before Modal is closing
-    const open = useMemo(() => modalData !== undefined, [modalData])
+    const open = useAtomValue(isOpenModalAtom)
 
-    return (
+    return ReactDOM.createPortal(
         <CommentFormModal
             open={open}
-            title={modalData?.title ?? 'rrrs'}
-            onCancel={modalData?.onCancel ?? (() => { })}
-            onSubmit={modalData?.onSubmit ?? (async () => {return})}
-            initialValue={modalData?.initialValue}
-            trackId={modalData?.trackId ?? ''}
-        />
-    )
+            title={modalData.title}
+            onCancel={modalData.onCancel}
+            onSubmit={modalData.onSubmit}
+            initialValue={modalData.initialValue}
+            trackId={modalData.trackId}
+        />,
+        document.body)
 }

@@ -1,7 +1,7 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { PrimitiveAtom, useAtomValue, useSetAtom, atom } from 'jotai'
-import { nowPlayingTrackIdAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
+import { PrimitiveAtom, useAtomValue, atom } from 'jotai'
+import { nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { RefObject, SetStateAction, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
@@ -10,6 +10,7 @@ import LikeButton from 'component/LikeButton'
 import { focusAtom } from 'jotai/optics'
 import { useLongPress } from 'use-long-press'
 import { usePlay } from 'component/playbackSDK/hooks'
+import { useCommentModal } from './commentForm/CommentFormModalWrapper'
 
 
 export interface PlaylistTrackProps {
@@ -37,7 +38,7 @@ const useLikeAtom = (trackAtom: PrimitiveAtom<DetailedTrackFragment>) =>
 export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, atom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
     const track = useAtomValue(atom)
-    const setCommentModal = useSetAtom(openCommentModalAtom)
+    const { openCommentModal, closeCommentModal } = useCommentModal()
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
     // Sorted biggest to smallest.
@@ -52,13 +53,12 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const [bgStyle, textStyle, hoverStyle] =
         isPlaying ? ['bg-success', 'text-success-content', ''] :
             isSelected ? ['bg-info', 'text-info-content', ''] :
-                ['bg-neutral/30', 'text-neutral-content', 'active:bg-neutral-focus']
+                ['bg-base-100', 'text-base-content', 'active:bg-accent active:text-accent-content']
 
-    const resetState = () => setCommentModal(undefined)
 
     // On successful comment creation, clear the comment box 
     const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
-        onSuccess: resetState,
+        onSuccess: () => closeCommentModal(),
         onError: () => toast.error('Failed to create comment.')
     })
     const onSubmit = async (comment: string) => {
@@ -70,8 +70,8 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     }
 
     const showModal = () => {
-        const values = { title: 'create comment', onCancel: resetState, onSubmit, trackId: track.id }
-        setCommentModal(values)
+        const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, trackId: track.id }
+        openCommentModal(values)
     }
 
     const isLikedAtom = valueOrDefault(useLikeAtom(atom), false)

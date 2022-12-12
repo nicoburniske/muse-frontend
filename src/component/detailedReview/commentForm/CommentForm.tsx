@@ -43,34 +43,33 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                 <a className={`tab tab-bordered ${isEditing ? 'tab-active' : ''}`} onClick={() => setIsEditing(true)}>edit</a>
                 <a className={`tab tab-bordered ${!isEditing ? 'tab-active' : ''}`} onClick={() => setIsEditing(false)}>preview</a>
             </div>
-            {isEditing ?
-                (
-                    <div className="w-full flex flex-col items-center space-y-5 min-h-[15rem]">
-                        <textarea placeholder="" className="grow w-full text-base-content bg-base-100 focus:border-accent-focus border-accent p-1"
+            <div className="w-full grow flex flex-col items-center space-y-5 min-h-[15rem] prose text-base-content bg-base-100">
+                {isEditing ?
+                    (
+                        <textarea className="grow textarea textarea-bordered w-full"
                             onChange={(e) => setComment(e.target.value as string)}
                             value={comment}
                         />
-                        <div className="flex flex-row items-center justify-around w-1/2" >
-                            <button
-                                className={`btn btn-success ${className}`}
-                                onClick={submitAndReset}
-                                disabled={!canSubmit || isSubmitting}>
-                                <CheckIcon />
-                            </button>
-                            <button className="btn btn-error"
-                                onClick={cancel}
-                                disabled={isSubmitting}
-                            >
-                                <CrossIcon />
-                            </button>
-                        </div>
-                    </div>) :
-                (
-                    <div className='w-full flex flex-col items-center min-h-[15rem] text-base-content bg-base-100 prose'>
+                    ) :
+                    (
                         <CommentMarkdown trackId={trackId} comment={comment} />
-                    </div>
-                )
-            }
+                    )
+                }
+            </div>
+            <div className="flex flex-row items-center justify-around w-1/2" >
+                <button
+                    className={`btn btn-success ${className}`}
+                    onClick={submitAndReset}
+                    disabled={!canSubmit || isSubmitting}>
+                    <CheckIcon />
+                </button>
+                <button className="btn btn-error"
+                    onClick={cancel}
+                    disabled={isSubmitting}
+                >
+                    <CrossIcon />
+                </button>
+            </div>
         </div>
     )
 }

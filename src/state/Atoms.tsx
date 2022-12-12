@@ -10,16 +10,6 @@ export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
 export const searchAtom = atom<string>('')
 export const searchLoweredAtom = atom<string>(get => get(searchAtom).toLowerCase())
 
-interface CommentModalData {
-    onSubmit: (comment: string) => Promise<void>
-    trackId: string
-    onCancel: () => void
-    title: string
-    initialValue?: string
-}
-
-export const openCommentModalAtom = atom<undefined | CommentModalData>(undefined)
-
 interface NowPlaying {
     trackId: string
     isLiked: boolean
