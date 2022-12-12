@@ -1,6 +1,6 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage, loadable } from 'jotai/utils'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { nonNullable } from 'util/Utils'
 import { SpotifyClient } from 'component/playbackSDK/SpotifyClient'
 import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
@@ -93,7 +93,6 @@ export const useDeviceId = () => useAtomValue(deviceIdAtom)
  * Playback State.
  */
 const isPlaybackStateInitAtom = atom(false)
-const transferPlaybackOnMount = atom(false)
 // const playbackStatesAtom = atom<(Spotify.PlaybackState | null)[]>([])
 const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
 playbackStatesAtom.debugLabel = 'playbackStatesAtom'
@@ -121,6 +120,9 @@ const needsReconnectAtom = atom<boolean>((get) => {
 })
 needsReconnectAtom.debugLabel = 'needsReconnectAtom'
 export const useNeedsReconnect = () => useAtomValue(needsReconnectAtom)
+
+const transferPlaybackOnMountAtom = atom(true)
+export const useShouldTransferPlaybackOnMount = () => useAtomValue(transferPlaybackOnMountAtom)
 
 const latestValidPlaybackStateMaybeAtom = atom<Spotify.PlaybackState | null>((get) => {
     const states = get(playbackStatesAtom)
@@ -199,6 +201,7 @@ export const useSpotifyClient = () => useAtomValue(spotifyClientAtom)
  */
 
 interface PlayerActions {
+    timestamp: number,
     positionMs: number
     durationMs: number
 
@@ -232,16 +235,7 @@ interface PlayerActions {
     previousTrack: () => Promise<void>
 }
 
-export const playerPosition = atom((get) => {
-    const state = get(asyncPlaybackStateAtom)
-    return {
-        position: state.position,
-        duration: state.duration,
-    }
-})
-
 export const seekIntervalAtom = atom(10000)
-export const isShuffledAtom = atom<boolean>((get) => get(asyncPlaybackStateAtom).shuffle)
 export const playerActionsAtom = atom<PlayerActions>((get) => {
     const player = get(playerAtom)
     const current = get(asyncPlaybackStateAtom)
@@ -251,8 +245,13 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
 
     const disallows = current.disallows
     const positionMs = current.position
+    const timestamp = current.timestamp
+
+    const getCurrentPositionMs = () =>
+        Date.now() - timestamp + positionMs
 
     return {
+        timestamp,
         positionMs,
         durationMs: current.duration,
 
@@ -271,8 +270,8 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
         play: () => player.resume(),
 
         seekDisabled: needsReconnect || (disallows.seeking ?? false),
-        seekForward: () => player.seek(positionMs + seekInterval),
-        seekBackward: () => player.seek(positionMs - seekInterval),
+        seekForward: () => player.seek(getCurrentPositionMs() + seekInterval),
+        seekBackward: () => player.seek(getCurrentPositionMs() - seekInterval),
         seekTo: (positionMs: number) => player.seek(positionMs),
 
         nextTrackDisabled: needsReconnect || (disallows.skipping_next ?? false),
@@ -282,6 +281,35 @@ export const playerActionsAtom = atom<PlayerActions>((get) => {
     }
 })
 export const usePlayerActions = () => useAtomValue(playerActionsAtom)
+export const useCurrentPosition = (refreshInterval: number) => {
+    const needsReconect = useNeedsReconnect()
+    const { timestamp, positionMs, isPlaying } = usePlayerActions()
+    const positionRef = useRef(positionMs)
+    const timestampRef = useRef(timestamp)
+
+    const [position, setPosition] = useState(positionMs)
+
+    useEffect(() => {
+        const intervalId = window.setInterval(() => {
+            if (isPlaying && !needsReconect) {
+                const newPosition = Date.now() - timestampRef.current + positionRef.current
+                setPosition(newPosition)
+            }
+        }, refreshInterval)
+
+        return () => window.clearInterval(intervalId)
+
+    }, [refreshInterval, isPlaying, needsReconect])
+
+    useEffect(() => {
+        setPosition(positionMs)
+        positionRef.current = positionMs
+    }, [positionMs])
+
+    useEffect(() => { timestampRef.current = timestamp }, [timestamp])
+
+    return position
+}
 
 /**
  * Volume.

@@ -1,5 +1,5 @@
 import { useTrackLikeQuery } from 'component/playbackSDK/hooks'
-import { useLatestPlaybackState, useSyncPlaybackState, useSyncPlaybackStateInterval } from 'component/playbackSDK/PlaybackSDK'
+import { useLatestPlaybackState, useSyncPlaybackState } from 'component/playbackSDK/PlaybackSDK'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
 import { nowPlayingTrackAtom } from 'state/Atoms'
@@ -9,7 +9,6 @@ import { useTransferPlaybackOnMount } from './TransferPlayback'
 
 export const SpotifyPlayerWrapper = ({ reviewId }: { reviewId: string }) => {
     useSyncPlaybackState()
-    useSyncPlaybackStateInterval({ refreshInterval: 1000 })
     useSetupNowPlayingLiked()
     useTransferPlaybackOnMount()
 

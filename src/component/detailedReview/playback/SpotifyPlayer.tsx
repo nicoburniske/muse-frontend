@@ -5,12 +5,13 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { nowPlayingEnabledAtom, nowPlayingTrackAtom, openCommentModalAtom, selectedTrackAtom } from 'state/Atoms'
+import { nowPlayingEnabledAtom, nowPlayingTrackAtom, selectedTrackAtom } from 'state/Atoms'
 import { msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState } from 'component/playbackSDK/PlaybackSDK'
+import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
+import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 
 interface PlaybackTimeProps {
     reviewId: string
@@ -60,9 +61,10 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
     const nowPlayingImage = album.images.slice().reverse()[0].url
     const nowPlayingArtist = artists.map(a => a.name).join(', ')
 
-    const setCommentModal = useSetAtom(openCommentModalAtom)
+    const { openCommentModal, closeCommentModal } = useCommentModal()
+
     const { mutateAsync: createComment } = useCreateCommentMutation({
-        onSuccess: () => { toast.success('comment created'); setCommentModal(undefined) },
+        onSuccess: () => { toast.success('comment created'); closeCommentModal() },
         onError: () => toast.error('failed to create comment')
     })
 
@@ -76,8 +78,8 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
     const { minutes, seconds } = msToTime(positionMs)
     const showModal = () => {
         const initialValue = `<Stamp at="${minutes}:${seconds}" />`
-        const values = { title: 'create comment', onCancel: () => setCommentModal(undefined), onSubmit, initialValue, trackId: trackId! }
-        setCommentModal(values)
+        const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, initialValue, trackId: trackId! }
+        openCommentModal(values)
     }
 
     const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
@@ -131,7 +133,8 @@ const LikeNowPlaying = () => {
 
 const PlaybackProgress = () => {
     // Convert to percentage.
-    const { positionMs, durationMs, seekTo, seekDisabled } = usePlayerActions()
+    const { durationMs, seekTo, seekDisabled } = usePlayerActions()
+    const positionMs = useCurrentPosition(1000)
     const progress = (positionMs / durationMs) * 1000
     const [progressState, setProgressState] = useState<[number]>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
@@ -209,6 +212,7 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     const { id: trackId } = useCurrentTrack()
 
     const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
+    // TODO: Need to account for multiple reviews!!
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const selectNowPlaying = () => {
         setSelectedTrack(undefined)

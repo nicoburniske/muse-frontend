@@ -11,7 +11,7 @@ export const usePlay = (options?: UseMutationOptions<unknown, unknown, PlayOptio
 
     const playTrackOffset = (trackId: string, positionMs?: number) => {
         const trackUri = toUri('Track', trackId)
-        const input = { uris: [trackUri], positionMs }
+        const input = { uris: [trackUri], position_ms: positionMs }
         mutation.mutate(input)
     }
 
