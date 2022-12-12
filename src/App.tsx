@@ -1,18 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
-import { SpotifyPlaybackSdk, useSetAccessToken } from 'component/playbackSDK/PlaybackSDK'
-import { useAtomValue } from 'jotai'
+import { SpotifyPlaybackSdk, useSetAccessToken, useSetTokenFunction } from 'component/playbackSDK/PlaybackSDK'
 import { NotFound } from 'pages/NotFound'
-import { StrictMode, useEffect } from 'react'
+import { StrictMode, useCallback, useEffect, useRef } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { themeAtom } from 'state/Atoms'
+import { useTheme } from 'state/UserPreferences'
 import { AppConfig } from 'util/AppConfig'
 import './index.css'
 
 
 export default function App() {
-    const theme = useAtomValue(themeAtom)
+    const theme = useTheme()
     useSyncAccessToken()
 
     return (
@@ -33,15 +32,47 @@ export default function App() {
 }
 
 const useSyncAccessToken = () => {
-    const setAccessToken = useSetAccessToken()
+    /**
+     * Setup Playback SDK.
+     */
+    const setTokenFunction = useSetTokenFunction()
+    const accessTokenRef = useRef<string | null>(null)
 
-    const { data } = useQuery(['spotify-access-token'], async () => {
+    const { data } = useQuery(['SpotifyAccessToken'], async () => {
         const r = await fetch(AppConfig.httpAccessTokenEndpoint, { method: 'GET', credentials: 'include' })
         return await r.text()
     }, {
-        staleTime: 60 * 45 * 1000,
-        refetchIntervalInBackground: true
+        // 55 minutes just to be safe.
+        refetchInterval: 55 * 60 * 1000,
+        refetchIntervalInBackground: true,
     })
+
+    useEffect(() => {
+        if (data) {
+            accessTokenRef.current = data
+        }
+    }, [data])
+
+
+    const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(
+        (callback) => {
+            const accessToken = accessTokenRef.current
+            if (accessToken) {
+                callback(accessToken!)
+            }
+        },
+        [],
+    )
+
+    useEffect(() => {
+        setTokenFunction({ getOAuthToken: accessTokenFunc })
+    }, [])
+
+    /**
+     * Setup Spotify API.
+     */
+    const setAccessToken = useSetAccessToken()
+
     useEffect(() => {
         if (data) {
             setAccessToken(data)

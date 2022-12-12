@@ -27,40 +27,6 @@ export const nowPlayingTrackIdAtom =
 export const nowPlayingIsLikedAtom =
     focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
-export enum Theme {
-    Light = 'light',
-    Dark = 'dark',
-    Cupcake = 'cupcake',
-    Bumblebee = 'bumblebee',
-    Emerald = 'emerald',
-    Corporate = 'corporate',
-    Synthwave = 'synthwave',
-    Retro = 'retro',
-    Cyberpunk = 'cyberpunk',
-    Valentine = 'valentine',
-    Halloween = 'halloween',
-    Garden = 'garden',
-    Forest = 'forest',
-    Aqua = 'aqua',
-    Lofi = 'lofi',
-    Pastel = 'pastel',
-    Fantasy = 'fantasy',
-    Wireframe = 'wireframe',
-    Black = 'black',
-    Luxury = 'luxury',
-    Darcula = 'dracula',
-    Cymk = 'cmyk',
-    Autumn = 'autumn',
-    Business = 'business',
-    Acid = 'acid',
-    Lemonaid = 'lemonade',
-    Night = 'night',
-    Coffee = 'coffee',
-    Winter = 'winter'
-}
-
-export const themeAtom = atomWithStorage<Theme>('muse-app-theme', Theme.Black)
-
 export const DebugAtoms = () => {
     useAtomsDebugValue()
     return null

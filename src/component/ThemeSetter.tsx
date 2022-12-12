@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai'
-import { Theme, themeAtom } from 'state/Atoms'
+import { Theme, themeAtom } from 'state/UserPreferences'
 
 
 export const ThemeSetter = () => {

@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from '../DetailedReview'
 import CommentMarkdown from './CommentMarkdown'
 import { usePlay } from 'component/playbackSDK/hooks'
+import { padTime } from 'util/Utils'
 
 export interface DetailedCommentProps {
     review: ReviewOverview
@@ -40,9 +41,8 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const comment = detailedComment?.comment ?? 'Failed to retrieve comment'
     const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
     const createdAt = (() => {
-        const pad = (num: number) => String(num).padStart(2, '0')
         const date = new Date(detailedComment?.updatedAt)
-        return `${date.toLocaleDateString()}  ${pad(date.getHours())}:${pad(date.getMinutes())}`
+        return `${date.toLocaleDateString()}  ${padTime(date.getHours())}:${padTime(date.getMinutes())}`
     })()
 
     const reloadComments = () => queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })

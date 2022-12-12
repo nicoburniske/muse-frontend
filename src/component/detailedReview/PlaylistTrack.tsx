@@ -12,7 +12,6 @@ import { useLongPress } from 'use-long-press'
 import { usePlay } from 'component/playbackSDK/hooks'
 import { useCommentModal } from './commentForm/CommentFormModalWrapper'
 
-
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
@@ -84,7 +83,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         } else if (isPlaying) {
             return 'stroke-success-content'
         } else {
-            return 'stroke-neutral-content'
+            return 'stroke-base-content'
         }
     }
 

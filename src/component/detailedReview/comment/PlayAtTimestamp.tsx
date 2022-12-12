@@ -1,6 +1,7 @@
 import { usePlay } from 'component/playbackSDK/hooks'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
+import { padTime } from 'util/Utils'
 
 interface PlayAtTimestampProps {
     time: string
@@ -19,7 +20,6 @@ export const createStamp =
             PlayAtTimestamp({ time: at, comment, trackId: trackId })
 
 export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps) {
-    const padSeconds = (num: number) => num.toString().padStart(2, '0')
     // Timestamp converted to millis if valid.
     const [timestamp, formattedTime] = useMemo(() => {
         const timeSplit = time.split(':')
@@ -29,11 +29,11 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
             if (isNaN(mins) || mins > 60 || mins < 0 || isNaN(seconds) || seconds > 60 || seconds < 0) {
                 return [undefined, undefined]
             }
-            return [(mins * 60 + seconds) * 1000, `${mins}:${padSeconds(seconds)}`]
+            return [(mins * 60 + seconds) * 1000, `${mins}:${padTime(seconds)}`]
         } else if (timeSplit.length === 1) {
             const seconds = parseInt(timeSplit[0])
             if (!isNaN(seconds) || seconds < 60 || seconds >= 0) {
-                return [seconds * 1000, `0:${padSeconds(seconds)}`]
+                return [seconds * 1000, `0:${padTime(seconds)}`]
             }
         }
         return [undefined, undefined]

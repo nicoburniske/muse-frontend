@@ -33,7 +33,7 @@ export enum RenderOptions {
 }
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
-    const { data, refetch } = useDetailedReviewQuery({ reviewId }, { suspense: true })
+    const { data, isLoading, refetch } = useDetailedReviewQuery({ reviewId }, { suspense: true })
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
@@ -52,7 +52,7 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
                 reload={() => refetch()
                 } />
         )
-    } else {
+    } else if (!isLoading) {
         return (
             <NotFound />
         )
@@ -274,17 +274,19 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 
-    return (<div className="w-full flex" >
-        {
-            isLoading ?
-                (
-                    <div className="w-full grid place-items-center">
-                        <div className="border-t-transparent border-solid animate-spin rounded-full border-primary border-8 h-56 w-56" />
-                    </div>
-                ) :
-                <GroupedTrackTable results={validZipped} rootReview={rootReview} />
-        }
-    </div >)
+    return (
+        <div className="w-full flex" >
+            {
+                isLoading ?
+                    (
+                        <div className="w-full grid place-items-center">
+                            <div className="border-t-transparent border-solid animate-spin rounded-full border-primary border-8 h-56 w-56" />
+                        </div>
+                    ) :
+                    <GroupedTrackTable results={validZipped} rootReview={rootReview} />
+            }
+        </div >
+    )
 
 }
 

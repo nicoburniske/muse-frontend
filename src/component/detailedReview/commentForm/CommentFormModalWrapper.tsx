@@ -17,16 +17,17 @@ const defaultModalValue = Object.freeze({
     onSubmit: async () => { },
     onCancel: () => { },
 })
-const openCommentModalAtom = atom<CommentModalData>(defaultModalValue)
+
+const commentModalValues = atom<CommentModalData>(defaultModalValue)
 const isOpenModalAtom = atom(false)
 
 const openModalAtom = atom(null, (_get, set, value: CommentModalData) => {
-    set(openCommentModalAtom, value)
+    set(commentModalValues, value)
     set(isOpenModalAtom, true)
 })
 const closeModalAtom = atom(null, (_get, set) => {
     set(isOpenModalAtom, false)
-    setTimeout(() => set(openCommentModalAtom, defaultModalValue), 500)
+    setTimeout(() => set(commentModalValues, defaultModalValue), 500)
 })
 
 export const useCommentModal = () => {
@@ -42,7 +43,7 @@ export const useCommentModal = () => {
 }
 
 export const CommentFormModalWrapper = () => {
-    const modalData = useAtomValue(openCommentModalAtom)
+    const modalData = useAtomValue(commentModalValues)
     const open = useAtomValue(isOpenModalAtom)
 
     return ReactDOM.createPortal(

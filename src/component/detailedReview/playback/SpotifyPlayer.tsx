@@ -6,7 +6,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom, selectedTrackAtom } from 'state/Atoms'
-import { msToTime } from 'util/Utils'
+import { msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
@@ -57,6 +57,8 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
         name: trackName,
     } = useCurrentTrack()
 
+    const { getCurrentPositionMs } = usePlayerActions()
+
     // get largest image.
     const nowPlayingImage = album.images.slice().reverse()[0].url
     const nowPlayingArtist = artists.map(a => a.name).join(', ')
@@ -74,9 +76,8 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
     }
 
-    const { positionMs } = usePlayerActions()
-    const { minutes, seconds } = msToTime(positionMs)
     const showModal = () => {
+        const { minutes, seconds } = msToTimeStr(getCurrentPositionMs())
         const initialValue = `<Stamp at="${minutes}:${seconds}" />`
         const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, initialValue, trackId: trackId! }
         openCommentModal(values)
