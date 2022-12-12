@@ -132,6 +132,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
                     trackId={track.id}
                     likeAtom={isLikedAtom}
                     className={'btn btn-sm btn-ghost p-0'}
+                    syncNowPlaying={true}
                     getSvgClassName={isLikedSvgClass}
                 />
             </div>
