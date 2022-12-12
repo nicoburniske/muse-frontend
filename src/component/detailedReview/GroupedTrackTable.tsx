@@ -130,7 +130,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
         }
     }, [selectedTrack])
 
-    const scrollToSelected = () => {
+    const selectedIndex = useMemo(() => {
         let maybeTrack = undefined
         indexToTrack.forEach((track, index) => {
             const trackId = track.track.id
@@ -138,8 +138,12 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 maybeTrack = index
             }
         })
-        if (maybeTrack !== undefined) {
-            rowVirtualizer.scrollToIndex(maybeTrack, { align: 'center', smoothScroll: true })
+        return maybeTrack
+    },[selectedTrack])
+
+    const scrollToSelected = () => {
+        if (selectedIndex !== undefined) {
+            rowVirtualizer.scrollToIndex(selectedIndex, { align: 'center', smoothScroll: true })
         }
     }
 
