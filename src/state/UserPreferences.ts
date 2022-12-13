@@ -41,7 +41,7 @@ export enum Theme {
     Winter = 'winter'
 }
 
-const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', { theme: Theme.Black, shouldTransferPlaybackOnMount: false, seekInterval: 10 })
+const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', { theme: Theme.Black, shouldTransferPlaybackOnMount: false, seekInterval: 10000 })
 
 export const themeAtom = focusAtom(userPreferencesAtom, (optic) => optic.prop('theme'))
 export const useTheme = () => useAtom(themeAtom)

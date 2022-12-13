@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { HeroLoading } from 'component/HeroLoading'
 import { currentUserIdAtom, searchLoweredAtom } from 'state/Atoms'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import NavbarRhs from 'component/NavbarRhs'
 import useWindowSize from 'hook/useWindowSize'
 import { findFirstImage, nonNullable } from 'util/Utils'
@@ -54,7 +54,7 @@ export default function BrowsePage() {
     const [numPerRow, setNumPerRow] = useAtom(gridSizeAtom)
     const gridStyle = useMemo(() => `grid gap-4 pt-2 px-2 bg-base-300 ${styles.get(numPerRow)}`, [numPerRow])
 
-    if (isLoading && data == undefined) {
+    if (isLoading && data === undefined) {
         return <HeroLoading />
     } else {
         return (
@@ -72,7 +72,9 @@ export default function BrowsePage() {
                     <div className="navbar-center">
                         <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
                     </div>
-                    <NavbarRhs className='navbar-end space-x-5' />
+                    <Suspense fallback={null}>
+                        <NavbarRhs className='navbar-end space-x-5' />
+                    </Suspense>
                 </div>
                 <div className="min-h-fit w-full flex flex-row justify-center">
                     <input type="range" min={1} max={8} value={numPerRow} className="range range-primary max-w-xl " step={1}

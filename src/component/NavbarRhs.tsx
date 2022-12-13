@@ -8,7 +8,7 @@ import { useCurrentUser } from './playbackSDK/hooks'
 export default function NavbarRhs({ className, createReviewTitle }: { className?: string, createReviewTitle?: string }) {
     const parentAtom = useMemo(() => atom(undefined), [])
     const { openPreferencesModal } = usePreferencesModal()
-    const { data } = useCurrentUser()
+    const { data } = useCurrentUser({ suspense: true, staleTime: 1000 * 60 * 60 })
 
     const image = data?.images[0]?.url ?? ''
 
