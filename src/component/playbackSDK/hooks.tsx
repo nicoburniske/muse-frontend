@@ -1,8 +1,8 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { PlayOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 import { useSpotifyClient } from './PlaybackSDK'
 import { toUri } from './SpotifyClient'
-
 
 export const usePlay = (options?: UseMutationOptions<unknown, unknown, PlayOptions, unknown>) => {
     const client = useSpotifyClient()
@@ -70,3 +70,12 @@ export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boo
     )
 }
 useTrackLikeQuery.getKey = useTrackLikeQueryKey
+
+export const useCurrentUser = (options?: UseQueryOptions<unknown, unknown, PrivateUser, string[]>) => {
+    const client = useSpotifyClient()
+    return useQuery(
+        ['CurrentUser'],
+        () => client.users.getMe(),
+        options
+    )
+}

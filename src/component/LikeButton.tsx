@@ -61,7 +61,6 @@ const useSyncLikedState = (shouldSync: boolean, trackId: string, likeAtom: Primi
     const isPlaying = nonNullable(nowPlaying) && nowPlaying.trackId == trackId
     useEffect(() => {
         if (shouldSync && isPlaying) {
-            console.log('Doing the big litty')
             setIsLiked(nowPlaying.isLiked)
         }
     }, [shouldSync, nowPlaying])

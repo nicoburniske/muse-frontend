@@ -236,7 +236,7 @@ interface PlayerActions {
     previousTrack: () => Promise<void>
 }
 
-export const seekIntervalAtom = atom(10000)
+export const seekIntervalAtom = atomWithStorage('MuseSeekInterval', 10000)
 export const playerActionsAtom = atom<PlayerActions>((get) => {
     const player = get(playerAtom)
     const current = get(asyncPlaybackStateAtom)

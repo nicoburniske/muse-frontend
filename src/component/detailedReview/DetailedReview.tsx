@@ -12,7 +12,6 @@ import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, zip, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
-import { ThemeSetter } from 'component/ThemeSetter'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTable } from './GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
@@ -20,6 +19,7 @@ import ReviewCommentSection from './CommentSection'
 import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
 import { ErrorBoundary } from 'react-error-boundary'
 import { NotFound } from 'pages/NotFound'
+import { UserPreferencesButton } from 'component/preferences/UserPreferencesForm'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -166,7 +166,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                     </button>
                 </div>
                 <div className='hidden lg:flex justify-end px-1'>
-                    <ThemeSetter />
+                    <UserPreferencesButton />
                 </div>
 
                 {/* <div className="flex flex-row items-center h-full">

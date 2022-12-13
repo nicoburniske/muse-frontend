@@ -1,9 +1,9 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { useTheme } from 'state/UserPreferences'
+import { useThemeValue } from 'state/UserPreferences'
 
 export const ThemeModal = ({ open, children, className }: { className?: string, open: boolean, children: JSX.Element }) => {
-    const theme = useTheme()
+    const theme = useThemeValue()
 
     return (
         <Transition

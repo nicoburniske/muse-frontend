@@ -2,16 +2,17 @@ import { useQuery } from '@tanstack/react-query'
 import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { SpotifyPlaybackSdk, useSetAccessToken, useSetTokenFunction } from 'component/playbackSDK/PlaybackSDK'
+import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { NotFound } from 'pages/NotFound'
 import { StrictMode, useCallback, useEffect, useRef } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { useTheme } from 'state/UserPreferences'
+import { useThemeValue } from 'state/UserPreferences'
 import { AppConfig } from 'util/AppConfig'
 import './index.css'
 
 
 export default function App() {
-    const theme = useTheme()
+    const theme = useThemeValue()
     useSyncAccessToken()
 
     return (
@@ -25,6 +26,7 @@ export default function App() {
                         <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
+                    <UserPreferencesModal />
                 </StrictMode>
             </div>
         </div>

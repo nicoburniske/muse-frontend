@@ -9,7 +9,7 @@ import { useTransferPlaybackOnMount } from './TransferPlayback'
 
 export const SpotifyPlayerWrapper = ({ reviewId }: { reviewId: string }) => {
     useSyncPlaybackState()
-    useSetupNowPlayingLiked()
+    useSyncNowPlayingLiked()
     useTransferPlaybackOnMount()
 
     return (
@@ -21,7 +21,7 @@ export const SpotifyPlayerWrapper = ({ reviewId }: { reviewId: string }) => {
     )
 }
 
-const useSetupNowPlayingLiked = () => {
+const useSyncNowPlayingLiked = () => {
     const playbackState = useLatestPlaybackState()
     const nowPlaying = playbackState?.track_window?.current_track?.id
     const setNowPlaying = useSetAtom(nowPlayingTrackAtom)

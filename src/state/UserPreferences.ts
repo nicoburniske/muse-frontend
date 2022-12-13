@@ -1,4 +1,4 @@
-import { atom, useSetAtom } from 'jotai'
+import { atom, useAtom, useSetAtom } from 'jotai'
 import { focusAtom } from 'jotai/optics'
 import { atomWithStorage, useAtomValue } from 'jotai/utils'
 import { seekIntervalAtom as seekIntervalAtomSdk } from 'component/playbackSDK/PlaybackSDK'
@@ -44,10 +44,14 @@ export enum Theme {
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', { theme: Theme.Black, shouldTransferPlaybackOnMount: false, seekInterval: 10 })
 
 export const themeAtom = focusAtom(userPreferencesAtom, (optic) => optic.prop('theme'))
-export const useTheme = () => useAtomValue(themeAtom)
+export const useTheme = () => useAtom(themeAtom)
+export const useThemeValue = () => useAtomValue(themeAtom)
+export const useSetTheme = () => useSetAtom(themeAtom)
 
 export const transferPlaybackOnMountAtom = focusAtom(userPreferencesAtom, (optic) => optic.prop('shouldTransferPlaybackOnMount'))
-export const useShouldTransferPlaybackOnMount = () => useAtomValue(transferPlaybackOnMountAtom)
+export const useShouldTransferPlaybackOnMount = () => useAtom(transferPlaybackOnMountAtom)
+export const useShouldTransferPlaybackOnMountValue = () => useAtomValue(transferPlaybackOnMountAtom)
+export const useSetShouldTransferPlaybackOnMount = () => useSetAtom(transferPlaybackOnMountAtom)
 
 export const seekIntervalAtom = focusAtom(userPreferencesAtom, (optic) => optic.prop('seekInterval'))
 export const setSeekIntervalAtom = atom(null, (_get, set, value: number) => {

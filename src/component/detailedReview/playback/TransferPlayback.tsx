@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 import { useDeviceId, useNeedsReconnect, useSpotifyClient, useSpotifyPlayer } from 'component/playbackSDK/PlaybackSDK'
 import { useEffect } from 'react'
-import { useShouldTransferPlaybackOnMount } from 'state/UserPreferences'
+import { useShouldTransferPlaybackOnMountValue } from 'state/UserPreferences'
 
 export const useTransferPlayback = (options?: UseMutationOptions) => {
     const deviceId = useDeviceId()
@@ -18,7 +18,7 @@ export const useTransferPlayback = (options?: UseMutationOptions) => {
 
 export const useTransferPlaybackOnMount = () => {
     const { transfer, needsReconnect } = useTransferPlayback()
-    const transferPlayback = useShouldTransferPlaybackOnMount()
+    const transferPlayback = useShouldTransferPlaybackOnMountValue()
 
     const player = useSpotifyPlayer()
 
