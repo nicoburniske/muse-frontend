@@ -1,13 +1,12 @@
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
+import { DetailedPlaylistTrackFragment, EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { PrimitiveAtom, useAtomValue, atom } from 'jotai'
 import { nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
-import { RefObject, SetStateAction, useMemo, useRef } from 'react'
+import { RefObject, useMemo, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
 import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
-import { focusAtom } from 'jotai/optics'
 import { useLongPress } from 'use-long-press'
 import { usePlay } from 'component/playbackSDK/hooks'
 import { useCommentModal } from './commentForm/CommentFormModalWrapper'
@@ -16,23 +15,14 @@ export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
-    trackAtom: PrimitiveAtom<DetailedTrackFragment>
-}
-
-function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
-    return atom<T, SetStateAction<T>>(
-        (get) => {
-            const value = get(atomParam)
-            return value === null ? defaultValue : value
-        },
-        (_get, set, num) => set(atomParam, num as SetStateAction<T | null>)
-    )
+    isLikedAtom: PrimitiveAtom<boolean>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, trackAtom }: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isLikedAtom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
-    const track = useAtomValue(trackAtom)
+    const { addedAt, addedBy } = playlistTrack
+    const track = playlistTrack.track
     const { openCommentModal, closeCommentModal } = useCommentModal()
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
@@ -61,11 +51,6 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, trackId: track.id }
         openCommentModal(values)
     }
-
-    const isLikedAtom = useMemo(() => valueOrDefault(
-        focusAtom(trackAtom, atom => atom.prop('isLiked').valueOr(false)),
-        false),
-    [])
 
     const svgClass = useMemo(() => atom(get => {
         const isPlaying = get(nowPlayingTrackIdAtom) === track.id

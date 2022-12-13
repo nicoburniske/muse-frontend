@@ -1,11 +1,11 @@
-import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect } from 'react'
-import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem } from '@tanstack/react-virtual'
+import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect, SetStateAction } from 'react'
+import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem, VirtualizerOptions, elementScroll } from '@tanstack/react-virtual'
 import { ReviewOverview } from './DetailedReview'
 import { useQueryClient } from '@tanstack/react-query'
 import { DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { atom, PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai'
-import { focusAtom } from 'jotai/optics'
+import { focusAtom } from 'jotai-optics'
 import PlaylistTrack from './PlaylistTrack'
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils'
 import { useNavigate } from 'react-router-dom'
@@ -25,6 +25,10 @@ const useKeepMountedRangeExtractor = () => {
     }, [])
 
     return rangeExtractor
+}
+
+function easeInOutQuint(t: number) {
+    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
 }
 
 export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
@@ -57,7 +61,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 return nonNullable(header) ? header.reviewId === reviewId : false
             })
             if (nonNullable(maybeHeaderIndex)) {
-                setTimeout(() => rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start', smoothScroll: true }), 200)
+                setTimeout(() => rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start' }), 200)
             }
         }
 
@@ -97,6 +101,32 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     const isSticky = (index: number) => headerIndices.includes(index)
     const isActiveSticky = (index: number) => activeStickyIndexRef.current === index
 
+    // Smooth Scroll function.
+    const scrollingRef = useRef<number>()
+    const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
+        useCallback((offset, canSmooth, instance) => {
+            const duration = 1000
+            const start = parentRef!.current!.scrollTop
+            const startTime = (scrollingRef.current = Date.now())
+
+            const run = () => {
+                if (scrollingRef.current !== startTime) return
+                const now = Date.now()
+                const elapsed = now - startTime
+                const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
+                const interpolated = start + (offset - start) * progress
+
+                if (elapsed < duration) {
+                    elementScroll(interpolated, canSmooth, instance)
+                    requestAnimationFrame(run)
+                } else {
+                    elementScroll(interpolated, canSmooth, instance)
+                }
+            }
+
+            requestAnimationFrame(run)
+        }, [])
+
     // Keep all previously rendered tracks mounted for performance. 
     const keepMounted = useKeepMountedRangeExtractor()
     const rowVirtualizer = useVirtualizer({
@@ -104,6 +134,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
         count: rows.length,
         estimateSize: (index) => rows[index] ? 60 : 40,
         getScrollElement: () => parentRef.current,
+        scrollToFn,
         // Combining sticky headers + keepMounted performance.
         rangeExtractor: useCallback((range: Range) => {
             activeStickyIndexRef.current = [...headerIndices]
@@ -144,11 +175,11 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
 
     const scrollToSelected = () => {
         if (selectedIndex !== undefined) {
-            rowVirtualizer.scrollToIndex(selectedIndex, { align: 'center', smoothScroll: true })
+            rowVirtualizer.scrollToIndex(selectedIndex, { align: 'center' })
         }
     }
 
-    const indexToStyle = (virtualRow: VirtualItem<unknown>) => ({
+    const indexToStyle = (virtualRow: VirtualItem) => ({
         ...(isSticky(virtualRow.index)
             ? { zIndex: 1 }
             : {}),
@@ -296,14 +327,14 @@ export interface MemoPlaylistTrackProps {
 
 
 const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoPlaylistTrackProps) => {
-    const trackAtom = useTrackAtIndexAtom(atom, playlistTrack.track.id)
+    const isLikedAtom = useTrackLikeAtom(atom, playlistTrack.track.id)
     return (
         <div className="py-0.5 m-0">
             <PlaylistTrack
                 playlistId={playlistId}
                 reviewId={reviewId}
                 playlistTrack={playlistTrack}
-                trackAtom={trackAtom}
+                isLikedAtom={isLikedAtom}
             />
         </div>
     )
@@ -312,8 +343,13 @@ const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoP
     a.reviewId === b.reviewId &&
     a.playlistTrack.track.id === b.playlistTrack.track.id)
 
-function useTrackAtIndexAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string) {
+function useTrackLikeAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string): PrimitiveAtom<boolean> {
     return useMemo(() => {
-        return focusAtom(tracksAtom, (optic) => optic.find(t => t.id === trackId))
+        const focused = focusAtom(tracksAtom, (optic) =>
+            optic
+                .find(t => t.id === trackId)
+                .prop('isLiked')
+                .valueOr(false))
+        return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
     }, [tracksAtom, trackId])
 }

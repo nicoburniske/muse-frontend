@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { focusAtom } from 'jotai/optics'
+import { focusAtom } from 'jotai-optics'
 import { atomWithStorage } from 'jotai/utils'
 import { useAtomsDebugValue } from 'jotai/devtools'
 
