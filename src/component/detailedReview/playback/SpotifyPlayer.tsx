@@ -5,13 +5,14 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { nowPlayingEnabledAtom, nowPlayingTrackAtom, selectedTrackAtom } from 'state/Atoms'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
+import { useTransientAtom } from 'hook/useTransientAtom'
 
 interface PlaybackTimeProps {
     reviewId: string
@@ -110,16 +111,26 @@ const commonBtnClassExtra = (extraClasses?: (string | undefined)[]) => {
 }
 
 const LikeNowPlaying = () => {
-    const nowPlaying = useAtomValue(nowPlayingTrackAtom)
-    const calculateSvgStyle = (isLiked: boolean) => isLiked ? 'fill-success' : ''
+    const likeAtom = useMemo(() => atom(get => {
+        const nowPlaying = get(nowPlayingTrackAtom)
+        if (nowPlaying) {
+            return nowPlaying.isLiked
+        }
+        return false
+    }, (_get, _set, newValue) => newValue),
+    [])
+
+    const svgClassAtom = useMemo(() => atom(get => get(likeAtom) ? 'fill-success' : ''), [])
+    const nowPlaying = useAtomValue(isPlayingAtom)
+    const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
+
     if (nowPlaying) {
-        const likeAtom = atom(nowPlaying.isLiked!)
         return (
             <LikeButton
-                trackId={nowPlaying.trackId}
+                trackId={getNowPlayingId()!}
                 likeAtom={likeAtom}
-                className={commonBtnClass}
-                getSvgClassName={calculateSvgStyle}
+                className={commonBtnClassExtra(['btn-ghost'])}
+                svgClass={svgClassAtom}
             />
         )
     } else {

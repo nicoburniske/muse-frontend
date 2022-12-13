@@ -16,11 +16,12 @@ const useKeepMountedRangeExtractor = () => {
     const renderedRef = useRef(new Set<number>())
 
     const rangeExtractor = useCallback((range: Range) => {
-        renderedRef.current = new Set([
+        const newRange = [
             ...renderedRef.current,
             ...defaultRangeExtractor(range)
-        ])
-        return Array.from(renderedRef.current)
+        ]
+        renderedRef.current = new Set(newRange)
+        return newRange
     }, [])
 
     return rangeExtractor
@@ -139,7 +140,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
             }
         })
         return maybeTrack
-    },[selectedTrack])
+    }, [selectedTrack])
 
     const scrollToSelected = () => {
         if (selectedIndex !== undefined) {
@@ -302,7 +303,7 @@ const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoP
                 playlistId={playlistId}
                 reviewId={reviewId}
                 playlistTrack={playlistTrack}
-                atom={trackAtom}
+                trackAtom={trackAtom}
             />
         </div>
     )

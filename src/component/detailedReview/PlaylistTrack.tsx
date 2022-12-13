@@ -16,9 +16,8 @@ export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
-    atom: PrimitiveAtom<DetailedTrackFragment>
+    trackAtom: PrimitiveAtom<DetailedTrackFragment>
 }
-
 
 function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) {
     return atom<T, SetStateAction<T>>(
@@ -30,13 +29,10 @@ function valueOrDefault<T>(atomParam: PrimitiveAtom<T | null>, defaultValue: T) 
     )
 }
 
-const useLikeAtom = (trackAtom: PrimitiveAtom<DetailedTrackFragment>) =>
-    useMemo(() => focusAtom(trackAtom, atom => atom.prop('isLiked').valueOr(false)), [trackAtom])
-
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, atom }: PlaylistTrackProps) {
+export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, reviewId, playlistId, trackAtom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
-    const track = useAtomValue(atom)
+    const track = useAtomValue(trackAtom)
     const { openCommentModal, closeCommentModal } = useCommentModal()
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
@@ -46,14 +42,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
     const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
     // Get track styles.
-    const isSelected = useAtomValue(selectedTrackAtom)?.trackId == track.id
-    const currentlyPlaying = useAtomValue(nowPlayingTrackIdAtom)
-    const isPlaying = useMemo(() => track.id == currentlyPlaying, [track.id, currentlyPlaying])
-    const [bgStyle, textStyle, hoverStyle] =
-        isPlaying ? ['bg-success', 'text-success-content', ''] :
-            isSelected ? ['bg-info', 'text-info-content', ''] :
-                ['bg-base-100', 'text-base-content', 'active:bg-accent active:text-accent-content']
-
+    const [bgStyle, textStyle, hoverStyle] = useTrackColor(track.id)
 
     // On successful comment creation, clear the comment box 
     const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
@@ -73,9 +62,15 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         openCommentModal(values)
     }
 
-    const isLikedAtom = valueOrDefault(useLikeAtom(atom), false)
+    const isLikedAtom = useMemo(() => valueOrDefault(
+        focusAtom(trackAtom, atom => atom.prop('isLiked').valueOr(false)),
+        false),
+    [])
 
-    function isLikedSvgClass(isLiked: boolean): string {
+    const svgClass = useMemo(() => atom(get => {
+        const isPlaying = get(nowPlayingTrackIdAtom) === track.id
+        const isLiked = get(isLikedAtom)
+
         if (isLiked && isPlaying) {
             return 'fill-success-content'
         } else if (isLiked) {
@@ -85,7 +80,7 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
         } else {
             return 'stroke-base-content'
         }
-    }
+    }), [track.id])
 
     const { playlistOffset, isLoading } = usePlay()
 
@@ -131,10 +126,27 @@ export default function PlaylistTrack({ playlistTrack: { addedAt, addedBy }, rev
                 <LikeButton
                     trackId={track.id}
                     likeAtom={isLikedAtom}
+                    svgClass={svgClass}
                     className={'btn btn-sm btn-ghost p-0'}
-                    getSvgClassName={isLikedSvgClass}
                 />
             </div>
         </div >
     )
+}
+
+// Seperating these out is better for performance. 
+// Single derived atom is an array therefore it will be recomputed every time the list changes.
+// Only change styling if derived values are different.
+const useTrackColor = (trackId: string) => {
+    const isSelected = useAtomValue(useMemo(() => atom(get =>
+        get(selectedTrackAtom)?.trackId === trackId), [trackId]))
+
+    const isPlaying = useAtomValue(useMemo(() => atom(get =>
+        get(nowPlayingTrackIdAtom) === trackId), [trackId]))
+
+    return useMemo(() =>
+        isPlaying ? ['bg-success', 'text-success-content', ''] :
+            isSelected ? ['bg-info', 'text-info-content', ''] :
+                ['bg-base-100', 'text-base-content', 'active:bg-accent active:text-accent-content'],
+    [isSelected, isPlaying])
 }

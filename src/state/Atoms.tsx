@@ -15,6 +15,9 @@ interface NowPlaying {
     isLiked: boolean
 }
 export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
+nowPlayingTrackAtom.debugLabel = 'nowPlayingTrackAtom'
+export const isPlayingAtom = atom(get => get(nowPlayingTrackAtom) !== undefined)
+
 export const allReviewTracks = atom(new Set<string>())
 export const nowPlayingEnabledAtom = atom((get) => {
     const trackId = get(nowPlayingTrackAtom)?.trackId
