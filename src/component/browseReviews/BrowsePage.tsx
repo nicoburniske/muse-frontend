@@ -58,7 +58,7 @@ export default function BrowsePage() {
         return <HeroLoading />
     } else {
         return (
-            <div className="flex flex-col w-full h-full items-center">
+            <div className="flex flex-col w-full items-center h-10">
                 <div className="navbar bg-base-100 z-50">
                     <div className="navbar-start">
                         <div className="dropdown">
@@ -70,7 +70,7 @@ export default function BrowsePage() {
                         </div>
                     </div>
                     <div className="navbar-center">
-                        <a className="btn btn-ghost normal-case text-xl text-base-content" onClick={linkToHome}>muse</a>
+                        <a className="btn btn-ghost normal-case text-xl" onClick={linkToHome}>muse</a>
                     </div>
                     <Suspense fallback={null}>
                         <NavbarRhs className='navbar-end space-x-5' />

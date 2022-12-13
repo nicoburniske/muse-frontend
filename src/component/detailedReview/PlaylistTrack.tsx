@@ -21,8 +21,7 @@ export interface PlaylistTrackProps {
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isLikedAtom }: PlaylistTrackProps) {
     const queryClient = useQueryClient()
-    const { addedAt, addedBy } = playlistTrack
-    const track = playlistTrack.track
+    const { addedAt, addedBy, track } = playlistTrack
     const { openCommentModal, closeCommentModal } = useCommentModal()
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
@@ -133,5 +132,5 @@ const useTrackColor = (trackId: string) => {
         isPlaying ? ['bg-success', 'text-success-content', ''] :
             isSelected ? ['bg-info', 'text-info-content', ''] :
                 ['bg-base-100', 'text-base-content', 'active:bg-accent active:text-accent-content'],
-    [isSelected, isPlaying])
+        [isSelected, isPlaying])
 }
