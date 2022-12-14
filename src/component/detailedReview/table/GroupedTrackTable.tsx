@@ -1,25 +1,24 @@
-import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect, RefObject } from 'react'
+import { CSSProperties, useMemo, useRef, useCallback, useEffect, RefObject } from 'react'
 import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem, VirtualizerOptions, elementScroll, Virtualizer } from '@tanstack/react-virtual'
-import { ReviewOverview } from './DetailedReview'
-import { useQueryClient } from '@tanstack/react-query'
-import { DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
-import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { focusAtom } from 'jotai-optics'
-import PlaylistTrack from './PlaylistTrack'
+import { ReviewOverview } from '../DetailedReview'
+import { DetailedAlbumFragment, DetailedPlaylistFragment, DetailedTrackFragment } from 'graphql/generated/schema'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils'
-import { useNavigate } from 'react-router-dom'
-import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { useTransientAtom } from 'hook/useTransientAtom'
 import { allReviewTracks, selectedTrackAtom } from 'state/Atoms'
 import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
+import { getTrack, getTrackId, getTracks, GroupData, TrackRow } from './Helpers'
+import { MemoizedGroupHeader } from './GroupHeader'
+import { MemoTrack } from './MemoTrack'
 
-const resultsAtom = atom<[DetailedPlaylistFragment, ReviewOverview][]>([])
+
+const resultsAtom = atom<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview][]>([])
 const expandedGroupsAtom = atom<string[]>([])
 expandedGroupsAtom.debugLabel = 'expandedGroupsAtom'
 
-const allGroupsAtom = atom(get => get(resultsAtom)
-    .map(group => ({ tracks: group[0].tracks, overview: group[1] }))
+type Group = { tracks: TrackRow[], overview: ReviewOverview }
+const allGroupsAtom = atom<Group[]>(get => get(resultsAtom)
+    .map(group => ({ tracks: getTracks(group[0]), overview: group[1] }))
     .filter(group => nonNullable(group.tracks))
 )
 allGroupsAtom.debugLabel = 'allGroupsAtom'
@@ -52,18 +51,26 @@ rowsAtom.debugLabel = 'rowsAtom'
  * Cached values.
  */
 
-const trackIdToEntityOverviewAtom = atom(get => new Map(
+//TODO: when there are multiple same tracks this will break.
+const trackIdToEntityOverviewIdAtom = atom(get => new Map(
     get(validGroupsAtom)
-        .map(g => ({ overview: g.overview.entityId, trackIds: g.tracks!.map(t => t!.track!.id) }))
+        .map(g => ({ overview: g.overview.entityId, trackIds: g.tracks!.map(t => getTrackId(t)) }))
         .flatMap(({ overview, trackIds: tracks }) => tracks.map(t => ([t, overview])))))
-trackIdToEntityOverviewAtom.debugLabel = 'trackIdToEntityOverviewAtom'
+trackIdToEntityOverviewIdAtom.debugLabel = 'trackIdToEntityOverviewAtom'
+
+const trackIdToEntityOverviewTypeAtom = atom(get => new Map(
+    get(validGroupsAtom)
+        .map(g => ({ overview: g.overview.entityType, trackIds: g.tracks!.map(t => getTrackId(t)) }))
+        .flatMap(({ overview, trackIds: tracks }) => tracks.map(t => ([t, overview])))))
+trackIdToEntityOverviewTypeAtom.debugLabel = 'trackIdToEntityOverviewTypeAtom'
 
 const trackIdToReviewIdAtom = atom(get => new Map(
     get(validGroupsAtom)
-        .map(g => ({ reviewId: g.overview.reviewId, tracks: g.tracks!.map(t => t!.track!.id) }))
+        .map(g => ({ reviewId: g.overview.reviewId, tracks: g.tracks!.map(t => getTrackId(t)) }))
         .flatMap(({ reviewId, tracks }) => tracks.map(t => ([t, reviewId])))))
 trackIdToReviewIdAtom.debugLabel = 'trackIdToReviewIdAtom'
 
+// Need to consider album types.
 const indexToTrackAtom = atom(get => new Map(zip(
     get(rowsAtom).map((isTrack, i) => isTrack ? i : -1).filter(i => i !== -1),
     get(validGroupsAtom).flatMap(g => g.tracks!))))
@@ -74,7 +81,11 @@ const indexToHeaderAtom = atom(get => new Map(zip(
     get(validGroupsAtom).map(g => g.overview))))
 indexToHeaderAtom.debugLabel = 'indexToHeaderAtom'
 
-const tracksAtom = atom<DetailedTrackFragment[]>(get => get(allGroupsAtom).flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable))
+const tracksAtom = atom<DetailedTrackFragment[]>(get =>
+    get(allGroupsAtom)
+        .flatMap(g => g.tracks)
+        .map(t => getTrack(t))
+        .filter(nonNullable))
 tracksAtom.debugLabel = 'tracksAtom'
 
 const derivedUniqueTracksAtom = atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id))
@@ -84,7 +95,11 @@ uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
 const headerIndicesAtom = atom(get => get(rowsAtom).map((r, i) => r ? -1 : i).filter(i => i !== -1).reverse())
 headerIndicesAtom.debugLabel = 'headerIndicesAtom'
 
-export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
+interface GroupedTrackTableProps {
+    rootReview: string,
+    results: [GroupData, ReviewOverview][]
+}
+export const GroupedTrackTable = ({ results, rootReview }: GroupedTrackTableProps) => {
     const parentRef = useRef<HTMLDivElement>(null)
 
     const setResults = useSetResultsAtom()
@@ -147,7 +162,8 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     }, [])
 
     // Cache stuff for lookups.
-    const [trackIdToEntityOverview] = useTransientAtom(trackIdToEntityOverviewAtom)
+    const [trackIdToEntityOverview] = useTransientAtom(trackIdToEntityOverviewIdAtom)
+    const [trackIdToEntityOverviewType] = useTransientAtom(trackIdToEntityOverviewTypeAtom)
     const [trackIdToReviewId] = useTransientAtom(trackIdToReviewIdAtom)
     const [indexToTrack] = useTransientAtom(indexToTrackAtom)
     const [indexToHeader] = useTransientAtom(indexToHeaderAtom)
@@ -194,8 +210,10 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                     rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
                         // Track Maybies.
                         const maybeTrack = indexToTrack().get(virtualRow.index)
-                        const maybeId = trackIdToEntityOverview().get(maybeTrack?.track?.id ?? '')
-                        const maybeReviewId = trackIdToReviewId().get(maybeTrack?.track?.id ?? '')
+                        const maybeTrackId = maybeTrack ? getTrackId(maybeTrack) : undefined
+                        const maybeOverviewId = maybeTrack ? trackIdToEntityOverview().get(maybeTrackId!) : undefined
+                        const maybeReviewId = maybeTrack ? trackIdToReviewId().get(maybeTrackId!) : undefined
+                        const maybeEntityType = maybeTrack ? trackIdToEntityOverviewType().get(maybeTrackId!) : undefined
 
                         // Header Maybies.
                         const maybeOverview = indexToHeader().get(virtualRow.index)
@@ -211,16 +229,18 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                                 style={indexToStyle(virtualRow) as CSSProperties}>
                                 {
                                     currRows[virtualRow.index] ?
-                                        <MemoizedTrack
-                                            playlistId={maybeId!}
-                                            playlistTrack={maybeTrack!}
+                                        <MemoTrack
+                                            overviewId={maybeOverviewId!}
                                             reviewId={maybeReviewId!}
-                                            tracksAtom={uniqueTracksAtom} /> :
+                                            track={maybeTrack!}
+                                            tracksAtom={uniqueTracksAtom}
+                                            entityType={maybeEntityType!}
+                                        /> :
                                         <MemoizedGroupHeader
                                             reviewId={maybeHeaderReviewId!}
                                             parentReviewId={rootReview}
                                             name={maybeHeaderName!}
-                                            entityType={EntityType.Playlist}
+                                            entityType={maybeOverview?.entityType!}
                                             handleClick={toggleExpandedGroup} />
                                 }
                             </div>
@@ -235,7 +255,7 @@ const useSetResultsAtom = () => {
     const hasOpenedAtom = useMemo(() => atom(false), [])
     const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
 
-    const setResultsAtom = useMemo(() => atom(null, (get, set, results: [DetailedPlaylistFragment, ReviewOverview][]) => {
+    const setResultsAtom = useMemo(() => atom(null, (get, set, results: [GroupData, ReviewOverview][]) => {
         set(resultsAtom, results)
         set(allReviewTracks, get(allTrackIdsAtom))
         const hasOpened = get(hasOpenedAtom)
@@ -328,7 +348,7 @@ const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
         const indexToTrack = get(indexToTrackAtom)
         const trackIdToReviewId = get(trackIdToReviewIdAtom)
         indexToTrack.forEach((track, index) => {
-            const trackId = track.track.id
+            const trackId = getTrackId(track)
             if (trackId === selectedTrack?.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
                 maybeTrack = index
             }
@@ -345,119 +365,4 @@ const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
 }
 
 
-/**
- * REVIEW HEADER
- */
-interface ReviewGroupHeaderProps {
-    reviewId: string
-    parentReviewId: string
-    name: string
-    entityType: EntityType
-    handleClick: (reviewId: string) => void
-}
-
-const MemoizedGroupHeader = memo((props: ReviewGroupHeaderProps) => (<ReviewGroupHeader {...props} />),
-    (prevProps, nextProps) =>
-        prevProps.reviewId === nextProps.reviewId &&
-        prevProps.parentReviewId === nextProps.parentReviewId &&
-        prevProps.handleClick === nextProps.handleClick
-)
-
-const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleClick }: ReviewGroupHeaderProps) => {
-    const isChild = reviewId !== parentReviewId
-    const [isDeleting, setIsDeletingRaw] = useState(false)
-    const nav = useNavigate()
-    const queryClient = useQueryClient()
-    const linkToReviewPage = () => nav(`/reviews/${reviewId}`)
-    const { mutateAsync: deleteReviewLink } = useDeleteReviewLinkMutation({
-        onError: () => toast.error('Failed to delete review link'),
-    })
-
-    const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
-        e.stopPropagation()
-        queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
-    }
-
-    const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
-        setIsDeletingRaw(isDeleting)
-        e.stopPropagation()
-    }
-
-    const gridStyle = isChild ? 'grid-cols-5' : 'grid-cols-2'
-    const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
-
-    const onClick = () => handleClick(reviewId)
-
-    return (
-        <div className='card py-0 w-full bg-secondary'
-            onClick={onClick}>
-            <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
-                <div className={`${nameStyle}`}>
-                    <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
-                </div>
-                <div className="m-auto">
-                    <div className="badge badge-primary text-secondary-content text-center">{entityType}</div>
-                </div>
-                {isChild ?
-                    <>
-                        <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
-                            <ArrowTopRightIcon />
-                        </button>
-                        {isDeleting ?
-                            <div className="btn-group justify-center" >
-                                <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-left" data-tip="remove review link" onClick={e => handleDeleteReviewLink(e)}>
-                                    <HazardIcon />
-                                </button>
-                                <button className="btn btn-sm btn-info" onClick={(e) => setIsDeleting(e)(false)}>
-                                    <ReplyIcon />
-                                </button>
-                            </div>
-                            :
-                            <button className="btn btn-sm btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
-                                <TrashIcon />
-                            </button>
-                        }
-                    </>
-                    : null
-                }
-            </div>
-        </div>
-    )
-}
-
-export interface MemoPlaylistTrackProps {
-    playlistTrack: DetailedPlaylistTrackFragment
-    reviewId: string
-    playlistId: string
-    tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>
-}
-
-const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, tracksAtom }: MemoPlaylistTrackProps) => {
-    const isLikedAtom = useTrackLikeAtom(tracksAtom, playlistTrack.track.id)
-    return (
-        <div className="py-0.5 m-0">
-            <PlaylistTrack
-                playlistId={playlistId}
-                reviewId={reviewId}
-                playlistTrack={playlistTrack}
-                isLikedAtom={isLikedAtom}
-            />
-        </div>
-    )
-}, (a, b) =>
-    a.playlistId === b.playlistId &&
-    a.reviewId === b.reviewId &&
-    a.playlistTrack.track.id === b.playlistTrack.track.id)
-
-function useTrackLikeAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string): PrimitiveAtom<boolean> {
-    return useMemo(() => {
-        const focused = focusAtom(tracksAtom, (optic) =>
-            optic
-                .find(t => t.id === trackId)
-                .prop('isLiked')
-                .valueOr(false))
-        return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
-    }, [tracksAtom, trackId])
-}
 

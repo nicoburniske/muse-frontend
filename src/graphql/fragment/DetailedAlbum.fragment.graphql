@@ -13,16 +13,6 @@ fragment DetailedAlbum on Album {
     name
   }
   tracks {
-    id
-    name
-    durationMs
-    explicit
-    isPlayable
-    previewUrl
-    popularity
-    artists {
-      id
-      name
-    }
+    ...DetailedTrack
   }
 }

@@ -21,7 +21,7 @@ export default function useDoubleClick({
 
             setTimeout(() => {
                 if (clickCount === 1) onSingleClick()
-                else if (clickCount === 2) onDoubleClick()
+                else if (clickCount >= 2) onDoubleClick()
 
                 clickCount = 0
             }, latency)

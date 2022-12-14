@@ -1,4 +1,4 @@
-import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment } from 'graphql/generated/schema'
+import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment, DetailedAlbumFragment } from 'graphql/generated/schema'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSetAtom, useAtomValue, atom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
@@ -13,7 +13,7 @@ import Split from 'react-split'
 import { nonNullable, findFirstImage, zip, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
-import { GroupedTrackTable } from './GroupedTrackTable'
+import { GroupedTrackTable } from './table/GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
 import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
@@ -262,15 +262,17 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
     })
 
     // Ensure that indicies line up.
-    const validZipped: [DetailedPlaylistFragment, ReviewOverview][] = useMemo(() =>
-        zip(playlistResults, all)
+    const validZipped: [DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview][] = useMemo(() =>
+        zip([...albumResults, ...playlistResults], all)
             // Success from API.
             .filter(([res,]) => res.isSuccess)
             // Non Null result.
-            .filter(([res,]) => nonNullable(res.data?.getPlaylist))
+            // @ts-ignore
+            .filter(([res,]) => nonNullable(res.data?.getPlaylist ?? res.data?.getAlbum))
             // Extract entity.
-            .map(([res, review]) => [res.data!.getPlaylist!, review]),
-        [playlistResults])
+            // @ts-ignore
+            .map(([res, review]) => [(res.data?.getPlaylist ?? res.data?.getAlbum)!, review]),
+    [playlistResults])
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 
