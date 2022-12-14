@@ -1,92 +1,108 @@
 import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect, RefObject } from 'react'
-import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem, VirtualizerOptions, elementScroll } from '@tanstack/react-virtual'
+import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem, VirtualizerOptions, elementScroll, Virtualizer } from '@tanstack/react-virtual'
 import { ReviewOverview } from './DetailedReview'
 import { useQueryClient } from '@tanstack/react-query'
 import { DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment, EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { atom, PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import PlaylistTrack from './PlaylistTrack'
 import { nonNullable, uniqueByProperty, zip } from 'util/Utils'
 import { useNavigate } from 'react-router-dom'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
+import { useTransientAtom } from 'hook/useTransientAtom'
 import { allReviewTracks, selectedTrackAtom } from 'state/Atoms'
+import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
 
+const resultsAtom = atom<[DetailedPlaylistFragment, ReviewOverview][]>([])
+const expandedGroupsAtom = atom<string[]>([])
+expandedGroupsAtom.debugLabel = 'expandedGroupsAtom'
 
-export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
-    const parentRef = useRef<HTMLDivElement>(null)
+const allGroupsAtom = atom(get => get(resultsAtom)
+    .map(group => ({ tracks: group[0].tracks, overview: group[1] }))
+    .filter(group => nonNullable(group.tracks))
+)
+allGroupsAtom.debugLabel = 'allGroupsAtom'
 
-    const allGroups = useMemo(() => results
-        .map(group => ({ tracks: group[0].tracks, overview: group[1] }))
-        .filter(group => nonNullable(group.tracks)), [results])
+const validGroupsAtom = atom(get => get(allGroupsAtom).map(({ tracks, overview }) => {
+    if (get(expandedGroupsAtom).includes(overview.reviewId)) {
+        return { overview, tracks }
+    } else {
+        return { overview, tracks: [] }
+    }
+}))
+validGroupsAtom.debugLabel = 'validGroupsAtom'
 
-    // ONLY FOR ATOMS/STATE. Does not account for collapse.
-    const tracks = useMemo(() => allGroups.flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable), [allGroups])
-    const setReviewTracks = useSetAtom(allReviewTracks)
-    useEffect(() => {
-        setReviewTracks(new Set<string>(tracks.map(t => t.id)))
-    }, [tracks])
-
-    const [expandedGroups, setExpandedGroups] = useState<string[]>(results.length === 0 ? [] : [results[0][1].reviewId])
-
-    const toggleExpandedGroup = useCallback((reviewId: string) => {
-        const exists = expandedGroups.includes(reviewId)
-        if (exists) {
-            const postRemove = expandedGroups.filter(group => group !== reviewId)
-            setExpandedGroups(postRemove)
-        } else {
-            const postAdd = [...expandedGroups, reviewId]
-            setExpandedGroups(postAdd)
-            const maybeHeaderIndex = headerIndices.find(i => {
-                const header = indexToHeader.get(i)
-                return nonNullable(header) ? header.reviewId === reviewId : false
-            })
-            if (nonNullable(maybeHeaderIndex)) {
-                setTimeout(() => rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start' }), 200)
-            }
-        }
-
-    }, [expandedGroups, setExpandedGroups])
-
-    const validGroups = useMemo(() => allGroups.map(({ tracks, overview }) => {
-        if (expandedGroups.includes(overview.reviewId)) {
-            return { overview, tracks }
-        } else {
-            return { overview, tracks: [] }
-        }
-    }), [allGroups, expandedGroups])
-
-    // True is track. False is Group header.
-    const rows: boolean[] = useMemo(() => validGroups.reduce((acc, k) => {
+// Header is false, Track is true.
+const rowsAtom = atom(get => {
+    const expandedGroups = get(expandedGroupsAtom)
+    return get(validGroupsAtom).reduce((acc, k) => {
         if (expandedGroups.includes(k.overview.reviewId)) {
             // Add the group header and all tracks. 
-            return [...acc, false, ...k.tracks!.map(_t => true)]
+            return [...acc, false, ...k.tracks!.map(() => true)]
         } else {
             // Only add the header.
             return [...acc, false]
         }
-    }, new Array<boolean>()), [validGroups, expandedGroups])
+    }, new Array<boolean>())
+})
+rowsAtom.debugLabel = 'rowsAtom'
 
+/**
+ * Cached values.
+ */
 
-    // Cache stuff for lookups.
-    // Is there any case where there can be a conflict?
-    const trackIdToEntityOverview = useMemo(() => new Map(validGroups.map(g => ({ overview: g.overview.entityId, trackIds: g.tracks!.map(t => t!.track!.id) })).flatMap(({ overview, trackIds: tracks }) => tracks.map(t => ([t, overview])))), [validGroups])
-    const trackIdToReviewId = useMemo(() => new Map(validGroups.map(g => ({ reviewId: g.overview.reviewId, tracks: g.tracks!.map(t => t!.track!.id) })).flatMap(({ reviewId, tracks }) => tracks.map(t => ([t, reviewId])))), [validGroups])
-    const indexToTrack = useMemo(() => new Map(zip(rows.map((isTrack, i) => isTrack ? i : -1).filter(i => i !== -1), validGroups.flatMap(g => g.tracks!))), [rows, validGroups])
-    const indexToHeader = useMemo(() => new Map(zip(rows.map((isTrack, i) => !isTrack ? i : -1).filter(i => i !== -1), validGroups.map(g => g.overview))), [rows, validGroups])
+const trackIdToEntityOverviewAtom = atom(get => new Map(
+    get(validGroupsAtom)
+        .map(g => ({ overview: g.overview.entityId, trackIds: g.tracks!.map(t => t!.track!.id) }))
+        .flatMap(({ overview, trackIds: tracks }) => tracks.map(t => ([t, overview])))))
+trackIdToEntityOverviewAtom.debugLabel = 'trackIdToEntityOverviewAtom'
 
-    const tracksAtom = useMemo(() => atom(uniqueByProperty(tracks, t => t.id)), [tracks])
-    const headerIndices = useMemo(() => rows.map((r, i) => r ? -1 : i).filter(i => i !== -1).reverse(), [rows])
+const trackIdToReviewIdAtom = atom(get => new Map(
+    get(validGroupsAtom)
+        .map(g => ({ reviewId: g.overview.reviewId, tracks: g.tracks!.map(t => t!.track!.id) }))
+        .flatMap(({ reviewId, tracks }) => tracks.map(t => ([t, reviewId])))))
+trackIdToReviewIdAtom.debugLabel = 'trackIdToReviewIdAtom'
+
+const indexToTrackAtom = atom(get => new Map(zip(
+    get(rowsAtom).map((isTrack, i) => isTrack ? i : -1).filter(i => i !== -1),
+    get(validGroupsAtom).flatMap(g => g.tracks!))))
+indexToTrackAtom.debugLabel = 'indexToTrackAtom'
+
+const indexToHeaderAtom = atom(get => new Map(zip(
+    get(rowsAtom).map((isTrack, i) => !isTrack ? i : -1).filter(i => i !== -1),
+    get(validGroupsAtom).map(g => g.overview))))
+indexToHeaderAtom.debugLabel = 'indexToHeaderAtom'
+
+const tracksAtom = atom<DetailedTrackFragment[]>(get => get(allGroupsAtom).flatMap(g => g.tracks).map(t => t?.track).filter(nonNullable))
+tracksAtom.debugLabel = 'tracksAtom'
+
+const derivedUniqueTracksAtom = atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id))
+const uniqueTracksAtom = derivedAtomWithWrite(derivedUniqueTracksAtom)
+uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
+
+const headerIndicesAtom = atom(get => get(rowsAtom).map((r, i) => r ? -1 : i).filter(i => i !== -1).reverse())
+headerIndicesAtom.debugLabel = 'headerIndicesAtom'
+
+export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
+    const parentRef = useRef<HTMLDivElement>(null)
+
+    const setResults = useSetResultsAtom()
+    useEffect(() => {
+        setResults(results)
+    }, [results])
+
+    const [headerIndices] = useTransientAtom(headerIndicesAtom)
 
     const activeStickyIndexRef = useRef(0)
-    const isSticky = useCallback((index: number) => headerIndices.includes(index), [headerIndices])
     const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
+    const isSticky = useCallback((index: number) => headerIndices().includes(index), [])
 
     // Keep all previously rendered tracks mounted for performance. 
     // Combining sticky headers + keepMounted.
     const keepMounted = useKeepMountedRangeExtractor()
     const rangeExtractor = useCallback((range: Range) => {
-        activeStickyIndexRef.current = [...headerIndices]
+        activeStickyIndexRef.current = [...headerIndices()]
             .find((index) => range.startIndex >= index) ?? 0
         const next = new Set([
             activeStickyIndexRef.current,
@@ -97,45 +113,18 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     }, [headerIndices])
 
     const scrollToFn = useSmoothScroll(parentRef)
+    // True is track. False is Group header.
+    const [rows] = useTransientAtom(rowsAtom)
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
-        count: rows.length,
-        estimateSize: (index) => rows[index] ? 60 : 40,
+        count: rows().length,
+        estimateSize: (index) => rows()[index] ? 60 : 40,
         getScrollElement: () => parentRef.current,
         scrollToFn,
         rangeExtractor
     })
 
-    // Need to consider same song in different contexts.
-    const selectedTrack = useAtomValue(selectedTrackAtom)
-    useEffect(() => {
-        if (selectedTrack !== undefined && tracks.length > 0) {
-            if (!expandedGroups.includes(selectedTrack.reviewId)) {
-                setExpandedGroups([...expandedGroups, selectedTrack.reviewId])
-                // Not working as intended.
-                setTimeout(() => scrollToSelected(), 1000)
-            } else {
-                scrollToSelected()
-            }
-        }
-    }, [selectedTrack])
-
-    const selectedIndex = useMemo(() => {
-        let maybeTrack = undefined
-        indexToTrack.forEach((track, index) => {
-            const trackId = track.track.id
-            if (trackId === selectedTrack?.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
-                maybeTrack = index
-            }
-        })
-        return maybeTrack
-    }, [selectedTrack])
-
-    const scrollToSelected = () => {
-        if (selectedIndex !== undefined) {
-            rowVirtualizer.scrollToIndex(selectedIndex, { align: 'center' })
-        }
-    }
+    useScrollToSelected(rowVirtualizer)
 
     const indexToStyle = useCallback((virtualRow: VirtualItem) => {
         return {
@@ -155,8 +144,41 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
             width: '100%',
             ...(isSticky(virtualRow.index) ? {} : { height: `${virtualRow.size}px` }),
         }
-    }, [rows])
+    }, [])
 
+    // Cache stuff for lookups.
+    const [trackIdToEntityOverview] = useTransientAtom(trackIdToEntityOverviewAtom)
+    const [trackIdToReviewId] = useTransientAtom(trackIdToReviewIdAtom)
+    const [indexToTrack] = useTransientAtom(indexToTrackAtom)
+    const [indexToHeader] = useTransientAtom(indexToHeaderAtom)
+
+    /**
+     * Toggle Expanded group on header click.
+     */
+    const [expandedGroups, setExpandedGroups] = useAtom(expandedGroupsAtom)
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
+    const toggleExpandedGroup = useCallback((reviewId: string) => {
+        // Clear selected track to avoid conflict with expanded group.
+        setSelectedTrack(undefined)
+        const currentExpanded = expandedGroups
+        const exists = currentExpanded.includes(reviewId)
+        if (exists) {
+            const postRemove = currentExpanded.filter(group => group !== reviewId)
+            setExpandedGroups(postRemove)
+        } else {
+            const postAdd = [...currentExpanded, reviewId]
+            setExpandedGroups(postAdd)
+            const maybeHeaderIndex = headerIndices().find(i => {
+                const header = indexToHeader().get(i)
+                return nonNullable(header) ? header.reviewId === reviewId : false
+            })
+            if (nonNullable(maybeHeaderIndex)) {
+                setTimeout(() => rowVirtualizer.scrollToIndex(maybeHeaderIndex, { align: 'start' }), 200)
+            }
+        }
+    }, [expandedGroups, setExpandedGroups, headerIndices])
+
+    const currRows = rows()
     return (
         <div
             ref={parentRef}
@@ -171,12 +193,12 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 {
                     rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
                         // Track Maybies.
-                        const maybeTrack = indexToTrack.get(virtualRow.index)
-                        const maybeId = trackIdToEntityOverview.get(maybeTrack?.track?.id ?? '')
-                        const maybeReviewId = trackIdToReviewId.get(maybeTrack?.track?.id ?? '')
+                        const maybeTrack = indexToTrack().get(virtualRow.index)
+                        const maybeId = trackIdToEntityOverview().get(maybeTrack?.track?.id ?? '')
+                        const maybeReviewId = trackIdToReviewId().get(maybeTrack?.track?.id ?? '')
 
                         // Header Maybies.
-                        const maybeOverview = indexToHeader.get(virtualRow.index)
+                        const maybeOverview = indexToHeader().get(virtualRow.index)
                         const maybeHeaderReviewId = maybeOverview?.reviewId
                         // This should probably be the entity name.
                         const maybeHeaderName = maybeOverview?.reviewName
@@ -188,12 +210,12 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                                 key={virtualRow.index}
                                 style={indexToStyle(virtualRow) as CSSProperties}>
                                 {
-                                    rows[virtualRow.index] ?
+                                    currRows[virtualRow.index] ?
                                         <MemoizedTrack
                                             playlistId={maybeId!}
                                             playlistTrack={maybeTrack!}
                                             reviewId={maybeReviewId!}
-                                            atom={tracksAtom} /> :
+                                            tracksAtom={uniqueTracksAtom} /> :
                                         <MemoizedGroupHeader
                                             reviewId={maybeHeaderReviewId!}
                                             parentReviewId={rootReview}
@@ -209,8 +231,28 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     )
 }
 
+const useSetResultsAtom = () => {
+    const hasOpenedAtom = useMemo(() => atom(false), [])
+    const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
+
+    const setResultsAtom = useMemo(() => atom(null, (get, set, results: [DetailedPlaylistFragment, ReviewOverview][]) => {
+        set(resultsAtom, results)
+        set(allReviewTracks, get(allTrackIdsAtom))
+        const hasOpened = get(hasOpenedAtom)
+        // On first load, expand the first group if it exists.
+        if (!hasOpened && results.length > 0) {
+            set(hasOpenedAtom, true)
+            set(expandedGroupsAtom, [results[0][1].reviewId])
+        }
+    }), [])
+    return useSetAtom(setResultsAtom)
+}
+
 const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
-    // Smooth Scroll function.
+    const easeInOutQuint = useCallback((t: number) => {
+        return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t
+        // return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
+    }, [])
     const scrollingRef = useRef<number>()
     const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
         useCallback((offset, canSmooth, instance) => {
@@ -253,11 +295,59 @@ const useKeepMountedRangeExtractor = () => {
     return rangeExtractor
 }
 
-function easeInOutQuint(t: number) {
-    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
+const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
+    /**
+     * Open group header if not already open.
+     */
+    const groupToExpandAtom = useMemo(() => atom(get => {
+        const selectedTrack = get(selectedTrackAtom)
+
+        if (selectedTrack !== undefined && !get(expandedGroupsAtom).includes(selectedTrack.reviewId)) {
+            return selectedTrack.reviewId
+        }
+    }), [])
+
+    const groupToExpand = useAtomValue(groupToExpandAtom)
+    const setExpandedGroups = useSetAtom(expandedGroupsAtom)
+    useEffect(() => {
+        if (groupToExpand !== undefined) {
+            setExpandedGroups(currentGroups => [...currentGroups, groupToExpand!])
+        }
+    }, [groupToExpand])
+
+    /**
+     * Scroll to selected.
+     */
+    const selectedIndexAtom = useMemo(() => atom(get => {
+        const selectedTrack = get(selectedTrackAtom)
+        if (selectedTrack === undefined) {
+            return undefined
+        }
+
+        let maybeTrack = undefined
+        const indexToTrack = get(indexToTrackAtom)
+        const trackIdToReviewId = get(trackIdToReviewIdAtom)
+        indexToTrack.forEach((track, index) => {
+            const trackId = track.track.id
+            if (trackId === selectedTrack?.trackId && trackIdToReviewId.get(trackId) === selectedTrack.reviewId) {
+                maybeTrack = index
+            }
+        })
+        return maybeTrack
+    }), [])
+
+    const selectedIndex = useAtomValue(selectedIndexAtom)
+    useEffect(() => {
+        if (selectedIndex !== undefined) {
+            virtualizer.scrollToIndex(selectedIndex, { align: 'center' })
+        }
+    }, [selectedIndex])
 }
 
 
+/**
+ * REVIEW HEADER
+ */
 interface ReviewGroupHeaderProps {
     reviewId: string
     parentReviewId: string
@@ -268,8 +358,9 @@ interface ReviewGroupHeaderProps {
 
 const MemoizedGroupHeader = memo((props: ReviewGroupHeaderProps) => (<ReviewGroupHeader {...props} />),
     (prevProps, nextProps) =>
-        prevProps.reviewId === nextProps.reviewId
-        && prevProps.handleClick === nextProps.handleClick
+        prevProps.reviewId === nextProps.reviewId &&
+        prevProps.parentReviewId === nextProps.parentReviewId &&
+        prevProps.handleClick === nextProps.handleClick
 )
 
 const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleClick }: ReviewGroupHeaderProps) => {
@@ -339,11 +430,11 @@ export interface MemoPlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     playlistId: string
-    atom: PrimitiveAtom<DetailedTrackFragment[]>
+    tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>
 }
 
-const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoPlaylistTrackProps) => {
-    const isLikedAtom = useTrackLikeAtom(atom, playlistTrack.track.id)
+const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, tracksAtom }: MemoPlaylistTrackProps) => {
+    const isLikedAtom = useTrackLikeAtom(tracksAtom, playlistTrack.track.id)
     return (
         <div className="py-0.5 m-0">
             <PlaylistTrack

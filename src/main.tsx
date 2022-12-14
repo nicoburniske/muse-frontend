@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import { Toaster } from 'react-hot-toast'
 import { AppConfig } from 'util/AppConfig'
@@ -9,6 +9,7 @@ import { createClient as createWSClient } from 'graphql-ws'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { DebugAtoms } from 'state/Atoms'
+import React from 'react'
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -37,19 +38,33 @@ const urqlClient = createClient({
     ],
 })
 
-// Cache is persisted to local storage. 24 hours.
-const queryClient = new QueryClient({ defaultOptions: { queries: { cacheTime: 24 * 60 * 60 * 1000 } } })
 
-const persister = createSyncStoragePersister({
-    storage: window.localStorage,
-})
+const QueryClientProviderOptions = ({ useCache, children }: { useCache: boolean, children: React.ReactNode }) => {
+    // Cache is persisted to local storage. 24 hours.
+    const queryClient = new QueryClient({ defaultOptions: { queries: { cacheTime: 24 * 60 * 60 * 1000 } } })
+
+    const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+    })
+
+    return useCache ?
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+        >
+            {children}
+        </PersistQueryClientProvider>
+        :
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
         <Provider value={urqlClient}>
-            <PersistQueryClientProvider
-                client={queryClient}
-                persistOptions={{ persister }}
+            <QueryClientProviderOptions
+                useCache={true}
             >
                 <>
                     <DebugAtoms />
@@ -69,7 +84,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                         }}
                     />
                 </>
-            </PersistQueryClientProvider>
+            </QueryClientProviderOptions>
         </Provider>
     </BrowserRouter>
 )

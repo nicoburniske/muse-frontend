@@ -32,7 +32,7 @@ export function useTransientAtom<
 export function useTransientAtom<Value>(
     atom: Atom<Value>,
     scope?: Scope,
-): [ResolveType<Value>, never];
+): [GetAtom<Value>, never];
 
 export function useTransientAtom<
     Value,
