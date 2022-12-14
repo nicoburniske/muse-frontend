@@ -644,6 +644,8 @@ export type SearchPlaylistFragment = { __typename: 'Playlist', id: string, name:
 
 export type SearchAlbumFragment = { __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null };
 
+export type SearchArtistFragment = { __typename: 'Artist', id: string, name: string, images?: Array<string> | null };
+
 export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
 
 export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
@@ -828,7 +830,7 @@ export type SearchSpotifyQueryVariables = Exact<{
 }>;
 
 
-export type SearchSpotifyQuery = { __typename?: 'Queries', search?: { __typename?: 'SearchResult', playlists?: { __typename?: 'PaginationResultPlaylist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> } | null, albums?: { __typename?: 'PaginationResultAlbum', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null }> } | null } | null };
+export type SearchSpotifyQuery = { __typename?: 'Queries', search?: { __typename?: 'SearchResult', playlists?: { __typename?: 'PaginationResultPlaylist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> } | null, albums?: { __typename?: 'PaginationResultAlbum', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null }> } | null, artists?: { __typename?: 'PaginationResultArtist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Artist', id: string, name: string, images?: Array<string> | null }> } | null } | null };
 
 export type TrackLikeQueryVariables = Exact<{
   id: Scalars['String'];
@@ -1069,6 +1071,14 @@ export const SearchPlaylistFragmentDoc = `
   owner {
     ...UserWithSpotifyOverview
   }
+}
+    `
+export const SearchArtistFragmentDoc = `
+    fragment SearchArtist on Artist {
+  __typename
+  id
+  name
+  images
 }
     `
 export const PlaybackDeviceFragmentDoc = `
@@ -1673,11 +1683,20 @@ export const SearchSpotifyDocument = `
         ...SearchAlbum
       }
     }
+    artists {
+      limit
+      nextOffset
+      itemsLeft
+      items {
+        ...SearchArtist
+      }
+    }
   }
 }
     ${SearchPlaylistFragmentDoc}
 ${UserWithSpotifyOverviewFragmentDoc}
-${SearchAlbumFragmentDoc}`
+${SearchAlbumFragmentDoc}
+${SearchArtistFragmentDoc}`
 export const useSearchSpotifyQuery = <
       TData = SearchSpotifyQuery,
       TError = unknown

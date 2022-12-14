@@ -10,7 +10,7 @@ import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardI
 import { useNavigate } from 'react-router-dom'
 import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import Split from 'react-split'
-import { nonNullable, findFirstImage, zip, groupBy } from 'util/Utils'
+import { nonNullable, findFirstImage, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTable } from './table/GroupedTrackTable'
@@ -98,6 +98,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId: child.id,
             entityId: child.entity?.id as string,
             entityType: child.entity?.__typename as EntityType,
+            entityName: child.entity?.name,
             reviewName: child?.reviewName
         })) ?? []
     const parent = nonNullable(review?.entity) ?
@@ -105,6 +106,7 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId,
             entityId,
             entityType: review.entity.__typename as EntityType,
+            entityName: review.entity?.name,
             reviewName: review?.reviewName
         }
         : undefined
@@ -240,6 +242,7 @@ export interface ReviewOverview {
     reviewId: string
     entityId: string
     entityType: EntityType
+    entityName: string
 }
 
 const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
@@ -257,22 +260,26 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
             // Never have to refetch albums because they don't update.
-            staleTime: Infinity
+            // staleTime: Infinity
         })),
     })
 
     // Ensure that indicies line up.
-    const validZipped: [DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview][] = useMemo(() =>
-        zip([...albumResults, ...playlistResults], all)
-            // Success from API.
-            .filter(([res,]) => res.isSuccess)
-            // Non Null result.
-            // @ts-ignore
-            .filter(([res,]) => nonNullable(res.data?.getPlaylist ?? res.data?.getAlbum))
-            // Extract entity.
-            // @ts-ignore
-            .map(([res, review]) => [(res.data?.getPlaylist ?? res.data?.getAlbum)!, review]),
-    [playlistResults])
+    const matchedReviews = useMemo(() => {
+        // get all reviews that are not nullable
+        const allReviews = all.filter(r => r.entityType === EntityType.Album || r.entityType === EntityType.Playlist)
+        const results: (DetailedAlbumFragment | DetailedPlaylistFragment)[] =
+            [...albumResults, ...playlistResults]
+                .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
+                .filter(nonNullable)
+        return allReviews.reduce((acc, overview) => { 
+            const result = results.find(r => r.id === overview.entityId)
+            if (result) {
+                acc.push([result, overview])
+            }
+            return acc
+        }, new Array<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview]>())
+    }, [all, albumResults, playlistResults])
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 
@@ -285,7 +292,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
                             <div className="border-t-transparent border-solid animate-spin rounded-full border-primary border-8 h-56 w-56" />
                         </div>
                     ) :
-                    <GroupedTrackTable results={validZipped} rootReview={rootReview} />
+                    <GroupedTrackTable results={matchedReviews} rootReview={rootReview} />
             }
         </div >
     )

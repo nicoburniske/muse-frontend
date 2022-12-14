@@ -8,6 +8,7 @@ import { useLongPress } from 'use-long-press'
 import { usePlay } from 'component/playbackSDK/hooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 import { useCommentModalTrack } from './useCommentModalTrack'
+import { msToTimeStr } from 'util/Utils'
 
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
@@ -47,11 +48,13 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
         showModal()
     }, { threshold: 500 })
 
+    const { minutes, seconds } = msToTimeStr(track.durationMs)
+
     return (
         <div
             {...bind()}
             ref={trackDivRef}
-            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
 
             <div className="hidden sm:flex avatar ml-1">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
@@ -72,6 +75,7 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
             <div className="grid place-items-center">
                 <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
             </div>
+            <div className="select-none	truncate text-sm lg:text-base p-0.5 m-auto"> {`${minutes}:${seconds}`} </div>
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}

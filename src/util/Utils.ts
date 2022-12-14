@@ -76,6 +76,7 @@ export const getReviewOverviewImage = (review: ReviewDetailsFragment) => {
 export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
     return reviews.map(entity =>
         (() => {
+            /* eslint-disable */
             switch (entity?.__typename) {
                 case 'Artist':
                     return entity?.artistImages?.at(0)
@@ -85,6 +86,7 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
                 case 'Track':
                     return entity?.album?.images.at(0)
             }
+            /* eslint-enable*/
         })()
     )
         .filter(nonNullable)

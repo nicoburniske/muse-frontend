@@ -12,6 +12,7 @@ interface ReviewGroupHeaderProps {
     reviewId: string
     parentReviewId: string
     name: string
+    entityName: string
     entityType: EntityType
     handleClick: (reviewId: string) => void
 }
@@ -23,7 +24,7 @@ export const MemoizedGroupHeader = memo((props: ReviewGroupHeaderProps) => (<Rev
         prevProps.handleClick === nextProps.handleClick
 )
 
-const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleClick }: ReviewGroupHeaderProps) => {
+const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityName, entityType, handleClick }: ReviewGroupHeaderProps) => {
     const isChild = reviewId !== parentReviewId
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
@@ -36,7 +37,9 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleC
     const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
         e.stopPropagation()
+        e.preventDefault()
         queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
+        setIsDeletingRaw(false)
     }
 
     const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
@@ -54,14 +57,16 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleC
             onClick={onClick}>
             <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                 <div className={`${nameStyle}`}>
-                    <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
+                    <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{name}</h2>
                 </div>
-                <div className="m-auto">
-                    <div className="badge badge-primary text-secondary-content text-center">{entityType}</div>
+                <div className={`${nameStyle} flex flex-row justify-start w-full m-auto`}>
+                    <div className="badge badge-accent text-accent-content text-center">{entityType}</div>
+                    <div className="divider divider-horizontal"/> 
+                    <div className="badge badge-primary text-primary-content text-center truncate">{entityName}</div>
                 </div>
                 {isChild ?
-                    <>
-                        <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
+                    <div className="justify-self-center	btn-group flex flex-row md:space-x-5">
+                        <button className="btn btn-sm btn-square btn-ghost" onClick={() => linkToReviewPage()} >
                             <ArrowTopRightIcon />
                         </button>
                         {isDeleting ?
@@ -74,11 +79,11 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleC
                                 </button>
                             </div>
                             :
-                            <button className="btn btn-sm btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
+                            <button className="btn btn-sm btn-square btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
                                 <TrashIcon />
                             </button>
                         }
-                    </>
+                    </div>
                     : null
                 }
             </div>

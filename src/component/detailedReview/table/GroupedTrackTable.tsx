@@ -220,6 +220,7 @@ export const GroupedTrackTable = ({ results, rootReview }: GroupedTrackTableProp
                         const maybeHeaderReviewId = maybeOverview?.reviewId
                         // This should probably be the entity name.
                         const maybeHeaderName = maybeOverview?.reviewName
+                        const maybeHeaderEntityName = maybeOverview?.entityName
 
                         // Consider a compound key.
                         return (
@@ -241,6 +242,7 @@ export const GroupedTrackTable = ({ results, rootReview }: GroupedTrackTableProp
                                             parentReviewId={rootReview}
                                             name={maybeHeaderName!}
                                             entityType={maybeOverview?.entityType!}
+                                            entityName={maybeHeaderEntityName!}
                                             handleClick={toggleExpandedGroup} />
                                 }
                             </div>
@@ -270,8 +272,8 @@ const useSetResultsAtom = () => {
 
 const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
     const easeInOutQuint = useCallback((t: number) => {
-        return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t
-        // return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
+        // return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t
+        return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
     }, [])
     const scrollingRef = useRef<number>()
     const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
