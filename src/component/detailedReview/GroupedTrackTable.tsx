@@ -1,4 +1,4 @@
-import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect, SetStateAction } from 'react'
+import { CSSProperties, useMemo, useRef, useCallback, useState, memo, useEffect, RefObject } from 'react'
 import { useVirtualizer, defaultRangeExtractor, Range, VirtualItem, VirtualizerOptions, elementScroll } from '@tanstack/react-virtual'
 import { ReviewOverview } from './DetailedReview'
 import { useQueryClient } from '@tanstack/react-query'
@@ -12,27 +12,8 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { allReviewTracks, selectedTrackAtom } from 'state/Atoms'
 
-const useKeepMountedRangeExtractor = () => {
-    const renderedRef = useRef(new Set<number>())
-
-    const rangeExtractor = useCallback((range: Range) => {
-        const newRange = [
-            ...renderedRef.current,
-            ...defaultRangeExtractor(range)
-        ]
-        renderedRef.current = new Set(newRange)
-        return newRange
-    }, [])
-
-    return rangeExtractor
-}
-
-function easeInOutQuint(t: number) {
-    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
-}
 
 export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string, results: [DetailedPlaylistFragment, ReviewOverview][] }) => {
-
     const parentRef = useRef<HTMLDivElement>(null)
 
     const allGroups = useMemo(() => results
@@ -94,58 +75,35 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     const indexToTrack = useMemo(() => new Map(zip(rows.map((isTrack, i) => isTrack ? i : -1).filter(i => i !== -1), validGroups.flatMap(g => g.tracks!))), [rows, validGroups])
     const indexToHeader = useMemo(() => new Map(zip(rows.map((isTrack, i) => !isTrack ? i : -1).filter(i => i !== -1), validGroups.map(g => g.overview))), [rows, validGroups])
 
-    const tracksAtom = atom(uniqueByProperty(tracks, t => t.id))
+    const tracksAtom = useMemo(() => atom(uniqueByProperty(tracks, t => t.id)), [tracks])
     const headerIndices = useMemo(() => rows.map((r, i) => r ? -1 : i).filter(i => i !== -1).reverse(), [rows])
 
     const activeStickyIndexRef = useRef(0)
-    const isSticky = (index: number) => headerIndices.includes(index)
-    const isActiveSticky = (index: number) => activeStickyIndexRef.current === index
-
-    // Smooth Scroll function.
-    const scrollingRef = useRef<number>()
-    const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
-        useCallback((offset, canSmooth, instance) => {
-            const duration = 1000
-            const start = parentRef!.current!.scrollTop
-            const startTime = (scrollingRef.current = Date.now())
-
-            const run = () => {
-                if (scrollingRef.current !== startTime) return
-                const now = Date.now()
-                const elapsed = now - startTime
-                const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
-                const interpolated = start + (offset - start) * progress
-
-                if (elapsed < duration) {
-                    elementScroll(interpolated, canSmooth, instance)
-                    requestAnimationFrame(run)
-                } else {
-                    elementScroll(interpolated, canSmooth, instance)
-                }
-            }
-
-            requestAnimationFrame(run)
-        }, [])
+    const isSticky = useCallback((index: number) => headerIndices.includes(index), [headerIndices])
+    const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
 
     // Keep all previously rendered tracks mounted for performance. 
+    // Combining sticky headers + keepMounted.
     const keepMounted = useKeepMountedRangeExtractor()
+    const rangeExtractor = useCallback((range: Range) => {
+        activeStickyIndexRef.current = [...headerIndices]
+            .find((index) => range.startIndex >= index) ?? 0
+        const next = new Set([
+            activeStickyIndexRef.current,
+            ...keepMounted(range)
+        ])
+        const sorted = [...next].sort((a, b) => a - b)
+        return sorted
+    }, [headerIndices])
+
+    const scrollToFn = useSmoothScroll(parentRef)
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
         count: rows.length,
         estimateSize: (index) => rows[index] ? 60 : 40,
         getScrollElement: () => parentRef.current,
         scrollToFn,
-        // Combining sticky headers + keepMounted performance.
-        rangeExtractor: useCallback((range: Range) => {
-            activeStickyIndexRef.current = [...headerIndices]
-                .find((index) => range.startIndex >= index) ?? 0
-            const next = new Set([
-                activeStickyIndexRef.current,
-                ...keepMounted(range)
-            ])
-            const sorted = [...next].sort((a, b) => a - b)
-            return sorted
-        }, [headerIndices])
+        rangeExtractor
     })
 
     // Need to consider same song in different contexts.
@@ -179,23 +137,25 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
         }
     }
 
-    const indexToStyle = (virtualRow: VirtualItem) => ({
-        ...(isSticky(virtualRow.index)
-            ? { zIndex: 1 }
-            : {}),
-        ...(isActiveSticky(virtualRow.index)
-            ? {
-                position: 'sticky',
-            }
-            : {
-                position: 'absolute',
-                transform: `translateY(${virtualRow.start}px)`,
-            }),
-        top: 0,
-        left: 0,
-        width: '100%',
-        ...(isSticky(virtualRow.index) ? {} : { height: `${virtualRow.size}px` }),
-    })
+    const indexToStyle = useCallback((virtualRow: VirtualItem) => {
+        return {
+            ...(isSticky(virtualRow.index)
+                ? { zIndex: 1 }
+                : {}),
+            ...(isActiveSticky(virtualRow.index)
+                ? {
+                    position: 'sticky',
+                }
+                : {
+                    position: 'absolute',
+                    transform: `translateY(${virtualRow.start}px)`,
+                }),
+            top: 0,
+            left: 0,
+            width: '100%',
+            ...(isSticky(virtualRow.index) ? {} : { height: `${virtualRow.size}px` }),
+        }
+    }, [rows])
 
     return (
         <div
@@ -209,7 +169,7 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                 }}
             >
                 {
-                    rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
                         // Track Maybies.
                         const maybeTrack = indexToTrack.get(virtualRow.index)
                         const maybeId = trackIdToEntityOverview.get(maybeTrack?.track?.id ?? '')
@@ -224,17 +184,22 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
                         // Consider a compound key.
                         return (
                             <div
+                                // key={`${virtualRow.index}${maybeId ?? maybeHeaderReviewId}`}
                                 key={virtualRow.index}
                                 style={indexToStyle(virtualRow) as CSSProperties}>
                                 {
                                     rows[virtualRow.index] ?
-                                        <MemoizedTrack playlistId={maybeId!} playlistTrack={maybeTrack!} reviewId={maybeReviewId!} atom={tracksAtom} /> :
-                                        <ReviewGroupHeader
+                                        <MemoizedTrack
+                                            playlistId={maybeId!}
+                                            playlistTrack={maybeTrack!}
+                                            reviewId={maybeReviewId!}
+                                            atom={tracksAtom} /> :
+                                        <MemoizedGroupHeader
                                             reviewId={maybeHeaderReviewId!}
                                             parentReviewId={rootReview}
                                             name={maybeHeaderName!}
                                             entityType={EntityType.Playlist}
-                                            onClick={() => toggleExpandedGroup(maybeHeaderReviewId!)} />
+                                            handleClick={toggleExpandedGroup} />
                                 }
                             </div>
                         )
@@ -244,18 +209,70 @@ export const GroupedTrackTable = ({ results, rootReview }: { rootReview: string,
     )
 }
 
+const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
+    // Smooth Scroll function.
+    const scrollingRef = useRef<number>()
+    const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
+        useCallback((offset, canSmooth, instance) => {
+            const duration = 1000
+            const start = parentRef!.current!.scrollTop
+            const startTime = (scrollingRef.current = Date.now())
+
+            const run = () => {
+                if (scrollingRef.current !== startTime) return
+                const now = Date.now()
+                const elapsed = now - startTime
+                const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
+                const interpolated = start + (offset - start) * progress
+
+                if (elapsed < duration) {
+                    elementScroll(interpolated, canSmooth, instance)
+                    requestAnimationFrame(run)
+                } else {
+                    elementScroll(interpolated, canSmooth, instance)
+                }
+            }
+
+            requestAnimationFrame(run)
+        }, [])
+    return scrollToFn
+}
+
+const useKeepMountedRangeExtractor = () => {
+    const renderedRef = useRef(new Set<number>())
+
+    const rangeExtractor = useCallback((range: Range) => {
+        const newRange = [
+            ...renderedRef.current,
+            ...defaultRangeExtractor(range)
+        ]
+        renderedRef.current = new Set(newRange)
+        return newRange
+    }, [])
+
+    return rangeExtractor
+}
+
+function easeInOutQuint(t: number) {
+    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
+}
+
 
 interface ReviewGroupHeaderProps {
-    className?: string
     reviewId: string
     parentReviewId: string
     name: string
     entityType: EntityType
-    onClick: () => void
+    handleClick: (reviewId: string) => void
 }
 
+const MemoizedGroupHeader = memo((props: ReviewGroupHeaderProps) => (<ReviewGroupHeader {...props} />),
+    (prevProps, nextProps) =>
+        prevProps.reviewId === nextProps.reviewId
+        && prevProps.handleClick === nextProps.handleClick
+)
 
-const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, entityType, onClick }: ReviewGroupHeaderProps) => {
+const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityType, handleClick }: ReviewGroupHeaderProps) => {
     const isChild = reviewId !== parentReviewId
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
@@ -279,40 +296,40 @@ const ReviewGroupHeader = ({ className = '', reviewId, parentReviewId, name, ent
     const gridStyle = isChild ? 'grid-cols-5' : 'grid-cols-2'
     const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
+    const onClick = () => handleClick(reviewId)
+
     return (
-        <div className="bg-blue h-10">
-            <div className={`card py-0 w-full bg-secondary ${className}`}
-                onClick={onClick}>
-                <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
-                    <div className={`${nameStyle}`}>
-                        <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
-                    </div>
-                    <div className="m-auto">
-                        <div className="badge badge-primary text-secondary-content text-center">{entityType}</div>
-                    </div>
-                    {isChild ?
-                        <>
-                            <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
-                                <ArrowTopRightIcon />
-                            </button>
-                            {isDeleting ?
-                                <div className="btn-group justify-center" >
-                                    <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-left" data-tip="remove review link" onClick={e => handleDeleteReviewLink(e)}>
-                                        <HazardIcon />
-                                    </button>
-                                    <button className="btn btn-sm btn-info" onClick={(e) => setIsDeleting(e)(false)}>
-                                        <ReplyIcon />
-                                    </button>
-                                </div>
-                                :
-                                <button className="btn btn-sm btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
-                                    <TrashIcon />
-                                </button>
-                            }
-                        </>
-                        : null
-                    }
+        <div className='card py-0 w-full bg-secondary'
+            onClick={onClick}>
+            <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
+                <div className={`${nameStyle}`}>
+                    <h2 className={'text-md md:text-xl text-secondary-content w-full truncate'}>{name}</h2>
                 </div>
+                <div className="m-auto">
+                    <div className="badge badge-primary text-secondary-content text-center">{entityType}</div>
+                </div>
+                {isChild ?
+                    <>
+                        <button className="btn btn-sm btn-ghost" onClick={() => linkToReviewPage()} >
+                            <ArrowTopRightIcon />
+                        </button>
+                        {isDeleting ?
+                            <div className="btn-group justify-center" >
+                                <button className="btn btn-sm btn-error tooltip tooltip-error tooltip-left" data-tip="remove review link" onClick={e => handleDeleteReviewLink(e)}>
+                                    <HazardIcon />
+                                </button>
+                                <button className="btn btn-sm btn-info" onClick={(e) => setIsDeleting(e)(false)}>
+                                    <ReplyIcon />
+                                </button>
+                            </div>
+                            :
+                            <button className="btn btn-sm btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
+                                <TrashIcon />
+                            </button>
+                        }
+                    </>
+                    : null
+                }
             </div>
         </div>
     )
@@ -324,7 +341,6 @@ export interface MemoPlaylistTrackProps {
     playlistId: string
     atom: PrimitiveAtom<DetailedTrackFragment[]>
 }
-
 
 const MemoizedTrack = memo(({ playlistId, reviewId, playlistTrack, atom }: MemoPlaylistTrackProps) => {
     const isLikedAtom = useTrackLikeAtom(atom, playlistTrack.track.id)
@@ -353,3 +369,4 @@ function useTrackLikeAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, tr
         return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
     }, [tracksAtom, trackId])
 }
+

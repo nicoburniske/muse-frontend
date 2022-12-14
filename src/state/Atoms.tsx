@@ -16,7 +16,13 @@ interface NowPlaying {
 }
 export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
 nowPlayingTrackAtom.debugLabel = 'nowPlayingTrackAtom'
+
 export const isPlayingAtom = atom(get => get(nowPlayingTrackAtom) !== undefined)
+
+export const nowPlayingTrackIdAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
+export const nowPlayingIsLikedAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
 export const allReviewTracks = atom(new Set<string>())
 export const nowPlayingEnabledAtom = atom((get) => {
@@ -24,11 +30,6 @@ export const nowPlayingEnabledAtom = atom((get) => {
     const allTracks = get(allReviewTracks)
     return (trackId !== undefined && allTracks.has(trackId))
 })
-
-export const nowPlayingTrackIdAtom =
-    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
-export const nowPlayingIsLikedAtom =
-    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
 export const DebugAtoms = () => {
     useAtomsDebugValue()
