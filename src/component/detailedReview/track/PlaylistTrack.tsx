@@ -54,7 +54,7 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
         <div
             {...bind()}
             ref={trackDivRef}
-            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle}`} >
+            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle} ${textStyle}`} >
 
             <div className="hidden sm:flex avatar ml-1">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
@@ -62,7 +62,7 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
                 </div>
             </div>
 
-            <div className={`col-span-2 flex flex-col grow ${textStyle}`}>
+            <div className='col-span-2 flex flex-col grow'>
                 <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.name} </div>
                 <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
             </div>
