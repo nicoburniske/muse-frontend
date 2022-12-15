@@ -272,7 +272,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
             [...albumResults, ...playlistResults]
                 .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
                 .filter(nonNullable)
-        return allReviews.reduce((acc, overview) => { 
+        return allReviews.reduce((acc, overview) => {
             const result = results.find(r => r.id === overview.entityId)
             if (result) {
                 acc.push([result, overview])
@@ -293,6 +293,9 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
                         </div>
                     ) :
                     <GroupedTrackTable results={matchedReviews} rootReview={rootReview} />
+                //     <Provider initialValues={[[rootReviewIdAtom, rootReview], [resultsAtom, matchedReviews]]}>
+                //     <GroupedTrackTable />
+                // </Provider>
             }
         </div >
     )
