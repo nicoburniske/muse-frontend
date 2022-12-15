@@ -1,17 +1,18 @@
 import { HeartOutlineIcon, MutedSpeakerIcon, NextTrackIcon, PauseIcon, PlayIcon, PowerIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import { atom, PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { nowPlayingEnabledAtom, nowPlayingTrackAtom, selectedTrackAtom } from 'state/Atoms'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
+import { useTransientAtom } from 'hook/useTransientAtom'
 
 interface PlaybackTimeProps {
     reviewId: string
@@ -110,20 +111,26 @@ const commonBtnClassExtra = (extraClasses?: (string | undefined)[]) => {
 }
 
 const LikeNowPlaying = () => {
-    const calculateSvgStyle = useCallback((isLiked: boolean) => isLiked ? 'fill-success' : '', [])
+    const likeAtom = useMemo(() => atom(get => {
+        const nowPlaying = get(nowPlayingTrackAtom)
+        if (nowPlaying) {
+            return nowPlaying.isLiked
+        }
+        return false
+    }, (_get, _set, newValue) => newValue),
+    [])
 
-    const nowPlaying = useAtomValue(nowPlayingTrackAtom)
-    const isLiked = nowPlaying?.isLiked
-    const likeAtom = useMemo(() => atom(nowPlaying?.isLiked), [isLiked])
+    const svgClassAtom = useMemo(() => atom(get => get(likeAtom) ? 'fill-success' : ''), [])
+    const nowPlaying = useAtomValue(isPlayingAtom)
+    const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
 
     if (nowPlaying) {
         return (
             <LikeButton
-                trackId={nowPlaying.trackId}
-                likeAtom={likeAtom as PrimitiveAtom<boolean>}
+                trackId={getNowPlayingId()!}
+                likeAtom={likeAtom}
                 className={commonBtnClassExtra(['btn-ghost'])}
-                syncNowPlaying={false}
-                getSvgClassName={calculateSvgStyle}
+                svgClass={svgClassAtom}
             />
         )
     } else {
@@ -214,6 +221,15 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
         nextTrackDisabled,
         nextTrack
     } = usePlayerActions()
+    const { id: trackId } = useCurrentTrack()
+
+    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
+    // TODO: Need to account for multiple reviews!!
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
+    const selectNowPlaying = () => {
+        setSelectedTrack(undefined)
+        setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
+    }
 
     const toggleShuffle = () => setShuffle(!isShuffled)
     const successButton = commonBtnClassExtra(['btn-success'])
@@ -226,7 +242,7 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     return (
         <>
             <LikeNowPlaying />
-            <SelectNowPlayingButton reviewId={reviewId} />
+            <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}><SearchIcon /></button>
             <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}><PreviousTrackIcon /></button>
             <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}><SkipBackwardIcon /></button>
             <PlayOrTransferButton />
@@ -235,22 +251,6 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
             <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}><ShuffleIcon /></button>
             <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}><RepeatIcon /></button>
         </>
-    )
-}
-
-const SelectNowPlayingButton = ({ reviewId }: { reviewId: string }) => {
-    const { id: trackId } = useCurrentTrack()
-
-    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
-    // TODO: Need to account for multiple reviews!!
-    const setSelectedTrack = useSetAtom(selectedTrackAtom)
-    const selectNowPlaying = () => {
-        setSelectedTrack(undefined)
-        setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
-    }
-
-    return (
-        <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}><SearchIcon /></button>
     )
 }
 

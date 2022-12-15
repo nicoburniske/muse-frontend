@@ -17,7 +17,7 @@ export const ReviewProperties = ({ entityTypeAtom, isPublicAtom }: { entityTypeA
                 {
                     // For now only allow playlists.
                     // Object.values(EntityType)
-                    [EntityType.Playlist].map((e) =>
+                    [EntityType.Playlist, EntityType.Album, EntityType.Artist].map((e) =>
                         <option key={e} value={e}>{e.toLowerCase()}</option>)
                 }
             </select>

@@ -11,12 +11,6 @@
     "lint": "eslint --fix --ext .ts,.tsx ."
   },
   "dependencies": {
-    "@apollo/client": "^3.6.9",
-    "@graphql-codegen/cli": "^2.6.3",
-    "@graphql-codegen/fragment-matcher": "^3.2.1",
-    "@graphql-codegen/typescript": "^2.5.1",
-    "@graphql-codegen/typescript-operations": "^2.4.2",
-    "@graphql-codegen/typescript-react-apollo": "^3.2.16",
     "@headlessui/react": "^1.7.3",
     "@radix-ui/react-slider": "^1.1.0",
     "@tanstack/query-sync-storage-persister": "^4.14.5",
@@ -29,7 +23,7 @@
     "graphql": "^16.6.0",
     "graphql-ws": "^5.11.2",
     "jotai": "^1.8.4",
-    "lodash": "^4.17.21",
+    "jotai-optics": "^0.2.0",
     "markdown-to-jsx": "^7.1.7",
     "optics-ts": "^2.4.0",
     "react": "^18.0.0",
@@ -45,6 +39,10 @@
     "vite-tsconfig-paths": "^3.5.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.16.1",
+    "@graphql-codegen/fragment-matcher": "^3.3.3",
+    "@graphql-codegen/typescript": "^2.8.5",
+    "@graphql-codegen/typescript-operations": "^2.5.10",
     "@graphql-codegen/typescript-react-query": "^4.0.3",
     "@graphql-codegen/typescript-urql": "^3.7.3",
     "@tailwindcss/typography": "^0.5.7",

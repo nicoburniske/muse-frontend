@@ -1,5 +1,5 @@
 import { atom, useAtom, useSetAtom } from 'jotai'
-import { focusAtom } from 'jotai/optics'
+import { focusAtom } from 'jotai-optics'
 import { atomWithStorage, useAtomValue } from 'jotai/utils'
 import { seekIntervalAtom as seekIntervalAtomSdk } from 'component/playbackSDK/PlaybackSDK'
 

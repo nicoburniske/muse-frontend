@@ -1,26 +1,26 @@
 import { HeartOutlineIcon, HeartSolidIcon } from './Icons'
 import toast from 'react-hot-toast'
-import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { nowPlayingTrackAtom } from 'state/Atoms'
-import { useEffect } from 'react'
-import { nonNullable } from 'util/Utils'
+import { atom, Atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { nowPlayingIsLikedAtom, nowPlayingTrackIdAtom } from 'state/Atoms'
+import { useEffect, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRemoveSavedTracksMutation, useSaveTracksMutation, useTrackLikeQuery } from './playbackSDK/hooks'
+import { useTransientAtom } from 'hook/useTransientAtom'
 
 
 interface LikeButtonProps {
     trackId: string
     likeAtom: PrimitiveAtom<boolean>
+    svgClass: Atom<string>
     className: string,
-    syncNowPlaying: boolean
-    getSvgClassName: (isLiked: boolean) => string
 }
 
-export default function LikeButton({ trackId, likeAtom, className, syncNowPlaying, getSvgClassName }: LikeButtonProps) {
+export default function LikeButton({ trackId, likeAtom, svgClass, className }: LikeButtonProps) {
     const [isLiked, setIsLiked] = useAtom(likeAtom)
     const queryClient = useQueryClient()
 
-    useSyncLikedState(syncNowPlaying, trackId, likeAtom)
+    // Sychronizing state with now playing track.
+    useSyncLikedState(true, trackId, likeAtom)
 
     const invalidateLikeQuery = () => queryClient.invalidateQueries(useTrackLikeQuery.getKey(trackId))
 
@@ -43,25 +43,31 @@ export default function LikeButton({ trackId, likeAtom, className, syncNowPlayin
     const input: [string] = [trackId]
     const handleClick = () => isLiked ? unlikeTrack(input) : likeTrack(input)
 
-    const svgClassName = getSvgClassName(isLiked)
-    const outerClassName = `${className} swap swap-flip ${isLiked ? 'swap-active' : ''}`
+    const svgClassName = useAtomValue(svgClass)
 
     return (
-        <label className={outerClassName} onClick={() => handleClick()}>
-            <HeartSolidIcon className={svgClassName + ' swap-on'} />
-            <HeartOutlineIcon className={svgClassName + ' swap-off'} />
-        </label>
+        <button className={className} onClick={() => handleClick()}>
+            {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
+        </button>
     )
 }
 
+
 const useSyncLikedState = (shouldSync: boolean, trackId: string, likeAtom: PrimitiveAtom<boolean>) => {
     const setIsLiked = useSetAtom(likeAtom)
-    // Sychronizing state with now playing track.
-    const nowPlaying = useAtomValue(nowPlayingTrackAtom)
-    const isPlaying = nonNullable(nowPlaying) && nowPlaying.trackId == trackId
+    const [getIsLiked] = useTransientAtom(nowPlayingIsLikedAtom)
+
+    const updateRequiredAtom = useMemo(() => atom(get =>
+        get(nowPlayingTrackIdAtom) === trackId
+        && get(nowPlayingIsLikedAtom) !== get(likeAtom)
+    ), [trackId])
+
+    const shouldUpdate = useAtomValue(updateRequiredAtom) && shouldSync
+
     useEffect(() => {
-        if (shouldSync && isPlaying) {
-            setIsLiked(nowPlaying.isLiked)
+        const currentLiked = getIsLiked()
+        if (shouldUpdate &&  currentLiked!== undefined) {
+            setIsLiked(currentLiked)
         }
-    }, [shouldSync, nowPlaying])
-}
+    }, [shouldUpdate])
+}	

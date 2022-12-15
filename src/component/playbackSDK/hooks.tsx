@@ -22,6 +22,13 @@ export const usePlay = (options?: UseMutationOptions<unknown, unknown, PlayOptio
         mutation.mutate(input)
     }
 
+    const albumOffset = (albumId: string, trackId: string) => {
+        const trackUri = toUri('Track', trackId)
+        const context_uri = toUri('Album', albumId)
+        const input = { context_uri, offset: { uri: trackUri } }
+        mutation.mutate(input)
+    }
+
     const playTracks = (trackIds: string[]) => {
         const uris = trackIds.map(id => toUri('Track', id))
         mutation.mutate({ uris })
@@ -31,7 +38,8 @@ export const usePlay = (options?: UseMutationOptions<unknown, unknown, PlayOptio
         ...mutation,
         playTrackOffset,
         playlistOffset,
-        playTracks
+        albumOffset,
+        playTracks, 
     }
 }
 

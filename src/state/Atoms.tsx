@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { focusAtom } from 'jotai/optics'
+import { focusAtom } from 'jotai-optics'
 import { atomWithStorage } from 'jotai/utils'
 import { useAtomsDebugValue } from 'jotai/devtools'
 
@@ -15,17 +15,21 @@ interface NowPlaying {
     isLiked: boolean
 }
 export const nowPlayingTrackAtom = atom<NowPlaying | undefined>(undefined)
+nowPlayingTrackAtom.debugLabel = 'nowPlayingTrackAtom'
+
+export const isPlayingAtom = atom(get => get(nowPlayingTrackAtom) !== undefined)
+
+export const nowPlayingTrackIdAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
+export const nowPlayingIsLikedAtom =
+    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
+
 export const allReviewTracks = atom(new Set<string>())
 export const nowPlayingEnabledAtom = atom((get) => {
     const trackId = get(nowPlayingTrackAtom)?.trackId
     const allTracks = get(allReviewTracks)
     return (trackId !== undefined && allTracks.has(trackId))
 })
-
-export const nowPlayingTrackIdAtom =
-    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('trackId'))
-export const nowPlayingIsLikedAtom =
-    focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
 export const DebugAtoms = () => {
     useAtomsDebugValue()

@@ -60,7 +60,7 @@ const useSyncAccessToken = () => {
         (callback) => {
             const accessToken = accessTokenRef.current
             if (accessToken) {
-                callback(accessToken!)
+                callback(accessToken)
             }
         },
         [],

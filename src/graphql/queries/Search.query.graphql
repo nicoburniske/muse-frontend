@@ -16,6 +16,14 @@ query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: Pagina
             ...SearchAlbum
         }
     }
+    artists {
+        limit
+        nextOffset
+        itemsLeft
+        items {
+            ...SearchArtist
+        }
+    }
   }
 }
 
@@ -38,5 +46,12 @@ fragment SearchPlaylist on Playlist {
     owner {
         ...UserWithSpotifyOverview
     }
+}
+
+fragment SearchArtist on Artist {
+    __typename
+    id
+    name
+    images
 }
 
