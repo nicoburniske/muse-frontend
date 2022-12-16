@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
-import { memo, useState } from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router'
 
@@ -11,20 +11,13 @@ import { useNavigate } from 'react-router'
 interface ReviewGroupHeaderProps {
     reviewId: string
     parentReviewId: string
-    name: string
+    reviewName: string
     entityName: string
     entityType: EntityType
-    handleClick: (reviewId: string) => void
+    onClick: () => void
 }
 
-export const MemoizedGroupHeader = memo((props: ReviewGroupHeaderProps) => (<ReviewGroupHeader {...props} />),
-    (prevProps, nextProps) =>
-        prevProps.reviewId === nextProps.reviewId &&
-        prevProps.parentReviewId === nextProps.parentReviewId &&
-        prevProps.handleClick === nextProps.handleClick
-)
-
-const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityName, entityType, handleClick }: ReviewGroupHeaderProps) => {
+export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entityName, entityType, onClick }: ReviewGroupHeaderProps) => {
     const isChild = reviewId !== parentReviewId
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
@@ -35,29 +28,27 @@ const ReviewGroupHeader = ({ reviewId, parentReviewId, name, entityName, entityT
     })
 
     const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
         e.stopPropagation()
-        e.preventDefault()
+        await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
         queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
         setIsDeletingRaw(false)
     }
 
     const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
-        setIsDeletingRaw(isDeleting)
         e.stopPropagation()
+        setIsDeletingRaw(isDeleting)
     }
 
     const gridStyle = isChild ? 'grid-cols-5' : 'grid-cols-2'
     const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
-    const onClick = () => handleClick(reviewId)
 
     return (
         <div className='card py-0 w-full bg-secondary'
             onClick={onClick}>
             <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                 <div className={`${nameStyle}`}>
-                    <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{name}</h2>
+                    <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{reviewName}</h2>
                 </div>
                 <div className={`${nameStyle} flex flex-row justify-start w-full m-auto`}>
                     <div className="badge badge-accent text-accent-content text-center">{entityType}</div>

@@ -6,14 +6,12 @@ import { ShareReview } from './ShareReview'
 import { Alert, AlertSeverity } from 'component/Alert'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReview } from './editReview/EditReview'
-import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon, SkipBackwardIcon } from 'component/Icons'
-import { useNavigate } from 'react-router-dom'
-import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
+import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
-import { GroupedTrackTable } from './table/GroupedTrackTable'
+import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
 import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
@@ -67,9 +65,8 @@ interface DetailedReviewContentProps {
 }
 
 const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
-    const [renderOption, setRenderOption,] = useStateWithSyncedDefault(renderOptionProp)
+    const [renderOption, setRenderOption,] = useState(renderOptionProp)
     const [openEditReview, setOpenEditReview] = useState(false)
-    const nav = useNavigate()
     const userId = useAtomValue(currentUserIdAtom)
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
@@ -118,9 +115,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         < div className="w-full h-screen flex flex-col relative">
             <div className="grid grid-cols-5 lg:grid-cols-4 items-center bg-base-100">
                 <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center p-1 space-x-1">
-                    <button className='btn btn-info btn-circle sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-16 lg:h-16' onClick={() => nav(-1)}>
-                        <SkipBackwardIcon />
-                    </button>
                     <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
                         <img className="hidden md:flex object-scale-down object-center h-24 w-24" src={reviewEntityImage} />
                         <div className="flex flex-col">
@@ -266,13 +260,13 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
 
     // Ensure that indicies line up.
     const matchedReviews = useMemo(() => {
-        // get all reviews that are not nullable
         const allReviews = all.filter(r => r.entityType === EntityType.Album || r.entityType === EntityType.Playlist)
+        // get all reviews that are not nullable
         const results: (DetailedAlbumFragment | DetailedPlaylistFragment)[] =
             [...albumResults, ...playlistResults]
                 .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
                 .filter(nonNullable)
-        return allReviews.reduce((acc, overview) => { 
+        return allReviews.reduce((acc, overview) => {
             const result = results.find(r => r.id === overview.entityId)
             if (result) {
                 acc.push([result, overview])
@@ -292,7 +286,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
                             <div className="border-t-transparent border-solid animate-spin rounded-full border-primary border-8 h-56 w-56" />
                         </div>
                     ) :
-                    <GroupedTrackTable results={matchedReviews} rootReview={rootReview} />
+                    <GroupedTrackTableWrapper results={matchedReviews} rootReview={rootReview} />
             }
         </div >
     )

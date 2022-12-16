@@ -20,7 +20,7 @@ export default function LikeButton({ trackId, likeAtom, svgClass, className }: L
     const queryClient = useQueryClient()
 
     // Sychronizing state with now playing track.
-    useSyncLikedState(true, trackId, likeAtom)
+    useSyncLikedState(trackId, likeAtom)
 
     const invalidateLikeQuery = () => queryClient.invalidateQueries(useTrackLikeQuery.getKey(trackId))
 
@@ -53,20 +53,19 @@ export default function LikeButton({ trackId, likeAtom, svgClass, className }: L
 }
 
 
-const useSyncLikedState = (shouldSync: boolean, trackId: string, likeAtom: PrimitiveAtom<boolean>) => {
+const useSyncLikedState = (trackId: string, likeAtom: PrimitiveAtom<boolean>) => {
     const setIsLiked = useSetAtom(likeAtom)
     const [getIsLiked] = useTransientAtom(nowPlayingIsLikedAtom)
 
-    const updateRequiredAtom = useMemo(() => atom(get =>
+    const shouldUpdate = useAtomValue(useMemo(() => atom(get =>
         get(nowPlayingTrackIdAtom) === trackId
         && get(nowPlayingIsLikedAtom) !== get(likeAtom)
-    ), [trackId])
+    ), [trackId]))
 
-    const shouldUpdate = useAtomValue(updateRequiredAtom) && shouldSync
 
     useEffect(() => {
         const currentLiked = getIsLiked()
-        if (shouldUpdate &&  currentLiked!== undefined) {
+        if (shouldUpdate && currentLiked !== undefined) {
             setIsLiked(currentLiked)
         }
     }, [shouldUpdate])
