@@ -1,6 +1,6 @@
 
 /**
- * ATOMS
+ * Atoms for GroupedTrackTable
  */
 
 import { DetailedAlbumFragment, DetailedPlaylistFragment, DetailedTrackFragment } from 'graphql/generated/schema'
@@ -12,14 +12,22 @@ import { getTrack, getTracks, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
 
+/**
+ * Constructor atoms!
+ */
 export const rootReviewIdAtom = atom<string>('')
 rootReviewIdAtom.debugLabel = 'rootReviewIdAtom'
 
 export const resultsAtom = atom<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview][]>([])
 resultsAtom.debugLabel = 'resultsAtom'
 
+// Contains the reviewId of the expanded groups.
 export const expandedGroupsAtom = atom<string[]>([])
 expandedGroupsAtom.debugLabel = 'expandedGroupsAtom'
+
+/**
+ * Derived atoms!
+ */
 
 export type Group = { tracks: TrackRow[], overview: ReviewOverview }
 export const allGroupsAtom = atom<Group[]>(get => get(resultsAtom)
@@ -39,12 +47,12 @@ const derivedUniqueTracksAtom = atom<DetailedTrackFragment[]>(get => uniqueByPro
 export const uniqueTracksAtom = derivedAtomWithWrite(derivedUniqueTracksAtom)
 uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
 
+// Render all rows and store in Atom.
 export type GroupRendered = {
     reviewId: string
     header: SizedElement
     children: SizedElement[]
 }
-
 export type SizedElement = {
     element: React.ReactNode
     size: number
@@ -88,6 +96,8 @@ export const indexToJsxAtom = atom<React.ReactNode[]>(get => {
     })
 })
 
+// Used for Table virtualizer size estimation.
+// Headers have different sizes than tracks.
 export const indexToSizeAtom = atom<number[]>(get => {
     const expandedGroups = get(expandedGroupsAtom)
     const result = get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
@@ -100,6 +110,8 @@ export const indexToSizeAtom = atom<number[]>(get => {
     return result
 })
 
+// Used for sticky headers.
+// It's not my fault for loops are fast in javascript.
 export const headerIndicesAtom = atom<number[]>(get => {
     const expandedGroups = get(expandedGroupsAtom)
     const indices = new Array<number>()

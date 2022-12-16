@@ -3,7 +3,7 @@ import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
 import { ReviewOverview } from '../DetailedReview'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'hook/useTransientAtom'
-import { allReviewTracks } from 'state/Atoms'
+import { allReviewTracksAtom } from 'state/Atoms'
 import { GroupData } from './Helpers'
 import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, resultsAtom, rootReviewIdAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
@@ -15,13 +15,16 @@ interface GroupedTrackTableProps {
 }
 
 // Constructor. Don't understand why jotai Provider doesn't work here.
-// TODO: Figure out.
+// Got infinite suspense when trying to use provider even though none of the atoms are async.
+// TODO: Figure out if there's a better pattern than this. 
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
     const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
 
+    // Ensure first group is open on load.
     const setResultsAtom = useMemo(() => atom(null, (get, set, results: [GroupData, ReviewOverview][]) => {
         set(resultsAtom, results)
-        set(allReviewTracks, get(allTrackIdsAtom))
+        // Ensure that seeking for now playing works properly.
+        set(allReviewTracksAtom, get(allTrackIdsAtom))
 
         if (results.length > 0) {
             set(expandedGroupsAtom, [results[0][1].reviewId])

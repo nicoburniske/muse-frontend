@@ -17,7 +17,7 @@ interface ReviewGroupHeaderProps {
     onClick: () => void
 }
 
-export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName: name, entityName, entityType, onClick }: ReviewGroupHeaderProps) => {
+export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entityName, entityType, onClick }: ReviewGroupHeaderProps) => {
     const isChild = reviewId !== parentReviewId
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
@@ -29,7 +29,6 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName: name, 
 
     const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation()
-        e.preventDefault()
         await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
         queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
         setIsDeletingRaw(false)
@@ -49,7 +48,7 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName: name, 
             onClick={onClick}>
             <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                 <div className={`${nameStyle}`}>
-                    <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{name}</h2>
+                    <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{reviewName}</h2>
                 </div>
                 <div className={`${nameStyle} flex flex-row justify-start w-full m-auto`}>
                     <div className="badge badge-accent text-accent-content text-center">{entityType}</div>

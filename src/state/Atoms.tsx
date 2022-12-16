@@ -24,10 +24,10 @@ export const nowPlayingTrackIdAtom =
 export const nowPlayingIsLikedAtom =
     focusAtom(nowPlayingTrackAtom, (optic) => optic.optional().prop('isLiked'))
 
-export const allReviewTracks = atom(new Set<string>())
+export const allReviewTracksAtom = atom(new Set<string>())
 export const nowPlayingEnabledAtom = atom((get) => {
     const trackId = get(nowPlayingTrackAtom)?.trackId
-    const allTracks = get(allReviewTracks)
+    const allTracks = get(allReviewTracksAtom)
     return (trackId !== undefined && allTracks.has(trackId))
 })
 
