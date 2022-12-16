@@ -18,14 +18,12 @@ export const MemoTrack = memo(({ overviewId, reviewId, track, tracksAtom }: Memo
     const isLikedAtom = useTrackLikeAtom(tracksAtom, getTrackId(track))
     if ('track' in track) {
         return (
-            <div className="py-0.5 m-0">
-                <PlaylistTrack
-                    playlistId={overviewId}
-                    reviewId={reviewId}
-                    playlistTrack={track}
-                    isLikedAtom={isLikedAtom}
-                />
-            </div>
+            <PlaylistTrack
+                playlistId={overviewId}
+                reviewId={reviewId}
+                playlistTrack={track}
+                isLikedAtom={isLikedAtom}
+            />
         )
     } else {
         return (
