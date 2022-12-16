@@ -5,8 +5,8 @@ import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
 import { Alert, AlertSeverity } from 'component/Alert'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
-import { EditReview } from './editReview/EditReview'
-import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon } from 'component/Icons'
+import { EditReviewButton } from './editReview/EditReview'
+import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
@@ -65,8 +65,7 @@ interface DetailedReviewContentProps {
 }
 
 const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
-    const [renderOption, setRenderOption,] = useState(renderOptionProp)
-    const [openEditReview, setOpenEditReview] = useState(false)
+    const [renderOption, setRenderOption] = useState(renderOptionProp)
     const userId = useAtomValue(currentUserIdAtom)
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
@@ -95,16 +94,16 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId: child.id,
             entityId: child.entity?.id as string,
             entityType: child.entity?.__typename as EntityType,
-            entityName: child.entity?.name,
-            reviewName: child?.reviewName
+            entityName: child.entity?.name as string,
+            reviewName: child?.reviewName as string
         })) ?? []
     const parent = nonNullable(review?.entity) ?
         {
             reviewId,
             entityId,
             entityType: review.entity.__typename as EntityType,
-            entityName: review.entity?.name,
-            reviewName: review?.reviewName
+            entityName: review.entity?.name as string,
+            reviewName: review?.reviewName as string
         }
         : undefined
     const allReviews = [parent, ...children].filter(nonNullable)
@@ -129,11 +128,12 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                         isReviewOwner ?
                             <div className="grid grid-cols-2 lg:grid-cols-4">
                                 <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
-                                <div>
-                                    <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
-                                        <EllipsisIcon />
-                                    </button>
-                                </div>
+                                <EditReviewButton
+                                    reviewId={reviewId}
+                                    reviewName={title!}
+                                    onSuccess={() => { reload() }}
+                                    isPublic={isPublic === undefined ? false : isPublic}
+                                />
                                 <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
                                 <CreateReview
                                     parentReviewIdAtom={parentReviewIdAtom}
@@ -173,13 +173,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
           {collaboratorImages}
         </div> */}
             </div>
-            <EditReview
-                reviewId={reviewId}
-                reviewName={title!}
-                isPublic={isPublic === undefined ? false : isPublic}
-                onSuccess={() => { setOpenEditReview(false); reload() }}
-                isOpen={openEditReview}
-                onCancel={() => setOpenEditReview(false)} />
             <CommentFormModalWrapper />
             <div className="grow min-h-0 w-full bg-base-300">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />

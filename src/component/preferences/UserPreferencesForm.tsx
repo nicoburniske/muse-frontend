@@ -46,11 +46,11 @@ export const UserPreferencesForm = () => {
     const setModalOpen = useSetAtom(modalOpenAtom)
 
     return (
-        <div className="flex flex-col items-center justify-between space-y-5 p-2 relative">
+        <div className="flex flex-col items-center justify-between space-y-5 relative">
             <Dialog.Title className="font-bold text-xl">
                 preferences
             </Dialog.Title>
-            <div className="flex flex-col space-y-2 w-3/4">
+            <div className="flex flex-col space-y-2 w-4/5 p-3">
                 <div className="flex flex-row items-center justify-between w-full">
                     <label className="label">
                         <span className="label-text text-base"> app theme </span>
@@ -60,7 +60,7 @@ export const UserPreferencesForm = () => {
                 <TogglePreferences label={'transfer playback on start'} atom={transferPlaybackOnMountAtom} />
                 <SeekIntervalSetter />
             </div>
-            <button className='btn btn-sm btn-error absolute top-0 right-5' onClick={() => setModalOpen(false)}>
+            <button className='btn btn-square btn-sm btn-error absolute top-0 right-5' onClick={() => setModalOpen(false)}>
                 <CrossIcon />
             </button>
         </div>

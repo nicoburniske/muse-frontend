@@ -36,6 +36,7 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
     return scrollToFn
 }
 
+// Keeps rows mounted in virtualizer so that they don't have to re-render.
 export const useKeepMountedRangeExtractor = () => {
     const renderedRef = useRef(new Set<number>())
 

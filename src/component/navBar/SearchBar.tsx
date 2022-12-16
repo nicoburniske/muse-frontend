@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai'
 import { searchAtom } from 'state/Atoms'
-import { SearchIcon } from './Icons'
+import { SearchIcon } from '../Icons'
 
 export default function SearchBar() {
     const [search, setSearch] = useAtom(searchAtom)

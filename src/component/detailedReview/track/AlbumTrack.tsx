@@ -24,7 +24,7 @@ export default function AlbumTrack({ track, reviewId, albumId, isLikedAtom }: Al
     const albumImage = track.album?.images?.at(-1)
 
     // Get track styles.
-    const [bgStyle, textStyle, hoverStyle] = useTrackColor(track.id)
+    const styles = useTrackColor(track.id)
     const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
     const showModal = useCommentModalTrack(reviewId, track.id)
@@ -50,7 +50,7 @@ export default function AlbumTrack({ track, reviewId, albumId, isLikedAtom }: Al
         <div
             {...bind()}
             ref={playOnDoubleClickRef}
-            className={`card card-body grid grid-cols-5 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle} ${textStyle}`} >
+            className={`card card-body grid grid-cols-5 items-center p-0.5 m-0 ${styles}`} >
 
             <div className="hidden sm:flex avatar ml-1">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
@@ -64,6 +64,7 @@ export default function AlbumTrack({ track, reviewId, albumId, isLikedAtom }: Al
             </div>
 
             <div className="select-none	truncate text-sm lg:text-base p-0.5"> {`${minutes}:${seconds}`} </div>
+            {/* <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.popularity} </div> */}
 
             <div className="grid place-items-center">
                 <LikeButton

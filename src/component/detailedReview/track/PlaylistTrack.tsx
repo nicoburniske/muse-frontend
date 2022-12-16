@@ -28,7 +28,7 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
     const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
     // Get track styles.
-    const [bgStyle, textStyle, hoverStyle] = useTrackColor(track.id)
+    const styles = useTrackColor(track.id)
     const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
     const showModal = useCommentModalTrack(reviewId, track.id)
@@ -54,7 +54,7 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
         <div
             {...bind()}
             ref={trackDivRef}
-            className={`card card-body grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 items-center p-0.5 m-0 ${bgStyle} ${hoverStyle} ${textStyle}`} >
+            className={`grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 | card card-body items-center p-0.5 m-0 select-none ${styles}`} >
 
             <div className="hidden sm:flex avatar ml-1">
                 <div className="w-8 md:w-12 rounded" onClick={showModal}>
@@ -63,19 +63,23 @@ export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isL
             </div>
 
             <div className='col-span-2 flex flex-col grow'>
-                <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.name} </div>
-                <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
+                <div className="truncate text-sm lg:text-base p-0.5"> {track.name} </div>
+                <div className="truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
             </div>
 
-            <div className={`hidden md:grid place-items-center select-none text-xs lg:text-sm ${textStyle}`}>
+            <div className='hidden md:grid place-items-center text-xs lg:text-sm'>
                 <p> {new Date(addedAt).toLocaleDateString()} </p>
             </div>
             {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
             {/* TODO: This needs to get centered vertically */}
             <div className="grid place-items-center">
-                <UserAvatar className="grid place-items-center" displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
+                <UserAvatar displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
             </div>
-            <div className="select-none	truncate text-sm lg:text-base p-0.5 m-auto"> {`${minutes}:${seconds}`} </div>
+            <div className="truncate text-sm lg:text-base p-0.5 m-auto">
+                <p>
+                    {`${minutes}:${seconds}`}
+                </p>
+            </div>
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}
