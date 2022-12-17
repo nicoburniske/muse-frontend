@@ -298,7 +298,7 @@ export const useCurrentPosition = (refreshInterval: number) => {
         const execute = () => {
             if (isPlaying && !needsReconect) {
                 const newPosition = Date.now() - timestampRef.current + positionRef.current
-                setPosition(Math.max(newPosition, durationMs))
+                setPosition(Math.min(newPosition, durationMs))
             }
         }
         execute()
