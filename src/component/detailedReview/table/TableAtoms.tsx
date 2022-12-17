@@ -3,12 +3,11 @@
  * Atoms for GroupedTrackTable
  */
 
-import { DetailedAlbumFragment, DetailedPlaylistFragment, DetailedTrackFragment } from 'graphql/generated/schema'
+import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
 import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
 import { nonNullable, uniqueByProperty } from 'util/Utils'
-import { ReviewOverview } from '../DetailedReview'
-import { getTrack, getTracks, TrackRow } from './Helpers'
+import { getTrack, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
 
@@ -18,7 +17,7 @@ import { MemoTrack } from './MemoTrack'
 export const rootReviewIdAtom = atom<string>('')
 rootReviewIdAtom.debugLabel = 'rootReviewIdAtom'
 
-export const resultsAtom = atom<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview][]>([])
+export const resultsAtom = atom<Group[]>([])
 resultsAtom.debugLabel = 'resultsAtom'
 
 // Contains the reviewId of the expanded groups.
@@ -29,9 +28,10 @@ expandedGroupsAtom.debugLabel = 'expandedGroupsAtom'
  * Derived atoms!
  */
 
-export type Group = { tracks: TrackRow[], overview: ReviewOverview }
-export const allGroupsAtom = atom<Group[]>(get => get(resultsAtom)
-    .map(group => ({ tracks: getTracks(group[0]), overview: group[1] }))
+export type DetailsAndTracks = { tracks: TrackRow[], headerData: HeaderData, overview: ReviewOverview }
+export const allGroupsAtom = atom<DetailsAndTracks[]>(get => get(resultsAtom)
+    // TODO: do we need to validate? 
+    .map(result => ({ tracks: getTracks(result.data), headerData: result.data as HeaderData, overview: result.overview }))
     .filter(group => nonNullable(group.tracks))
 )
 allGroupsAtom.debugLabel = 'allGroupsAtom'
@@ -61,23 +61,23 @@ export type SizedElement = {
 export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
     const rootReviewId = get(rootReviewIdAtom)
 
-    return get(allGroupsAtom).map(({ tracks, overview }) => {
+    return get(allGroupsAtom).map(({ tracks, headerData, overview }) => {
         const header = {
             element:
                 // TODO: Change Headers for ALBUMS!!!!
                 <MemoHeader
                     {...overview}
+                    entity={headerData}
                     parentReviewId={rootReviewId}
                 />,
             size: 40
         }
-        const { reviewId, entityId } = overview
+        const { reviewId } = overview
         const children = tracks.map(t => ({
             element: (
                 <MemoTrack
                     track={t}
-                    reviewId={reviewId}
-                    overviewId={entityId}
+                    reviewId={overview.reviewId}
                     tracksAtom={uniqueTracksAtom} />),
             size: 60
         }))

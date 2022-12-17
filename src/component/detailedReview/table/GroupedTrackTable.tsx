@@ -1,17 +1,16 @@
 import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
-import { ReviewOverview } from '../DetailedReview'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
-import { GroupData } from './Helpers'
+import { Group } from './Helpers'
 import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, resultsAtom, rootReviewIdAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
 
 
 interface GroupedTrackTableProps {
     rootReview: string,
-    results: [GroupData, ReviewOverview][]
+    results: Group[]
 }
 
 // Constructor. Don't understand why jotai Provider doesn't work here.
@@ -21,13 +20,13 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
     const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
 
     // Ensure first group is open on load.
-    const setResultsAtom = useMemo(() => atom(null, (get, set, results: [GroupData, ReviewOverview][]) => {
+    const setResultsAtom = useMemo(() => atom(null, (get, set, results: Group[]) => {
         set(resultsAtom, results)
         // Ensure that seeking for now playing works properly.
         set(allReviewTracksAtom, get(allTrackIdsAtom))
 
         if (results.length > 0) {
-            set(expandedGroupsAtom, [results[0][1].reviewId])
+            set(expandedGroupsAtom, [results[0].overview.reviewId])
         }
     }), [])
 
@@ -51,7 +50,6 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
 export const GroupedTrackTable = () => {
     const parentRef = useRef<HTMLDivElement>(null)
 
-    const [indexToSize] = useTransientAtom(indexToSizeAtom)
     const [headerIndices] = useTransientAtom(headerIndicesAtom)
 
     const activeStickyIndexRef = useRef(0)
@@ -74,6 +72,7 @@ export const GroupedTrackTable = () => {
     }, [headerIndices])
 
     const scrollToFn = useSmoothScroll(parentRef)
+    const [indexToSize] = useTransientAtom(indexToSizeAtom)
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
         count: indexToSize().length,

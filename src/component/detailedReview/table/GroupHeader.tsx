@@ -1,23 +1,23 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
-import { EntityType, useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
+import { useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router'
+import { HeaderData, ReviewOverview } from './Helpers'
 
 /**
  * REVIEW HEADER
  */
-interface ReviewGroupHeaderProps {
-    reviewId: string
+export type ReviewGroupHeaderProps = {
     parentReviewId: string
-    reviewName: string
-    entityName: string
-    entityType: EntityType
     onClick: () => void
-}
+    entity: HeaderData
+} & ReviewOverview
 
-export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entityName, entityType, onClick }: ReviewGroupHeaderProps) => {
+export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity, onClick }: ReviewGroupHeaderProps) => {
+    const { name: entityName, __typename: entityType } = entity
+
     const isChild = reviewId !== parentReviewId
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
@@ -52,7 +52,7 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
                 </div>
                 <div className={`${nameStyle} flex flex-row justify-start w-full m-auto`}>
                     <div className="badge badge-accent text-accent-content text-center">{entityType}</div>
-                    <div className="divider divider-horizontal"/> 
+                    <div className="divider divider-horizontal" />
                     <div className="badge badge-primary text-primary-content text-center truncate">{entityName}</div>
                 </div>
                 {isChild ?

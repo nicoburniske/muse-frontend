@@ -18,6 +18,7 @@ import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
 import { ErrorBoundary } from 'react-error-boundary'
 import { NotFound } from 'pages/NotFound'
 import { UserPreferencesButton } from 'component/preferences/UserPreferencesForm'
+import { Group, ReviewOverview } from './table/Helpers'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -94,7 +95,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId: child.id,
             entityId: child.entity?.id as string,
             entityType: child.entity?.__typename as EntityType,
-            entityName: child.entity?.name as string,
             reviewName: child?.reviewName as string
         })) ?? []
     const parent = nonNullable(review?.entity) ?
@@ -102,7 +102,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId,
             entityId,
             entityType: review.entity.__typename as EntityType,
-            entityName: review.entity?.name as string,
             reviewName: review?.reviewName as string
         }
         : undefined
@@ -224,15 +223,12 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
     )
 }
 
-export interface ReviewOverview {
-    reviewName: string
-    reviewId: string
+export type ReviewAndEntity = ReviewOverview & {
     entityId: string
     entityType: EntityType
-    entityName: string
 }
 
-const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
+const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootReview: string }) => {
     const allIds = groupBy(all, r => r.entityType, r => r.entityId)
     const playlistIds = allIds.get(EntityType.Playlist) ?? []
     const albumIds = allIds.get(EntityType.Album) ?? []
@@ -259,13 +255,13 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
             [...albumResults, ...playlistResults]
                 .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
                 .filter(nonNullable)
-        return allReviews.reduce((acc, overview) => {
-            const result = results.find(r => r.id === overview.entityId)
-            if (result) {
-                acc.push([result, overview])
+        return allReviews.reduce((acc, { entityId, reviewName, reviewId }) => {
+            const data = results.find(r => r.id === entityId)
+            if (data) {
+                acc.push({ data, overview: { reviewName, reviewId }})
             }
             return acc
-        }, new Array<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview]>())
+        }, new Array<Group>())
     }, [all, albumResults, playlistResults])
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])

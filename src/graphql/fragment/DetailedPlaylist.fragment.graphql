@@ -1,4 +1,12 @@
 fragment DetailedPlaylist on Playlist {
+  ...PlaylistDetails
+  tracks {
+    ...DetailedPlaylistTrack
+  }
+}
+
+fragment PlaylistDetails on Playlist {
+  __typename
   collaborative
   description
   id
@@ -6,9 +14,6 @@ fragment DetailedPlaylist on Playlist {
   name
   owner {
     ...UserWithSpotifyOverview
-  }
-  tracks {
-    ...DetailedPlaylistTrack
   }
   primaryColor
   public

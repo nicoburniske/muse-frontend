@@ -410,6 +410,7 @@ export type PlaylistTrack = {
   addedAt: Scalars['Instant'];
   addedBy: User;
   isLocal: Scalars['Boolean'];
+  playlist: Playlist;
   track: Track;
 };
 
@@ -564,7 +565,7 @@ export type Track = ReviewEntity & {
   href: Scalars['String'];
   id: Scalars['String'];
   isLiked?: Maybe<Scalars['Boolean']>;
-  isLocal: Scalars['Boolean'];
+  isLocal?: Maybe<Scalars['Boolean']>;
   isPlayable?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   popularity?: Maybe<Scalars['Int']>;
@@ -632,23 +633,23 @@ export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: A
 
 export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null };
 
-export type DetailedAlbumFragment = { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null };
+export type DetailedAlbumFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
+
+export type AlbumDetailsFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
 
 export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
-export type DetailedPlaylistFragment = { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null };
+export type DetailedPlaylistFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
-export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } };
+export type PlaylistDetailsFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
+
+export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } };
 
 export type SearchPlaylistFragment = { __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
 export type SearchAlbumFragment = { __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null };
 
 export type SearchArtistFragment = { __typename: 'Artist', id: string, name: string, images?: Array<string> | null };
-
-export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
-
-export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   input: CreateCommentInput;
@@ -809,14 +810,14 @@ export type GetAlbumQueryVariables = Exact<{
 }>;
 
 
-export type GetAlbumQuery = { __typename?: 'Queries', getAlbum?: { __typename?: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null } | null };
+export type GetAlbumQuery = { __typename?: 'Queries', getAlbum?: { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null } | null };
 
 export type GetPlaylistQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
 
-export type GetPlaylistQuery = { __typename?: 'Queries', getPlaylist?: { __typename?: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } }> | null } | null };
+export type GetPlaylistQuery = { __typename?: 'Queries', getPlaylist?: { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -846,25 +847,24 @@ export type UserPlaylistsQueryVariables = Exact<{
 
 export type UserPlaylistsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, playlists?: Array<{ __typename?: 'Playlist', id: string, images: Array<string>, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
 
-export type AvailableDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AvailableDevicesSubscription = { __typename?: 'Subscriptions', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
-
-export type NowPlayingSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
-
-
-export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: number, progressMs: number, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
-
-export type NowPlayingOffsetSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
-
-
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: number, progressMs: number, isPlaying: boolean, shuffleState: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
-
+export const AlbumDetailsFragmentDoc = `
+    fragment AlbumDetails on Album {
+  __typename
+  albumGroup
+  albumType
+  genres
+  id
+  images
+  label
+  name
+  albumPopularity: popularity
+  releaseDate
+  artists {
+    id
+    name
+  }
+}
+    `
 export const DetailedTrackFragmentDoc = `
     fragment DetailedTrack on Track {
   uri
@@ -889,19 +889,7 @@ export const DetailedTrackFragmentDoc = `
     `
 export const DetailedAlbumFragmentDoc = `
     fragment DetailedAlbum on Album {
-  albumGroup
-  albumType
-  genres
-  id
-  images
-  label
-  name
-  albumPopularity: popularity
-  releaseDate
-  artists {
-    id
-    name
-  }
+  ...AlbumDetails
   tracks {
     ...DetailedTrack
   }
@@ -927,6 +915,21 @@ export const UserWithSpotifyOverviewFragmentDoc = `
   }
 }
     `
+export const PlaylistDetailsFragmentDoc = `
+    fragment PlaylistDetails on Playlist {
+  __typename
+  collaborative
+  description
+  id
+  images
+  name
+  owner {
+    ...UserWithSpotifyOverview
+  }
+  primaryColor
+  public
+}
+    `
 export const DetailedPlaylistTrackFragmentDoc = `
     fragment DetailedPlaylistTrack on PlaylistTrack {
   addedAt
@@ -936,23 +939,17 @@ export const DetailedPlaylistTrackFragmentDoc = `
   track {
     ...DetailedTrack
   }
+  playlist {
+    id
+  }
 }
     `
 export const DetailedPlaylistFragmentDoc = `
     fragment DetailedPlaylist on Playlist {
-  collaborative
-  description
-  id
-  images
-  name
-  owner {
-    ...UserWithSpotifyOverview
-  }
+  ...PlaylistDetails
   tracks {
     ...DetailedPlaylistTrack
   }
-  primaryColor
-  public
 }
     `
 export const DetailedCommentFragmentDoc = `
@@ -1079,42 +1076,6 @@ export const SearchArtistFragmentDoc = `
   id
   name
   images
-}
-    `
-export const PlaybackDeviceFragmentDoc = `
-    fragment PlaybackDevice on PlaybackDevice {
-  id
-  isActive
-  isPrivateSession
-  isRestricted
-  name
-  type
-  volumePercent
-}
-    `
-export const PlaybackStateFragmentDoc = `
-    fragment PlaybackState on PlaybackState {
-  device {
-    id
-    name
-  }
-  shuffleState
-  timestamp
-  progressMs
-  item {
-    id
-    name
-    durationMs
-    isLiked
-    artists {
-      name
-    }
-    album {
-      name
-      id
-      images
-    }
-  }
 }
     `
 export const CreateCommentDocument = `
@@ -1526,6 +1487,7 @@ export const GetAlbumDocument = `
   }
 }
     ${DetailedAlbumFragmentDoc}
+${AlbumDetailsFragmentDoc}
 ${DetailedTrackFragmentDoc}`
 export const useGetAlbumQuery = <
       TData = GetAlbumQuery,
@@ -1570,6 +1532,7 @@ export const GetPlaylistDocument = `
   }
 }
     ${DetailedPlaylistFragmentDoc}
+${PlaylistDetailsFragmentDoc}
 ${UserWithSpotifyOverviewFragmentDoc}
 ${DetailedPlaylistTrackFragmentDoc}
 ${DetailedTrackFragmentDoc}`
@@ -1828,41 +1791,3 @@ useInfiniteUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) 
 
 
 useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables, options?: RequestInit['headers']) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables, options)
-export const AvailableDevicesDocument = `
-    subscription AvailableDevices {
-  availableDevices {
-    ...PlaybackDevice
-  }
-}
-    ${PlaybackDeviceFragmentDoc}`
-export const NowPlayingDocument = `
-    subscription NowPlaying($input: Int!) {
-  nowPlaying(tickInterval: $input) {
-    ...PlaybackState
-  }
-}
-    ${PlaybackStateFragmentDoc}`
-export const NowPlayingOffsetDocument = `
-    subscription NowPlayingOffset($input: Int!) {
-  nowPlaying(tickInterval: $input) {
-    timestamp
-    progressMs
-    isPlaying
-    shuffleState
-    item {
-      id
-      durationMs
-      name
-      isLiked
-      artists {
-        id
-        name
-      }
-      album {
-        name
-        images
-      }
-    }
-  }
-}
-    `

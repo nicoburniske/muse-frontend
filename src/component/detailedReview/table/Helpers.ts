@@ -1,9 +1,21 @@
-import { DetailedAlbumFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment } from 'graphql/generated/schema'
+import { AlbumDetailsFragment, DetailedAlbumFragment, DetailedPlaylistFragment, DetailedPlaylistTrackFragment, DetailedTrackFragment } from 'graphql/generated/schema'
+import { PlaylistDetailsFragment } from 'graphql/generated/urqlSchema'
 import { nonNullable } from 'util/Utils'
 
 
-export type TrackRow = DetailedPlaylistTrackFragment | DetailedTrackFragment
+export type Group = {
+    data: GroupData
+    overview: ReviewOverview
+}
 export type GroupData = DetailedAlbumFragment | DetailedPlaylistFragment
+export type ReviewOverview = {
+    reviewName: string
+    reviewId: string
+}
+export type HeaderData = AlbumDetailsFragment | PlaylistDetailsFragment 
+
+export type TrackRow = DetailedPlaylistTrackFragment | DetailedTrackFragment
+
 
 export function getTrackId(track: TrackRow): string {
     if ('track' in track) {

@@ -1,11 +1,9 @@
 import gql from 'graphql-tag'
-import * as Urql from 'urql'
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -411,6 +409,7 @@ export type PlaylistTrack = {
   addedAt: Scalars['Instant'];
   addedBy: User;
   isLocal: Scalars['Boolean'];
+  playlist: Playlist;
   track: Track;
 };
 
@@ -565,7 +564,7 @@ export type Track = ReviewEntity & {
   href: Scalars['String'];
   id: Scalars['String'];
   isLiked?: Maybe<Scalars['Boolean']>;
-  isLocal: Scalars['Boolean'];
+  isLocal?: Maybe<Scalars['Boolean']>;
   isPlayable?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   popularity?: Maybe<Scalars['Int']>;
@@ -615,112 +614,194 @@ export type UserPlaylistsArgs = {
   input: SearchUserPlaylistsInput;
 };
 
-export type AvailableDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
+export type DetailedAlbumFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
 
+export type AlbumDetailsFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
 
-export type AvailableDevicesSubscription = { __typename?: 'Subscriptions', availableDevices?: Array<{ __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number }> | null };
+export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null };
 
-export type PlaybackDeviceFragment = { __typename?: 'PlaybackDevice', id: string, isActive: boolean, isPrivateSession: boolean, isRestricted: boolean, name: string, type: string, volumePercent: number };
+export type DetailedPlaylistFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
-export type NowPlayingSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
+export type PlaylistDetailsFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
 
+export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: any, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } };
 
-export type NowPlayingSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: any, progressMs: any, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null } | null };
+export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: any, updatedAt: any, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null };
 
-export type PlaybackStateFragment = { __typename?: 'PlaybackState', shuffleState: boolean, timestamp: any, progressMs: any, device: { __typename?: 'PlaybackDevice', id: string, name: string }, item?: { __typename?: 'Track', id: string, name: string, durationMs: number, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null, album?: { __typename?: 'Album', name: string, id: string, images: Array<string> } | null } | null };
+export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, isLiked?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
-export type NowPlayingOffsetSubscriptionVariables = Exact<{
-  input: Scalars['Int'];
-}>;
+type ReviewEntityOverview_Album_Fragment = { __typename: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
+type ReviewEntityOverview_Artist_Fragment = { __typename: 'Artist', id: string, name: string, artistImages?: Array<string> | null };
 
-export type NowPlayingOffsetSubscription = { __typename?: 'Subscriptions', nowPlaying?: { __typename?: 'PlaybackState', timestamp: any, progressMs: any, isPlaying: boolean, shuffleState: boolean, item?: { __typename?: 'Track', id: string, durationMs: number, name: string, isLiked?: boolean | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, album?: { __typename?: 'Album', name: string, images: Array<string> } | null } | null } | null };
+type ReviewEntityOverview_Playlist_Fragment = { __typename: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } };
 
-export const PlaybackDeviceFragmentDoc = gql`
-    fragment PlaybackDevice on PlaybackDevice {
+type ReviewEntityOverview_Track_Fragment = { __typename: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
+
+export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
+
+export type UserWithSpotifyOverviewFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null };
+
+export const AlbumDetailsFragmentDoc = gql`
+    fragment AlbumDetails on Album {
+  __typename
+  albumGroup
+  albumType
+  genres
   id
-  isActive
-  isPrivateSession
-  isRestricted
+  images
+  label
   name
-  type
-  volumePercent
-}
-    `
-export const PlaybackStateFragmentDoc = gql`
-    fragment PlaybackState on PlaybackState {
-  device {
+  albumPopularity: popularity
+  releaseDate
+  artists {
     id
     name
   }
-  shuffleState
-  timestamp
-  progressMs
-  item {
+}
+    `
+export const DetailedTrackFragmentDoc = gql`
+    fragment DetailedTrack on Track {
+  uri
+  id
+  name
+  durationMs
+  explicit
+  isPlayable
+  isLiked
+  previewUrl
+  popularity
+  album {
+    images
     id
     name
-    durationMs
-    isLiked
+  }
+  artists {
+    name
+    id
+  }
+}
+    `
+export const DetailedAlbumFragmentDoc = gql`
+    fragment DetailedAlbum on Album {
+  ...AlbumDetails
+  tracks {
+    ...DetailedTrack
+  }
+}
+    ${AlbumDetailsFragmentDoc}
+${DetailedTrackFragmentDoc}`
+export const DetailedArtistFragmentDoc = gql`
+    fragment DetailedArtist on Artist {
+  numFollowers
+  artistGenres: genres
+  href
+  id
+  artistImages: images
+  name
+  artistPopularity: popularity
+}
+    `
+export const UserWithSpotifyOverviewFragmentDoc = gql`
+    fragment UserWithSpotifyOverview on User {
+  id
+  spotifyProfile {
+    displayName
+    images
+  }
+}
+    `
+export const PlaylistDetailsFragmentDoc = gql`
+    fragment PlaylistDetails on Playlist {
+  __typename
+  collaborative
+  description
+  id
+  images
+  name
+  owner {
+    ...UserWithSpotifyOverview
+  }
+  primaryColor
+  public
+}
+    ${UserWithSpotifyOverviewFragmentDoc}`
+export const DetailedPlaylistTrackFragmentDoc = gql`
+    fragment DetailedPlaylistTrack on PlaylistTrack {
+  addedAt
+  addedBy {
+    ...UserWithSpotifyOverview
+  }
+  track {
+    ...DetailedTrack
+  }
+  playlist {
+    id
+  }
+}
+    ${UserWithSpotifyOverviewFragmentDoc}
+${DetailedTrackFragmentDoc}`
+export const DetailedPlaylistFragmentDoc = gql`
+    fragment DetailedPlaylist on Playlist {
+  ...PlaylistDetails
+  tracks {
+    ...DetailedPlaylistTrack
+  }
+}
+    ${PlaylistDetailsFragmentDoc}
+${DetailedPlaylistTrackFragmentDoc}`
+export const DetailedCommentFragmentDoc = gql`
+    fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenter {
+    ...UserWithSpotifyOverview
+  }
+  comment
+  entities {
+    __typename
+    id
+  }
+}
+    ${UserWithSpotifyOverviewFragmentDoc}`
+export const ReviewEntityOverviewFragmentDoc = gql`
+    fragment ReviewEntityOverview on ReviewEntity {
+  __typename
+  id
+  name
+  ... on Album {
+    images
     artists {
       name
-    }
-    album {
-      name
       id
+    }
+  }
+  ... on Artist {
+    artistImages: images
+  }
+  ... on Playlist {
+    owner {
+      id
+      spotifyProfile {
+        id
+        displayName
+        images
+        numFollowers
+      }
+    }
+    images
+  }
+  ... on Track {
+    album {
       images
     }
-  }
-}
-    `
-export const AvailableDevicesDocument = gql`
-    subscription AvailableDevices {
-  availableDevices {
-    ...PlaybackDevice
-  }
-}
-    ${PlaybackDeviceFragmentDoc}`
-
-export function useAvailableDevicesSubscription<TData = AvailableDevicesSubscription>(options: Omit<Urql.UseSubscriptionArgs<AvailableDevicesSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<AvailableDevicesSubscription, TData>) {
-    return Urql.useSubscription<AvailableDevicesSubscription, TData, AvailableDevicesSubscriptionVariables>({ query: AvailableDevicesDocument, ...options }, handler)
-}
-export const NowPlayingDocument = gql`
-    subscription NowPlaying($input: Int!) {
-  nowPlaying(tickInterval: $input) {
-    ...PlaybackState
-  }
-}
-    ${PlaybackStateFragmentDoc}`
-
-export function useNowPlayingSubscription<TData = NowPlayingSubscription>(options: Omit<Urql.UseSubscriptionArgs<NowPlayingSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NowPlayingSubscription, TData>) {
-    return Urql.useSubscription<NowPlayingSubscription, TData, NowPlayingSubscriptionVariables>({ query: NowPlayingDocument, ...options }, handler)
-}
-export const NowPlayingOffsetDocument = gql`
-    subscription NowPlayingOffset($input: Int!) {
-  nowPlaying(tickInterval: $input) {
-    timestamp
-    progressMs
-    isPlaying
-    shuffleState
-    item {
-      id
-      durationMs
+    artists {
       name
-      isLiked
-      artists {
-        id
-        name
-      }
-      album {
-        name
-        images
-      }
+      id
     }
   }
 }
     `
-
-export function useNowPlayingOffsetSubscription<TData = NowPlayingOffsetSubscription>(options: Omit<Urql.UseSubscriptionArgs<NowPlayingOffsetSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NowPlayingOffsetSubscription, TData>) {
-    return Urql.useSubscription<NowPlayingOffsetSubscription, TData, NowPlayingOffsetSubscriptionVariables>({ query: NowPlayingOffsetDocument, ...options }, handler)
-}

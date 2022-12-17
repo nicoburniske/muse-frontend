@@ -13,13 +13,13 @@ import { msToTimeStr } from 'util/Utils'
 export interface PlaylistTrackProps {
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
-    playlistId: string
     isLikedAtom: PrimitiveAtom<boolean>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack, reviewId, playlistId, isLikedAtom }: PlaylistTrackProps) {
-    const { addedAt, addedBy, track } = playlistTrack
+export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: PlaylistTrackProps) {
+    const { addedAt, addedBy, track, playlist: { id: playlistId } } = playlistTrack
+
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
     // Sorted biggest to smallest.
