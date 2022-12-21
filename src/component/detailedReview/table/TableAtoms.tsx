@@ -41,7 +41,7 @@ rootReviewIdAtom.debugLabel = 'rootReviewIdAtom'
 export const resultsAtom = atom<Group[]>([])
 resultsAtom.debugLabel = 'resultsAtom'
 
-// Contains the ReviewIDs lof the expanded groups.
+// Contains the ReviewIDs of the expanded groups.
 export const expandedGroupsAtom = atom<string[]>([])
 expandedGroupsAtom.debugLabel = 'expandedGroupsAtom'
 
