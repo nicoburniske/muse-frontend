@@ -103,7 +103,6 @@ const TrackPopularity = ({ popularity }: { popularity: number | null | undefined
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
             </svg>
         </div>
-
     )
 }
 

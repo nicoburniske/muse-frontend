@@ -8,17 +8,20 @@ import { StrictMode, useCallback, useEffect, useRef } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useThemeValue } from 'state/UserPreferences'
 import { AppConfig } from 'util/AppConfig'
+import { nonNullable } from 'util/Utils'
 import './index.css'
 
 
 export default function App() {
     const theme = useThemeValue()
-    useSyncAccessToken()
 
     return (
         <div data-theme={theme} className="h-screen bg-base-300">
             <div className="h-screen">
+                {/* Effects lower in component tree to avoid re-render */}
+                <SyncAccessToken />
                 <SpotifyPlaybackSdk />
+                {/* Routes */}
                 <StrictMode>
                     <Routes>
                         <Route path="/" element={<BrowsePage />} />
@@ -33,7 +36,7 @@ export default function App() {
     )
 }
 
-const useSyncAccessToken = () => {
+const SyncAccessToken = () => {
     /**
      * Setup Playback SDK.
      */
@@ -66,9 +69,11 @@ const useSyncAccessToken = () => {
         [],
     )
 
-    useEffect(() => {
-        setTokenFunction({ getOAuthToken: accessTokenFunc })
-    }, [])
+    useExecuteOnce(
+        () => nonNullable(data),
+        () => setTokenFunction({ getOAuthToken: accessTokenFunc }),
+        [data]
+    )
 
     /**
      * Setup Spotify API.
@@ -81,4 +86,15 @@ const useSyncAccessToken = () => {
         }
     }, [data])
 
+    return null
+}
+
+const useExecuteOnce = (condition: () => boolean, fn: () => void, deps: any[]) => {
+    const ref = useRef(false)
+    useEffect(() => {
+        if (condition() && !ref.current) {
+            fn()
+            ref.current = true
+        }
+    }, deps)
 }

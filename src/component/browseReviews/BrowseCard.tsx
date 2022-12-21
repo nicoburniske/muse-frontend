@@ -15,8 +15,8 @@ export function BrowseCard({ review }: BrowseCardProps) {
     const linkToReviewPage = () => nav(`/reviews/${review.id}`)
     const creatorName = review?.creator?.spotifyProfile?.displayName ?? 'Unknown'
     return (
-        <div className="card bg-base-100 shadow-xl hover:bg-base-200 transition-all duration-200 hover:shadow hover:-translate-y-1 cursor-pointer" key={review.id} onClick={linkToReviewPage}>
-            <img src={image} />
+        <div className="card bg-base-100 shadow-xl hover:bg-base-200 transition-all duration-200 hover:shadow hover:-translate-y-1 cursor-pointer " key={review.id} onClick={linkToReviewPage}>
+            <img className="aspect-square object-contain" src={image} />
             <div className="mt-auto flex flex-col justify-center items-center text-center">
                 <div className="stat-title text-xs md:text-base w-full truncate">{entityName}</div>
                 <div className="stat-value text-xs md:text-base w-full truncate">{review.reviewName}</div>
