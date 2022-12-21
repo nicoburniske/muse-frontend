@@ -39,7 +39,9 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
     }, [results])
 
     return (
-        <GroupedTrackTable />
+        <DndProvider backend={HTML5Backend}>
+            <GroupedTrackTable />
+        </DndProvider>
     )
 }
 
@@ -50,17 +52,17 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
 export const GroupedTrackTable = () => {
     const parentRef = useRef<HTMLDivElement>(null)
 
-    const [headerIndices] = useTransientAtom(headerIndicesAtom)
+    const [getHeaderIndices] = useTransientAtom(headerIndicesAtom)
 
     const activeStickyIndexRef = useRef(0)
     const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
-    const isSticky = useCallback((index: number) => headerIndices().includes(index), [headerIndices])
+    const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
 
     // Keep all previously rendered tracks mounted for performance. 
     const keepMounted = useKeepMountedRangeExtractor()
     //Incorporate sticky headers into the range extractor.
     const rangeExtractor = useCallback((range: Range) => {
-        const newActiveSticky = headerIndices()
+        const newActiveSticky = getHeaderIndices()
             .find((index) => range.startIndex >= index) ?? 0
         activeStickyIndexRef.current = newActiveSticky
         const next = new Set([
@@ -69,14 +71,14 @@ export const GroupedTrackTable = () => {
         ])
         const sorted = [...next].sort((a, b) => a - b)
         return sorted
-    }, [headerIndices])
+    }, [getHeaderIndices])
 
     const scrollToFn = useSmoothScroll(parentRef)
-    const [indexToSize] = useTransientAtom(indexToSizeAtom)
+    const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
-        count: indexToSize().length,
-        estimateSize: (index) => indexToSize()[index],
+        count: getIndexToSize().length,
+        estimateSize: (index) => getIndexToSize()[index],
         getScrollElement: () => parentRef.current,
         scrollToFn,
         rangeExtractor
@@ -111,8 +113,8 @@ export const GroupedTrackTable = () => {
         }
     }, [isSticky, isActiveSticky])
 
-    const [rows] = useTransientAtom(indexToJsxAtom)
-    const currRows = rows()
+    const [getRows] = useTransientAtom(indexToJsxAtom)
+    const rows = getRows()
     return (
         <div
             ref={parentRef}
@@ -126,20 +128,18 @@ export const GroupedTrackTable = () => {
                         willChange: 'transform'
                     }}
                 >
-                    <DndProvider backend={HTML5Backend}>
-                        {
-                            rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
-                                return (
-                                    <div
-                                        key={virtualRow.index}
-                                        style={indexToStyle(virtualRow) as CSSProperties}>
-                                        {
-                                            currRows[virtualRow.index]
-                                        }
-                                    </div>
-                                )
-                            })}
-                    </DndProvider>
+                    {
+                        rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
+                            return (
+                                <div
+                                    key={virtualRow.index}
+                                    style={indexToStyle(virtualRow) as CSSProperties}>
+                                    {
+                                        rows[virtualRow.index]
+                                    }
+                                </div>
+                            )
+                        })}
                 </div>
             </MuseTransition>
         </div>
