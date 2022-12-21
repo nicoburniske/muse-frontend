@@ -1,11 +1,14 @@
 import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
-import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, resultsAtom, rootReviewIdAtom, tracksAtom } from './TableAtoms'
+import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { MuseTransition } from 'component/transitions/MuseTransition'
 
 
 interface GroupedTrackTableProps {
@@ -17,25 +20,22 @@ interface GroupedTrackTableProps {
 // Got infinite suspense when trying to use provider even though none of the atoms are async.
 // TODO: Figure out if there's a better pattern than this. 
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
-    const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
 
     // Ensure first group is open on load.
-    const setResultsAtom = useMemo(() => atom(null, (get, set, results: Group[]) => {
-        set(resultsAtom, results)
+    const setAllTrackIds = useSetAtom(useMemo(() => atom(null, (get, set) => {
+        const allTrackIds = new Set<string>(get(tracksAtom).map(t => t.id))
         // Ensure that seeking for now playing works properly.
-        set(allReviewTracksAtom, get(allTrackIdsAtom))
-
-        if (results.length > 0) {
-            set(expandedGroupsAtom, [results[0].overview.reviewId])
-        }
-    }), [])
+        set(allReviewTracksAtom, allTrackIds)
+    }), []))
 
     const setResults = useSetAtom(setResultsAtom)
-    const setRootReview = useSetAtom(rootReviewIdAtom)
 
     useEffect(() => {
-        setRootReview(rootReview)
-        setResults(results)
+        setResults({
+            rootReviewId: rootReview,
+            results
+        })
+        setAllTrackIds()
     }, [results])
 
     return (
@@ -81,8 +81,14 @@ export const GroupedTrackTable = () => {
         scrollToFn,
         rangeExtractor
     })
-    // This is to force a re-render when the expanded groups change.
-    useAtom(expandedGroupsAtom)
+
+    // Ensure new sizes are measured on re-order.
+    // Derived atom ensures that values must be different for re-render.
+    const order = useAtomValue(useMemo(() => atom(get => get(reviewOrderAtom).join(',')), []))
+    useEffect(() => {
+        rowVirtualizer.measure()
+    }, [order, rowVirtualizer])
+
     useScrollToSelected(rowVirtualizer)
 
     const indexToStyle = useCallback((virtualRow: VirtualItem) => {
@@ -112,27 +118,30 @@ export const GroupedTrackTable = () => {
             ref={parentRef}
             className="overflow-y-auto w-full"
         >
-            <div
-                className="w-full relative"
-                style={{
-                    height: `${rowVirtualizer.getTotalSize()}px`,
-                    willChange: 'transform'
-                }}
-            >
-                {
-                    rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
-                        // Consider a compound key.
-                        return (
-                            <div
-                                key={virtualRow.index}
-                                style={indexToStyle(virtualRow) as CSSProperties}>
-                                {
-                                    currRows[virtualRow.index]
-                                }
-                            </div>
-                        )
-                    })}
-            </div>
+            <MuseTransition option='Notification'>
+                <div
+                    className="w-full relative"
+                    style={{
+                        height: `${rowVirtualizer.getTotalSize()}px`,
+                        willChange: 'transform'
+                    }}
+                >
+                    <DndProvider backend={HTML5Backend}>
+                        {
+                            rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
+                                return (
+                                    <div
+                                        key={virtualRow.index}
+                                        style={indexToStyle(virtualRow) as CSSProperties}>
+                                        {
+                                            currRows[virtualRow.index]
+                                        }
+                                    </div>
+                                )
+                            })}
+                    </DndProvider>
+                </div>
+            </MuseTransition>
         </div>
     )
 }

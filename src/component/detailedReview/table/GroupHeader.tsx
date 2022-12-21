@@ -5,6 +5,8 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router'
 import { HeaderData, ReviewOverview } from './Helpers'
+import { useDrag, useDrop } from 'react-dnd'
+import { useSwapReviews } from './TableAtoms'
 
 /**
  * REVIEW HEADER
@@ -42,9 +44,34 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
     const gridStyle = isChild ? 'grid-cols-5' : 'grid-cols-2'
     const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'ReviewId',
+        item: { reviewId },
+        canDrag: isChild,
+        collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    }), [isChild, reviewId])
+
+    const swapReviews = useSwapReviews(reviewId)
+    const [{ isOver }, drop] = useDrop(() => ({
+        accept: 'ReviewId',
+        canDrop: (item: { reviewId: string }) => isChild && item.reviewId !== reviewId,
+        drop: (item: { reviewId: string }) => {
+            // TODO: Persist this into backend.
+            swapReviews(item.reviewId)
+        },
+        collect: monitor => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }), [isChild, reviewId])
+
+
+    const dragClass =  isDragging ? 'opacity-20' : isOver ? 'card-bordered border-primary' : ''
 
     return (
-        <div className='card py-0 w-full bg-secondary'
+        <div className={`card py-0 h-10 w-full bg-secondary ${dragClass}`}
+            ref={(el) => { drop(el); drag(el) }}
             onClick={onClick}>
             <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                 <div className={`${nameStyle}`}>
@@ -56,8 +83,8 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
                     <div className="badge badge-primary text-primary-content text-center truncate">{entityName}</div>
                 </div>
                 {isChild ?
-                    <div className="justify-self-center	btn-group flex flex-row md:space-x-5">
-                        <button className="btn btn-sm btn-square btn-ghost" onClick={() => linkToReviewPage()} >
+                    <div className="justify-self-centerflex flex-row md:space-x-5">
+                        <button className="btn btn-sm btn-square btn-secondary" onClick={() => linkToReviewPage()} >
                             <ArrowTopRightIcon />
                         </button>
                         {isDeleting ?
@@ -70,7 +97,7 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
                                 </button>
                             </div>
                             :
-                            <button className="btn btn-sm btn-square btn-ghost" onClick={(e) => setIsDeleting(e)(true)}>
+                            <button className="btn btn-sm btn-square btn-secondary" onClick={(e) => setIsDeleting(e)(true)}>
                                 <TrashIcon />
                             </button>
                         }

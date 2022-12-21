@@ -1,9 +1,9 @@
-import { defaultRangeExtractor, elementScroll, Virtualizer, VirtualizerOptions, Range} from '@tanstack/virtual-core'
+import { defaultRangeExtractor, elementScroll, Virtualizer, VirtualizerOptions, Range } from '@tanstack/virtual-core'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import { selectedTrackAtom } from 'state/Atoms'
 import { getTrack } from './Helpers'
-import { allGroupsAtom, expandedGroupsAtom } from './TableAtoms'
+import { groupWithTracksAtom, expandedGroupsAtom } from './TableAtoms'
 
 export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
     const easeInOutQuint = useCallback((t: number) => {
@@ -38,16 +38,23 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
 
 // Keeps rows mounted in virtualizer so that they don't have to re-render.
 export const useKeepMountedRangeExtractor = () => {
-    const renderedRef = useRef(new Set<number>())
+    const mounted = useRef(new Set<number>())
 
     const rangeExtractor = useCallback((range: Range) => {
         const newRange = [
-            ...renderedRef.current,
+            ...mounted.current,
             ...defaultRangeExtractor(range)
         ]
-        renderedRef.current = new Set(newRange)
+        mounted.current = new Set(newRange)
         return newRange
     }, [])
+
+    // Reset mounted indices to avoid expensive mount.
+    const expandedGroups = useAtomValue(useMemo(() => atom(get => get(expandedGroupsAtom).join(',')), []))
+    useEffect(() => {
+        mounted.current = new Set()
+        return () => { mounted.current = new Set() }
+    }, [expandedGroups])
 
     return rangeExtractor
 }
@@ -55,7 +62,7 @@ export const useKeepMountedRangeExtractor = () => {
 // ReviewId => TrackId => Index
 const trackIndexAtom = atom<Map<string, Map<string, number>>>(get => {
     const expandedGroups = get(expandedGroupsAtom)
-    const groups = get(allGroupsAtom)
+    const groups = get(groupWithTracksAtom)
     const trackIndex = new Map<string, Map<string, number>>()
     let sum = 0
     for (let i = 0; i < groups.length; i++) {
