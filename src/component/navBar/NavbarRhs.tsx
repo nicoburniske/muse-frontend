@@ -1,9 +1,9 @@
 import { atom } from 'jotai'
-import CreateReview from './createReview/CreateReview'
+import CreateReview from '../createReview/CreateReview'
 import SearchBar from './SearchBar'
-import { usePreferencesModal } from './preferences/UserPreferencesForm'
+import { usePreferencesModal } from '../preferences/UserPreferencesForm'
 import { useMemo } from 'react'
-import { useCurrentUser } from './playbackSDK/hooks'
+import { useCurrentUser } from '../playbackSDK/hooks'
 
 export default function NavbarRhs({ className, createReviewTitle }: { className?: string, createReviewTitle?: string }) {
     const parentAtom = useMemo(() => atom(undefined), [])

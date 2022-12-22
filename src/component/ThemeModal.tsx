@@ -27,12 +27,12 @@ export const ThemeModal = ({ open, children, className }: { className?: string, 
                 {/* Panel transition */}
                 <Transition.Child
                     as={Fragment}
-                    enter="ease-out duration-200"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
+                    enter='ease-out duration-300'
+                    enterFrom='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
+                    enterTo='opacity-100 translate-y-0 sm:scale-100'
+                    leave='ease-in duration-200'
+                    leaveFrom='opacity-100 translate-y-0 sm:scale-100'
+                    leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
                 >
                     <div className="fixed inset-x-0 top-0 sm:inset-0 grid place-items-center p-4 w-full h-full z-20">
                         <Dialog.Panel className={'w-full rounded bg-base-300 border-primary relative ' + className}>

@@ -23,6 +23,7 @@
     "graphql": "^16.6.0",
     "graphql-ws": "^5.11.2",
     "jotai": "^1.8.4",
+    "jotai-molecules": "^1.1.0",
     "jotai-optics": "^0.2.0",
     "markdown-to-jsx": "^7.1.7",
     "optics-ts": "^2.4.0",
@@ -36,7 +37,8 @@
     "spotify-web-api-ts": "^1.4.5",
     "urql": "^3.0.3",
     "use-long-press": "^2.0.2",
-    "vite-tsconfig-paths": "^3.5.0"
+    "vite-tsconfig-paths": "^3.5.0",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.16.1",

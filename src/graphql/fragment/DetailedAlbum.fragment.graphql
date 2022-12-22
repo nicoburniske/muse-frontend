@@ -1,4 +1,12 @@
 fragment DetailedAlbum on Album {
+  ...AlbumDetails
+  tracks {
+    ...DetailedTrack
+  }
+}
+
+fragment AlbumDetails on Album {
+  __typename
   albumGroup
   albumType
   genres
@@ -11,8 +19,5 @@ fragment DetailedAlbum on Album {
   artists {
     id
     name
-  }
-  tracks {
-    ...DetailedTrack
   }
 }

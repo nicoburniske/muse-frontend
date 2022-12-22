@@ -1,44 +1,42 @@
 import { useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
+import { z } from 'zod'
 
+const seekIntervalSchema = z.coerce.number().min(1).max(120).transform(seek => seek * 1000)
 
 export const SeekIntervalSetter = () => {
     // seek interval is stored in milliseconds.
     const seekInterval = useSeekInterval()
     const setSeekInterval = useSetSeekInterval()
 
-    const [tempInterval, setTempInterval] = useState<number | undefined>(seekInterval / 1000)
+    const [tempInterval, setTempInterval] = useState<string>((seekInterval / 1000).toString())
+    const [errors, setErrors] = useState<string[]>([])
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // replace all non-numeric characters with empty string.
-        const newValue = e.target.value.replace(/[^0-9]/g, '')
-        if (newValue !== '') {
-            const asNum = parseInt(newValue)
-            const clamped = Math.min(Math.max(asNum, 1), 120)
-            setTempInterval(clamped)
-        } else {
-            setTempInterval(undefined)
-        }
+        setTempInterval(e.target.value)
     }
 
-    // Propagate changes to seek interval to the state after 500ms of debounce.
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (tempInterval !== undefined && tempInterval !== seekInterval) {
-                setSeekInterval(tempInterval * 1000)
-            }
-        }, 500)
-        return () => clearTimeout(timeout)
+        const parsed = seekIntervalSchema.safeParse(tempInterval)
+        if (parsed.success) {
+            setErrors([])
+            setSeekInterval(parsed.data)
+        } else {
+            const messages = parsed.error.issues.map(i => i.message)
+            messages.forEach(m => toast.error(m))
+            setErrors(messages)
+        }
     }, [tempInterval])
 
     return (
-        <div className="form-control w-full">
+        <div className="flex flex-row justify-between">
             <label className="label">
-                <span className="label-text text-base">seek interval (seconds) </span>
+                <span className="label-text text-base">seek interval (seconds)</span>
             </label>
             <input
                 type="text"
-                className="input input-bordered w-full"
+                className={`input input-bordered ${errors.length > 0 ? 'input-error' : ''}`}
                 value={tempInterval}
                 onChange={onChange}
             />

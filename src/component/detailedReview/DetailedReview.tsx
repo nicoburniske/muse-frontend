@@ -5,8 +5,8 @@ import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
 import { Alert, AlertSeverity } from 'component/Alert'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
-import { EditReview } from './editReview/EditReview'
-import { ArrowRightLeftIcon, CommentIcon, EllipsisIcon, MusicIcon } from 'component/Icons'
+import { EditReviewButton } from './editReview/EditReview'
+import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
@@ -18,6 +18,7 @@ import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
 import { ErrorBoundary } from 'react-error-boundary'
 import { NotFound } from 'pages/NotFound'
 import { UserPreferencesButton } from 'component/preferences/UserPreferencesForm'
+import { Group, ReviewOverview } from './table/Helpers'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -65,8 +66,7 @@ interface DetailedReviewContentProps {
 }
 
 const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
-    const [renderOption, setRenderOption,] = useState(renderOptionProp)
-    const [openEditReview, setOpenEditReview] = useState(false)
+    const [renderOption, setRenderOption] = useState(renderOptionProp)
     const userId = useAtomValue(currentUserIdAtom)
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
@@ -95,16 +95,14 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
             reviewId: child.id,
             entityId: child.entity?.id as string,
             entityType: child.entity?.__typename as EntityType,
-            entityName: child.entity?.name,
-            reviewName: child?.reviewName
+            reviewName: child?.reviewName as string
         })) ?? []
     const parent = nonNullable(review?.entity) ?
         {
             reviewId,
             entityId,
             entityType: review.entity.__typename as EntityType,
-            entityName: review.entity?.name,
-            reviewName: review?.reviewName
+            reviewName: review?.reviewName as string
         }
         : undefined
     const allReviews = [parent, ...children].filter(nonNullable)
@@ -129,11 +127,12 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                         isReviewOwner ?
                             <div className="grid grid-cols-2 lg:grid-cols-4">
                                 <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
-                                <div>
-                                    <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setOpenEditReview(true)}>
-                                        <EllipsisIcon />
-                                    </button>
-                                </div>
+                                <EditReviewButton
+                                    reviewId={reviewId}
+                                    reviewName={title!}
+                                    onSuccess={() => { reload() }}
+                                    isPublic={isPublic === undefined ? false : isPublic}
+                                />
                                 <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
                                 <CreateReview
                                     parentReviewIdAtom={parentReviewIdAtom}
@@ -173,13 +172,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
           {collaboratorImages}
         </div> */}
             </div>
-            <EditReview
-                reviewId={reviewId}
-                reviewName={title!}
-                isPublic={isPublic === undefined ? false : isPublic}
-                onSuccess={() => { setOpenEditReview(false); reload() }}
-                isOpen={openEditReview}
-                onCancel={() => setOpenEditReview(false)} />
             <CommentFormModalWrapper />
             <div className="grow min-h-0 w-full bg-base-300">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
@@ -231,15 +223,12 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
     )
 }
 
-export interface ReviewOverview {
-    reviewName: string
-    reviewId: string
+export type ReviewAndEntity = ReviewOverview & {
     entityId: string
     entityType: EntityType
-    entityName: string
 }
 
-const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootReview: string }) => {
+const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootReview: string }) => {
     const allIds = groupBy(all, r => r.entityType, r => r.entityId)
     const playlistIds = allIds.get(EntityType.Playlist) ?? []
     const albumIds = allIds.get(EntityType.Album) ?? []
@@ -266,13 +255,13 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewOverview[], rootRev
             [...albumResults, ...playlistResults]
                 .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
                 .filter(nonNullable)
-        return allReviews.reduce((acc, overview) => {
-            const result = results.find(r => r.id === overview.entityId)
-            if (result) {
-                acc.push([result, overview])
+        return allReviews.reduce((acc, { entityId, reviewName, reviewId }) => {
+            const data = results.find(r => r.id === entityId)
+            if (data) {
+                acc.push({ data, overview: { reviewName, reviewId }})
             }
             return acc
-        }, new Array<[DetailedPlaylistFragment | DetailedAlbumFragment, ReviewOverview]>())
+        }, new Array<Group>())
     }, [all, albumResults, playlistResults])
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])

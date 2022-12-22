@@ -288,7 +288,7 @@ export const usePlayerActions = () => useAtomValue(playerActionsAtom)
 
 export const useCurrentPosition = (refreshInterval: number) => {
     const needsReconect = useNeedsReconnect()
-    const { timestamp, positionMs, isPlaying } = usePlayerActions()
+    const { timestamp, positionMs, durationMs, isPlaying } = usePlayerActions()
     const positionRef = useRef(positionMs)
     const timestampRef = useRef(timestamp)
 
@@ -298,7 +298,7 @@ export const useCurrentPosition = (refreshInterval: number) => {
         const execute = () => {
             if (isPlaying && !needsReconect) {
                 const newPosition = Date.now() - timestampRef.current + positionRef.current
-                setPosition(newPosition)
+                setPosition(Math.min(newPosition, durationMs))
             }
         }
         execute()

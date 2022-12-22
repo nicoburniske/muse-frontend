@@ -3,20 +3,13 @@
  * Includes collapse group function.
  */
 
-import { EntityType } from 'graphql/generated/schema'
 import { atom, useSetAtom } from 'jotai'
 import { memo } from 'react'
 import { selectedTrackAtom } from 'state/Atoms'
-import { ReviewGroupHeader } from './GroupHeader'
+import { ReviewGroupHeader, ReviewGroupHeaderProps } from './GroupHeader'
 import { expandedGroupsAtom } from './TableAtoms'
 
-type MemoHeaderProps = {
-    reviewId: string
-    parentReviewId: string
-    reviewName: string
-    entityName: string
-    entityType: EntityType
-}
+type MemoHeaderProps = Omit<ReviewGroupHeaderProps , 'onClick'>
 
 const toggleExpandedGroupAtom = atom(null, (get, set, reviewId: string) => {
     // Clear selected track to avoid conflict with expanded group.

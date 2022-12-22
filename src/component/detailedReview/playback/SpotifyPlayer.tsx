@@ -13,6 +13,7 @@ import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, u
 import { useTransferPlayback } from './TransferPlayback'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 import { useTransientAtom } from 'hook/useTransientAtom'
+import { MuseTransition } from 'component/transitions/MuseTransition'
 
 interface PlaybackTimeProps {
     reviewId: string
@@ -21,7 +22,11 @@ interface PlaybackTimeProps {
 export function SpotifyPlayerFallback({ reviewId }: PlaybackTimeProps) {
     const exists = useExistsPlaybackState()
     if (exists) {
-        return <SpotifyPlayer reviewId={reviewId} />
+        return (
+            <MuseTransition option={'BottomFlyIn'} >
+                <SpotifyPlayer reviewId={reviewId} />
+            </MuseTransition>
+        )
     } else {
         return (
             <div className="grid place-items-center w-full border border-accent rounded-xl bg-neutral">
@@ -147,7 +152,7 @@ const PlaybackProgress = () => {
     // Convert to percentage.
     const { durationMs, seekTo, seekDisabled } = usePlayerActions()
     const positionMs = useCurrentPosition(1000)
-    const progress = (positionMs / durationMs) * 1000
+    const progress = Math.min((positionMs / durationMs) * 1000, 1000)
     const [progressState, setProgressState] = useState<[number]>([progress])
     const [isSeeking, setIsSeeking] = useState(false)
 

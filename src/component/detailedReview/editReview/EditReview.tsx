@@ -1,13 +1,142 @@
 import { Dialog } from '@headlessui/react'
-import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
+import { CheckIcon, CrossIcon, EllipsisIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { ThemeModal } from 'component/ThemeModal'
 import { useUpdateReviewMutation, useDeleteReviewMutation } from 'graphql/generated/schema'
-import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { z } from 'zod'
+import { atom, PrimitiveAtom, Provider, useAtom, useAtomValue, WritableAtom } from 'jotai'
+import { focusAtom } from 'jotai-optics'
+import ReactDOM from 'react-dom'
 
-interface EditReviewProps {
+type FormValues = {
+    isPublic: boolean
+    name: string
+}
+
+const nameSchema = z.string().min(1).max(100)
+
+const reviewIdAtom = atom('')
+const defaultFormValuesAtom = atom<FormValues>({ isPublic: false, name: '' })
+const formValuesAtom = atom<FormValues>({ isPublic: false, name: '' })
+
+const publicAtom = focusAtom(formValuesAtom, (optic) => optic.prop('isPublic'))
+const nameAtom = focusAtom(formValuesAtom, (optic) => optic.prop('name'))
+
+const errorsAtom = atom(get => {
+    const name = get(nameAtom)
+    const result = nameSchema.safeParse(name)
+    return result.success ? [] : result.error.issues
+})
+
+const isValidAtom = atom((get) => {
+    const defaultValues = get(defaultFormValuesAtom)
+    const currentValues = get(formValuesAtom)
+
+    const errors = get(errorsAtom)
+
+    return errors.length === 0 && (
+        defaultValues.isPublic !== currentValues.isPublic ||
+        defaultValues.name !== currentValues.name)
+})
+
+const booleanToNumAtom = (value: PrimitiveAtom<boolean>): WritableAtom<number, number, void> => {
+    return atom(get => get(value) ? 1 : 0, (_get, set, newValue: number) => set(value, newValue === 1))
+}
+
+const publicFormAtom = booleanToNumAtom(publicAtom)
+
+const EditReviewFormButtons = ({ onCancel, onSuccess }:
+    {
+        onCancel: () => void
+        onSuccess: () => void
+    }) => {
+
+    const reviewId = useAtomValue(reviewIdAtom)
+    const { mutate, isLoading } = useUpdateReviewMutation({
+        onError: () => toast.error('Failed to update review.'),
+        onSuccess: () => {
+            onSuccess()
+        }
+    })
+    const formValues = useAtomValue(formValuesAtom)
+    const input = { reviewId, ...formValues }
+    const updateReview = () => mutate({ input })
+
+    const disabled = !useAtomValue(isValidAtom) || isLoading
+
+    return (
+        < div className="flex flex-row items-center justify-around w-full" >
+            <button className="btn btn-success" disabled={disabled} onClick={updateReview}> <CheckIcon /> </button>
+            <button className="btn btn-info" onClick={onCancel}> <CrossIcon /> </button>
+        </div >
+    )
+}
+
+const EditReviewForm = () => {
+    const [reviewName, setReviewName] = useAtom(nameAtom)
+    const [isPublic, setIsPublic] = useAtom(publicFormAtom)
+
+    return (
+        <div>
+            <div className="w-full">
+                <label className="label">
+                    <span className="label-text"> review name </span>
+                </label>
+                <input type="text" placeholder="Review Name" className="input input-bordered w-full"
+                    onChange={(e) => setReviewName(e.target.value as string)}
+                    value={reviewName}
+                />
+            </div>
+            <div className="form-control w-full">
+                <label className="label">
+                    <span className="label-text">is public</span>
+                </label>
+                <select
+                    value={isPublic}
+                    onChange={(e) => setIsPublic(+e.target.value)}
+                    className="select select-bordered w-full">
+                    <option value={0}>false</option>
+                    <option value={1}>true</option>
+                </select>
+            </div>
+        </div>
+    )
+}
+
+
+type EditReviewButtonProps = {
+    reviewId: string
+    reviewName: string
+    isPublic: boolean
+    onSuccess: () => void
+}
+
+export const EditReviewButton = (props: EditReviewButtonProps) => {
+    const [isOpen, setIsOpen] = useState(false)
+    return (
+        <>
+            {
+                ReactDOM.createPortal(
+                    <EditReview
+                        {...props}
+                        isOpen={isOpen}
+                        onCancel={() => setIsOpen(false)}
+                    />,
+                    document.body
+                )
+            }
+            <div>
+                <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setIsOpen(true)}>
+                    <EllipsisIcon />
+                </button>
+            </div>
+        </>
+    )
+}
+
+type EditReviewProps = {
     isOpen: boolean
     reviewId: string
     reviewName: string
@@ -16,30 +145,7 @@ interface EditReviewProps {
     onCancel: () => void
 }
 
-const deleteStyle = 'btn btn-error absolute top-0 right-5'
-
-export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPublic: isPublicProp, onSuccess, onCancel }: EditReviewProps) => {
-    const defaultIsPublic = useMemo(() => isPublicProp ? 1 : 0, [isPublicProp])
-
-    const [reviewName, setReviewName] = useStateWithSyncedDefault(reviewNameProp)
-    const [isPublic, setIsPublic] = useStateWithSyncedDefault(defaultIsPublic)
-
-    const resetState = () => {
-        setIsPublic(defaultIsPublic)
-        setReviewName(reviewNameProp)
-        setIsDeleting(false)
-    }
-
-    const { mutate, isLoading } = useUpdateReviewMutation({
-        onError: () => toast.error('Failed to update review.'),
-        onSuccess: () => {
-            onSuccess()
-            resetState()
-        }
-    })
-    const input = { reviewId, name: reviewName, isPublic: (isPublic === 1 ? true : false) }
-    const updateReview = () => mutate({ input })
-
+const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCancel }: EditReviewProps) => {
     // Deleting
     const [isDeleting, setIsDeleting] = useState(false)
     const nav = useNavigate()
@@ -50,20 +156,10 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
             toast.success('Successfully deleted review.')
         }
     })
+
     const deleteReview = () => deleteReviewMutation({ input: { id: reviewId } })
 
-    const onSubmit = () => {
-        updateReview()
-    }
-
-    const cancel = () => {
-        onCancel()
-        resetState()
-    }
-
-    const disabled = useMemo(() =>
-        isLoading || (isPublic === defaultIsPublic && reviewName === reviewNameProp),
-    [isLoading, isPublic, reviewName])
+    const defaultValues = useMemo(() => ({ name: reviewName, isPublic }), [reviewName, isPublic])
 
     return (
         <ThemeModal open={isOpen} className="max-w-md">
@@ -71,32 +167,20 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
                 <Dialog.Title className="font-bold text-lg">
                     edit review
                 </Dialog.Title>
-                <div className="w-full">
-                    <label className="label">
-                        <span className="label-text"> review name </span>
-                    </label>
-                    <input type="text" placeholder="Review Name" className="input input-bordered w-full"
-                        onChange={(e) => setReviewName(e.target.value as string)}
-                        value={reviewName}
-                    />
-                </div>
-                <div className="form-control w-full">
-                    <label className="label">
-                        <span className="label-text">is public</span>
-                    </label>
-                    <select
-                        value={isPublic} onChange={(e) => setIsPublic(+e.target.value)}
-                        className="select select-bordered w-full">
-                        <option value={0}>false</option>
-                        <option value={1}>true</option>
-                    </select>
-                </div>
 
-                <div className="flex flex-row items-center justify-around w-full" >
-                    <button className="btn btn-success" disabled={disabled} onClick={onSubmit}> <CheckIcon /> </button>
-                    <button className="btn btn-info" onClick={cancel}> <CrossIcon /> </button>
-                </div>
-
+                <Provider initialValues={[
+                    [reviewIdAtom, reviewId],
+                    [defaultFormValuesAtom, defaultValues],
+                    [formValuesAtom, defaultValues]
+                ]}>
+                    <div className="w-[75%] flex flex-col space-y-2">
+                        <EditReviewForm />
+                        <EditReviewFormButtons
+                            onSuccess={onSuccess}
+                            onCancel={onCancel}
+                        />
+                    </div>
+                </Provider>
                 {isDeleting ?
                     <div className="btn-group absolute top-0 right-5" >
                         <button className="btn btn-error tooltip tooltip-error" data-tip="delete review" onClick={() => deleteReview()}>
@@ -107,7 +191,7 @@ export const EditReview = ({ isOpen, reviewId, reviewName: reviewNameProp, isPub
                         </button>
                     </div>
                     :
-                    <button className={deleteStyle} onClick={() => setIsDeleting(true)}>
+                    <button className='btn btn-error absolute top-0 right-5' onClick={() => setIsDeleting(true)}>
                         <TrashIcon />
                     </button>
                 }

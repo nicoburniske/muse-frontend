@@ -9,19 +9,17 @@ import { getTrackId } from './Helpers'
 export interface MemoTrackProps {
     track: DetailedPlaylistTrackFragment | DetailedTrackFragment
     reviewId: string
-    overviewId: string
     tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>
 }
 /**
  * TODO: Incorporate Podcast episode. 
  */
 
-export const MemoTrack = memo(({ overviewId, reviewId, track, tracksAtom }: MemoTrackProps) => {
+export const MemoTrack = memo(({ reviewId, track, tracksAtom }: MemoTrackProps) => {
     const isLikedAtom = useTrackLikeAtom(tracksAtom, getTrackId(track))
     if ('track' in track) {
         return (
             <PlaylistTrack
-                playlistId={overviewId}
                 reviewId={reviewId}
                 playlistTrack={track}
                 isLikedAtom={isLikedAtom}
@@ -32,13 +30,11 @@ export const MemoTrack = memo(({ overviewId, reviewId, track, tracksAtom }: Memo
             <AlbumTrack
                 track={track}
                 reviewId={reviewId}
-                albumId={overviewId}
                 isLikedAtom={isLikedAtom}
             />
         )
     }
 }, (a, b) =>
-    a.overviewId === b.overviewId &&
     a.reviewId === b.reviewId &&
     getTrackId(a.track) === getTrackId(b.track))
 

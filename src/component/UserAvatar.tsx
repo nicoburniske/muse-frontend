@@ -16,6 +16,7 @@ interface UserAvatarProps { displayName?: string, image?: string, tooltipPos?: T
 
 export default function UserAvatar({ displayName, image, tooltipPos = TooltipPos.None, className }: UserAvatarProps) {
     const tooltip = useMemo(() => displayName ? 'md:tooltip md:tooltip-primary ' + tooltipPos : '', [])
+    // Handles case where spotify created a playlist.
     const name = (displayName?.length ?? 0) > 0 ? displayName! : 'Spotify'
 
     if (nonNullable(image) && image.length > 0) {

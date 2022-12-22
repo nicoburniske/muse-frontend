@@ -11,12 +11,12 @@ interface CommentModalData {
     onCancel: () => void
 }
 
-const defaultModalValue = Object.freeze({
+const defaultModalValue = {
     trackId: '',
     title: '',
     onSubmit: async () => { },
     onCancel: () => { },
-})
+} as const
 
 const commentModalValues = atom<CommentModalData>(defaultModalValue)
 const isOpenModalAtom = atom(false)
