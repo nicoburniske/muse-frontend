@@ -3,6 +3,7 @@ import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { SpotifyPlaybackSdk, useSetAccessToken, useSetTokenFunction } from 'component/playbackSDK/PlaybackSDK'
 import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
+import { useExecuteOnce } from 'hook/useExecuteOnce'
 import { NotFound } from 'pages/NotFound'
 import { StrictMode, useCallback, useEffect, useRef } from 'react'
 import { Routes, Route } from 'react-router-dom'
@@ -36,6 +37,9 @@ export default function App() {
     )
 }
 
+// 55 minutes just to be safe.
+const accessTokenInterval = 55 * 60 * 1000
+
 const SyncAccessToken = () => {
     /**
      * Setup Playback SDK.
@@ -47,8 +51,9 @@ const SyncAccessToken = () => {
         const r = await fetch(AppConfig.httpAccessTokenEndpoint, { method: 'GET', credentials: 'include' })
         return await r.text()
     }, {
-        // 55 minutes just to be safe.
-        refetchInterval: 55 * 60 * 1000,
+        refetchInterval: accessTokenInterval,
+        staleTime: accessTokenInterval,
+        cacheTime: accessTokenInterval,
         refetchIntervalInBackground: true,
     })
 
@@ -89,12 +94,3 @@ const SyncAccessToken = () => {
     return null
 }
 
-const useExecuteOnce = (condition: () => boolean, fn: () => void, deps: any[]) => {
-    const ref = useRef(false)
-    useEffect(() => {
-        if (condition() && !ref.current) {
-            fn()
-            ref.current = true
-        }
-    }, deps)
-}
