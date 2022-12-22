@@ -77,13 +77,13 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
                 <div className={`${nameStyle}`}>
                     <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{reviewName}</h2>
                 </div>
-                <div className={`${nameStyle} flex flex-row justify-start w-full m-auto`}>
+                <div className={`${nameStyle} flex flex-row justify-start`}>
                     <div className="badge badge-accent text-accent-content text-center">{entityType}</div>
                     <div className="divider divider-horizontal" />
                     <div className="badge badge-primary text-primary-content text-center truncate">{entityName}</div>
                 </div>
                 {isChild ?
-                    <div className="justify-self-centerflex flex-row md:space-x-5">
+                    <div className="justify-self-center flex flex-row md:space-x-5">
                         <button className="btn btn-sm btn-square btn-secondary" onClick={() => linkToReviewPage()} >
                             <ArrowTopRightIcon />
                         </button>
