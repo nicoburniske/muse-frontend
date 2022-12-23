@@ -10,7 +10,7 @@ import { NavBar } from 'component/navBar/NavBar'
 import { BrowseCard } from './BrowseCard'
 import { MuseTransition } from 'component/transitions/MuseTransition'
 
-const gridSizeAtom = atomWithStorage<number>('muse-browse-grid-cols', 3)
+const gridSizeAtom = atomWithStorage<number>('MuseBrowseGridCols', 3)
 
 export default function BrowsePage() {
     return (

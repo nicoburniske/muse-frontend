@@ -5,9 +5,10 @@
 
 import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { atom, useSetAtom } from 'jotai'
+import { focusAtom } from 'jotai-optics'
 import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
 import { nonNullable, uniqueByProperty } from 'util/Utils'
-import { getTrack, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
+import { getTrack, getTrackId, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
 
@@ -78,9 +79,16 @@ export const tracksAtom = atom<DetailedTrackFragment[]>(get =>
         .filter(nonNullable))
 tracksAtom.debugLabel = 'tracksAtom'
 
-const derivedUniqueTracksAtom = atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id))
-export const uniqueTracksAtom = derivedAtomWithWrite(derivedUniqueTracksAtom)
+const uniqueTracksAtom = derivedAtomWithWrite(atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id)))
 uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
+const getTrackLikeAtom = (trackId: string) => {
+    const focused = focusAtom(uniqueTracksAtom, (optic) =>
+        optic
+            .find(t => t.id === trackId)
+            .prop('isLiked')
+            .valueOr(false))
+    return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
+}
 
 // Render all rows and store in Atom.
 export type GroupRendered = {
@@ -98,6 +106,7 @@ export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
     const allGroups = get(groupWithTracksAtom)
 
     return allGroups.map(({ tracks, headerData, overview }) => {
+        const isPlaylist = headerData.__typename === 'Playlist'
         const header = {
             element:
                 // TODO: Change Headers for ALBUMS!!!!
@@ -106,17 +115,20 @@ export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
                     entity={headerData}
                     parentReviewId={rootReviewId}
                 />,
-            size: 42
+            size: isPlaylist ? 42 : 58
         }
         const { reviewId } = overview
-        const children = tracks.map(t => ({
-            element: (
-                <MemoTrack
-                    track={t}
-                    reviewId={overview.reviewId}
-                    tracksAtom={uniqueTracksAtom} />),
-            size: 60
-        }))
+        const children = tracks.map(t => {
+            const likeAtom = getTrackLikeAtom(getTrackId(t))
+            return {
+                element: (
+                    <MemoTrack
+                        track={t}
+                        reviewId={overview.reviewId}
+                        isLikedAtom={likeAtom} />),
+                size: 60
+            }
+        })
         return { reviewId, header, children }
     })
 })

@@ -3,7 +3,7 @@ import { focusAtom } from 'jotai-optics'
 import { atomWithStorage } from 'jotai/utils'
 import { useAtomsDebugValue } from 'jotai/devtools'
 
-export const currentUserIdAtom = atomWithStorage<string>('currentUser', '')
+export const currentUserIdAtom = atomWithStorage<string>('MuseCurrentUserID', '')
 export interface SelectedTrack { reviewId: string, trackId: string }
 export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
 

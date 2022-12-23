@@ -12,9 +12,17 @@ export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.
 // This needs to be imported at top level to setup spotify sdk.
 export function SpotifyPlaybackSdk() {
     useAtom(sdkReadyAtom)
-    useAtom(loadable(playerAtom))
     useAtom(loadable(deviceIdAtom))
     useAtom(loadable(asyncPlaybackStateAtom))
+
+    const maybePlayer = useAtomValue(loadable(playerAtom))
+    // Disconnect on unmount.
+    useEffect(() => () => {
+        if (maybePlayer.state === 'hasData') {
+            maybePlayer.data.disconnect()
+        }
+    }, [])
+
     return null
 }
 
