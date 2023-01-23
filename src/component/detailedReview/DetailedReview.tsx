@@ -1,9 +1,8 @@
 import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment, DetailedAlbumFragment } from 'graphql/generated/schema'
-import { Suspense, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSetAtom, useAtomValue, atom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
-import { Alert, AlertSeverity } from 'component/Alert'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReviewButton } from './editReview/EditReview'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
@@ -14,11 +13,9 @@ import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
-import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
-import { ErrorBoundary } from 'react-error-boundary'
 import { NotFound } from 'pages/NotFound'
-import { UserPreferencesButton } from 'component/preferences/UserPreferencesForm'
 import { Group, ReviewOverview } from './table/Helpers'
+import { useSetCurrentReview } from 'state/CurrentReviewAtom'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -66,6 +63,8 @@ interface DetailedReviewContentProps {
 }
 
 const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
+    useSetCurrentReview(reviewId)
+
     const [renderOption, setRenderOption] = useState(renderOptionProp)
     const userId = useAtomValue(currentUserIdAtom)
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
@@ -110,8 +109,8 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
     const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
     return (
-        < div className="w-full h-screen flex flex-col relative">
-            <div className="grid grid-cols-5 lg:grid-cols-4 items-center bg-base-100">
+        < div className="w-full h-full flex flex-col relative">
+            <div className="flex flex-row justify-between items-center bg-base-100 px-5">
                 <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center p-1 space-x-1">
                     <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
                         <img className="hidden md:flex object-scale-down object-center h-24 w-24" src={reviewEntityImage} />
@@ -123,24 +122,6 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                             </div>
                         </div>
                     </div>
-                    {
-                        isReviewOwner ?
-                            <div className="grid grid-cols-2 lg:grid-cols-4">
-                                <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
-                                <EditReviewButton
-                                    reviewId={reviewId}
-                                    reviewName={title!}
-                                    onSuccess={() => { reload() }}
-                                    isPublic={isPublic === undefined ? false : isPublic}
-                                />
-                                <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
-                                <CreateReview
-                                    parentReviewIdAtom={parentReviewIdAtom}
-                                    title="create linked review"
-                                    className="btn btn-secondary btn-xs lg:btn-md" />
-                            </div>
-                            : null
-                    }
                 </div>
                 <div className="col-span-2 lg:col-span-1 tabs flex flex-row justify-center">
                     <button className={`${tabStyle} ${renderOption === RenderOptions.Tracks ? 'tab-active' : ''}`}
@@ -160,32 +141,28 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
                         <CommentIcon />
                     </button>
                 </div>
-                <div className='hidden lg:flex justify-end px-1'>
-                    <UserPreferencesButton />
-                </div>
-
-                {/* <div className="flex flex-row items-center h-full">
-          <div className="stats shadow">
-            <div className="stat h-full">
-            </div>
-          </div>
-          {collaboratorImages}
-        </div> */}
+                {
+                    isReviewOwner ?
+                        <div className="grid grid-cols-2 lg:grid-cols-4">
+                            <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
+                            <EditReviewButton
+                                reviewId={reviewId}
+                                reviewName={title!}
+                                onSuccess={() => { reload() }}
+                                isPublic={isPublic === undefined ? false : isPublic}
+                            />
+                            <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
+                            <CreateReview
+                                parentReviewIdAtom={parentReviewIdAtom}
+                                title="create linked review"
+                                className="btn btn-secondary btn-xs lg:btn-md" />
+                        </div>
+                        : null
+                }
             </div>
             <CommentFormModalWrapper />
             <div className="grow min-h-0 w-full bg-base-300">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
-            </div>
-            <div className='w-full bg-neutral'>
-                <ErrorBoundary fallback={
-                    <Alert severity={AlertSeverity.Error}>
-                        <span> Error Starting Playback </span>
-                    </Alert >
-                }>
-                    <Suspense fallback={<progress className="progress progress-primary" />}>
-                        <SpotifyPlayerWrapper reviewId={reviewId} />
-                    </Suspense>
-                </ErrorBoundary>
             </div>
         </div >
     )
@@ -193,13 +170,18 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
 
 interface DetailedReviewBodyProps {
     rootReview: string
-    reviews: ReviewOverview[]
+    reviews: ReviewAndEntity[]
     options?: RenderOptions
 }
 
+export type ReviewAndEntity = ReviewOverview & {
+    entityId: string
+    entityType: EntityType
+}
+
 const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
-    const trackSection = () => (<TrackSectionTable rootReview={rootReview} all={reviews} />)
-    const commentSection = () => (<ReviewCommentSection reviews={reviews} />)
+    const trackSection = <TrackSectionTable rootReview={rootReview} all={reviews} />
+    const commentSection = <ReviewCommentSection reviews={reviews} />
     return (
         <div className="h-full px-1">
             {(options == RenderOptions.Both) ?
@@ -208,24 +190,19 @@ const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both 
                     sizes={[50, 50]}
                     direction="horizontal"
                 >
-                    {trackSection()}
-                    {commentSection()}
+                    {trackSection}
+                    {commentSection}
                 </Split>
                 :
                 <div className="flex h-full w-full">
                     {(options == RenderOptions.Tracks)
                         ?
-                        trackSection() :
-                        commentSection()}
+                        trackSection :
+                        commentSection}
                 </div>
             }
         </div>
     )
-}
-
-export type ReviewAndEntity = ReviewOverview & {
-    entityId: string
-    entityType: EntityType
 }
 
 const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootReview: string }) => {

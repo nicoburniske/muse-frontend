@@ -118,12 +118,13 @@ export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
             size: isPlaylist ? 42 : 58
         }
         const { reviewId } = overview
-        const children = tracks.map(t => {
+        const children = tracks.map((t, i) => {
             const likeAtom = getTrackLikeAtom(getTrackId(t))
             return {
                 element: (
                     <MemoTrack
                         track={t}
+                        index={i}
                         reviewId={overview.reviewId}
                         isLikedAtom={likeAtom} />),
                 size: 60

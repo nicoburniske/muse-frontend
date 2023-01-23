@@ -6,6 +6,7 @@ import PlaylistTrack from '../track/PlaylistTrack'
 import { getTrackId } from './Helpers'
 
 export interface MemoTrackProps {
+    index: number
     track: DetailedPlaylistTrackFragment | DetailedTrackFragment
     reviewId: string
     isLikedAtom: PrimitiveAtom<boolean>
@@ -14,10 +15,11 @@ export interface MemoTrackProps {
  * TODO: Incorporate Podcast episode. 
  */
 
-export const MemoTrack = memo(({ reviewId, track, isLikedAtom }: MemoTrackProps) => {
+export const MemoTrack = memo(({ reviewId, track, isLikedAtom, index}: MemoTrackProps) => {
     if ('track' in track) {
         return (
             <PlaylistTrack
+                index={index}
                 reviewId={reviewId}
                 playlistTrack={track}
                 isLikedAtom={isLikedAtom}

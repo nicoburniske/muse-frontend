@@ -2,11 +2,11 @@ import { Dialog } from '@headlessui/react'
 import { CrossIcon, SettingsIcon } from 'component/Icons'
 import { ThemeModal } from 'component/ThemeModal'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import ReactDOM from 'react-dom'
 import { transferPlaybackOnMountAtom } from 'state/UserPreferences'
 import { SeekIntervalSetter } from './SeekIntervalSetter'
 import { ThemeSetter } from './ThemeSetter'
 import { TogglePreferences } from './TogglePreferences'
+import Portal from 'component/Portal'
 
 const modalOpenAtom = atom(false)
 
@@ -33,12 +33,11 @@ export const UserPreferencesModal = () => {
     const isModalOpen = useAtomValue(modalOpenAtom)
 
     return (
-        ReactDOM.createPortal(
+        <Portal>
             <ThemeModal open={isModalOpen} className="max-w-xl text-base-content">
                 <UserPreferencesForm />
-            </ThemeModal>,
-            document.body
-        )
+            </ThemeModal>
+        </Portal>
     )
 }
 

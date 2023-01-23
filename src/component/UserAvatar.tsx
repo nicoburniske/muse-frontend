@@ -12,16 +12,23 @@ export enum TooltipPos {
 
 const size = 'w-6 md:w-8 lg:w-8'
 
-interface UserAvatarProps { displayName?: string, image?: string, tooltipPos?: TooltipPos, className?: string }
+interface UserAvatarProps {
+    displayName?: string
+    tooltip?: string
+    image?: string
+    tooltipPos?: TooltipPos
+    className?: string
+}
 
-export default function UserAvatar({ displayName, image, tooltipPos = TooltipPos.None, className }: UserAvatarProps) {
-    const tooltip = useMemo(() => displayName ? 'md:tooltip md:tooltip-primary ' + tooltipPos : '', [])
+// TODO: refactor this. Use popup from headlessui.
+export default function UserAvatar({ displayName, tooltip, image, tooltipPos = TooltipPos.None, className }: UserAvatarProps) {
+    const tooltipClasses = useMemo(() => displayName ? 'md:tooltip md:tooltip-primary ' + tooltipPos : '', [])
     // Handles case where spotify created a playlist.
     const name = (displayName?.length ?? 0) > 0 ? displayName! : 'Spotify'
 
     if (nonNullable(image) && image.length > 0) {
         return (
-            <div className={`avatar ${className} ${tooltip}`} data-tip={displayName}>
+            <div className={`avatar ${className} ${tooltipClasses}`} data-tip={tooltip ?? displayName}>
                 <div className={`${size} rounded-full ring ring-primary ring-offset-base-100 ring-offset-2`}>
                     <img src={image} />
                 </div>
@@ -29,7 +36,7 @@ export default function UserAvatar({ displayName, image, tooltipPos = TooltipPos
         )
     } else {
         return (
-            <div className={`avatar placeholder ${className} ${tooltip}`} data-tip={displayName}>
+            <div className={`avatar placeholder ${className} ${tooltipClasses}`} data-tip={tooltip}>
                 <div className={`bg-neutral-focus text-neutral-content rounded-full w-12 ${size}`}>
                     <span>
                         {name.slice(0, 1)}

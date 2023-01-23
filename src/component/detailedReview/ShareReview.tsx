@@ -13,7 +13,7 @@ export interface ShareReviewProps {
 }
 
 const DEFAULT_ACCESS_LEVEL = AccessLevel.Viewer
-// TODO: integrate markdown here!
+
 export function ShareReview({ reviewId, onChange, collaborators: collabProp }: ShareReviewProps) {
     const [accessLevel, setAccessLevel] = useState(DEFAULT_ACCESS_LEVEL)
     const [username, setUsername] = useState('')

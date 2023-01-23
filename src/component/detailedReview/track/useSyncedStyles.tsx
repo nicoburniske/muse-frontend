@@ -1,6 +1,3 @@
-// Seperating these out is better for performance. 
-// Single derived atom is an array therefore it will be recomputed every time the list changes.
-
 import { Atom, atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'

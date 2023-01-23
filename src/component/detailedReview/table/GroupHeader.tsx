@@ -41,7 +41,11 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
         setIsDeletingRaw(isDeleting)
     }
 
-    const gridStyle = isChild ? 'grid-cols-5' : 'grid-cols-2'
+    const isPlaylist = entityType === 'Playlist'
+
+    const gridStyle = isChild ?
+        isPlaylist ? 'grid-cols-5' : 'grid-cols-5' :
+        isPlaylist ? 'grid-cols-3' : 'grid-cols-4'
     const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -67,19 +71,30 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
     }), [isChild, reviewId])
 
 
-    const dragClass =  isDragging ? 'opacity-20' : isOver ? 'card-bordered border-primary' : ''
+    const dragClass = isDragging ? 'opacity-20' : isOver ? 'card-bordered border-primary' : ''
+
+    const albumImage = entity.images.at(-1)
 
     return (
-        <div className={`card py-0 h-10 w-full bg-secondary ${dragClass}`}
+        <div className={`card py-0 w-full bg-secondary ${dragClass}`}
             ref={(el) => { drop(el); drag(el) }}
             onClick={onClick}>
             <div className={`grid ${gridStyle} card-body p-1 justify-around w-full items-center`}>
                 <div className={`${nameStyle}`}>
                     <h2 className={'text-md md:text-xl text-secondary-content truncate'}>{reviewName}</h2>
                 </div>
-                <div className={`${nameStyle} flex flex-row justify-start`}>
+                <div className={`${nameStyle} flex flex-row justify-start items-center m-auto`}>
                     <div className="badge badge-accent text-accent-content text-center">{entityType}</div>
-                    <div className="divider divider-horizontal" />
+                    <div className="divider divider-horizontal m-0" />
+                    {
+                        isPlaylist ? null : (
+                            <div className="avatar">
+                                <div className="w-12 rounded">
+                                    <img src={albumImage} />
+                                </div>
+                            </div>
+                        )
+                    }
                     <div className="badge badge-primary text-primary-content text-center truncate">{entityName}</div>
                 </div>
                 {isChild ?

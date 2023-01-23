@@ -6,8 +6,6 @@ import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
 import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { MuseTransition } from 'component/transitions/MuseTransition'
 
 
@@ -39,9 +37,7 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
     }, [results])
 
     return (
-        <DndProvider backend={HTML5Backend}>
-            <GroupedTrackTable />
-        </DndProvider>
+        <GroupedTrackTable />
     )
 }
 
