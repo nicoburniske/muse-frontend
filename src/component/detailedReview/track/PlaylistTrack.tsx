@@ -69,8 +69,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
             reloadPlaylist()
             toast.success('Reordered playlist tracks.')
         },
-        onError: () => toast.error('Failed to add track to playlist.')
-
+        onError: () => toast.error('Failed to reorder playlist tracks.')
     })
 
     const currentUserId = useAtomValue(currentUserIdAtom)
@@ -163,8 +162,11 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
             <div>
                 <TrackOptions
                     trackId={track.id}
-                    playlistId={playlistId}
                     reviewId={reviewId}
+                    playlist={{
+                        owner: playlistOwner ?? '',
+                        id: playlistId
+                    }}
                 />
             </div>
         </div >

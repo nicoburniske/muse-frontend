@@ -11,14 +11,20 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { Fragment } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetPlaylistQuery } from 'graphql/generated/schema'
+import { currentUserIdAtom } from 'state/Atoms'
+import { useAtomValue } from 'jotai'
 
 type TrackOptionsProps = {
     trackId: string
-    playlistId?: string
     reviewId: string
+
+    playlist?: {
+        id: string
+        owner: string
+    }
 }
 
-export default function TrackOptions({ trackId, reviewId, playlistId }: TrackOptionsProps) {
+export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptionsProps) {
     const theme = useThemeValue()
     const { x, y, strategy, refs } = useFloating({
         placement: 'right-start',
@@ -33,19 +39,22 @@ export default function TrackOptions({ trackId, reviewId, playlistId }: TrackOpt
     })
     const addToQueue = () => addToQueueMutation(trackId)
 
-    const isPlaylist = playlistId !== undefined
+    const currentUserId = useAtomValue(currentUserIdAtom)
+
+    const isUserOwnedPlaylist = playlist?.id !== undefined && playlist?.owner === currentUserId
+
     const queryClient = useQueryClient()
     const { mutate: removeFromPlaylistMutation } = useRemoveTracksFromPlaylistMutation({
         onSuccess: () => {
             toast.success('Removed track from playlist.')
-            queryClient.invalidateQueries(useGetPlaylistQuery.getKey({ id: playlistId! }))
+            queryClient.invalidateQueries(useGetPlaylistQuery.getKey({ id: playlist?.id! }))
         },
-        onError: () => toast.error('Failed to add track to queue.')
+        onError: () => toast.error('Failed to add remove track from playlist.')
     })
 
     const removeFromPlaylist = () => {
-        if (isPlaylist) {
-            removeFromPlaylistMutation({ playlistId, trackIds: [trackId] })
+        if (isUserOwnedPlaylist) {
+            removeFromPlaylistMutation({ playlistId: playlist.id, trackIds: [trackId] })
         }
     }
 
@@ -115,7 +124,7 @@ export default function TrackOptions({ trackId, reviewId, playlistId }: TrackOpt
                                     )}
                                 </Menu.Item>
 
-                                {isPlaylist && (
+                                {isUserOwnedPlaylist && (
                                     <Menu.Item>
                                         {({ active }) => (
                                             <li>
