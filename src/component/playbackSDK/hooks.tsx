@@ -100,7 +100,7 @@ export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boo
 }
 useTrackLikeQuery.getKey = useTrackLikeQueryKey
 
-export const useCurrentUser = (options?: UseQueryOptions<PrivateUser, unknown, PrivateUser, string[]>) => {
+export const useCurrentUser = <T,>(options?: UseQueryOptions<PrivateUser, unknown, T, string[]>) => {
     const client = useSpotifyClient()
     return useQuery(
         ['CurrentUser'],

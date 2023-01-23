@@ -57,6 +57,7 @@ const EditReviewFormButtons = ({ onCancel, onSuccess }:
     const { mutate, isLoading } = useUpdateReviewMutation({
         onError: () => toast.error('Failed to update review.'),
         onSuccess: () => {
+            toast.success('Updated review.')
             onSuccess()
         }
     })
