@@ -182,6 +182,13 @@ export type ReviewAndEntity = ReviewOverview & {
 const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
     const trackSection = <TrackSectionTable rootReview={rootReview} all={reviews} />
     const commentSection = <ReviewCommentSection reviews={reviews} />
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
+
+    // Avoid scroll to track when changing tabs.
+    useEffect(() => {
+        setSelectedTrack(undefined)
+    }, [options])
+
     return (
         <div className="h-full px-1">
             {(options == RenderOptions.Both) ?
