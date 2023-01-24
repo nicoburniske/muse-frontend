@@ -1,12 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
-import { useDeleteReviewLinkMutation, useDetailedReviewQuery } from 'graphql/generated/schema'
-import { useState } from 'react'
+import { useDeleteReviewLinkMutation, useDetailedReviewQuery, useUpdateReviewLinkMutation } from 'graphql/generated/schema'
+import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router'
 import { HeaderData, ReviewOverview } from './Helpers'
 import { useDrag, useDrop } from 'react-dnd'
-import { useSwapReviews } from './TableAtoms'
+import { reviewOrderAtom, swapReviewsAtom } from './TableAtoms'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 
 /**
  * REVIEW HEADER
@@ -26,14 +27,17 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
     const queryClient = useQueryClient()
     const linkToReviewPage = () => nav(`/reviews/${reviewId}`)
     const { mutateAsync: deleteReviewLink } = useDeleteReviewLinkMutation({
+        onSuccess: () => {
+            setIsDeletingRaw(false)
+            queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
+            toast.success('Deleted review link.')
+        },
         onError: () => toast.error('Failed to delete review link'),
     })
 
-    const handleDeleteReviewLink = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleDeleteReviewLink = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation()
-        await deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
-        queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
-        setIsDeletingRaw(false)
+        deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
     }
 
     const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
@@ -57,7 +61,7 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
         }),
     }), [isChild, reviewId])
 
-    const swapReviews = useSwapReviews(reviewId)
+    const swapReviews = useSwapReviews(parentReviewId, reviewId)
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'ReviewId',
         canDrop: (item: { reviewId: string }) => isChild && item.reviewId !== reviewId,
@@ -122,4 +126,20 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
             </div>
         </div>
     )
+}
+
+const useSwapReviews = (parentReviewId: string, dropReviewId: string) => {
+    const swap = useSetAtom(swapReviewsAtom)
+    const dropIndex = useAtomValue(useMemo(() => atom((get) => get(reviewOrderAtom).indexOf(dropReviewId)), [dropReviewId]))
+
+    const queryClient = useQueryClient()
+    const { mutateAsync } = useUpdateReviewLinkMutation({
+        onSuccess: () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId })),
+        onError: () => toast.error('Failed to update review link'),
+    })
+
+    return async (dragReviewId: string) => {
+        await mutateAsync({ input: { parentReviewId, childReviewId: dragReviewId, linkIndex: dropIndex } })
+        swap({ dragReviewId, dropReviewId })
+    }
 }

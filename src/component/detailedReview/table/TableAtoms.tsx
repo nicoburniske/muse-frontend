@@ -4,7 +4,7 @@
  */
 
 import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { atom, useSetAtom } from 'jotai'
+import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
 import { nonNullable, uniqueByProperty } from 'util/Utils'
@@ -188,12 +188,8 @@ headerIndicesAtom.debugLabel = 'headerIndicesAtom'
  * TODO: Playlist track drag and drop.
  */
 
-export const useSwapReviews = (dropReviewId: string) => {
-    const swap = useSetAtom(swapReviewsAtom)
-    return (dragReviewId: string) => swap({ dragReviewId, dropReviewId })
-}
 
-const swapReviewsAtom = atom(null, (get, set, { dragReviewId, dropReviewId }: { dragReviewId: string, dropReviewId: string }) => {
+export const swapReviewsAtom = atom(null, (get, set, { dragReviewId, dropReviewId }: { dragReviewId: string, dropReviewId: string }) => {
     const currentOrder = get(reviewOrderAtom)
     const currentDragIndex = currentOrder.indexOf(dragReviewId)
     const currentDropIndex = currentOrder.indexOf(dropReviewId)

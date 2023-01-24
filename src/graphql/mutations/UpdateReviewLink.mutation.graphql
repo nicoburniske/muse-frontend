@@ -1,0 +1,3 @@
+mutation UpdateReviewLink($input: UpdateReviewLinkInput!) {
+    updateReviewLink(input: $input)
+}

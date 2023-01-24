@@ -6,7 +6,6 @@ import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
 import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
-import { MuseTransition } from 'component/transitions/MuseTransition'
 
 
 interface GroupedTrackTableProps {
@@ -116,28 +115,26 @@ export const GroupedTrackTable = () => {
             ref={parentRef}
             className="overflow-y-auto w-full"
         >
-            <MuseTransition option='Notification'>
-                <div
-                    className="w-full relative"
-                    style={{
-                        height: `${rowVirtualizer.getTotalSize()}px`,
-                        willChange: 'transform'
-                    }}
-                >
-                    {
-                        rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
-                            return (
-                                <div
-                                    key={virtualRow.index}
-                                    style={indexToStyle(virtualRow) as CSSProperties}>
-                                    {
-                                        rows[virtualRow.index]
-                                    }
-                                </div>
-                            )
-                        })}
-                </div>
-            </MuseTransition>
+            <div
+                className="w-full relative"
+                style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    willChange: 'transform'
+                }}
+            >
+                {
+                    rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
+                        return (
+                            <div
+                                key={virtualRow.index}
+                                style={indexToStyle(virtualRow) as CSSProperties}>
+                                {
+                                    rows[virtualRow.index]
+                                }
+                            </div>
+                        )
+                    })}
+            </div>
         </div>
     )
 }
