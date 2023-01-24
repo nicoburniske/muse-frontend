@@ -163,12 +163,12 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                     </div>
                 </div>
             </div>
-            <div className="col-span-2 lg:col-span-1 tabs flex flex-row justify-center">
+            <div className="tabs flex flex-row justify-center">
                 <RenderOptionTabs />
             </div>
             {
                 isReviewOwner ?
-                    <div className="grid grid-cols-2 lg:grid-cols-4 lg:space-x-2">
+                    <div className="grid grid-cols-2 gap-1 lg:flex lg:space-x-1">
                         <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
                         <EditReviewButton
                             reviewId={reviewId}
@@ -180,7 +180,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         <CreateReview
                             parentReviewIdAtom={parentReviewIdAtom}
                             title="create linked review"
-                            className="btn btn-secondary btn-xs lg:btn-md" />
+                            className="btn btn-secondary btn-sm lg:btn-md" />
                     </div>
                     : null
             }

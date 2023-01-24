@@ -128,11 +128,9 @@ export const EditReviewButton = (props: EditReviewButtonProps) => {
                     document.body
                 )
             }
-            <div>
-                <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setIsOpen(true)}>
-                    <EllipsisIcon />
-                </button>
-            </div>
+            <button className="btn btn-primary btn-sm lg:btn-md" onClick={() => setIsOpen(true)}>
+                <EllipsisIcon />
+            </button>
         </>
     )
 }
