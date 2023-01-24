@@ -65,9 +65,11 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
 
     return (
         <>
-            <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setModalOpen(true)} >
-                <ShareIcon />
-            </button>
+            <div>
+                <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setModalOpen(true)} >
+                    <ShareIcon />
+                </button>
+            </div>
 
             <ThemeModal open={isModalOpen} className="max-w-md">
                 <div className="flex flex-col items-center justify-between space-y-5 p-3">
