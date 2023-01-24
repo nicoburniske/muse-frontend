@@ -63,7 +63,7 @@ export const ProfileDropdown = () => {
                             left: x ?? 0,
                         }}
 
-                        className="menu bg-base-300 rounded-md shadow-lg"
+                        className="menu bg-neutral text-neutral-content rounded-md shadow-lg "
                     >
                         <Menu.Item >
                             {({ active }) => (

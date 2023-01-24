@@ -83,7 +83,7 @@ const EditReviewForm = () => {
         <div>
             <div className="w-full">
                 <label className="label">
-                    <span className="label-text"> review name </span>
+                    <span className="label-text"> Review Name </span>
                 </label>
                 <input type="text" placeholder="Review Name" className="input input-bordered w-full"
                     onChange={(e) => setReviewName(e.target.value as string)}
@@ -92,7 +92,7 @@ const EditReviewForm = () => {
             </div>
             <div className="form-control w-full">
                 <label className="label">
-                    <span className="label-text">is public</span>
+                    <span className="label-text">Is Public</span>
                 </label>
                 <select
                     value={isPublic}
@@ -166,7 +166,7 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
         <ThemeModal open={isOpen} className="max-w-md">
             <div className="flex flex-col items-center justify-between space-y-5 p-3 relative" >
                 <Dialog.Title className="font-bold text-lg">
-                    edit review
+                    Edit Review
                 </Dialog.Title>
 
                 <Provider initialValues={[

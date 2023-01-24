@@ -10,7 +10,7 @@ export const SideNavBar = () => {
         <>
             <div className="hidden md:flex md:flex-shrink-0">
                 <div className="flex w-20 flex-col">
-                    <div className="flex min-h-0 flex-1 flex-col bg-gradient-to-b from-primary to-secondary">
+                    <div className="flex min-h-0 flex-1 flex-col bg-gradient-to-b from-primary to-secondary overflow-hidden">
                         <div className="flex-1">
                             <div className="flex items-center justify-center py-4">
                                 <img
@@ -48,8 +48,9 @@ const NavBarLinks = () => {
                     onClick={() => nav(item.href)}
                     className={
                         classNames(
-                            path.includes(item.href) ? 'bg-primary-focus' : '',
-                            'group w-full p-3 rounded-md flex flex-col items-center text-xs font-medium text-primary-content hover:scale-110 duration-100'
+                            'p-3 flex flex-col items-center bg-secondary text-secondary-content hover:bg-primary-focus hover:text-primary-content transition-all duration-100',
+                            path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
+                            'rounded-3xl hover:rounded-xl hover:w-full'
                         )}
                 >
                     <item.icon className="h-6 w-6" aria-hidden="true" />

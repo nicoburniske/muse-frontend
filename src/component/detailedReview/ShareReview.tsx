@@ -64,7 +64,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
     , [username, disabledUndo])
 
     return (
-        <div>
+        <>
             <button className="btn btn-primary btn-xs lg:btn-md" onClick={() => setModalOpen(true)} >
                 <ShareIcon />
             </button>
@@ -72,11 +72,11 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
             <ThemeModal open={isModalOpen} className="max-w-md">
                 <div className="flex flex-col items-center justify-between space-y-5 p-3">
                     <Dialog.Title className="font-bold text-lg">
-                        share review
+                        Share Review
                     </Dialog.Title>
                     <div className="form-control w-full">
                         <label className="label">
-                            <span className="label-text">who do you want to share with?</span>
+                            <span className="label-text">Who do you want to share with?</span>
                         </label>
                         <input type="text" placeholder="spotify username" className="input input-bordered w-full"
                             onChange={(e) => setUsername(e.target.value as string)}
@@ -85,7 +85,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                     </div>
                     <div className="form-control w-full">
                         <label className="label">
-                            <span className="label-text">access level</span>
+                            <span className="label-text">Access Level</span>
                         </label>
                         <select value={accessLevel}
                             onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
@@ -136,6 +136,5 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                     </div>
                 </div>
             </ThemeModal>
-        </div>
-    )
+        </>)
 }

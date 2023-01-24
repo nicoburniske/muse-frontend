@@ -108,7 +108,6 @@ export default function ReviewsPage() {
                                 title={'Create Review'}
                                 className="flex items-center justify-center btn btn-square btn-primary"
                                 parentReviewIdAtom={parentAtom}
-                                // eslint-disable-next-line react/jsx-no-undef
                                 icon={<PlusIconOutline className="h-6 w-6" aria-hidden="true" />}
                             />
 

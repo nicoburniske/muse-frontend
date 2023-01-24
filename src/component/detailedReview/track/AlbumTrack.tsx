@@ -3,10 +3,8 @@ import { PrimitiveAtom } from 'jotai'
 import { RefObject, useRef } from 'react'
 import useDoubleClick from 'hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
-import { useLongPress } from 'use-long-press'
 import { usePlay } from 'component/playbackSDK/hooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { useCommentModalTrack } from './useCommentModalTrack'
 import { classNames, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
 import TrackOptions from './TrackDropdown'
@@ -45,18 +43,23 @@ export default function AlbumTrack({ track, reviewId, isLikedAtom }: AlbumTrackP
     return (
         <div
             ref={playOnDoubleClickRef}
-            className={classNames('group card card-body grid grid-cols-6 items-center p-0.5 m-0' ,styles)} >
+            className={classNames(
+                'group card card-body flex flex-row justify-between items-center p-0.5 m-0 border-2 border-base-300',
+                styles
+            )}
+        >
 
-            <div className='col-span-2 flex flex-col grow pl-1'>
-                <div className="select-none	truncate text-sm lg:text-base p-0.5"> {track.name} </div>
-                <div className="select-none	truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
+            <div className='flex flex-col w-24 md:w-40 lg:w-48 pl-1'>
+                <div className="select-none	truncate text-base p-0.5"> {track.name} </div>
+                <div className="select-none	truncate text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
             </div>
 
-            <div className="select-none	text-center truncate text-sm lg:text-base p-0.5"> {`${minutes}:${seconds}`} </div>
-            <div className="m-auto">
+            <div className="select-none	text-center truncate text-sm lg:text-base p-0.5 hidden md:grid place-items-center">
+                {`${minutes}:${seconds}`}
+            </div>
+            <div className="hidden md:grid place-items-center">
                 <TrackPopularity popularity={track.popularity} />
             </div>
-
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}
@@ -65,7 +68,7 @@ export default function AlbumTrack({ track, reviewId, isLikedAtom }: AlbumTrackP
                     className={'btn btn-sm btn-ghost p-0'}
                 />
             </div>
-            <div>
+            <div className='w-5 flex mr-5'>
                 <TrackOptions
                     trackId={track.id}
                     reviewId={reviewId}

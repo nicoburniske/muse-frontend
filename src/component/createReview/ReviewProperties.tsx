@@ -8,7 +8,7 @@ export const ReviewProperties = ({ entityTypeAtom, isPublicAtom }: { entityTypeA
     return (<div className="flex flex-row w-full space-x-1">
         <div className="form-control w-1/2">
             <label className="label">
-                <span className="label-text text-base-content">type</span>
+                <span className="label-text text-base-content">Type</span>
             </label>
             <select
                 value={entityType}
@@ -24,7 +24,7 @@ export const ReviewProperties = ({ entityTypeAtom, isPublicAtom }: { entityTypeA
         </div>
         <div className="form-control w-1/2">
             <label className="label">
-                <span className="label-text text-base-content">is public</span>
+                <span className="label-text text-base-content">Is Public</span>
             </label>
             <select
                 value={fromBool(isPublic)} onChange={(e) => setIsPublic(toBool(+e.target.value))}

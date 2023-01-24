@@ -14,18 +14,22 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
     const [isModalOpen, setIsModalOpen] = useState(false)
     const queryClient = useQueryClient()
     const { data, isLoading } = useProfileAndReviewsQuery({}, { onError: () => toast.error('Failed to load user reviews.') })
-    const { mutateAsync: createReviewLink } = useLinkReviewsMutation({ onError: () => toast.error('Failed to link review.') })
+    const { mutate: createReviewLink } = useLinkReviewsMutation({
+        onSuccess: () => {
+            queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
+            onCancel()
+        },
+        onError: () => toast.error('Failed to link review.')
+    })
     // We don't want to include any unlinkable reviews.
     const reviews = (data?.user?.reviews ?? [])
         .filter(r => !alreadyLinkedIds.includes(r.id))
         .filter(r => r.id !== reviewId)
     const [selectedReview, setSelectedReview] = useState<undefined | string>(undefined)
 
-    const handleLinkReview = async () => {
+    const handleLinkReview = () => {
         if (selectedReview) {
-            await createReviewLink({ input: { parentReviewId: reviewId, childReviewId: selectedReview } })
-            queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
-            onCancel()
+            createReviewLink({ input: { parentReviewId: reviewId, childReviewId: selectedReview } })
         }
     }
 

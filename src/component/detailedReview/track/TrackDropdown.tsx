@@ -90,7 +90,7 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
                                     zIndex: 100,
                                     width: 'max-content',
                                 }}
-                                className="menu bg-base-300 rounded-md shadow-lg"
+                                className="menu bg-neutral text-neutral-content rounded-md shadow-lg "
                             >
                                 <Menu.Item>
                                     {({ active }) => (
