@@ -66,7 +66,6 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
         accept: 'ReviewId',
         canDrop: (item: { reviewId: string }) => isChild && item.reviewId !== reviewId,
         drop: (item: { reviewId: string }) => {
-            // TODO: Persist this into backend.
             swapReviews(item.reviewId)
         },
         collect: monitor => ({
