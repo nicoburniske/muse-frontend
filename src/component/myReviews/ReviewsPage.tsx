@@ -1,8 +1,8 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { SelectedReview, useSelectReview } from './SelectedReview'
 import { EntityType, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { currentUserIdAtom, searchLoweredAtom } from 'state/Atoms'
+import { currentUserIdAtom, searchAtom, searchLoweredAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
 import CreateReview from 'component/createReview/CreateReview'
@@ -72,37 +72,7 @@ export default function ReviewsPage() {
                 <div className="relative z-10 flex h-16 flex-shrink-0 shadow-sm">
                     <OpenMobileMenuButton />
                     <div className="flex flex-1 justify-between px-4 sm:px-6">
-                        <div className="flex flex-1">
-                            <form className="flex w-full md:ml-0">
-                                <label htmlFor="desktop-search-field" className="sr-only">
-                                    Search reviews
-                                </label>
-                                <label htmlFor="mobile-search-field" className="sr-only">
-                                    Search reviews
-                                </label>
-                                <div className="flex flex-row space-x-5 justify-between items-center w-full text-base-content">
-                                    {/* <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center"> */}
-                                    <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                                    {/* </div> */}
-                                    <input
-                                        name="mobile-search-field"
-                                        id="mobile-search-field"
-                                        className="sm:hidden h-full w-full input placeholder-base-content/50"
-                                        placeholder="Search"
-                                        type="search"
-                                    />
-                                    {/* <input type="text" placeholder="Type here" className="input w-full max-w-xs" /> */}
-
-                                    <input
-                                        name="desktop-search-field"
-                                        id="desktop-search-field"
-                                        className="hidden sm:block w-full input placeholder-base-content/50"
-                                        placeholder="Search"
-                                        type="search"
-                                    />
-                                </div>
-                            </form>
-                        </div>
+                        <SearchBar />
                         <div className="ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6">
                             <CreateReview
                                 title={'Create Review'}
@@ -212,5 +182,43 @@ export default function ReviewsPage() {
                 <SelectedReview />
             </div >
         </div >
+    )
+}
+
+const SearchBar = () => {
+    // TODO: Consider atomWithDebounce!
+    const [search, setSearch] = useAtom(searchAtom)
+    return (
+        <div className="flex flex-1">
+            <form className="flex w-full md:ml-0">
+                <label htmlFor="desktop-search-field" className="sr-only">
+                    Search reviews
+                </label>
+                <label htmlFor="mobile-search-field" className="sr-only">
+                    Search reviews
+                </label>
+                <div className="flex flex-row space-x-5 justify-between items-center w-full text-base-content">
+                    <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                    <input
+                        name="mobile-search-field"
+                        id="mobile-search-field"
+                        className="sm:hidden h-full w-full input placeholder-base-content/50"
+                        placeholder="Search"
+                        type="search"
+                        value={search}
+                        onChange={e => setSearch(e.target.value as string)}
+                    />
+                    <input
+                        name="desktop-search-field"
+                        id="desktop-search-field"
+                        className="hidden sm:block w-full input placeholder-base-content/50"
+                        placeholder="Search"
+                        type="search"
+                        value={search}
+                        onChange={e => setSearch(e.target.value as string)}
+                    />
+                </div>
+            </form>
+        </div>
     )
 }

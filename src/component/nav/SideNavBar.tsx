@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import LogoImage from '/logo.png'
 import { ProfileDropdown } from './ProfileDropdown'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { ErrorBoundary } from 'react-error-boundary'
 
 export const SideNavBar = () => {
     return (
@@ -23,9 +24,19 @@ export const SideNavBar = () => {
                         </div>
                         <div className="flex flex-shrink-0 pb-5">
                             <div className="w-full flex-shrink-0">
-                                <Suspense fallback={null}>
-                                    <ProfileDropdown />
-                                </Suspense>
+                                <ErrorBoundary fallback={
+                                    <div className="w-full flex justify-center">
+                                        <div className="avatar online placeholder">
+                                            <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
+                                                <span className="text-xl">?</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }>
+                                    <Suspense fallback={null}>
+                                        <ProfileDropdown />
+                                    </Suspense>
+                                </ErrorBoundary>
                             </div>
                         </div>
                     </div>

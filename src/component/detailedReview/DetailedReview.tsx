@@ -135,16 +135,12 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         <img className="hidden md:flex object-scale-down object-center h-20 w-20 shadow-2xl" src={reviewEntityImage} />
                         <div>
                             <div className="flex items-center">
-                                <img
-                                    className="h-16 w-16 rounded-full sm:hidden"
-                                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80"
-                                    alt=""
-                                />
-                                <h1 className="ml-3 text-2xl font-bold leading-7 sm:truncate sm:leading-9">
+                                <img className="sm:hidden  object-scale-down object-center h-10 w-10 shadow-2xl" src={reviewEntityImage} />
+                            </div>
+                            <dl className="flex flex-col items-start justify-center space-y-1 ml-1">
+                                <h1 className="text-2xl font-bold leading-7 sm:truncate sm:leading-9">
                                     {title}
                                 </h1>
-                            </div>
-                            <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
                                 <dt className="sr-only">Entity Details</dt>
                                 <dd className="flex items-center text-sm font-medium sm:mr-6">
                                     <div className="badge badge-secondary truncate overflow-hidden whitespace-nowrap mr-1.5">{entity?.__typename}</div>
