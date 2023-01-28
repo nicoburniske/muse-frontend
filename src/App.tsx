@@ -30,8 +30,6 @@ export default function App() {
                 <DndProvider backend={HTML5Backend}>
                     <NavPlayerPage>
                         <Routes>
-                            {/* <Route path="/" element={<BrowsePage />} /> */}
-                            {/* <Route path="/reviews" element={<BrowsePage />} /> */}
                             <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
                             <Route path="/" element={<ReviewsPage />} />
                             <Route path="/reviews" element={<ReviewsPage />} />
