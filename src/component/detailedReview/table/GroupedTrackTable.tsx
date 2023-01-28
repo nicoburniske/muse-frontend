@@ -1,10 +1,10 @@
 import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
-import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, resultsAtom, rootReviewIdAtom, tracksAtom } from './TableAtoms'
+import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
 
 
@@ -17,25 +17,22 @@ interface GroupedTrackTableProps {
 // Got infinite suspense when trying to use provider even though none of the atoms are async.
 // TODO: Figure out if there's a better pattern than this. 
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
-    const allTrackIdsAtom = useMemo(() => atom(get => new Set<string>(get(tracksAtom).map(t => t.id))), [])
 
     // Ensure first group is open on load.
-    const setResultsAtom = useMemo(() => atom(null, (get, set, results: Group[]) => {
-        set(resultsAtom, results)
+    const setAllTrackIds = useSetAtom(useMemo(() => atom(null, (get, set) => {
+        const allTrackIds = new Set<string>(get(tracksAtom).map(t => t.id))
         // Ensure that seeking for now playing works properly.
-        set(allReviewTracksAtom, get(allTrackIdsAtom))
-
-        if (results.length > 0) {
-            set(expandedGroupsAtom, [results[0].overview.reviewId])
-        }
-    }), [])
+        set(allReviewTracksAtom, allTrackIds)
+    }), []))
 
     const setResults = useSetAtom(setResultsAtom)
-    const setRootReview = useSetAtom(rootReviewIdAtom)
 
     useEffect(() => {
-        setRootReview(rootReview)
-        setResults(results)
+        setResults({
+            rootReviewId: rootReview,
+            results
+        })
+        setAllTrackIds()
     }, [results])
 
     return (
@@ -50,17 +47,17 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
 export const GroupedTrackTable = () => {
     const parentRef = useRef<HTMLDivElement>(null)
 
-    const [headerIndices] = useTransientAtom(headerIndicesAtom)
+    const [getHeaderIndices] = useTransientAtom(headerIndicesAtom)
 
     const activeStickyIndexRef = useRef(0)
     const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
-    const isSticky = useCallback((index: number) => headerIndices().includes(index), [headerIndices])
+    const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
 
     // Keep all previously rendered tracks mounted for performance. 
     const keepMounted = useKeepMountedRangeExtractor()
     //Incorporate sticky headers into the range extractor.
     const rangeExtractor = useCallback((range: Range) => {
-        const newActiveSticky = headerIndices()
+        const newActiveSticky = getHeaderIndices()
             .find((index) => range.startIndex >= index) ?? 0
         activeStickyIndexRef.current = newActiveSticky
         const next = new Set([
@@ -69,20 +66,26 @@ export const GroupedTrackTable = () => {
         ])
         const sorted = [...next].sort((a, b) => a - b)
         return sorted
-    }, [headerIndices])
+    }, [getHeaderIndices])
 
     const scrollToFn = useSmoothScroll(parentRef)
-    const [indexToSize] = useTransientAtom(indexToSizeAtom)
+    const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
     const rowVirtualizer = useVirtualizer({
         overscan: 20,
-        count: indexToSize().length,
-        estimateSize: (index) => indexToSize()[index],
+        count: getIndexToSize().length,
+        estimateSize: (index) => getIndexToSize()[index],
         getScrollElement: () => parentRef.current,
         scrollToFn,
         rangeExtractor
     })
-    // This is to force a re-render when the expanded groups change.
-    useAtom(expandedGroupsAtom)
+
+    // Ensure new sizes are measured on re-order.
+    // Derived atom ensures that values must be different for re-render.
+    const order = useAtomValue(useMemo(() => atom(get => get(reviewOrderAtom).join(',')), []))
+    useEffect(() => {
+        rowVirtualizer.measure()
+    }, [order, rowVirtualizer])
+
     useScrollToSelected(rowVirtualizer)
 
     const indexToStyle = useCallback((virtualRow: VirtualItem) => {
@@ -105,8 +108,8 @@ export const GroupedTrackTable = () => {
         }
     }, [isSticky, isActiveSticky])
 
-    const [rows] = useTransientAtom(indexToJsxAtom)
-    const currRows = rows()
+    const [getRows] = useTransientAtom(indexToJsxAtom)
+    const rows = getRows()
     return (
         <div
             ref={parentRef}
@@ -121,13 +124,12 @@ export const GroupedTrackTable = () => {
             >
                 {
                     rowVirtualizer.getVirtualItems().filter(Boolean).map((virtualRow) => {
-                        // Consider a compound key.
                         return (
                             <div
                                 key={virtualRow.index}
                                 style={indexToStyle(virtualRow) as CSSProperties}>
                                 {
-                                    currRows[virtualRow.index]
+                                    rows[virtualRow.index]
                                 }
                             </div>
                         )

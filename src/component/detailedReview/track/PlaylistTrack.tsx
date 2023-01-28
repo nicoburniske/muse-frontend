@@ -1,25 +1,30 @@
-import { DetailedPlaylistTrackFragment } from 'graphql/generated/schema'
-import { PrimitiveAtom } from 'jotai'
+import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from 'graphql/generated/schema'
+import { PrimitiveAtom, useAtomValue } from 'jotai'
 import { RefObject, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
-import { useLongPress } from 'use-long-press'
-import { usePlay } from 'component/playbackSDK/hooks'
+import { useAddTracksToPlaylistMutation, usePlay, useReorderPlaylistTracksMutation } from 'component/playbackSDK/hooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { useCommentModalTrack } from './useCommentModalTrack'
-import { msToTimeStr } from 'util/Utils'
+import { classNames, msToTimeStr } from 'util/Utils'
+import { useDrag, useDrop } from 'react-dnd'
+import { useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
+import { currentUserIdAtom } from 'state/Atoms'
+
+import TrackOptions from './TrackDropdown'
 
 export interface PlaylistTrackProps {
+    index: number
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
     isLikedAtom: PrimitiveAtom<boolean>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: PlaylistTrackProps) {
+export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedAtom }: PlaylistTrackProps) {
     const { addedAt, addedBy, track, playlist: { id: playlistId } } = playlistTrack
-
+    const { data: playlistOwner } = useGetPlaylistQuery({ id: playlistId }, { select: data => data.getPlaylist?.owner.id })
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
     // Sorted biggest to smallest.
@@ -31,8 +36,6 @@ export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: 
     const styles = useTrackColor(track.id)
     const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
-    const showModal = useCommentModalTrack(reviewId, track.id)
-
     const { playlistOffset, isLoading } = usePlay()
 
     const onPlayTrack = () => {
@@ -42,22 +45,92 @@ export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: 
     }
 
     // Play on div double click.
-    const trackDivRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
-    useDoubleClick({ ref: trackDivRef, onDoubleClick: onPlayTrack })
-    const bind = useLongPress(() => {
-        showModal()
-    }, { threshold: 500 })
+    const trackDivRef = useRef<HTMLDivElement>()
+    useDoubleClick({ ref: trackDivRef as RefObject<HTMLDivElement>, onDoubleClick: onPlayTrack })
 
     const { minutes, seconds } = msToTimeStr(track.durationMs)
 
+    const dateAdded = new Date(addedAt).toLocaleDateString()
+
+    const queryClient = useQueryClient()
+    const reloadPlaylist = () => queryClient.invalidateQueries(useGetPlaylistQuery.getKey({ id: playlistId }))
+
+    // On success optimistic update for atoms!
+    const { mutate: addTracksToPlaylist } = useAddTracksToPlaylistMutation({
+        onSuccess: () => {
+            reloadPlaylist()
+            toast.success('Added track to playlist.')
+        },
+        onError: () => toast.error('Failed to add track to playlist.')
+    })
+
+    const { mutate: reorder } = useReorderPlaylistTracksMutation({
+        onSuccess: () => {
+            reloadPlaylist()
+            toast.success('Reordered playlist tracks.')
+        },
+        onError: () => toast.error('Failed to reorder playlist tracks.')
+    })
+
+    const currentUserId = useAtomValue(currentUserIdAtom)
+
+    // Drop to add to playlist.
+    const [{ canDrop, isAbove }, drop] = useDrop(() => ({
+        accept: 'Track',
+        canDrop: (item: { trackId: string, playlistId?: string, index: number }) => currentUserId === playlistOwner && item.trackId !== trackId,
+        drop: (item: { trackId: string, playlistId?: string, index: number }) => {
+            const insertIndex = isAbove ? index : index + 1
+            if (item.playlistId === playlistId) {
+                reorder({ playlistId, insertBefore: insertIndex, rangeStart: item.index, rangeLength: 1 })
+            } else {
+                addTracksToPlaylist({ trackIds: [item.trackId], playlistId, position: insertIndex })
+            }
+        },
+        collect: monitor => {
+            const canDrop = !!monitor.isOver() && monitor.canDrop()
+
+            const clientOffset = monitor.getClientOffset()
+            const currentDiv = trackDivRef.current?.getBoundingClientRect()
+            if (clientOffset && currentDiv) {
+                const { y } = clientOffset
+                const { top, bottom } = currentDiv
+                const isAbove = y < top + (bottom - top) / 2
+                return { canDrop, isAbove }
+            } else {
+                return { canDrop, isAbove: undefined }
+            }
+        },
+    }), [reorder, addTracksToPlaylist, currentUserId, playlistOwner])
+
+    // Drag to re-order.
+    const trackId = track.id
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'Track',
+        item: { trackId, playlistId, index },
+        canDrag: true,
+        collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    }), [trackId])
+
+
     return (
         <div
-            {...bind()}
-            ref={trackDivRef}
-            className={`grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 | card card-body items-center p-0.5 m-0 select-none ${styles}`} >
+            ref={(el: HTMLDivElement) => {
+                drag(el)
+                drop(el)
+                trackDivRef.current = el
+            }}
+            className={classNames(
+                'group grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 card card-body items-center p-0.5 m-0 select-none w-full h-full border-2 border-base-300',
+                styles,
+                isDragging ? 'opacity-50' : '',
+                isAbove === undefined || !canDrop ? '' :
+                    isAbove ? 'border-t-success order-t-2 ' : 'border-b-success border-b-2'
+            )} >
 
             <div className="hidden sm:flex avatar ml-1">
-                <div className="w-8 md:w-12 rounded" onClick={showModal}>
+                <div className="w-8 md:w-12 rounded">
                     <img src={albumImage} />
                 </div>
             </div>
@@ -67,13 +140,11 @@ export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: 
                 <div className="truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
             </div>
 
-            <div className='hidden md:grid place-items-center text-xs lg:text-sm'>
-                <p> {new Date(addedAt).toLocaleDateString()} </p>
-            </div>
-            {/* <div className={`flex flex-row w-3/6 justify-evenly }> */}
-            {/* TODO: This needs to get centered vertically */}
             <div className="grid place-items-center">
-                <UserAvatar displayName={displayName} image={avatarImage as string} tooltipPos={TooltipPos.Left} />
+                <UserAvatar
+                    displayName={displayName}
+                    tooltip={`${displayName} - ${dateAdded}`}
+                    image={avatarImage as string} tooltipPos={TooltipPos.Left} />
             </div>
             <div className="truncate text-sm lg:text-base p-0.5 m-auto">
                 <p>
@@ -88,7 +159,16 @@ export default function PlaylistTrack({ playlistTrack, reviewId, isLikedAtom }: 
                     className={'btn btn-sm btn-ghost p-0'}
                 />
             </div>
+            <div>
+                <TrackOptions
+                    trackId={track.id}
+                    reviewId={reviewId}
+                    playlist={{
+                        owner: playlistOwner ?? '',
+                        id: playlistId
+                    }}
+                />
+            </div>
         </div >
     )
 }
-

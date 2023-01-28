@@ -1,25 +1,25 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment } from 'graphql/generated/schema'
-import { atom, PrimitiveAtom } from 'jotai'
-import { focusAtom } from 'jotai-optics'
-import { memo, useMemo } from 'react'
+import { PrimitiveAtom } from 'jotai'
+import { memo } from 'react'
 import AlbumTrack from '../track/AlbumTrack'
 import PlaylistTrack from '../track/PlaylistTrack'
 import { getTrackId } from './Helpers'
 
 export interface MemoTrackProps {
+    index: number
     track: DetailedPlaylistTrackFragment | DetailedTrackFragment
     reviewId: string
-    tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>
+    isLikedAtom: PrimitiveAtom<boolean>
 }
 /**
  * TODO: Incorporate Podcast episode. 
  */
 
-export const MemoTrack = memo(({ reviewId, track, tracksAtom }: MemoTrackProps) => {
-    const isLikedAtom = useTrackLikeAtom(tracksAtom, getTrackId(track))
+export const MemoTrack = memo(({ reviewId, track, isLikedAtom, index}: MemoTrackProps) => {
     if ('track' in track) {
         return (
             <PlaylistTrack
+                index={index}
                 reviewId={reviewId}
                 playlistTrack={track}
                 isLikedAtom={isLikedAtom}
@@ -37,14 +37,3 @@ export const MemoTrack = memo(({ reviewId, track, tracksAtom }: MemoTrackProps) 
 }, (a, b) =>
     a.reviewId === b.reviewId &&
     getTrackId(a.track) === getTrackId(b.track))
-
-function useTrackLikeAtom(tracksAtom: PrimitiveAtom<DetailedTrackFragment[]>, trackId: string): PrimitiveAtom<boolean> {
-    return useMemo(() => {
-        const focused = focusAtom(tracksAtom, (optic) =>
-            optic
-                .find(t => t.id === trackId)
-                .prop('isLiked')
-                .valueOr(false))
-        return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
-    }, [trackId])
-}

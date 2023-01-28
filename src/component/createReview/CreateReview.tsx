@@ -35,7 +35,7 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
     const openModalIcon = icon ?? <PlusIcon />
 
     return (
-        <div>
+        <>
             <ThemeModal open={isModalOpen} className="max-w-2xl">
                 <div className="flex flex-col w-full items-center justify-between space-y-5 p-3" >
                     <Dialog.Title className="font-bold text-lg text-base-content">
@@ -68,6 +68,6 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
             <button className={className} onClick={() => setModalOpen(true)} >
                 {openModalIcon}
             </button>
-        </div>
+        </>
     )
 }

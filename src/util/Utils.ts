@@ -92,3 +92,7 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
         .filter(nonNullable)
         .at(0)
 }
+
+export function classNames(...classes: (string | undefined)[]) {
+    return classes.filter(Boolean).join(' ')
+}

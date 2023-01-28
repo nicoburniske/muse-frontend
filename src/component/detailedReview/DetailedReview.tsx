@@ -1,55 +1,50 @@
 import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment, DetailedAlbumFragment } from 'graphql/generated/schema'
-import { Suspense, useEffect, useMemo, useState } from 'react'
-import { useSetAtom, useAtomValue, atom } from 'jotai'
+import { useEffect, useMemo } from 'react'
+import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
-import { Alert, AlertSeverity } from 'component/Alert'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReviewButton } from './editReview/EditReview'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
-import { nonNullable, findFirstImage, groupBy } from 'util/Utils'
+import { nonNullable, findFirstImage, groupBy, classNames } from 'util/Utils'
 import CreateReview from 'component/createReview/CreateReview'
-import { useQueries, UseQueryResult } from '@tanstack/react-query'
+import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
-import { SpotifyPlayerWrapper } from './playback/SpotifyPlayerWrapper'
-import { ErrorBoundary } from 'react-error-boundary'
 import { NotFound } from 'pages/NotFound'
-import { UserPreferencesButton } from 'component/preferences/UserPreferencesForm'
 import { Group, ReviewOverview } from './table/Helpers'
+import { useSetCurrentReview } from 'state/CurrentReviewAtom'
+import { UserIcon } from '@heroicons/react/20/solid'
 
 export interface DetailedReviewProps {
     reviewId: string
     isSm: boolean
 }
 
-export enum RenderOptions {
-    Tracks,
-    Comments,
-    Both
-}
+export type RenderOptions = 'tracks' | 'comments' | 'both'
+const renderOptionAtom = atom<RenderOptions>('both')
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
-    const { data, isLoading, refetch } = useDetailedReviewQuery({ reviewId }, { suspense: true })
+    const { data, isLoading } = useDetailedReviewQuery({ reviewId }, { suspense: true })
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
+    const setRenderOption = useSetAtom(renderOptionAtom)
 
-    // On unmount reset selected track. Avoids scroll to track on review mount.
-    useEffect(
-        () => () => setSelectedTrack(undefined)
-        , [])
+    useEffect(() => {
+        setRenderOption(isSm ? 'tracks' : 'both')
+        // On unmount reset selected track. Avoids scroll to track on review mount.
+        return () => setSelectedTrack(undefined)
+    }, [])
 
 
     if (data?.review) {
         return (
             < DetailedReviewContent
-                renderOption={isSm ? RenderOptions.Tracks : RenderOptions.Both}
                 reviewId={reviewId}
                 review={data.review}
-                reload={() => refetch()
-                } />
+            />
         )
     } else if (!isLoading) {
         return (
@@ -59,30 +54,14 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
 }
 
 interface DetailedReviewContentProps {
-    renderOption: RenderOptions
     reviewId: string
     review: ReviewDetailsFragment
-    reload: () => void
 }
 
-const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, review, reload }: DetailedReviewContentProps) => {
-    const [renderOption, setRenderOption] = useState(renderOptionProp)
-    const userId = useAtomValue(currentUserIdAtom)
-    const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
+const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps) => {
+    useSetCurrentReview(reviewId)
 
-    const isReviewOwner = userId === review?.creator?.id
-    const collaborators = review?.collaborators ?? []
-    const isPublic = review.isPublic
-    const title = review.reviewName
-    const entityName = review.entity?.name
     const entityId = review.entity?.id ?? ''
-    const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
-    const entity = review?.entity
-
-    // Find first image!
-    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
-    // Root review doesn't need an entity.
-    const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
 
     // Children!
     const children = review
@@ -107,125 +86,171 @@ const DetailedReviewContent = ({ renderOption: renderOptionProp, reviewId, revie
         : undefined
     const allReviews = [parent, ...children].filter(nonNullable)
 
-    const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 
     return (
-        < div className="w-full h-screen flex flex-col relative">
-            <div className="grid grid-cols-5 lg:grid-cols-4 items-center bg-base-100">
-                <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center p-1 space-x-1">
-                    <div className="card flex flex-row items-center bg-base-200 px-1 md:mx-1 md:space-x-2">
-                        <img className="hidden md:flex object-scale-down object-center h-24 w-24" src={reviewEntityImage} />
-                        <div className="flex flex-col">
-                            <div className="stat-value text-sm lg:text-base text-clip">{title}</div>
-                            <div className="stat-title text-sm lg:text-base text-clip">{entityName}</div>
-                            <div className="flex flex-row justify-start w-full">
-                                <div className="badge badge-secondary truncate overflow-hidden whitespace-nowrap">{creator}</div>
-                            </div>
-                        </div>
-                    </div>
-                    {
-                        isReviewOwner ?
-                            <div className="grid grid-cols-2 lg:grid-cols-4">
-                                <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
-                                <EditReviewButton
-                                    reviewId={reviewId}
-                                    reviewName={title!}
-                                    onSuccess={() => { reload() }}
-                                    isPublic={isPublic === undefined ? false : isPublic}
-                                />
-                                <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={children.map(c => c.reviewId)} />
-                                <CreateReview
-                                    parentReviewIdAtom={parentReviewIdAtom}
-                                    title="create linked review"
-                                    className="btn btn-secondary btn-xs lg:btn-md" />
-                            </div>
-                            : null
-                    }
-                </div>
-                <div className="col-span-2 lg:col-span-1 tabs flex flex-row justify-center">
-                    <button className={`${tabStyle} ${renderOption === RenderOptions.Tracks ? 'tab-active' : ''}`}
-                        onClick={() => setRenderOption(RenderOptions.Tracks)}
-                    >
-                        <MusicIcon />
-                    </button>
-                    <button className={`${tabStyle} ${renderOption === RenderOptions.Both ? 'tab-active' : ''}`}
-                        onClick={() => setRenderOption(RenderOptions.Both)}
-                    >
-                        <ArrowRightLeftIcon />
-                    </button>
-                    <button
-                        className={`${tabStyle} ${renderOption === RenderOptions.Comments ? 'tab-active' : ''}`}
-                        onClick={() => setRenderOption(RenderOptions.Comments)}
-                    >
-                        <CommentIcon />
-                    </button>
-                </div>
-                <div className='hidden lg:flex justify-end px-1'>
-                    <UserPreferencesButton />
-                </div>
-
-                {/* <div className="flex flex-row items-center h-full">
-          <div className="stats shadow">
-            <div className="stat h-full">
-            </div>
-          </div>
-          {collaboratorImages}
-        </div> */}
+        < div className="w-full h-full flex flex-col relative">
+            <ReviewHeader review={review} />
+            <div className="grow min-h-0 bg-base-300 mx-1">
+                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
             </div>
             <CommentFormModalWrapper />
-            <div className="grow min-h-0 w-full bg-base-300">
-                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} options={renderOption} />
-            </div>
-            <div className='w-full bg-neutral'>
-                <ErrorBoundary fallback={
-                    <Alert severity={AlertSeverity.Error}>
-                        <span> Error Starting Playback </span>
-                    </Alert >
-                }>
-                    <Suspense fallback={<progress className="progress progress-primary" />}>
-                        <SpotifyPlayerWrapper reviewId={reviewId} />
-                    </Suspense>
-                </ErrorBoundary>
-            </div>
         </div >
+    )
+}
+
+const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
+
+const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
+    const queryClient = useQueryClient()
+    const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
+
+    const reviewId = review.id
+    const userId = useAtomValue(currentUserIdAtom)
+    const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
+
+    const isReviewOwner = userId === review?.creator?.id
+    const collaborators = review?.collaborators ?? []
+    const isPublic = review.isPublic
+    const title = review.reviewName
+    const entityName = review.entity?.name ?? 'No Entity Linked'
+    const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
+    const entity = review?.entity
+
+    // Find first image!
+    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
+    // Root review doesn't need an entity.
+    const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
+
+    const childReviewIds = review
+        ?.childReviews
+        ?.filter(nonNullable)
+        ?.map(c => c?.id)
+        .filter(nonNullable) ?? []
+
+    return (
+        <div className="flex flex-row justify-between items-center bg-base-100 px-5 shadow-l mb-1">
+            <div className="col-span-3 lg:col-span-2 flex flex-row justify-start items-center p-1 space-x-1">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center">
+                        <img className="hidden md:flex object-scale-down object-center h-20 w-20 shadow-2xl" src={reviewEntityImage} />
+                        <div>
+                            <div className="flex items-center">
+                                <img className="sm:hidden  object-scale-down object-center h-10 w-10 shadow-2xl" src={reviewEntityImage} />
+                            </div>
+                            <dl className="flex flex-col items-start justify-center space-y-1 ml-1">
+                                <h1 className="text-2xl font-bold leading-7 sm:truncate sm:leading-9">
+                                    {title}
+                                </h1>
+                                <dt className="sr-only">Entity Details</dt>
+                                <dd className="flex items-center text-sm font-medium sm:mr-6">
+                                    <div className="badge badge-secondary truncate overflow-hidden whitespace-nowrap mr-1.5">{entity?.__typename}</div>
+                                    {entityName}
+                                </dd>
+                                <dt className="sr-only">Creator name</dt>
+                                <dd className="mt-3 flex items-center text-sm font-medium capitalize text-gray-500 sm:mr-6 sm:mt-0">
+                                    <UserIcon
+                                        className="mr-1.5 h-5 w-5 flex-shrink-0 text-primary"
+                                        aria-hidden="true"
+                                    />
+                                    {creator}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="tabs flex flex-row justify-center">
+                <RenderOptionTabs />
+            </div>
+            {
+                isReviewOwner ?
+                    <div className="grid grid-cols-2 gap-1 lg:flex lg:space-x-1">
+                        <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
+                        <EditReviewButton
+                            reviewId={reviewId}
+                            reviewName={title!}
+                            onSuccess={() => { reload() }}
+                            isPublic={isPublic === undefined ? false : isPublic}
+                        />
+                        <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
+                        <CreateReview
+                            parentReviewIdAtom={parentReviewIdAtom}
+                            title="create linked review"
+                            className="btn btn-secondary btn-sm lg:btn-md" />
+                    </div>
+                    : null
+            }
+        </div >
+
+    )
+}
+
+const RenderOptionTabs = () => {
+    const [renderOption, setRenderOption] = useAtom(renderOptionAtom)
+    return (
+        <>
+            <button className={classNames(tabStyle, renderOption === 'tracks' ? 'tab-active' : '')}
+                onClick={() => setRenderOption('tracks')}
+            >
+                <MusicIcon />
+            </button>
+            <button className={classNames(tabStyle, renderOption === 'both' ? 'tab-active' : '')}
+                onClick={() => setRenderOption('both')}
+            >
+                <ArrowRightLeftIcon />
+            </button>
+            <button className={classNames(tabStyle, renderOption === 'comments' ? 'tab-active' : '')}
+                onClick={() => setRenderOption('comments')}
+            >
+                <CommentIcon />
+            </button>
+
+        </>
     )
 }
 
 interface DetailedReviewBodyProps {
     rootReview: string
-    reviews: ReviewOverview[]
-    options?: RenderOptions
-}
-
-const DetailedReviewBody = ({ rootReview, reviews, options = RenderOptions.Both }: DetailedReviewBodyProps) => {
-    const trackSection = () => (<TrackSectionTable rootReview={rootReview} all={reviews} />)
-    const commentSection = () => (<ReviewCommentSection reviews={reviews} />)
-    return (
-        <div className="h-full px-1">
-            {(options == RenderOptions.Both) ?
-                <Split
-                    className="flex h-full"
-                    sizes={[50, 50]}
-                    direction="horizontal"
-                >
-                    {trackSection()}
-                    {commentSection()}
-                </Split>
-                :
-                <div className="flex h-full w-full">
-                    {(options == RenderOptions.Tracks)
-                        ?
-                        trackSection() :
-                        commentSection()}
-                </div>
-            }
-        </div>
-    )
+    reviews: ReviewAndEntity[]
 }
 
 export type ReviewAndEntity = ReviewOverview & {
     entityId: string
     entityType: EntityType
+}
+
+const DetailedReviewBody = ({ rootReview, reviews }: DetailedReviewBodyProps) => {
+    const options = useAtomValue(renderOptionAtom)
+    const trackSection = <TrackSectionTable rootReview={rootReview} all={reviews} />
+    const commentSection = <ReviewCommentSection reviews={reviews} />
+    const setSelectedTrack = useSetAtom(selectedTrackAtom)
+
+    // Avoid scroll to track when changing tabs.
+    useEffect(() => {
+        setSelectedTrack(undefined)
+    }, [options])
+
+    return (
+        <div className="h-full px-1">
+            {(options == 'both') ?
+                <Split
+                    className="flex h-full space-x-1"
+                    sizes={[50, 50]}
+                    direction="horizontal"
+                >
+                    {trackSection}
+                    {commentSection}
+                </Split>
+                :
+                <div className="flex h-full w-full">
+                    {(options == 'tracks')
+                        ?
+                        trackSection :
+                        commentSection}
+                </div>
+            }
+        </div>
+    )
 }
 
 const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootReview: string }) => {
@@ -235,15 +260,14 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
     const playlistResults = useQueries({
         queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
-            queryFn: useGetPlaylistQuery.fetcher({ id })
+            queryFn: useGetPlaylistQuery.fetcher({ id }),
         }))
     })
+    // Is there a better way of handling likes than this? Hypothetically we have an infinite stale time.  
     const albumResults = useQueries({
         queries: albumIds.map(id => ({
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
-            // Never have to refetch albums because they don't update.
-            // staleTime: Infinity
         })),
     })
 
@@ -258,7 +282,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         return allReviews.reduce((acc, { entityId, reviewName, reviewId }) => {
             const data = results.find(r => r.id === entityId)
             if (data) {
-                acc.push({ data, overview: { reviewName, reviewId }})
+                acc.push({ data, overview: { reviewName, reviewId } })
             }
             return acc
         }, new Array<Group>())

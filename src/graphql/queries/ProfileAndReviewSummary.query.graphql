@@ -1,6 +1,6 @@
 query ProfileAndReviews {
-    user {
-      id
+  user {
+    id
     spotifyProfile {
       id
       displayName

@@ -7,10 +7,10 @@ import { useAtomValue } from 'jotai'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
-import { ReviewOverview } from '../DetailedReview'
 import CommentMarkdown from './CommentMarkdown'
 import { usePlay } from 'component/playbackSDK/hooks'
 import { padTime } from 'util/Utils'
+import { ReviewOverview } from '../table/Helpers'
 
 export interface DetailedCommentProps {
     review: ReviewOverview

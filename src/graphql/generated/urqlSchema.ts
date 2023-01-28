@@ -125,6 +125,11 @@ export type DeleteReviewInput = {
   id: Scalars['ID'];
 };
 
+export type DeleteReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  parentReviewId: Scalars['ID'];
+};
+
 export type DeletedComment = {
   __typename?: 'DeletedComment';
   commentId: Scalars['Int'];
@@ -161,6 +166,12 @@ export type KvStringString = {
   value: Scalars['String'];
 };
 
+export type LinkReviewsInput = {
+  childReviewId: Scalars['ID'];
+  linkIndex?: InputMaybe<Scalars['Int']>;
+  parentReviewId: Scalars['ID'];
+};
+
 export type Mutations = {
   __typename?: 'Mutations';
   createComment?: Maybe<Comment>;
@@ -185,6 +196,7 @@ export type Mutations = {
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
   updateReviewEntity?: Maybe<Review>;
+  updateReviewLink?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -209,12 +221,12 @@ export type MutationsDeleteReviewArgs = {
 
 
 export type MutationsDeleteReviewLinkArgs = {
-  input: ReviewLinkInput;
+  input: DeleteReviewLinkInput;
 };
 
 
 export type MutationsLinkReviewsArgs = {
-  input: ReviewLinkInput;
+  input: LinkReviewsInput;
 };
 
 
@@ -295,6 +307,11 @@ export type MutationsUpdateReviewArgs = {
 
 export type MutationsUpdateReviewEntityArgs = {
   input: UpdateReviewEntityInput;
+};
+
+
+export type MutationsUpdateReviewLinkArgs = {
+  input: UpdateReviewLinkInput;
 };
 
 export type PaginationInput = {
@@ -486,11 +503,6 @@ export type ReviewEntityInput = {
   entityType: EntityType;
 };
 
-export type ReviewLinkInput = {
-  childReviewId: Scalars['ID'];
-  parentReviewId: Scalars['ID'];
-};
-
 export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment;
 
 export type SearchResult = {
@@ -594,6 +606,12 @@ export type UpdateReviewInput = {
   isPublic: Scalars['Boolean'];
   name: Scalars['String'];
   reviewId: Scalars['ID'];
+};
+
+export type UpdateReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  linkIndex: Scalars['Int'];
+  parentReviewId: Scalars['ID'];
 };
 
 export type UpdatedComment = {

@@ -126,6 +126,11 @@ export type DeleteReviewInput = {
   id: Scalars['ID'];
 };
 
+export type DeleteReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  parentReviewId: Scalars['ID'];
+};
+
 export type DeletedComment = {
   __typename?: 'DeletedComment';
   commentId: Scalars['Int'];
@@ -162,6 +167,12 @@ export type KvStringString = {
   value: Scalars['String'];
 };
 
+export type LinkReviewsInput = {
+  childReviewId: Scalars['ID'];
+  linkIndex?: InputMaybe<Scalars['Int']>;
+  parentReviewId: Scalars['ID'];
+};
+
 export type Mutations = {
   __typename?: 'Mutations';
   createComment?: Maybe<Comment>;
@@ -186,6 +197,7 @@ export type Mutations = {
   updateComment?: Maybe<Comment>;
   updateReview?: Maybe<Review>;
   updateReviewEntity?: Maybe<Review>;
+  updateReviewLink?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -210,12 +222,12 @@ export type MutationsDeleteReviewArgs = {
 
 
 export type MutationsDeleteReviewLinkArgs = {
-  input: ReviewLinkInput;
+  input: DeleteReviewLinkInput;
 };
 
 
 export type MutationsLinkReviewsArgs = {
-  input: ReviewLinkInput;
+  input: LinkReviewsInput;
 };
 
 
@@ -296,6 +308,11 @@ export type MutationsUpdateReviewArgs = {
 
 export type MutationsUpdateReviewEntityArgs = {
   input: UpdateReviewEntityInput;
+};
+
+
+export type MutationsUpdateReviewLinkArgs = {
+  input: UpdateReviewLinkInput;
 };
 
 export type PaginationInput = {
@@ -487,11 +504,6 @@ export type ReviewEntityInput = {
   entityType: EntityType;
 };
 
-export type ReviewLinkInput = {
-  childReviewId: Scalars['ID'];
-  parentReviewId: Scalars['ID'];
-};
-
 export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment;
 
 export type SearchResult = {
@@ -597,6 +609,12 @@ export type UpdateReviewInput = {
   reviewId: Scalars['ID'];
 };
 
+export type UpdateReviewLinkInput = {
+  childReviewId: Scalars['ID'];
+  linkIndex: Scalars['Int'];
+  parentReviewId: Scalars['ID'];
+};
+
 export type UpdatedComment = {
   __typename?: 'UpdatedComment';
   comment: Comment;
@@ -680,14 +698,14 @@ export type DeleteReviewMutationVariables = Exact<{
 export type DeleteReviewMutation = { __typename?: 'Mutations', deleteReview?: boolean | null };
 
 export type DeleteReviewLinkMutationVariables = Exact<{
-  input: ReviewLinkInput;
+  input: DeleteReviewLinkInput;
 }>;
 
 
 export type DeleteReviewLinkMutation = { __typename?: 'Mutations', deleteReviewLink?: boolean | null };
 
 export type LinkReviewsMutationVariables = Exact<{
-  input: ReviewLinkInput;
+  input: LinkReviewsInput;
 }>;
 
 
@@ -790,6 +808,13 @@ export type UpdateReviewMutationVariables = Exact<{
 
 
 export type UpdateReviewMutation = { __typename?: 'Mutations', updateReview?: { __typename?: 'Review', id: string } | null };
+
+export type UpdateReviewLinkMutationVariables = Exact<{
+  input: UpdateReviewLinkInput;
+}>;
+
+
+export type UpdateReviewLinkMutation = { __typename?: 'Mutations', updateReviewLink?: boolean | null };
 
 export type DetailedReviewQueryVariables = Exact<{
   reviewId: Scalars['ID'];
@@ -1145,7 +1170,7 @@ export const useDeleteReviewMutation = <
         )
 useDeleteReviewMutation.fetcher = (variables: DeleteReviewMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteReviewMutation, DeleteReviewMutationVariables>(DeleteReviewDocument, variables, options)
 export const DeleteReviewLinkDocument = `
-    mutation DeleteReviewLink($input: ReviewLinkInput!) {
+    mutation DeleteReviewLink($input: DeleteReviewLinkInput!) {
   deleteReviewLink(input: $input)
 }
     `
@@ -1160,7 +1185,7 @@ export const useDeleteReviewLinkMutation = <
         )
 useDeleteReviewLinkMutation.fetcher = (variables: DeleteReviewLinkMutationVariables, options?: RequestInit['headers']) => fetcher<DeleteReviewLinkMutation, DeleteReviewLinkMutationVariables>(DeleteReviewLinkDocument, variables, options)
 export const LinkReviewsDocument = `
-    mutation LinkReviews($input: ReviewLinkInput!) {
+    mutation LinkReviews($input: LinkReviewsInput!) {
   linkReviews(input: $input)
 }
     `
@@ -1388,6 +1413,21 @@ export const useUpdateReviewMutation = <
             options
         )
 useUpdateReviewMutation.fetcher = (variables: UpdateReviewMutationVariables, options?: RequestInit['headers']) => fetcher<UpdateReviewMutation, UpdateReviewMutationVariables>(UpdateReviewDocument, variables, options)
+export const UpdateReviewLinkDocument = `
+    mutation UpdateReviewLink($input: UpdateReviewLinkInput!) {
+  updateReviewLink(input: $input)
+}
+    `
+export const useUpdateReviewLinkMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateReviewLinkMutation, TError, UpdateReviewLinkMutationVariables, TContext>) =>
+        useMutation<UpdateReviewLinkMutation, TError, UpdateReviewLinkMutationVariables, TContext>(
+            ['UpdateReviewLink'],
+            (variables?: UpdateReviewLinkMutationVariables) => fetcher<UpdateReviewLinkMutation, UpdateReviewLinkMutationVariables>(UpdateReviewLinkDocument, variables)(),
+            options
+        )
+useUpdateReviewLinkMutation.fetcher = (variables: UpdateReviewLinkMutationVariables, options?: RequestInit['headers']) => fetcher<UpdateReviewLinkMutation, UpdateReviewLinkMutationVariables>(UpdateReviewLinkDocument, variables, options)
 export const DetailedReviewDocument = `
     query DetailedReview($reviewId: ID!) {
   review(id: $reviewId) {

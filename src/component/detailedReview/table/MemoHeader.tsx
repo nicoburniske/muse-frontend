@@ -9,11 +9,12 @@ import { selectedTrackAtom } from 'state/Atoms'
 import { ReviewGroupHeader, ReviewGroupHeaderProps } from './GroupHeader'
 import { expandedGroupsAtom } from './TableAtoms'
 
-type MemoHeaderProps = Omit<ReviewGroupHeaderProps , 'onClick'>
+type MemoHeaderProps = Omit<ReviewGroupHeaderProps, 'onClick'>
 
 const toggleExpandedGroupAtom = atom(null, (get, set, reviewId: string) => {
     // Clear selected track to avoid conflict with expanded group.
     set(selectedTrackAtom, undefined)
+
     const currentExpanded = get(expandedGroupsAtom)
     const exists = currentExpanded.includes(reviewId)
     if (exists) {

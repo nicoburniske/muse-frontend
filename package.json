@@ -11,7 +11,9 @@
     "lint": "eslint --fix --ext .ts,.tsx ."
   },
   "dependencies": {
+    "@floating-ui/react": "^0.18.0",
     "@headlessui/react": "^1.7.3",
+    "@heroicons/react": "^2.0.13",
     "@radix-ui/react-slider": "^1.1.0",
     "@tanstack/query-sync-storage-persister": "^4.14.5",
     "@tanstack/react-query": "^4.13.5",
@@ -28,6 +30,8 @@
     "markdown-to-jsx": "^7.1.7",
     "optics-ts": "^2.4.0",
     "react": "^18.0.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.0.0",
     "react-error-boundary": "^3.1.4",
     "react-hot-toast": "^2.4.0",
@@ -47,6 +51,8 @@
     "@graphql-codegen/typescript-operations": "^2.5.10",
     "@graphql-codegen/typescript-react-query": "^4.0.3",
     "@graphql-codegen/typescript-urql": "^3.7.3",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.7",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

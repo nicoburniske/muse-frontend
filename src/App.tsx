@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import BrowsePage from 'component/browseReviews/BrowsePage'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { SpotifyPlaybackSdk, useSetAccessToken, useSetTokenFunction } from 'component/playbackSDK/PlaybackSDK'
 import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
@@ -11,6 +10,11 @@ import { useThemeValue } from 'state/UserPreferences'
 import { AppConfig } from 'util/AppConfig'
 import { nonNullable } from 'util/Utils'
 import './index.css'
+import { NavPlayerPage } from 'component/nav/NavPlayerPage'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import Portal from 'component/Portal'
+import ReviewsPage from 'component/myReviews/ReviewsPage'
 
 
 export default function App() {
@@ -18,21 +22,25 @@ export default function App() {
 
     return (
         <div data-theme={theme} className="h-screen bg-base-300">
-            <div className="h-screen">
-                {/* Effects lower in component tree to avoid re-render */}
-                <SyncAccessToken />
-                <SpotifyPlaybackSdk />
-                {/* Routes */}
-                <StrictMode>
-                    <Routes>
-                        <Route path="/" element={<BrowsePage />} />
-                        <Route path="/reviews" element={<BrowsePage />} />
-                        <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
+            {/* Effects lower in component tree to avoid re-render */}
+            <SyncAccessToken />
+            <SpotifyPlaybackSdk />
+            {/* Routes */}
+            <StrictMode>
+                <DndProvider backend={HTML5Backend}>
+                    <NavPlayerPage>
+                        <Routes>
+                            <Route path="reviews/:reviewId" element={<DetailedReviewPage />} />
+                            <Route path="/" element={<ReviewsPage />} />
+                            <Route path="/reviews" element={<ReviewsPage />} />
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                    </NavPlayerPage>
+                </DndProvider>
+                <Portal>
                     <UserPreferencesModal />
-                </StrictMode>
-            </div>
+                </Portal>
+            </StrictMode>
         </div>
     )
 }
@@ -42,8 +50,8 @@ const accessTokenInterval = 55 * 60 * 1000
 
 const SyncAccessToken = () => {
     /**
-     * Setup Playback SDK.
-     */
+    * Setup Playback SDK.
+    */
     const setTokenFunction = useSetTokenFunction()
     const accessTokenRef = useRef<string | null>(null)
 
@@ -62,7 +70,6 @@ const SyncAccessToken = () => {
             accessTokenRef.current = data
         }
     }, [data])
-
 
     const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(
         (callback) => {
@@ -93,4 +100,3 @@ const SyncAccessToken = () => {
 
     return null
 }
-

@@ -6,7 +6,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
-import { msToTime, msToTimeStr } from 'util/Utils'
+import { classNames, msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
@@ -14,22 +14,21 @@ import { useTransferPlayback } from './TransferPlayback'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 import { useTransientAtom } from 'hook/useTransientAtom'
 import { MuseTransition } from 'component/transitions/MuseTransition'
+import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
+import { useDrag } from 'react-dnd'
 
-interface PlaybackTimeProps {
-    reviewId: string
-}
 
-export function SpotifyPlayerFallback({ reviewId }: PlaybackTimeProps) {
+export function SpotifyPlayerFallback() {
     const exists = useExistsPlaybackState()
     if (exists) {
         return (
             <MuseTransition option={'BottomFlyIn'} >
-                <SpotifyPlayer reviewId={reviewId} />
+                <SpotifyPlayer />
             </MuseTransition>
         )
     } else {
         return (
-            <div className="grid place-items-center w-full border border-accent rounded-xl bg-neutral">
+            <div className="grid place-items-center w-full border border-accent rounded bg-neutral">
                 <div className="py-2">
                     <TransferPlaybackButton />
                 </div>
@@ -38,14 +37,13 @@ export function SpotifyPlayerFallback({ reviewId }: PlaybackTimeProps) {
     }
 }
 
-export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
-
+export function SpotifyPlayer() {
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded-xl w-full border border-accent bg-neutral">
-            <NowPlayingItem reviewId={reviewId} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded w-full border border-accent bg-neutral">
+            <NowPlayingItem />
             <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
                 <div className="flex flex-row justify-evenly items-center text-neutral-content w-full">
-                    <PlayerButtons reviewId={reviewId} />
+                    <PlayerButtons />
                 </div>
                 <PlaybackProgress />
             </div>
@@ -55,7 +53,7 @@ export function SpotifyPlayer({ reviewId }: PlaybackTimeProps) {
         </div >
     )
 }
-const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
+const NowPlayingItem = () => {
     const {
         album,
         artists,
@@ -77,9 +75,12 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
     })
 
     const queryClient = useQueryClient()
+    const reviewId = useCurrentReview()
     const onSubmit = async (comment: string) => {
-        await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId } })
-        queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+        if (reviewId) {
+            await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId } })
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+        }
     }
 
     const showModal = () => {
@@ -89,12 +90,29 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
         openCommentModal(values)
     }
 
-    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
-    const tooltipContent = useMemo(() => nowPlayingEnabled ? 'Comment at timestamp' : 'Not part of this review', [nowPlayingEnabled])
+    const nowPlayingEnabled = useAtomValue(useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), []))
+    const tooltipContent = useAtomValue(useMemo(() => atom(get => get(nowPlayingEnabledAtom) ? 'Comment at timestamp' : ''), []))
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'Track',
+        item: { trackId },
+        canDrag: true,
+        collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    }), [trackId])
 
     return (
-        <div className='flex flex-row px-1 items-center'>
-            <button className="hidden sm:grid place-items-center tooltip tooltip-right p-1" data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
+        <div
+            ref={drag}
+            className={classNames(
+                'flex flex-row px-1 items-center select-none',
+                isDragging ? 'opacity-20' : 'bg-neutral'
+            )}
+        >
+            <button
+                className={classNames('hidden sm:grid place-items-center p-1', nowPlayingEnabled ? 'tooltip tooltip-right' : '')}
+                data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
                 <div className="avatar" >
                     <div className="w-12 md:w-16 lg:w-20 rounded">
                         <img loading='lazy' src={nowPlayingImage} />
@@ -105,7 +123,7 @@ const NowPlayingItem = ({ reviewId }: { reviewId: string }) => {
                 <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
                 <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
             </div>
-        </div>
+        </div >
     )
 }
 
@@ -207,7 +225,7 @@ const PlaybackProgress = () => {
 }
 
 
-const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
+const PlayerButtons = () => {
     const {
         isShuffled,
         toggleShuffleDisabled,
@@ -231,9 +249,12 @@ const PlayerButtons = ({ reviewId }: { reviewId: string }) => {
     const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
     // TODO: Need to account for multiple reviews!!
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
+    const reviewId = useCurrentReview()
     const selectNowPlaying = () => {
-        setSelectedTrack(undefined)
-        setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
+        if (reviewId) {
+            setSelectedTrack(undefined)
+            setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
+        }
     }
 
     const toggleShuffle = () => setShuffle(!isShuffled)
