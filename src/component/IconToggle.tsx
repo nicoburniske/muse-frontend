@@ -2,6 +2,7 @@ import { PrimitiveAtom, useAtom } from 'jotai'
 import { classNames } from 'util/Utils'
 
 type ToggleProps = { toggleAtom: PrimitiveAtom<boolean>, iconLeft: JSX.Element, iconRight: JSX.Element, className?: string }
+
 const IconToggle = ({ iconLeft, iconRight, toggleAtom, className }: ToggleProps) => {
     const [toggle, setToggle] = useAtom(toggleAtom)
 

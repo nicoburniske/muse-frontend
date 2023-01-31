@@ -68,7 +68,7 @@ export const SelectedReview = () => {
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
     const nav = useNavigate()
-    const linkToReviewPage = () => nav(`/reviews/${review.id}`)
+    const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
 
     const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
     const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities

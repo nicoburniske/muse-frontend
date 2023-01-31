@@ -135,7 +135,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         <img className="hidden md:flex object-scale-down object-center h-20 w-20 shadow-2xl" src={reviewEntityImage} />
                         <div>
                             <div className="flex items-center">
-                                <img className="sm:hidden  object-scale-down object-center h-10 w-10 shadow-2xl" src={reviewEntityImage} />
+                                <img className="sm:hidden object-scale-down object-center h-10 w-10 shadow-2xl" src={reviewEntityImage} />
                             </div>
                             <dl className="flex flex-col items-start justify-center space-y-1 ml-1">
                                 <h1 className="text-2xl font-bold leading-7 sm:truncate sm:leading-9">

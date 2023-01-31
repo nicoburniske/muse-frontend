@@ -7,6 +7,8 @@ import { SeekIntervalSetter } from './SeekIntervalSetter'
 import { ThemeSetter } from './ThemeSetter'
 import { TogglePreferences } from './TogglePreferences'
 import Portal from 'component/Portal'
+import { useQueryClient } from '@tanstack/react-query'
+import { AppConfig } from 'util/AppConfig'
 
 const modalOpenAtom = atom(false)
 
@@ -43,6 +45,7 @@ export const UserPreferencesModal = () => {
 
 export const UserPreferencesForm = () => {
     const setModalOpen = useSetAtom(modalOpenAtom)
+    const queryClient = useQueryClient()
 
     return (
         <div className="flex flex-col items-center justify-between space-y-5 relative">
@@ -58,6 +61,13 @@ export const UserPreferencesForm = () => {
                 </div>
                 <TogglePreferences label={'transfer playback on start'} atom={transferPlaybackOnMountAtom} />
                 <SeekIntervalSetter />
+                {
+                    AppConfig.DEV && (
+                        <button className='btn btn-primary btn-md m-auto' onClick={() => queryClient.clear()}>
+                            Clear Cache
+                        </button>
+                    )
+                }
             </div>
             <button className='btn btn-square btn-sm btn-error absolute top-0 right-5' onClick={() => setModalOpen(false)}>
                 <CrossIcon />

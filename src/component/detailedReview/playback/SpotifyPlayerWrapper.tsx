@@ -6,18 +6,36 @@ import { nowPlayingTrackAtom } from 'state/Atoms'
 import { nonNullable } from 'util/Utils'
 import { SpotifyPlayerFallback } from './SpotifyPlayer'
 import { useTransferPlaybackOnMount } from './TransferPlayback'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Alert, AlertSeverity } from 'component/alert/Alert'
 
-export const SpotifyPlayerWrapper = ({ reviewId }: { reviewId: string }) => {
+export const SpotifyPlayerWrapper = () => {
+    return (
+        <ErrorBoundary fallback={
+            <div className='w-full h-full bg-neutral'>
+                <Alert severity={AlertSeverity.Error} className='w-52 m-auto'>
+                    <span> Error Starting Playback </span>
+                </Alert >
+            </div>
+        }>
+            <Suspense fallback={
+                <div className="w-full h-full bg-neutral">
+                    <progress className="progress progress-primary bg-neutral" />
+                </div>
+            }>
+                <SpotifyPlayerSync />
+            </Suspense>
+        </ErrorBoundary>
+    )
+}
+
+const SpotifyPlayerSync = () => {
     useSyncPlaybackState()
     useSyncNowPlayingLiked()
     useTransferPlaybackOnMount()
 
     return (
-        <Suspense fallback={
-            <progress className="progress w-full progress-primary" />
-        }>
-            <SpotifyPlayerFallback reviewId={reviewId} />
-        </Suspense>
+        <SpotifyPlayerFallback />
     )
 }
 

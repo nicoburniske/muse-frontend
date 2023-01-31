@@ -25,7 +25,7 @@ export const ReviewGroupHeader = ({ reviewId, parentReviewId, reviewName, entity
     const [isDeleting, setIsDeletingRaw] = useState(false)
     const nav = useNavigate()
     const queryClient = useQueryClient()
-    const linkToReviewPage = () => nav(`/reviews/${reviewId}`)
+    const linkToReviewPage = () => nav(`/app/reviews/${reviewId}`)
     const { mutateAsync: deleteReviewLink } = useDeleteReviewLinkMutation({
         onSuccess: () => {
             setIsDeletingRaw(false)

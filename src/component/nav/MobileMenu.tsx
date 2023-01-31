@@ -21,7 +21,8 @@ export function MobileMenu() {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+                    {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-75" /> */}
+                    <div className="fixed inset-x-0 top-0 sm:inset-0 bg-neutral/60 z-20" aria-hidden="true" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 z-40 flex">

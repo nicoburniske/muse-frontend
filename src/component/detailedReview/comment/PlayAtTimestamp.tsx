@@ -1,4 +1,4 @@
-import { usePlay } from 'component/playbackSDK/hooks'
+import { usePlayMutation } from 'component/playbackSDK/hooks'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { padTime } from 'util/Utils'
@@ -40,7 +40,7 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
     }, [time])
 
 
-    const { playTrackOffset } = usePlay({
+    const { playTrackOffset } = usePlayMutation({
         onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
         onSuccess: () => {
             if (timestamp === undefined) {

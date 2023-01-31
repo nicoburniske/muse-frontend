@@ -1,0 +1,18 @@
+import { UseMutationOptions, useMutation, useQueryClient } from '@tanstack/react-query'
+import { AppConfig } from 'util/AppConfig'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+
+export default function useLogoutMutation(options?: UseMutationOptions<unknown, unknown, undefined, unknown>) {
+    const nav = useNavigate()
+    const queryClient = useQueryClient()
+
+    return useMutation(['Logout'], () => axios.get(AppConfig.logoutEndpoint), {
+        onSettled: () => {
+            queryClient.clear()
+            nav('/')
+        },
+        ...options,
+    }
+    )
+}

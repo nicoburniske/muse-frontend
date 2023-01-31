@@ -14,7 +14,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
     const image = findFirstImage(allEntities)
     const entityName = allEntities.map(e => e.name).find(nonNullable)
     const nav = useNavigate()
-    const linkToReviewPage = () => nav(`/reviews/${review.id}`)
+    const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
     const creatorName = review?.creator?.spotifyProfile?.displayName ?? 'Unknown'
     return (
         <div className="relative group card bg-base-200 shadow-xl hover:bg-base-300 transition-all duration-200 hover:shadow hover:-translate-y-1 cursor-pointer"
