@@ -11,7 +11,7 @@ export const AppConfig = (() => {
         MODE,
         DEV,
         PROD,
-        loginEndpoint: DEV ?  '/login' : `${backendUrl}/login`,
+        loginEndpoint: DEV ?  '/login' : `//${backendUrl}/login`,
         logoutEndpoint: DEV ?  '/logout' : `${backendUrl}/logout`,
         httpGraphEndpoint: DEV ?  '/api/graphql' : `${backendUrl}/api/graphql`,
         httpSessionEndpoint: DEV ?  '/session' : `${backendUrl}/session`,
