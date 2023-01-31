@@ -4,7 +4,7 @@ import { RefObject, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
-import { useAddTracksToPlaylistMutation, usePlay, useReorderPlaylistTracksMutation } from 'component/playbackSDK/hooks'
+import { useAddTracksToPlaylistMutation, usePlayMutation, useReorderPlaylistTracksMutation } from 'component/playbackSDK/hooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 import { classNames, msToTimeStr } from 'util/Utils'
 import { useDrag, useDrop } from 'react-dnd'
@@ -36,7 +36,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
     const styles = useTrackColor(track.id)
     const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
-    const { playlistOffset, isLoading } = usePlay()
+    const { playlistOffset, isLoading } = usePlayMutation()
 
     const onPlayTrack = () => {
         if (!isLoading) {

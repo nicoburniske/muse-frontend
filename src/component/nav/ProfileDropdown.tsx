@@ -3,6 +3,7 @@ import { Menu, Transition } from '@headlessui/react'
 import Portal from 'component/Portal'
 import { useCurrentUser } from 'component/playbackSDK/hooks'
 import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
+import useLogoutMutation from 'hook/useLogoutMutation'
 import { Fragment, useCallback } from 'react'
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { useThemeValue } from 'state/UserPreferences'
@@ -11,6 +12,7 @@ import { classNames } from 'util/Utils'
 export const ProfileDropdown = () => {
     const { openPreferencesModal } = usePreferencesModal()
     const theme = useThemeValue()
+    const {mutate: logout}  = useLogoutMutation()
 
     const { data: image } = useCurrentUser({
         suspense: true,
@@ -72,7 +74,6 @@ export const ProfileDropdown = () => {
                                         className={classNames(
                                             active ? 'active' : '',
                                         )}
-                                    // href={'/profile'}
                                     >
                                         Profile
                                     </a>
@@ -90,6 +91,21 @@ export const ProfileDropdown = () => {
                                         onClick={() => openPreferencesModal()}
                                     >
                                         Settings
+                                    </a>
+                                </li>
+                            )}
+                        </Menu.Item>
+
+                        <Menu.Item >
+                            {({ active }) => (
+                                <li>
+                                    <a
+                                        className={classNames(
+                                            active ? 'active' : '',
+                                        )}
+                                        onClick={() => logout(undefined)}
+                                    >
+                                       Logout 
                                     </a>
                                 </li>
                             )}

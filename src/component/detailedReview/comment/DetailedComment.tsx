@@ -8,7 +8,7 @@ import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
 import CommentMarkdown from './CommentMarkdown'
-import { usePlay } from 'component/playbackSDK/hooks'
+import { usePlayMutation } from 'component/playbackSDK/hooks'
 import { padTime } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 
@@ -60,7 +60,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     }
 
     const tracks = (detailedComment.entities ?? []).map(e => e.id)
-    const { playTracks, isLoading } = usePlay(
+    const { playTracks, isLoading } = usePlayMutation(
         {
             onError: () => toast.error('Failed to play track.'),
         })

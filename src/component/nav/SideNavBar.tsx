@@ -24,16 +24,8 @@ export const SideNavBar = () => {
                         </div>
                         <div className="flex flex-shrink-0 pb-5">
                             <div className="w-full flex-shrink-0">
-                                <ErrorBoundary fallback={
-                                    <div className="w-full flex justify-center">
-                                        <div className="avatar online placeholder">
-                                            <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
-                                                <span className="text-xl">?</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }>
-                                    <Suspense fallback={null}>
+                                <ErrorBoundary fallback={<ProfilePlaceholder/>} >
+                                    <Suspense fallback={<ProfilePlaceholder/>}>
                                         <ProfileDropdown />
                                     </Suspense>
                                 </ErrorBoundary>
@@ -43,6 +35,18 @@ export const SideNavBar = () => {
                 </div>
             </div>
         </>
+    )
+}
+
+const ProfilePlaceholder = () => {
+    return (
+        <div className="w-full flex justify-center">
+            <div className="avatar placeholder">
+                <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
+                    <span className="text-xl">?</span>
+                </div>
+            </div>
+        </div>
     )
 }
 

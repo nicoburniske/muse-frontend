@@ -4,7 +4,7 @@ import { PlayOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 import { useSpotifyClient } from './PlaybackSDK'
 import { toUri } from './SpotifyClient'
 
-export const usePlay = (options?: UseMutationOptions<unknown, unknown, PlayOptions, unknown>) => {
+export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, PlayOptions, unknown>) => {
     const client = useSpotifyClient()
 
     const mutation = useMutation(['Play'], async (input: PlayOptions) => client.player.play(input), options)

@@ -3,7 +3,7 @@ import { PrimitiveAtom } from 'jotai'
 import { RefObject, useRef } from 'react'
 import useDoubleClick from 'hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
-import { usePlay } from 'component/playbackSDK/hooks'
+import { usePlayMutation } from 'component/playbackSDK/hooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 import { classNames, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
@@ -25,7 +25,7 @@ export default function AlbumTrack({ track, reviewId, isLikedAtom }: AlbumTrackP
     const styles = useTrackColor(track.id)
     const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
-    const { albumOffset, isLoading } = usePlay()
+    const { albumOffset, isLoading } = usePlayMutation()
 
     const onPlayTrack = () => {
         if (!isLoading) {
