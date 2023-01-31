@@ -83,6 +83,7 @@ export type Collaborator = {
 export type Comment = {
   __typename?: 'Comment';
   comment?: Maybe<Scalars['String']>;
+  commentIndex: Scalars['Int'];
   commenter: User;
   createdAt: Scalars['Instant'];
   entities?: Maybe<Array<ReviewEntity>>;
@@ -99,6 +100,7 @@ export type ContextInput = {
 
 export type CreateCommentInput = {
   comment: Scalars['String'];
+  commentIndex?: InputMaybe<Scalars['Int']>;
   entities: Array<ReviewEntityInput>;
   parentCommentId?: InputMaybe<Scalars['Int']>;
   reviewId: Scalars['ID'];

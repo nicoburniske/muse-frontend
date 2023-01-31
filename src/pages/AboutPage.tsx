@@ -3,16 +3,29 @@ import { Dialog } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { AppConfig } from 'util/AppConfig'
 import { useThemeValue } from 'state/UserPreferences'
+import { useCurrentUserQuery } from 'graphql/generated/schema'
+import { Link } from 'react-router-dom'
 
 type NavigationItem = {
     name: string
     href: string
 }
+
 const navigation: NavigationItem[] = []
+
+const useCurrentUsername = () => {
+    const { data } = useCurrentUserQuery({}, {
+        staleTime: 10 * 60 * 1000,
+        cacheTime: 10 * 60 * 1000,
+    })
+    const name = data?.user?.spotifyProfile?.displayName ?? data?.user?.id
+    return name
+}
 
 export default function AboutPage() {
     const theme = useThemeValue()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const isLoggedIn = useCurrentUsername() !== undefined
 
     return (
         <div className="h-screen isolate bg-base-100 text-base-content" data-theme={theme}>
@@ -42,12 +55,22 @@ export default function AboutPage() {
                         ))}
                     </div>
                     <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                        <a
-                            href={AppConfig.loginRedirect}
-                            className="text-sm font-semibold leading-6 text-base-content">
-                            Log in with Spotify
-                            <span aria-hidden="true">&rarr;</span>
-                        </a>
+                        {
+                            isLoggedIn ? (
+                                <Link
+                                    to="/app"
+                                    className="btn btn-primary">
+                                    Enter App
+                                </Link>
+                            ) : (
+                                <a
+                                    href={AppConfig.loginRedirect}
+                                    className="text-sm font-semibold leading-6 text-base-content">
+                                    Log in with Spotify
+                                    <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            )
+                        }
                     </div>
                 </nav>
                 <Dialog as="div" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
@@ -80,12 +103,22 @@ export default function AboutPage() {
                                     ))}
                                 </div>
                                 <div className="py-6">
-                                    <a
-                                        href={AppConfig.loginRedirect}
-                                        className="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6  hover:bg-primary-focus"
-                                    >
-                                        Log in with Spotify
-                                    </a>
+                                    {
+                                        isLoggedIn ? (
+                                            <Link
+                                                to="/app"
+                                                className="btn btn-primary">
+                                                Enter App
+                                            </Link>
+                                        ) : (
+                                            <a
+                                                href={AppConfig.loginRedirect}
+                                                className="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 hover:bg-primary-focus"
+                                            >
+                                                Log in with Spotify
+                                            </a>
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>

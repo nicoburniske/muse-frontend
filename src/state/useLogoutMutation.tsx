@@ -7,7 +7,7 @@ export default function useLogoutMutation(options?: UseMutationOptions<unknown, 
     const nav = useNavigate()
     const queryClient = useQueryClient()
 
-    return useMutation(['Logout'], () => axios.get(AppConfig.logoutEndpoint), {
+    return useMutation(['Logout'], () => axios.post(AppConfig.logoutEndpoint), {
         onSettled: () => {
             queryClient.clear()
             nav('/')
