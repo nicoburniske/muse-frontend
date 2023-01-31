@@ -170,7 +170,7 @@ const LikeNowPlaying = () => {
 const PlaybackProgress = () => {
     // Convert to percentage.
     const { durationMs, seekTo, seekDisabled } = usePlayerActions()
-    const positionMs = useCurrentPosition(1000)
+    const positionMs = useCurrentPosition(100)
     const progress = Math.min((positionMs / durationMs) * 1000, 1000)
     const [progressState, setProgressState] = useState<[number]>([progress])
     const [isSeeking, setIsSeeking] = useState(false)

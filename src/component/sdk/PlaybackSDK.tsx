@@ -191,15 +191,32 @@ export const useCurrentPosition = (refreshInterval: number) => {
     const timestamp = current.timestamp
     const isPlaying = !current.paused
 
-    const positionRef = useRef(positionMs)
-    const timestampRef = useRef(timestamp)
+    // Keep track of last pause.
+    const lastPausetimestamp = useRef<number | undefined>(undefined)
+    useEffect(() => {
+        lastPausetimestamp.current = isPlaying ? undefined : timestamp 
+    }, [isPlaying, timestamp])
 
+    // Keep track of last update.
+    const lastUpdateTimestampRef = useRef(timestamp)
+    useEffect(() => { lastUpdateTimestampRef.current = timestamp }, [timestamp])
+
+    const lastPositionRef = useRef(positionMs)
     const [position, setPosition] = useState(positionMs)
 
+    // Sync when we receive new state.
+    useEffect(() => {
+        setPosition(positionMs)
+        lastPositionRef.current = positionMs
+    }, [positionMs])
+
+    // Sync every refresh interval.
     useEffect(() => {
         const execute = () => {
             if (isPlaying && !needsReconect) {
-                const newPosition = Date.now() - timestampRef.current + positionRef.current
+                const lastPause = lastPausetimestamp.current ?? 0
+                const elapsedTime = Date.now() - lastUpdateTimestampRef.current - lastPause
+                const newPosition = elapsedTime + lastPositionRef.current
                 setPosition(Math.min(newPosition, durationMs))
             }
         }
@@ -208,13 +225,6 @@ export const useCurrentPosition = (refreshInterval: number) => {
         return () => window.clearInterval(intervalId)
 
     }, [refreshInterval, isPlaying, needsReconect])
-
-    useEffect(() => {
-        setPosition(positionMs)
-        positionRef.current = positionMs
-    }, [positionMs])
-
-    useEffect(() => { timestampRef.current = timestamp }, [timestamp])
 
     return position
 }
