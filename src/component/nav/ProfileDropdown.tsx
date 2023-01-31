@@ -1,9 +1,9 @@
 import { offset, useFloating } from '@floating-ui/react'
 import { Menu, Transition } from '@headlessui/react'
-import Portal from 'component/Portal'
-import { useCurrentUser } from 'component/playbackSDK/hooks'
+import Portal from 'platform/component/Portal'
+import { useCurrentUser } from 'component/sdk/ClientHooks'
 import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
-import useLogoutMutation from 'hook/useLogoutMutation'
+import useLogoutMutation from 'state/useLogoutMutation'
 import { Fragment, useCallback } from 'react'
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { useThemeValue } from 'state/UserPreferences'
@@ -65,7 +65,7 @@ export const ProfileDropdown = () => {
                             left: x ?? 0,
                         }}
 
-                        className="menu bg-neutral text-neutral-content rounded-md shadow-lg "
+                        className="menu bg-neutral text-neutral-content rounded-md shadow-lg w-32"
                     >
                         <Menu.Item >
                             {({ active }) => (

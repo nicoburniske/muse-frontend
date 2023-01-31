@@ -9,13 +9,14 @@ import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom, nowPlayingTr
 import { classNames, msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCurrentTrack, useVolume, usePlayerActions, useExistsPlaybackState, useCurrentPosition } from 'component/playbackSDK/PlaybackSDK'
+import { useCurrentTrack, useVolume, useExistsPlaybackState, useCurrentPosition } from 'component/sdk/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
-import { useTransientAtom } from 'hook/useTransientAtom'
-import { MuseTransition } from 'component/transitions/MuseTransition'
+import { useTransientAtom } from 'platform/hook/useTransientAtom'
+import { MuseTransition } from 'platform/component/MuseTransition'
 import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
+import { usePlayerActions } from 'component/sdk/PlayerActions'
 
 
 export function SpotifyPlayerFallback() {
@@ -169,7 +170,7 @@ const LikeNowPlaying = () => {
 const PlaybackProgress = () => {
     // Convert to percentage.
     const { durationMs, seekTo, seekDisabled } = usePlayerActions()
-    const positionMs = useCurrentPosition(1000)
+    const positionMs = useCurrentPosition(100)
     const progress = Math.min((positionMs / durationMs) * 1000, 1000)
     const [progressState, setProgressState] = useState<[number]>([progress])
     const [isSeeking, setIsSeeking] = useState(false)

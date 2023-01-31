@@ -1,14 +1,14 @@
 import { Atom, atom, useAtom, useSetAtom } from 'jotai'
 import SearchSpotify from 'component/searchSpotify/SearchSpotify'
 import { PlusIcon } from 'component/Icons'
-import { ThemeModal } from 'component/ThemeModal'
+import { ThemeModal } from 'platform/component/ThemeModal'
 import { Dialog } from '@headlessui/react'
 import { EditReviewName } from './EditReviewName'
 import { CreateReviewButtons } from './CreateReviewButtons'
 import { ReviewProperties } from './ReviewProperties'
 import { orElse } from 'util/Utils'
 import { EntityType } from 'graphql/generated/schema'
-import atomWithDebounce from 'state/atomWithDebounce'
+import atomWithDebounce from 'platform/atom/atomWithDebounce'
 
 interface CreateReviewProps {
     title?: string

@@ -6,11 +6,11 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
-import derivedAtomWithWrite from 'state/derivedAtomWithWrite'
 import { nonNullable, uniqueByProperty } from 'util/Utils'
 import { getTrack, getTrackId, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
+import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
 
 /**
  * Constructor atoms!
@@ -79,7 +79,7 @@ export const tracksAtom = atom<DetailedTrackFragment[]>(get =>
         .filter(nonNullable))
 tracksAtom.debugLabel = 'tracksAtom'
 
-const uniqueTracksAtom = derivedAtomWithWrite(atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id)))
+const uniqueTracksAtom = atomDerivedWithWrite(atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id)))
 uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
 const getTrackLikeAtom = (trackId: string) => {
     const focused = focusAtom(uniqueTracksAtom, (optic) =>
@@ -109,7 +109,6 @@ export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
         const isPlaylist = headerData.__typename === 'Playlist'
         const header = {
             element:
-                // TODO: Change Headers for ALBUMS!!!!
                 <MemoHeader
                     {...overview}
                     entity={headerData}
@@ -184,11 +183,7 @@ headerIndicesAtom.debugLabel = 'headerIndicesAtom'
 
 /**
  * Drag and drop atoms.
- * 
- * TODO: Playlist track drag and drop.
  */
-
-
 export const swapReviewsAtom = atom(null, (get, set, { dragReviewId, dropReviewId }: { dragReviewId: string, dropReviewId: string }) => {
     const currentOrder = get(reviewOrderAtom)
     const currentDragIndex = currentOrder.indexOf(dragReviewId)

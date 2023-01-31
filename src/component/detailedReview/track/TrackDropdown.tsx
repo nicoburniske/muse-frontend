@@ -1,9 +1,9 @@
 
 import { useFloating } from '@floating-ui/react-dom'
-import Portal from 'component/Portal'
+import Portal from 'platform/component/Portal'
 import { useThemeValue } from 'state/UserPreferences'
 import { useCommentModalTrack } from './useCommentModalTrack'
-import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from 'component/playbackSDK/hooks'
+import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from 'component/sdk/ClientHooks'
 import toast from 'react-hot-toast'
 import { Menu, Transition } from '@headlessui/react'
 import { classNames } from 'util/Utils'

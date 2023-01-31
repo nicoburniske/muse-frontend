@@ -3,8 +3,8 @@ import toast from 'react-hot-toast'
 import { Virtuoso } from 'react-virtuoso'
 import { CrossIcon } from '../Icons'
 import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import atomWithDebounce from 'state/atomWithDebounce'
 import { useEffect } from 'react'
+import atomWithDebounce from 'platform/atom/atomWithDebounce'
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment | SearchArtistFragment
 const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]'

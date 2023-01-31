@@ -7,9 +7,9 @@ import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
 import CreateReview from 'component/createReview/CreateReview'
 import toast from 'react-hot-toast'
-import { MuseTransition } from 'component/transitions/MuseTransition'
+import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
-import IconToggle from 'component/IconToggle'
+import IconToggle from 'platform/component/IconToggle'
 import {
     Bars4Icon,
     MagnifyingGlassIcon,

@@ -1,6 +1,6 @@
 import { atom, Atom } from 'jotai'
 
-const derivedAtomWithWrite = <T,>(baseAtom: Atom<T>) => {
+const atomDerivedWithWrite = <T,>(baseAtom: Atom<T>) => {
     const overrideAtom = atom<T | null>(null)
     return atom(
         get => get(overrideAtom) ?? get(baseAtom),
@@ -8,4 +8,4 @@ const derivedAtomWithWrite = <T,>(baseAtom: Atom<T>) => {
     )
 }
 
-export default derivedAtomWithWrite
+export default atomDerivedWithWrite

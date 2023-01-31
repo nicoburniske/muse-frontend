@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom'
 import { DetailedReview } from 'component/detailedReview/DetailedReview'
-import { Alert, AlertSeverity } from 'component/alert/Alert'
-import useWindowSize from 'hook/useWindowSize'
+import { Alert, AlertSeverity } from 'platform/component/Alert'
+import useWindowSize from 'platform/hook/useWindowSize'
 import { Suspense } from 'react'
-import { HeroLoading } from 'component/HeroLoading'
 import { ErrorBoundary } from 'react-error-boundary'
-import Hero from 'component/Hero'
+import Hero from 'platform/component/Hero'
+import { HeroLoading } from 'platform/component/HeroLoading'
 
 
 export default function DetailedReviewPage() {

@@ -1,8 +1,13 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { PlayOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import { useSpotifyClient } from './PlaybackSDK'
-import { toUri } from './SpotifyClient'
+import { useSpotifyClient } from './ClientAtoms'
+
+export type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
+
+export const toUri = (entityType: EntityType, id: string) => {
+    return `spotify:${entityType.toLowerCase()}:${id}`
+}
 
 export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, PlayOptions, unknown>) => {
     const client = useSpotifyClient()

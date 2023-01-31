@@ -1,7 +1,6 @@
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import { atomWithStorage, useAtomValue } from 'jotai/utils'
-import { seekIntervalAtom as seekIntervalAtomSdk } from 'component/playbackSDK/PlaybackSDK'
 
 export interface UserPreferences {
     theme: Theme
@@ -56,7 +55,6 @@ export const useSetShouldTransferPlaybackOnMount = () => useSetAtom(transferPlay
 export const seekIntervalAtom = focusAtom(userPreferencesAtom, (optic) => optic.prop('seekInterval'))
 export const setSeekIntervalAtom = atom(null, (_get, set, value: number) => {
     set(seekIntervalAtom, value)
-    set(seekIntervalAtomSdk, value)
 })
 export const useSeekInterval = () => useAtomValue(seekIntervalAtom)
 export const useSetSeekInterval = () => useSetAtom(setSeekIntervalAtom)

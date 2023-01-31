@@ -1,7 +1,7 @@
 import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useTransientAtom } from 'hook/useTransientAtom'
+import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
 import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
