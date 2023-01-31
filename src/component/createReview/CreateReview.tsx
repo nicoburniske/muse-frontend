@@ -8,7 +8,7 @@ import { CreateReviewButtons } from './CreateReviewButtons'
 import { ReviewProperties } from './ReviewProperties'
 import { orElse } from 'util/Utils'
 import { EntityType } from 'graphql/generated/schema'
-import atomWithDebounce from 'state/atomWithDebounce'
+import atomWithDebounce from 'platform/atomWithDebounce'
 
 interface CreateReviewProps {
     title?: string

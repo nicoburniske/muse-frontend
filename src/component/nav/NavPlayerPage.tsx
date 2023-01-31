@@ -3,13 +3,14 @@ import { StrictMode, useCallback, useEffect, useRef } from 'react'
 import { SpotifyPlayerWrapper } from 'component/detailedReview/playback/SpotifyPlayerWrapper'
 import { MobileMenu } from './MobileMenu'
 import Portal from 'component/Portal'
-import { SpotifyPlaybackSdk, useSetAccessToken, useSetTokenFunction } from 'component/playbackSDK/PlaybackSDK'
+import { SpotifyPlaybackSdk, useSetTokenFunction } from 'component/sdk/PlaybackSDK'
 import useAccessTokenQuery from 'state/useAccessTokenQuery'
 import { useExecuteOnce } from 'hook/useExecuteOnce'
 import { nonNullable } from 'util/Utils'
 import { Outlet } from 'react-router-dom'
 import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { useThemeValue } from 'state/UserPreferences'
+import { useSetAccessToken } from 'component/sdk/ClientAtoms'
 
 
 export const NavPlayerPageOutlet = () => {

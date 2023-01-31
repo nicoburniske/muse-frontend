@@ -1,11 +1,9 @@
-import { Atom, atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage, loadable } from 'jotai/utils'
 import { useEffect, useRef, useState } from 'react'
 import { nonNullable } from 'util/Utils'
-import { SpotifyClient } from 'component/playbackSDK/SpotifyClient'
-import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
-import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import atomWithSuspend from 'state/atomWithSuspend'
+import atomWithSuspend from 'platform/atomWithSuspend'
+import atomValueOrSuspend from 'platform/atomValueOrSuspend'
 
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
@@ -25,16 +23,6 @@ export function SpotifyPlaybackSdk() {
 
     return null
 }
-
-const ensureValueAtom = <T,>(value: Atom<T | null | undefined>) => atom<Promise<T>>((get) => {
-    const currentValue = get(value)
-    if (currentValue) {
-        return Promise.resolve(currentValue)
-    }
-
-    return new Promise(() => { })
-})
-
 
 
 export const sdkReadyAtom = atom<boolean>(false)
@@ -65,7 +53,7 @@ export const useSetTokenFunction = () => useSetAtom(getTokenAtom)
 /**
  * Spotify Player.
  **/
-const playerAtom = atom<Promise<Spotify.Player>>(async (get) => {
+export const playerAtom = atom<Promise<Spotify.Player>>(async (get) => {
     const isSdkReady = get(sdkReadyAtom)
     const getTokenObj = get(getTokenAtom)
 
@@ -125,7 +113,7 @@ latestPlaybackStateAtom.debugLabel = 'latestPlaybackStateAtom'
 export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom)
 
 // Needs Reconnect.
-const needsReconnectAtom = atom<boolean>((get) => {
+export const needsReconnectAtom = atom<boolean>((get) => {
     const isInit = get(isPlaybackStateInitAtom)
     const latestValid = get(latestValidPlaybackStateMaybeAtom)
     const latest = get(latestPlaybackStateAtom)
@@ -141,11 +129,11 @@ const latestValidPlaybackStateMaybeAtom = atom<Spotify.PlaybackState | null>((ge
     const states = get(playbackStatesAtom)
     return states.find(s => nonNullable(s?.track_window.current_track)) ?? null
 })
+latestValidPlaybackStateMaybeAtom.debugLabel = 'latestValidPlaybackStateMaybeAtom'
 const existsPlaybackStateAtom = atom<boolean>((get) => (get(latestValidPlaybackStateMaybeAtom)) !== null)
 export const useExistsPlaybackState = () => useAtomValue(existsPlaybackStateAtom)
-latestValidPlaybackStateMaybeAtom.debugLabel = 'latestValidPlaybackStateMaybeAtom'
 
-const asyncPlaybackStateAtom = ensureValueAtom(latestValidPlaybackStateMaybeAtom)
+export const asyncPlaybackStateAtom = atomValueOrSuspend(latestValidPlaybackStateMaybeAtom)
 asyncPlaybackStateAtom.debugLabel = 'asyncPlaybackStateAtom'
 export const usePlaybackState = () => useAtomValue(asyncPlaybackStateAtom)
 
@@ -194,109 +182,15 @@ export const useSyncPlaybackStateInterval = ({ refreshInterval }: { refreshInter
     ])
 }
 
-/**
- * Spotify Client.
- */
-
-const accessTokenAtom = atomWithSuspend<string>()
-accessTokenAtom.debugLabel = 'accessTokenAtom'
-export const useSetAccessToken = () => useSetAtom(accessTokenAtom)
-const spotifyClientAtom = atom((get) => SpotifyClient(get(accessTokenAtom)))
-export const useSpotifyClient = () => useAtomValue(spotifyClientAtom)
-
-/**
- * Playback Actions
- */
-
-interface PlayerActions {
-    timestamp: number
-    positionMs: number
-    durationMs: number
-
-    getCurrentPositionMs: () => number
-
-    /**
-     * 0: NO_REPEAT
-     * 1: ONCE_REPEAT
-     * 2: FULL_REPEAT
-     */
-    repeatMode: 0 & 1 & 2
-    repeatModeDisabled: boolean
-    setRepeatMode: (state: RepeatState, options?: DeviceIdOptions) => Promise<void>
-
-    isShuffled: boolean
-    toggleShuffleDisabled: boolean
-    setShuffle: (state: boolean, options?: DeviceIdOptions) => Promise<void>
-
-    isPlaying: boolean
-    togglePlayDisabled: boolean
-    togglePlay: () => Promise<void>
-    pause: () => Promise<void>
-    play: () => Promise<void>
-
-    seekDisabled: boolean
-    seekForward: () => Promise<void>
-    seekBackward: () => Promise<void>
-    seekTo: (positionMs: number) => Promise<void>
-
-    nextTrackDisabled: boolean
-    nextTrack: () => Promise<void>
-    prevTrackDisabled: boolean
-    previousTrack: () => Promise<void>
-}
-
-export const seekIntervalAtom = atomWithStorage('MuseSeekInterval', 10000)
-export const playerActionsAtom = atom<PlayerActions>((get) => {
-    const player = get(playerAtom)
-    const current = get(asyncPlaybackStateAtom)
-    const seekInterval = get(seekIntervalAtom)
-    const client = get(spotifyClientAtom)
-    const needsReconnect = get(needsReconnectAtom)
-
-    const disallows = current.disallows
-    const positionMs = current.position
-    const timestamp = current.timestamp
-
-    const getCurrentPositionMs = () =>
-        Date.now() - timestamp + positionMs
-
-    return {
-        timestamp,
-        positionMs,
-        durationMs: current.duration,
-        getCurrentPositionMs,
-
-        isShuffled: current.shuffle,
-        toggleShuffleDisabled: needsReconnect || (disallows.toggling_shuffle ?? false),
-        setShuffle: (state: boolean, options?: DeviceIdOptions) => client.player.setShuffle(state, options),
-
-        repeatMode: current.repeat_mode as 0 & 1 & 2,
-        repeatModeDisabled: needsReconnect || (disallows.toggling_repeat_context ?? false),
-        setRepeatMode: (state: RepeatState, options?: DeviceIdOptions) => client.player.setRepeat(state, options),
-
-        isPlaying: !current.paused,
-        togglePlayDisabled: needsReconnect || ((current.paused ? disallows.resuming : disallows.pausing) ?? false),
-        togglePlay: () => player.togglePlay(),
-        pause: () => player.pause(),
-        play: () => player.resume(),
-
-        seekDisabled: needsReconnect || (disallows.seeking ?? false),
-        seekForward: () => player.seek(getCurrentPositionMs() + seekInterval),
-        seekBackward: () => player.seek(getCurrentPositionMs() - seekInterval),
-        seekTo: (positionMs: number) => player.seek(positionMs),
-
-        nextTrackDisabled: needsReconnect || (disallows.skipping_next ?? false),
-        nextTrack: () => player.nextTrack(),
-        prevTrackDisabled: needsReconnect || (disallows.skipping_prev ?? false),
-        previousTrack: () => player.previousTrack(),
-    }
-})
-playerActionsAtom.debugLabel = 'playerActionsAtom'
-export const usePlayerActions = () => useAtomValue(playerActionsAtom)
-
 export const useCurrentPosition = (refreshInterval: number) => {
     const needsReconect = useNeedsReconnect()
-    const { timestamp, positionMs, durationMs, isPlaying } = usePlayerActions()
+    const current = usePlaybackState()
+
+    const positionMs = current.position
+    const durationMs = current.duration
+    const timestamp = current.timestamp
+    const isPlaying = !current.paused
+
     const positionRef = useRef(positionMs)
     const timestampRef = useRef(timestamp)
 

@@ -1,4 +1,4 @@
-import { usePlayMutation } from 'component/playbackSDK/hooks'
+import { usePlayMutation } from 'component/sdk/ClientHooks'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { padTime } from 'util/Utils'

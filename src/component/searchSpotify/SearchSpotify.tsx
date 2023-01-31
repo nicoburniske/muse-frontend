@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { Virtuoso } from 'react-virtuoso'
 import { CrossIcon } from '../Icons'
 import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import atomWithDebounce from 'state/atomWithDebounce'
+import atomWithDebounce from 'platform/atomWithDebounce'
 import { useEffect } from 'react'
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment | SearchArtistFragment

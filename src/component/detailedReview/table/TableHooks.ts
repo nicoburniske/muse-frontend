@@ -5,10 +5,11 @@ import { selectedTrackAtom } from 'state/Atoms'
 import { getTrack } from './Helpers'
 import { groupWithTracksAtom, expandedGroupsAtom } from './TableAtoms'
 
+const easeInOutQuint = (t: number) => {
+    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
+}
+
 export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
-    const easeInOutQuint = useCallback((t: number) => {
-        return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
-    }, [])
     const scrollingRef = useRef<number>()
     const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] =
         useCallback((offset, canSmooth, instance) => {

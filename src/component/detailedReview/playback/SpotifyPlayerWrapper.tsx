@@ -1,5 +1,5 @@
-import { useTrackLikeQuery } from 'component/playbackSDK/hooks'
-import { useLatestPlaybackState, useSyncPlaybackState } from 'component/playbackSDK/PlaybackSDK'
+import { useTrackLikeQuery } from 'component/sdk/ClientHooks'
+import { useLatestPlaybackState, useSyncPlaybackState } from 'component/sdk/PlaybackSDK'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
 import { nowPlayingTrackAtom } from 'state/Atoms'
