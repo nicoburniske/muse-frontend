@@ -11,7 +11,8 @@ export const AppConfig = (() => {
         MODE,
         DEV,
         PROD,
-        loginEndpoint: DEV ?  '/login' : `//${backendUrl}/login`,
+        // Double slash for absolute path.
+        loginRedirect: DEV ?  '/login' : `//${backendUrl}/login`,
         logoutEndpoint: DEV ?  '/logout' : prodEndpoint('/logout'),
         httpGraphEndpoint: DEV ?  '/api/graphql' : prodEndpoint('/api/graphql'),
         httpSessionEndpoint: DEV ?  '/session' : prodEndpoint('/session'),
