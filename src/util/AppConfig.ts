@@ -5,6 +5,8 @@ export const AppConfig = (() => {
     const DEV = import.meta.env.DEV
     const PROD = import.meta.env.PROD
 
+    console.log('BACKEND_URL', backendUrl)
+
     return {
         MODE,
         DEV,
