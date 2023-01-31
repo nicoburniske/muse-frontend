@@ -7,7 +7,7 @@ import { nonNullable } from 'util/Utils'
 import { SpotifyPlayerFallback } from './SpotifyPlayer'
 import { useTransferPlaybackOnMount } from './TransferPlayback'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Alert, AlertSeverity } from 'component/alert/Alert'
+import { Alert, AlertSeverity } from 'platform/component/Alert'
 
 export const SpotifyPlayerWrapper = () => {
     return (

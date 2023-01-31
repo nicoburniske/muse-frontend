@@ -1,6 +1,6 @@
 import { Dialog } from '@headlessui/react'
 import { CheckIcon, CrossIcon, EllipsisIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
-import { ThemeModal } from 'component/ThemeModal'
+import { ThemeModal } from 'platform/component/ThemeModal'
 import { useUpdateReviewMutation, useDeleteReviewMutation } from 'graphql/generated/schema'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

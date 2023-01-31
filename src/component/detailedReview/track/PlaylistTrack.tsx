@@ -2,7 +2,7 @@ import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from 'graphql/gene
 import { PrimitiveAtom, useAtomValue } from 'jotai'
 import { RefObject, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
-import useDoubleClick from 'hook/useDoubleClick'
+import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import { useAddTracksToPlaylistMutation, usePlayMutation, useReorderPlaylistTracksMutation } from 'component/sdk/ClientHooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'

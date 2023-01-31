@@ -1,9 +1,9 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage, loadable } from 'jotai/utils'
+import atomValueOrSuspend from 'platform/atom/atomValueOrSuspend'
+import atomWithSuspend from 'platform/atom/atomWithSuspend'
 import { useEffect, useRef, useState } from 'react'
 import { nonNullable } from 'util/Utils'
-import atomWithSuspend from 'platform/atomWithSuspend'
-import atomValueOrSuspend from 'platform/atomValueOrSuspend'
 
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 

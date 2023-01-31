@@ -1,15 +1,21 @@
 import { Transition } from '@headlessui/react'
+import { JSXElementConstructor } from 'react'
 
 type MuseTransitionProps = {
     children: React.ReactNode
     option: TransitionOption
+    className?: string
+    as?: ReactTag
 }
+type ReactTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>
 
-export const MuseTransition = ({ children, option }: MuseTransitionProps) => {
+export const MuseTransition = ({ children, option, as, className}: MuseTransitionProps) => {
     return (
         < Transition
             appear={true}
             show={true}
+            className={className}
+            as={as}
             {...MuseTransitions[option]}
         >
             {children}

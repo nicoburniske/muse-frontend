@@ -1,7 +1,7 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { PrimitiveAtom } from 'jotai'
 import { RefObject, useRef } from 'react'
-import useDoubleClick from 'hook/useDoubleClick'
+import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'

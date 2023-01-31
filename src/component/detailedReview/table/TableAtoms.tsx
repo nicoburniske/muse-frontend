@@ -10,7 +10,7 @@ import { nonNullable, uniqueByProperty } from 'util/Utils'
 import { getTrack, getTrackId, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
-import atomDerivedWithWrite from 'platform/atomDerivedWithWrite'
+import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
 
 /**
  * Constructor atoms!

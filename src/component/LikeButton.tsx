@@ -5,7 +5,7 @@ import { nowPlayingIsLikedAtom, nowPlayingTrackIdAtom } from 'state/Atoms'
 import { useEffect, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRemoveSavedTracksMutation, useSaveTracksMutation, useTrackLikeQuery } from './sdk/ClientHooks'
-import { useTransientAtom } from 'hook/useTransientAtom'
+import { useTransientAtom } from 'platform/hook/useTransientAtom'
 
 
 interface LikeButtonProps {

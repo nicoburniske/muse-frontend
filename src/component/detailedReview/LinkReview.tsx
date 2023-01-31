@@ -6,8 +6,8 @@ import { getReviewOverviewImage } from 'util/Utils'
 import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Dialog } from '@headlessui/react'
-import { ThemeModal } from 'component/ThemeModal'
-import Portal from 'component/Portal'
+import { ThemeModal } from 'platform/component/ThemeModal'
+import Portal from 'platform/component/Portal'
 
 const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5'
 

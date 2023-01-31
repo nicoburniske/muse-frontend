@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { ThemeModal } from 'component/ThemeModal'
+import { ThemeModal } from 'platform/component/ThemeModal'
 import { CheckIcon, CrossIcon, ReplyIcon, ShareIcon } from 'component/Icons'
-import useStateWithSyncedDefault from 'hook/useStateWithSyncedDefault'
-import Portal from 'component/Portal'
+import useStateWithSyncedDefault from 'platform/hook/useStateWithSyncedDefault'
+import Portal from 'platform/component/Portal'
 
 export interface ShareReviewProps {
     reviewId: string
