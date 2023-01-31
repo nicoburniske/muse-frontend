@@ -7,7 +7,7 @@ import { AppConfig } from 'util/AppConfig'
 const accessTokenInterval = 55 * 60 * 1000
 
 const getAccessToken = async () => {
-    const response = await axios.get(AppConfig.httpAccessTokenEndpoint, { responseType: 'text' })
+    const response = await axios.get(AppConfig.httpAccessTokenEndpoint, { responseType: 'text', withCredentials: true})
     return response.data as string
 }
 

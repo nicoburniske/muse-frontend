@@ -43,7 +43,7 @@ export default function AboutPage() {
                     </div>
                     <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                         <a
-                            href={AppConfig.loginEndpoint}
+                            href={AppConfig.loginRedirect}
                             className="text-sm font-semibold leading-6 text-base-content">
                             Log in with Spotify
                             <span aria-hidden="true">&rarr;</span>
@@ -81,7 +81,7 @@ export default function AboutPage() {
                                 </div>
                                 <div className="py-6">
                                     <a
-                                        href={AppConfig.loginEndpoint}
+                                        href={AppConfig.loginRedirect}
                                         className="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6  hover:bg-primary-focus"
                                     >
                                         Log in with Spotify

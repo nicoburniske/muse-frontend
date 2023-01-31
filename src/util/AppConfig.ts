@@ -5,15 +5,18 @@ export const AppConfig = (() => {
     const DEV = import.meta.env.DEV
     const PROD = import.meta.env.PROD
 
+    const prodEndpoint = (suffix: string) => `https://${backendUrl}${suffix}`
+
     return {
         MODE,
         DEV,
         PROD,
-        loginEndpoint: DEV ?  '/login' : `${backendUrl}/login`,
-        logoutEndpoint: DEV ?  '/logout' : `${backendUrl}/logout`,
-        httpGraphEndpoint: DEV ?  '/api/graphql' : `${backendUrl}/api/graphql`,
-        httpSessionEndpoint: DEV ?  '/session' : `${backendUrl}/session`,
-        httpAccessTokenEndpoint: DEV ?  '/token' : `${backendUrl}/token`,
-        websocketGraphEndpoint: DEV ?  '/ws/graphql' : `${backendUrl}/ws/graphql`,
+        // Double slash for absolute path.
+        loginRedirect: DEV ?  '/login' : `//${backendUrl}/login`,
+        logoutEndpoint: DEV ?  '/logout' : prodEndpoint('/logout'),
+        httpGraphEndpoint: DEV ?  '/api/graphql' : prodEndpoint('/api/graphql'),
+        httpSessionEndpoint: DEV ?  '/session' : prodEndpoint('/session'),
+        httpAccessTokenEndpoint: DEV ?  '/token' : prodEndpoint('/token'),
+        websocketGraphEndpoint: DEV ?  '/ws/graphql' : prodEndpoint('/ws/graphql'),
     }
 })()
