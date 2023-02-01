@@ -12,14 +12,14 @@ import { useNavigate } from 'react-router-dom'
 import { nonNullable, findFirstImage, classNames } from 'util/Utils'
 
 const selectedReviewOpenAtom = atom(false)
-const selectedReviewAtom = atom<ReviewDetailsFragment | null>(null)
-const openSelectedReview = atom(null, (_get, set, review: ReviewDetailsFragment) => {
+const selectedReviewIdAtom = atom<string | undefined>(undefined)
+const openSelectedReview = atom(null, (_get, set, reviewId: string) => {
     set(selectedReviewOpenAtom, true)
-    set(selectedReviewAtom, review)
+    set(selectedReviewIdAtom, reviewId)
 })
 const closeSelectedReviewAtom = atom(null, (_get, set) => {
     set(selectedReviewOpenAtom, false)
-    setTimeout(() => set(selectedReviewAtom, null), 500)
+    setTimeout(() => set(selectedReviewIdAtom, undefined), 500)
 })
 export const useSelectReview = () => {
     const setSelectedReview = useSetAtom(openSelectedReview)
@@ -30,6 +30,18 @@ export const useSelectReview = () => {
     }
 }
 
+// We need to subscribe to the review overview in react query cache.
+const useSelectedReview = () => {
+    const reviewId = useAtomValue(selectedReviewIdAtom)
+    const { data } = useProfileAndReviewsQuery({}, { staleTime: Infinity })
+
+    if (reviewId) {
+        return data?.user?.reviews?.find(r => r.id === reviewId)
+    } else {
+        return undefined
+    }
+}
+
 const textColorSecondary = 'text-secondary-content/50'
 
 export const SelectedReview = () => {
@@ -37,7 +49,7 @@ export const SelectedReview = () => {
     // Close review details after going to new page.
     useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
     const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
-    const review = useAtomValue(selectedReviewAtom)
+    const review = useSelectedReview()
 
     return (
         <Transition
@@ -171,7 +183,9 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                                 type="button"
                                 className="group flex items-center btn btn-primary"
                             >
-                                <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []} onChange={resetReviewOverviews} >
+                                <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []} onChange={() => {
+                                    resetReviewOverviews()
+                                }} >
                                     <>
                                         <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed">
                                             <PlusIconMini className="h-5 w-5" aria-hidden="true" />

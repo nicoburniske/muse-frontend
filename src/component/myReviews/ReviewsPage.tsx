@@ -132,7 +132,7 @@ export default function ReviewsPage() {
                                 >
                                     {
                                         reviews.map(review =>
-                                            <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review)} />
+                                            <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review.id)} />
                                         )
                                     }
                                 </ul>
