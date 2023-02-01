@@ -7,13 +7,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
 
 export const SideNavBar = () => {
+    const nav = useNavigate()
     return (
         <>
             <div className="hidden md:flex md:flex-shrink-0">
                 <div className="flex w-20 flex-col">
                     <div className="flex min-h-0 flex-1 flex-col bg-gradient-to-b from-primary to-secondary overflow-hidden">
                         <div className="flex-1">
-                            <div className="flex items-center justify-center py-4">
+                            <div className="flex items-center justify-center py-4"  onClick={() => nav('/')}>
                                 <img
                                     className="h-8 w-auto"
                                     src={LogoImage}
@@ -24,8 +25,8 @@ export const SideNavBar = () => {
                         </div>
                         <div className="flex flex-shrink-0 pb-5">
                             <div className="w-full flex-shrink-0">
-                                <ErrorBoundary fallback={<ProfilePlaceholder/>} >
-                                    <Suspense fallback={<ProfilePlaceholder/>}>
+                                <ErrorBoundary fallback={<ProfilePlaceholder />} >
+                                    <Suspense fallback={<ProfilePlaceholder />}>
                                         <ProfileDropdown />
                                     </Suspense>
                                 </ErrorBoundary>

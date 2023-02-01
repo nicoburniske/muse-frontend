@@ -1,7 +1,7 @@
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { useMemo } from 'react'
 import { SelectedReview, useSelectReview } from './SelectedReview'
-import { EntityType, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { currentUserIdAtom, searchAtom, searchLoweredAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
@@ -16,48 +16,43 @@ import {
     Squares2X2Icon as Squares2X2IconMini,
 } from '@heroicons/react/20/solid'
 import { classNames } from 'util/Utils'
-
-const tabs = [
-    { name: 'Recently Viewed', href: '#', current: true },
-    { name: 'Recently Added', href: '#', current: false },
-    { name: 'Favorites', href: '#', current: false },
-]
+import { useViewHistory } from 'state/ViewHistory'
 
 const viewToggleAtom = atom(false)
-const useProfileAndReviews = () => {
-    const { data } = useProfileAndReviewsQuery({},
-        {
-            onError: () => toast.error('Failed to load profile.'),
-            staleTime: 30 * 1000,
-            refetchOnWindowFocus: false,
-            refetchOnMount: true
-        }
+
+
+const ReviewSorts = {
+    'recently viewed': 'Recently Viewed',
+    'owned': 'Your Reviews',
+    'shared': 'Shared With You',
+} as const
+
+type ReviewSort = keyof typeof ReviewSorts
+
+const sortOrderAtom = atom<ReviewSort>('owned')
+
+const SortTabs = ({ className }: { className?: string }) => {
+    const [sortOrder, setSortOrder] = useAtom(sortOrderAtom)
+
+    return (
+        <div id="tabs"
+            className={classNames('tabs', className)}>
+            {
+                Object.entries(ReviewSorts).map(([key, value]) => (
+                    <a
+                        key={key}
+                        className={classNames(
+                            'tab tab-bordered',
+                            sortOrder === key ? 'tab-active' : ''
+                        )}
+                        onClick={() => setSortOrder(key as ReviewSort)}
+                    >
+                        {value}
+                    </a>
+                ))
+            }
+        </div >
     )
-    // Set current user name.
-    const setCurrentUserId = useSetAtom(currentUserIdAtom)
-    useEffect(() => {
-        const maybeUser = data?.user?.id
-        if (maybeUser !== undefined) {
-            setCurrentUserId(maybeUser)
-        }
-    }, [data])
-
-    const search = useAtomValue(searchLoweredAtom)
-    const reviews = useMemo(() =>
-        data?.user?.reviews?.filter(r =>
-            // Titles.
-            r.reviewName.toLowerCase().includes(search) ||
-            r.creator?.id.toLowerCase().includes(search) ||
-            r.entity?.name.toLowerCase().includes(search) ||
-            // playlist owner.
-            (r.entity?.__typename === EntityType.Playlist &&
-                (r.entity?.owner?.id.toLowerCase().includes(search) ||
-                    r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
-            // review owner.
-            || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
-        ) ?? [], [search, data])
-
-    return reviews
 }
 
 export default function ReviewsPage() {
@@ -80,14 +75,6 @@ export default function ReviewsPage() {
                                 parentReviewIdAtom={parentAtom}
                                 icon={<PlusIconOutline className="h-6 w-6" aria-hidden="true" />}
                             />
-
-                            {/* <button
-                                type="button"
-                                className="flex items-center justify-center btn btn-sm btn-square btn-primary"
-                            >
-                                <PlusIconOutline className="h-6 w-6" aria-hidden="true" />
-                                <span className="sr-only">Add file</span>
-                            </button> */}
                         </div>
                     </div>
                 </div>
@@ -115,33 +102,11 @@ export default function ReviewsPage() {
                                 <label htmlFor="tabs" className="sr-only">
                                     Select a tab
                                 </label>
-                                {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-                                <div id="tabs" className="tabs">
-                                    <a className="tab tab-bordered">Recently Viewed</a>
-                                    <a className="tab tab-bordered tab-active">Recently Added</a>
-                                    <a className="tab tab-bordered">Favorites</a>
-                                </div>
+                                <SortTabs />
                             </div>
                             <div className="hidden sm:block">
                                 <div className="flex items-center border-b border-gray-200">
-                                    <div className="tabs -mb-px flex flex-1 space-x-6 xl:space-x-8" aria-label="Tabs">
-                                        {
-                                            tabs.map((tab) => (
-                                                <a
-                                                    key={tab.name}
-                                                    href={tab.href}
-                                                    aria-current={tab.current ? 'page' : undefined}
-                                                    className={classNames(
-                                                        tab.current
-                                                            ? 'tab-active'
-                                                            : '',
-                                                        'tab tab-bordered'
-                                                    )}
-                                                >
-                                                    {tab.name}
-                                                </a>
-                                            ))}
-                                    </div>
+                                    <SortTabs className="-mb-px flex flex-1 space-x-6 xl:space-x-8" />
 
                                     <IconToggle
                                         toggleAtom={viewToggleAtom}
@@ -165,8 +130,6 @@ export default function ReviewsPage() {
                                     role="list"
                                     className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-8"
                                 >
-
-
                                     {
                                         reviews.map(review =>
                                             <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review)} />
@@ -221,4 +184,58 @@ const SearchBar = () => {
             </form>
         </div>
     )
+}
+
+const useProfileAndReviews = () => {
+    // TODO: Have to account for viewed reviews.
+    const { data } = useProfileAndReviewsQuery({},
+        {
+            onError: () => toast.error('Failed to load profile.'),
+            staleTime: 30 * 1000,
+            refetchOnWindowFocus: false,
+            refetchOnMount: true
+        }
+    )
+
+    const search = useAtomValue(searchLoweredAtom)
+    const searchedReviews = data?.user?.reviews?.filter(r =>
+        // Titles.
+        r.reviewName.toLowerCase().includes(search) ||
+        r.creator?.id.toLowerCase().includes(search) ||
+        r.entity?.name.toLowerCase().includes(search) ||
+        // playlist owner.
+        (r.entity?.__typename === EntityType.Playlist &&
+            (r.entity?.owner?.id.toLowerCase().includes(search) ||
+                r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search)))
+        // review owner.
+        || r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
+    ) ?? []
+
+    const sortOrder = useAtomValue(sortOrderAtom)
+    const currentUserId = useAtomValue(currentUserIdAtom)
+    const reviewIdHistory = useViewHistory()
+
+    const transformFunction = (() => {
+        if (sortOrder === 'shared') {
+            return (reviews: ReviewDetailsFragment[]) => reviews
+                .filter(r => r?.collaborators?.some(c => c.user.id === currentUserId) || false)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        } else if (sortOrder === 'owned') {
+            return (reviews: ReviewDetailsFragment[]) => reviews
+                .filter(r => r.creator.id === currentUserId)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        } else if (sortOrder === 'recently viewed') {
+            return (reviews: ReviewDetailsFragment[]) => reviews
+                .filter(r => reviewIdHistory.includes(r.id))
+                .sort((a, b) => {
+                    const aView = reviewIdHistory.indexOf(a.id)
+                    const bView = reviewIdHistory.indexOf(b.id)
+                    return aView - bView
+                })
+        }
+        // Typescript is dumb.
+        return (reviews: ReviewDetailsFragment[]) => reviews
+    })()
+
+    return transformFunction(searchedReviews)
 }

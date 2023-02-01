@@ -17,9 +17,9 @@ const useCurrentUsername = () => {
     const { data } = useCurrentUserQuery({}, {
         staleTime: 10 * 60 * 1000,
         cacheTime: 10 * 60 * 1000,
+        select: (data) => data?.user?.spotifyProfile?.displayName ?? data?.user?.id 
     })
-    const name = data?.user?.spotifyProfile?.displayName ?? data?.user?.id
-    return name
+    return data 
 }
 
 export default function AboutPage() {
