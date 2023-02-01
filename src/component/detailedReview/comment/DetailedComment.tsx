@@ -2,8 +2,6 @@ import { DetailedCommentFragment, EntityType, useCreateCommentMutation, useDelet
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { CommentFormModal } from '../commentForm/CommentFormModal'
-import { currentUserIdAtom } from 'state/Atoms'
-import { useAtomValue } from 'jotai'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, SearchIcon, TrashIcon } from 'component/Icons'
 import { useQueryClient } from '@tanstack/react-query'
@@ -11,6 +9,7 @@ import CommentMarkdown from './CommentMarkdown'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
 import { padTime } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 export interface DetailedCommentProps {
     review: ReviewOverview
@@ -23,7 +22,7 @@ export interface DetailedCommentProps {
 export default function DetailedComment({ review, comment: detailedComment, childComments, onClick }: DetailedCommentProps) {
     const reviewId = review.reviewId
     const queryClient = useQueryClient()
-    const currentUserId = useAtomValue(currentUserIdAtom)
+    const currentUserId = useCurrentUserId()
     const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
 
     const [isEditing, setIsEditing] = useState(false)

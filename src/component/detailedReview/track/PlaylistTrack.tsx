@@ -1,5 +1,5 @@
 import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { PrimitiveAtom, useAtomValue } from 'jotai'
+import { PrimitiveAtom } from 'jotai'
 import { RefObject, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
@@ -10,9 +10,9 @@ import { classNames, msToTimeStr } from 'util/Utils'
 import { useDrag, useDrop } from 'react-dnd'
 import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { currentUserIdAtom } from 'state/Atoms'
 
 import TrackOptions from './TrackDropdown'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 export interface PlaylistTrackProps {
     index: number
@@ -72,7 +72,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
         onError: () => toast.error('Failed to reorder playlist tracks.')
     })
 
-    const currentUserId = useAtomValue(currentUserIdAtom)
+    const currentUserId = useCurrentUserId()
 
     // Drop to add to playlist.
     const [{ canDrop, isAbove }, drop] = useDrop(() => ({

@@ -11,8 +11,7 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { Fragment } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetPlaylistQuery } from 'graphql/generated/schema'
-import { currentUserIdAtom } from 'state/Atoms'
-import { useAtomValue } from 'jotai'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 type TrackOptionsProps = {
     trackId: string
@@ -39,7 +38,7 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
     })
     const addToQueue = () => addToQueueMutation(trackId)
 
-    const currentUserId = useAtomValue(currentUserIdAtom)
+    const currentUserId = useCurrentUserId()
 
     const isUserOwnedPlaylist = playlist?.id !== undefined && playlist?.owner === currentUserId
 

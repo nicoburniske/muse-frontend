@@ -2,7 +2,7 @@ import { atom, useAtom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { SelectedReview, useSelectReview } from './SelectedReview'
 import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { currentUserIdAtom, searchAtom, searchLoweredAtom } from 'state/Atoms'
+import {  searchAtom, searchLoweredAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
 import CreateReview from 'component/createReview/CreateReview'
@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { classNames } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 const viewToggleAtom = atom(false)
 
@@ -57,6 +58,7 @@ const SortTabs = ({ className }: { className?: string }) => {
 
 export default function ReviewsPage() {
     const reviews = useProfileAndReviews()
+    console.log('reviews', reviews)
     const parentAtom = useMemo(() => atom(undefined), [])
 
     const { setSelectedReview } = useSelectReview()
@@ -211,7 +213,7 @@ const useProfileAndReviews = () => {
     ) ?? []
 
     const sortOrder = useAtomValue(sortOrderAtom)
-    const currentUserId = useAtomValue(currentUserIdAtom)
+    const currentUserId = useCurrentUserId() 
     const reviewIdHistory = useViewHistory()
 
     const transformFunction = (() => {

@@ -1,7 +1,7 @@
 import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment, DetailedAlbumFragment } from 'graphql/generated/schema'
 import { useEffect, useMemo } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
-import { currentUserIdAtom, selectedTrackAtom } from 'state/Atoms'
+import { selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReviewButton } from './editReview/EditReview'
@@ -18,6 +18,7 @@ import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
 import { UserIcon } from '@heroicons/react/20/solid'
 import { ShareIcon } from '@heroicons/react/24/outline'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -110,10 +111,10 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
     const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
 
     const reviewId = review.id
-    const userId = useAtomValue(currentUserIdAtom)
+    const currentUserId = useCurrentUserId() 
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
-    const isReviewOwner = userId === review?.creator?.id
+    const isReviewOwner = currentUserId === review?.creator?.id
     const collaborators = review?.collaborators ?? []
     const isPublic = review.isPublic
     const title = review.reviewName
@@ -171,7 +172,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                 isReviewOwner ?
                     <div className="grid grid-cols-2 gap-1 lg:flex lg:space-x-1">
                         <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} >
-                            <ShareIcon className="w-6 h-6"/>
+                            <ShareIcon className="w-6 h-6" />
                         </ShareReview>
                         <EditReviewButton
                             reviewId={reviewId}

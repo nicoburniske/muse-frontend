@@ -1,5 +1,5 @@
 import { SideNavBar } from './SideNavBar'
-import { StrictMode, useCallback, useEffect, useRef } from 'react'
+import { StrictMode, Suspense, useCallback, useEffect, useRef } from 'react'
 import { SpotifyPlayerWrapper } from 'component/detailedReview/playback/SpotifyPlayerWrapper'
 import { MobileMenu } from './MobileMenu'
 import Portal from 'platform/component/Portal'
@@ -11,6 +11,7 @@ import { Outlet } from 'react-router-dom'
 import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { useThemeValue } from 'state/UserPreferences'
 import { useSetAccessToken } from 'component/sdk/ClientAtoms'
+import { SyncCurrentUser } from 'state/CurrentUser'
 
 
 export const NavPlayerPageOutlet = () => {
@@ -28,12 +29,15 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
         <div className="flex h-screen flex-col bg-base-100" data-theme={theme}>
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
+            <SyncCurrentUser />
             <SpotifyPlaybackSdk />
             <div className="flex grow flex-row overflow-hidden" >
                 <SideNavBar />
-                <StrictMode>
-                    {children}
-                </StrictMode>
+                <Suspense fallback={null}>
+                    <StrictMode>
+                        {children}
+                    </StrictMode>
+                </Suspense>
             </div>
             <div className='w-full' >
                 <SpotifyPlayerWrapper />
