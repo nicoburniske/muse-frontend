@@ -1,31 +1,42 @@
-import { useMemo } from 'react'
+import { ReactNode, useEffect, useMemo } from 'react'
 import { Dialog } from '@headlessui/react'
-import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
+import { AccessLevel, CollaboratorFragment, useProfileAndReviewsQuery, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { CheckIcon, CrossIcon, ReplyIcon } from 'component/Icons'
 import useStateWithReset from 'platform/hook/useStateWithReset'
 import Portal from 'platform/component/Portal'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface ShareReviewProps {
     reviewId: string
     collaborators: CollaboratorFragment[]
-    onChange: () => void
-    children: JSX.Element
+    onChange?: () => void
+    children: ReactNode
 }
 
-const DEFAULT_ACCESS_LEVEL = AccessLevel.Viewer
-
 export function ShareReview({ reviewId, onChange, collaborators: collabProp, children }: ShareReviewProps) {
-    const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset(DEFAULT_ACCESS_LEVEL)
+    const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset(AccessLevel.Viewer)
     const [username, setUsername, resetUsername] = useStateWithReset('')
     const [isModalOpen, setModalOpen, resetModalOpen] = useStateWithReset(false)
     const [collaborators, setCollaborators, resetCollaborators] = useStateWithReset(collabProp)
 
+    useEffect(() => {
+        setCollaborators(collabProp)
+    }, [collabProp, setCollaborators])
+
+    const queryClient = useQueryClient()
+    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
+
     const { mutate: shareReview, isLoading } = useShareReviewMutation(
         {
             onError: () => toast.error('Failed to update review sharing.'),
-            onSuccess: () => onChange()
+            onSuccess: () => {
+                if (onChange) {
+                    onChange()
+                }
+                resetReviewOverviews()
+            }
         }
     )
 

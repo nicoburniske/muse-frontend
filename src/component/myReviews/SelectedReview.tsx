@@ -179,23 +179,14 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                             </li>
                         ))}
                         <li className="flex items-center justify-center py-2 m-auto">
-                            <button
-                                type="button"
-                                className="group flex items-center btn btn-primary"
-                            >
-                                <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []} onChange={() => {
-                                    resetReviewOverviews()
-                                }} >
-                                    <>
-                                        <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed">
-                                            <PlusIconMini className="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                        <span className="ml-4">
-                                            Share
-                                        </span>
-                                    </>
-                                </ShareReview>
-                            </button>
+                            <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []} >
+                                <span className="flex items-center justify-center rounded-full border-2 border-dashed">
+                                    <PlusIconMini className="h-5 w-5" aria-hidden="true" />
+                                </span>
+                                <span className="ml-4">
+                                    Share
+                                </span>
+                            </ShareReview>
                         </li>
                     </ul>
                 </div>
