@@ -58,7 +58,6 @@ const SortTabs = ({ className }: { className?: string }) => {
 
 export default function ReviewsPage() {
     const reviews = useProfileAndReviews()
-    console.log('reviews', reviews)
     const parentAtom = useMemo(() => atom(undefined), [])
 
     const { setSelectedReview } = useSelectReview()
