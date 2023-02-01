@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
-import useStateWithSyncedDefault from './useStateWithSyncedDefault'
+import useStateWithReset from './useStateWithReset'
 
 type ToggleFunc<T> = (value: T) => T
 type StateSupplier<S> = (defaultState: S) => [S, Dispatch<SetStateAction<S>>]
@@ -17,4 +17,4 @@ export default function useToggle<T>(toggleFunc: ToggleFunc<T>) {
 }
 
 export const useBoolToggle = useToggle<boolean>(a => !a)(useState)
-export const useBoolToggleSynced = useToggle<boolean>(a => !a)(useStateWithSyncedDefault as unknown as StateSupplier<boolean>)
+export const useBoolToggleSynced = useToggle<boolean>(a => !a)(useStateWithReset as unknown as StateSupplier<boolean>)

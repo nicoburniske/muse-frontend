@@ -1,0 +1,30 @@
+fragment ReviewDetails on Review {
+  id
+  createdAt
+  creator {
+    ...UserWithSpotifyOverview
+  }
+  reviewName
+  isPublic
+  entity {
+    ...ReviewEntityOverview 
+  }
+  childReviews {
+    id 
+    createdAt
+    reviewName 
+    creator {
+      ...UserWithSpotifyOverview
+    }
+    isPublic
+    entity {
+      ...ReviewEntityOverview 
+    }
+    collaborators {
+      ...Collaborator
+    }
+  }
+  collaborators {
+    ...Collaborator
+  }
+}

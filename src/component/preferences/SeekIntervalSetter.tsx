@@ -1,4 +1,3 @@
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
 import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
 import { classNames } from 'util/Utils'
@@ -51,13 +50,6 @@ export const SeekIntervalSetter = () => {
                     aria-invalid="true"
                     aria-describedby="number-error"
                 />
-                {/* {
-                    hasErrors && (
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
-                        </div>
-                    )
-                } */}
             </div>
             <p className="mt-2 text-sm text-error h-6" >
                 {errors.join(',')}

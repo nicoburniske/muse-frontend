@@ -141,9 +141,8 @@ export default function ReviewsPage() {
                     </div>
                 </main>
 
-                {/* Details sidebar */}
-                <SelectedReview />
             </div >
+            <SelectedReview />
         </div >
     )
 }

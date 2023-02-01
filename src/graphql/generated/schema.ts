@@ -78,6 +78,7 @@ export type AudioFeatures = {
 export type Collaborator = {
   __typename?: 'Collaborator';
   accessLevel: AccessLevel;
+  review?: Maybe<Review>;
   user: User;
 };
 
@@ -445,6 +446,7 @@ export type Queries = {
   getPlaylist?: Maybe<Playlist>;
   getTrack?: Maybe<Track>;
   review?: Maybe<Review>;
+  reviews?: Maybe<Array<Review>>;
   search?: Maybe<SearchResult>;
   user?: Maybe<User>;
 };
@@ -467,6 +469,11 @@ export type QueriesGetTrackArgs = {
 
 export type QueriesReviewArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueriesReviewsArgs = {
+  reviewIds: Array<Scalars['ID']>;
 };
 
 

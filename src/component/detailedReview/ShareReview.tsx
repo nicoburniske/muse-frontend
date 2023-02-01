@@ -1,25 +1,26 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Dialog } from '@headlessui/react'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { ThemeModal } from 'platform/component/ThemeModal'
-import { CheckIcon, CrossIcon, ReplyIcon, ShareIcon } from 'component/Icons'
-import useStateWithSyncedDefault from 'platform/hook/useStateWithSyncedDefault'
+import { CheckIcon, CrossIcon, ReplyIcon } from 'component/Icons'
+import useStateWithReset from 'platform/hook/useStateWithReset'
 import Portal from 'platform/component/Portal'
 
 export interface ShareReviewProps {
     reviewId: string
     collaborators: CollaboratorFragment[]
     onChange: () => void
+    children: JSX.Element
 }
 
 const DEFAULT_ACCESS_LEVEL = AccessLevel.Viewer
 
-export function ShareReview({ reviewId, onChange, collaborators: collabProp }: ShareReviewProps) {
-    const [accessLevel, setAccessLevel] = useState(DEFAULT_ACCESS_LEVEL)
-    const [username, setUsername] = useState('')
-    const [isModalOpen, setModalOpen] = useState(false)
-    const [collaborators, setCollaborators, resetCollaborators] = useStateWithSyncedDefault(collabProp)
+export function ShareReview({ reviewId, onChange, collaborators: collabProp, children }: ShareReviewProps) {
+    const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset(DEFAULT_ACCESS_LEVEL)
+    const [username, setUsername, resetUsername] = useStateWithReset('')
+    const [isModalOpen, setModalOpen, resetModalOpen] = useStateWithReset(false)
+    const [collaborators, setCollaborators, resetCollaborators] = useStateWithReset(collabProp)
 
     const { mutate: shareReview, isLoading } = useShareReviewMutation(
         {
@@ -52,9 +53,9 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
     }
 
     const onCancel = () => {
-        setModalOpen(false)
-        setUsername('')
-        setAccessLevel(DEFAULT_ACCESS_LEVEL)
+        resetAccessLevel()
+        resetUsername()
+        resetModalOpen()
         resetCollaborators()
     }
 
@@ -136,7 +137,8 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp }: S
                 </ThemeModal>
             </Portal>
             <button className="btn btn-primary btn-sm lg:btn-md" onClick={() => setModalOpen(true)} >
-                <ShareIcon />
+                {children}
             </button>
-        </>)
+        </>
+    )
 }

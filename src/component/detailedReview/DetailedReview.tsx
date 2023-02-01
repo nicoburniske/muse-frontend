@@ -17,6 +17,7 @@ import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
 import { UserIcon } from '@heroicons/react/20/solid'
+import { ShareIcon } from '@heroicons/react/24/outline'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -27,7 +28,11 @@ export type RenderOptions = 'tracks' | 'comments' | 'both'
 const renderOptionAtom = atom<RenderOptions>('both')
 
 export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
-    const { data, isLoading } = useDetailedReviewQuery({ reviewId }, { suspense: true })
+    const { data, isLoading } = useDetailedReviewQuery({ reviewId }, {
+        suspense: true,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false
+    })
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const setRenderOption = useSetAtom(renderOptionAtom)
@@ -165,7 +170,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             {
                 isReviewOwner ?
                     <div className="grid grid-cols-2 gap-1 lg:flex lg:space-x-1">
-                        <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} />
+                        <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()} >
+                            <ShareIcon className="w-6 h-6"/>
+                        </ShareReview>
                         <EditReviewButton
                             reviewId={reviewId}
                             reviewName={title!}
@@ -261,6 +268,8 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
             queryFn: useGetPlaylistQuery.fetcher({ id }),
+            staleTime: 45 * 1000,
+            refetchOnWindowFocus: false,
         }))
     })
     // Is there a better way of handling likes than this? Hypothetically we have an infinite stale time.  
@@ -268,6 +277,8 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: albumIds.map(id => ({
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
+            staleTime: 45 * 1000,
+            refetchOnWindowFocus: false,
         })),
     })
 
