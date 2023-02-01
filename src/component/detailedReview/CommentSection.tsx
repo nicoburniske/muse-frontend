@@ -29,13 +29,19 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     }, [validComments])
 
-    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
     const childComments = useMemo(() => {
         const childComments = comments
             .filter(comment => comment.parentCommentId !== null)
             .filter(comment => comment.parentCommentId !== undefined)
         return groupBy(childComments, c => c.parentCommentId, c => c)
     }, [comments])
+
+    const rootComments = useMemo(() =>
+        // TODO: Fix this!
+        comments
+            .filter(comment => comment.parentCommentId === null)
+            .filter(comment => nonNullable(comment.comment) || (childComments.get(comment.id) ?? []).length > 0)
+    , [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
 

@@ -7,7 +7,7 @@ import { ArrowDownIcon, ArrowUpIcon, EditIcon, HazardIcon, PlayIcon, ReplyIcon, 
 import { useQueryClient } from '@tanstack/react-query'
 import CommentMarkdown from './CommentMarkdown'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
-import { padTime } from 'util/Utils'
+import { nonNullable, padTime } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 import { useCurrentUserId } from 'state/CurrentUser'
 
@@ -36,8 +36,9 @@ export default function DetailedComment({ review, comment: detailedComment, chil
     const { mutateAsync: replyComment, isLoading: loadingReply } = useCreateCommentMutation()
 
     const isChild = detailedComment.parentCommentId != null
+    const isDeleted = !nonNullable(detailedComment?.comment)
     const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
-    const comment = detailedComment?.comment ?? 'Failed to retrieve comment'
+    const comment = detailedComment?.comment ?? '**deleted**'
     const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
     const createdAt = (() => {
         const date = new Date(detailedComment?.updatedAt)
@@ -126,27 +127,35 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                     </div>
                 </div>
                 <div className="flex-grow-1 flex flex-row justify-around w-full">
-                    <button className={`${buttonClass} btn-success`} onClick={onClick}>
-                        <SearchIcon />
-                    </button>
-                    <button className={`${buttonClass} btn-success`} onClick={onPlayTrack}>
-                        <PlayIcon />
-                    </button>
-                    {/* For now we don't want to permit infinite nesting */}
-                    <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>
-                        <ReplyIcon />
-                    </button>
-                    {isEditable ? (
-                        <>
-                            <button className={`${buttonClass} btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={() => setIsDeleting(true)}>
-                                <TrashIcon />
-                            </button>
-                            <button className={`${buttonClass} btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
-                                <EditIcon />
-                            </button>
-                        </>)
-                        : null
+                    {
+                        isDeleted ? null : (
+
+                            <>
+                                <button className={`${buttonClass} btn-success`} onClick={onClick}>
+                                    <SearchIcon />
+                                </button>
+                                <button className={`${buttonClass} btn-success`} onClick={onPlayTrack}>
+                                    <PlayIcon />
+                                </button>
+                                {/* For now we don't want to permit infinite nesting */}
+                                <button className={`${buttonClass} ${loadingReply ?? 'loading'}`} disabled={isChild || loadingReply} onClick={() => setIsReplying(true)}>
+                                    <ReplyIcon />
+                                </button>
+                                {isEditable ? (
+                                    <>
+                                        <button className={`${buttonClass} btn-error ${loadingDelete ?? 'loading'}`} disabled={loadingDelete} onClick={() => setIsDeleting(true)}>
+                                            <TrashIcon />
+                                        </button>
+                                        <button className={`${buttonClass} btn-primary ${loadingUpdate ?? 'loading'}`} disabled={loadingUpdate} onClick={() => setIsEditing(true)}>
+                                            <EditIcon />
+                                        </button>
+                                    </>)
+                                    : null
+                                }
+                            </>
+                        )
                     }
+
                     {(childComments.length > 0) ?
                         (
                             <button className={`${buttonClass} btn-info`} onClick={() => setIsExpanded(!isExpanded)}>
@@ -159,7 +168,7 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                         ) :
                         null
                     }
-                </div >
+                </div>
             </div>
             {
                 (childComments.length > 0) ?
