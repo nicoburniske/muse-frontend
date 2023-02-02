@@ -25,16 +25,17 @@ export const setResultsAtom = atom(null, (get, set, { results, rootReviewId }: C
     set(resultsAtom, results)
     set(reviewOrderAtom, results.map(r => r.overview.reviewId))
 
-    const currentReviewId = get(rootReviewIdAtom)
     set(rootReviewIdAtom, rootReviewId)
 
-    // We need one to be open always.
-    // TOOD: This will probably not work without cache.
-    if (rootReviewId !== currentReviewId && results.length > 0) {
+    if (results.length === 1 && results[0].overview.reviewId === rootReviewId) {
         set(expandedGroupsAtom, [results[0].overview.reviewId])
+        set(showHeadersAtom, false)
+    } else {
+        set(showHeadersAtom, true)
     }
 })
 
+export const showHeadersAtom = atom(true)
 
 export const rootReviewIdAtom = atom<string>('')
 rootReviewIdAtom.debugLabel = 'rootReviewIdAtom'
@@ -136,11 +137,17 @@ renderedGroupsAtom.debugLabel = 'renderedGroupsAtom'
 
 export const indexToJsxAtom = atom<React.ReactNode[]>(get => {
     const expandedGroups = get(expandedGroupsAtom)
+    const showHeader = get(showHeadersAtom)
     return get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
         if (expandedGroups.includes(reviewId)) {
-            return [header.element, ...children.map(c => c.element)]
+            const childElements = children.map(c => c.element)
+            if (showHeader) {
+                return [header.element, ...childElements]
+            } else {
+                return childElements
+            }
         } else {
-            return [header.element]
+            return showHeader ? [header.element] : []
         }
     })
 })
@@ -149,19 +156,27 @@ export const indexToJsxAtom = atom<React.ReactNode[]>(get => {
 // Headers have different sizes than tracks.
 export const indexToSizeAtom = atom<number[]>(get => {
     const expandedGroups = get(expandedGroupsAtom)
-    const result = get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
+    const showHeader = get(showHeadersAtom)
+    return get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
         if (expandedGroups.includes(reviewId)) {
-            return [header.size, ...children.map((c) => c.size)]
+            const childElements = children.map(c => c.size)
+            if (showHeader) {
+                return [header.size, ...childElements]
+            } else {
+                return childElements
+            }
         } else {
-            return [header.size]
+            return showHeader ? [header.size] : []
         }
     })
-    return result
 })
 
 // Used for sticky headers.
 // It's not my fault for loops are fast in javascript.
 export const headerIndicesAtom = atom<number[]>(get => {
+    if (!get(showHeadersAtom)) 
+        return new Array<number>
+
     const expandedGroups = get(expandedGroupsAtom)
     const indices = new Array<number>()
     const groups = get(groupWithTracksAtom)
