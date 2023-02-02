@@ -1,6 +1,6 @@
-import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from 'graphql/generated/schema'
+import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { PrimitiveAtom } from 'jotai'
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject, useCallback, useEffect, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
@@ -24,7 +24,9 @@ export interface PlaylistTrackProps {
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedAtom }: PlaylistTrackProps) {
     const { addedAt, addedBy, track, playlist: { id: playlistId } } = playlistTrack
-    const { data: playlistOwner } = useGetPlaylistQuery({ id: playlistId }, { select: data => data.getPlaylist?.owner.id })
+    const { data: playlistOwner } = useGetPlaylistQuery({ id: playlistId }, {
+        select: useCallback((data: GetPlaylistQuery) => data.getPlaylist?.owner.id, [])
+    })
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
     // Sorted biggest to smallest.
