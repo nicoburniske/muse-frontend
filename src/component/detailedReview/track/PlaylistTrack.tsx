@@ -1,6 +1,6 @@
 import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { PrimitiveAtom } from 'jotai'
-import { RefObject, useRef } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
@@ -79,7 +79,8 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
         accept: 'Track',
         canDrop: (item: { trackId: string, playlistId?: string, index: number }) => currentUserId === playlistOwner && item.trackId !== trackId,
         drop: (item: { trackId: string, playlistId?: string, index: number }) => {
-            const insertIndex = isAbove ? index : index + 1
+            const lastIsAbove = lastIsAboveRef.current
+            const insertIndex = lastIsAbove ? index : index + 1
             if (item.playlistId === playlistId) {
                 reorder({ playlistId, insertBefore: insertIndex, rangeStart: item.index, rangeLength: 1 })
             } else {
@@ -102,6 +103,15 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
         },
     }), [reorder, addTracksToPlaylist, currentUserId, playlistOwner])
 
+    // isAbove will be undefined after drag is released!
+    // So we need to save last value in ref.
+    const lastIsAboveRef = useRef<boolean>(false)
+    useEffect(() => {
+        if (isAbove !== undefined) {
+            lastIsAboveRef.current = isAbove
+        }
+    }, [isAbove])
+
     // Drag to re-order.
     const trackId = track.id
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -122,34 +132,36 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
                 trackDivRef.current = el
             }}
             className={classNames(
-                'group grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 card card-body items-center p-0.5 m-0 select-none w-full h-full border-2 border-base-300',
+                'group card card-body flex flex-row justify-between items-center p-0.5 m-0 select-none w-full h-full border-2 border-base-300',
                 styles,
                 isDragging ? 'opacity-50' : '',
                 isAbove === undefined || !canDrop ? '' :
                     isAbove ? 'border-t-success order-t-2 ' : 'border-b-success border-b-2'
             )} >
 
-            <div className="hidden sm:flex avatar ml-1">
-                <div className="w-8 md:w-12 rounded">
-                    <img src={albumImage} />
+            <div className="flex flex-row justify-start space-x-1">
+                <div className="hidden sm:flex avatar ml-1">
+                    <div className="w-8 md:w-12 rounded">
+                        <img src={albumImage} />
+                    </div>
+                </div>
+
+
+                <div className='flex flex-col w-24 md:w-48 lg:w-48 pl-1'>
+                    <div className="select-none	truncate text-base p-0.5"> {track.name} </div>
+                    <div className="select-none	truncate text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
                 </div>
             </div>
 
-            <div className='col-span-2 flex flex-col grow'>
-                <div className="truncate text-sm lg:text-base p-0.5"> {track.name} </div>
-                <div className="truncate text-xs lg:text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
-            </div>
-
-            <div className="grid place-items-center">
+            <div className="hidden md:grid place-items-center">
                 <UserAvatar
                     displayName={displayName}
                     tooltip={`${displayName} - ${dateAdded}`}
                     image={avatarImage as string} tooltipPos={TooltipPos.Left} />
             </div>
-            <div className="truncate text-sm lg:text-base p-0.5 m-auto">
-                <p>
-                    {`${minutes}:${seconds}`}
-                </p>
+
+            <div className="select-none	text-center truncate text-sm lg:text-base p-0.5 hidden md:grid place-items-center">
+                {`${minutes}:${seconds}`}
             </div>
             <div className="grid place-items-center">
                 <LikeButton
@@ -159,7 +171,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
                     className={'btn btn-sm btn-ghost p-0'}
                 />
             </div>
-            <div>
+            <div className='w-5 flex mr-5'>
                 <TrackOptions
                     trackId={track.id}
                     reviewId={reviewId}
