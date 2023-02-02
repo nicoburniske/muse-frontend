@@ -1,6 +1,6 @@
 import { defaultRangeExtractor, elementScroll, Virtualizer, VirtualizerOptions, Range } from '@tanstack/virtual-core'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import { MutableRefObject, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import { selectedTrackAtom } from 'state/Atoms'
 import { getTrack } from './Helpers'
 import { groupWithTracksAtom, expandedGroupsAtom } from './TableAtoms'
@@ -50,14 +50,7 @@ export const useKeepMountedRangeExtractor = () => {
         return newRange
     }, [])
 
-    // Reset mounted indices to avoid expensive mount.
-    const expandedGroups = useAtomValue(useMemo(() => atom(get => get(expandedGroupsAtom).join(',')), []))
-    useEffect(() => {
-        mounted.current = new Set()
-        return () => { mounted.current = new Set() }
-    }, [expandedGroups])
-
-    return rangeExtractor
+    return [mounted, rangeExtractor] as [MutableRefObject<Set<number>>, (range: Range) => number[]]
 }
 
 // ReviewId => TrackId => Index

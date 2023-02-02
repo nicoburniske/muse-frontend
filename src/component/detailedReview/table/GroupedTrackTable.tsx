@@ -4,7 +4,7 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
-import { headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
+import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
 
 
@@ -54,7 +54,15 @@ export const GroupedTrackTable = () => {
     const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
 
     // Keep all previously rendered tracks mounted for performance. 
-    const keepMounted = useKeepMountedRangeExtractor()
+    const [mountedRef, keepMounted] = useKeepMountedRangeExtractor()
+
+    // Reset mounted indices to avoid expensive mount.
+    const expandedGroups = useAtomValue(useMemo(() => atom(get => get(expandedGroupsAtom).join(',')), []))
+    useEffect(() => {
+        mountedRef.current = new Set()
+        return () => { mountedRef.current = new Set() }
+    }, [expandedGroups])
+
     //Incorporate sticky headers into the range extractor.
     //There can be no headers so we account for undefined.
     const rangeExtractor = useCallback((range: Range) => {
