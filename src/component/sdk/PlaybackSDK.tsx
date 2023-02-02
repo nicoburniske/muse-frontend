@@ -134,6 +134,7 @@ latestPlaybackStateAtom.debugLabel = 'latestPlaybackStateAtom'
 export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom)
 
 // Needs Reconnect.
+// When playback gets disconnected (due to transfer to another device), we get a single NULL playbackstate. 
 export const needsReconnectAtom = atom<boolean>((get) => {
     const isInit = get(isPlaybackStateInitAtom)
     const latestValid = get(latestValidPlaybackStateMaybeAtom)
