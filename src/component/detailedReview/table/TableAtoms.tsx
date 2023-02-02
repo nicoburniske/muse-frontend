@@ -175,7 +175,7 @@ export const indexToSizeAtom = atom<number[]>(get => {
 // It's not my fault for loops are fast in javascript.
 export const headerIndicesAtom = atom<number[]>(get => {
     if (!get(showHeadersAtom)) 
-        return new Array<number>
+        return new Array<number>()
 
     const expandedGroups = get(expandedGroupsAtom)
     const indices = new Array<number>()

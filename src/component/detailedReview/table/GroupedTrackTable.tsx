@@ -49,23 +49,28 @@ export const GroupedTrackTable = () => {
 
     const [getHeaderIndices] = useTransientAtom(headerIndicesAtom)
 
-    const activeStickyIndexRef = useRef(0)
+    const activeStickyIndexRef = useRef<number>()
     const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
     const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
 
     // Keep all previously rendered tracks mounted for performance. 
     const keepMounted = useKeepMountedRangeExtractor()
     //Incorporate sticky headers into the range extractor.
+    //There can be no headers so we account for undefined.
     const rangeExtractor = useCallback((range: Range) => {
         const newActiveSticky = getHeaderIndices()
-            .find((index) => range.startIndex >= index) ?? 0
+            .find((index) => range.startIndex >= index)
         activeStickyIndexRef.current = newActiveSticky
-        const next = new Set([
-            newActiveSticky,
-            ...keepMounted(range)
-        ])
-        const sorted = [...next].sort((a, b) => a - b)
-        return sorted
+        if (newActiveSticky !== undefined) {
+            const next = new Set([
+                newActiveSticky,
+                ...keepMounted(range)
+            ])
+            const sorted = [...next].sort((a, b) => a - b)
+            return sorted
+        } else {
+            return [... new Set([...keepMounted(range)])]
+        }
     }, [getHeaderIndices])
 
     const scrollToFn = useSmoothScroll(parentRef)
