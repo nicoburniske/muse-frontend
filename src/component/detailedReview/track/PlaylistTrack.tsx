@@ -139,21 +139,20 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
                     isAbove ? 'border-t-success order-t-2 ' : 'border-b-success border-b-2'
             )} >
 
-            <div className="flex flex-row justify-start space-x-1">
+            <div className="flex flex-row justify-start items-center space-x-1">
                 <div className="hidden sm:flex avatar ml-1">
-                    <div className="w-8 md:w-12 rounded">
+                    <div className="w-8 h-8 md:w-12 md:h-12 rounded">
                         <img src={albumImage} />
                     </div>
                 </div>
 
-
-                <div className='flex flex-col w-24 md:w-48 lg:w-48 pl-1'>
+                <div className='flex flex-col w-32 md:w-36 lg:w-64 pl-1'>
                     <div className="select-none	truncate text-base p-0.5"> {track.name} </div>
                     <div className="select-none	truncate text-sm p-0.5 font-light"> {artistNames ?? ''} </div>
                 </div>
             </div>
 
-            <div className="hidden md:grid place-items-center">
+            <div className="hidden lg:grid place-items-center">
                 <UserAvatar
                     displayName={displayName}
                     tooltip={`${displayName} - ${dateAdded}`}
