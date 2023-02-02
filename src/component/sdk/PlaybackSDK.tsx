@@ -4,14 +4,21 @@ import atomValueOrSuspend from 'platform/atom/atomValueOrSuspend'
 import atomWithSuspend from 'platform/atom/atomWithSuspend'
 import { useExecuteOnce } from 'platform/hook/useExecuteOnce'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { nonNullable } from 'util/Utils'
 
 export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
 
 type HasData<T> = { state: 'hasData'; data: T }
+type SpotifyErrorHandler = {
+    initializationError: (error: Spotify.Error) => void
+    authenticationError: (error: Spotify.Error) => void
+    accountError: (error: Spotify.Error) => void
+    playbackError: (error: Spotify.Error) => void
+}
+
 // This needs to be imported at top level to setup spotify sdk.
-export function SpotifyPlaybackSdk() {
+export function SpotifyPlaybackSdk({ errorHandler }: { errorHandler: SpotifyErrorHandler }) {
     const isReady = useAtomValue(sdkReadyAtom)
     const load = useAtomValue(loadable(getTokenAtom))
     const [getPlayer, setPlayer] = useTransientAtom(playerAtom)
@@ -29,9 +36,13 @@ export function SpotifyPlaybackSdk() {
 
                 if (success) {
                     setPlayer(player)
-                    player.addListener('player_state_changed', (state) => {
-                        setPlaybackState(state)
-                    })
+                    player.addListener('player_state_changed', (state) => setPlaybackState(state))
+
+                    const { initializationError, authenticationError, accountError, playbackError } = errorHandler
+                    player.addListener('initialization_error', (error) => initializationError(error))
+                    player.addListener('authentication_error', (error) => authenticationError(error))
+                    player.addListener('account_error', (error) => accountError(error))
+                    player.addListener('playback_error', (error) => playbackError(error))
                 } else {
                     throw new Error('Failed to connect to Spotify Player.')
                 }
@@ -44,6 +55,12 @@ export function SpotifyPlaybackSdk() {
     }, [getPlayer])
 
     return null
+}
+
+export const useDisconnectPlayer = () => {
+    const [getPlayer] = useTransientAtom(playerAtom)
+
+    return useCallback(() => getPlayer().then(p => p.disconnect()), [getPlayer])
 }
 
 
