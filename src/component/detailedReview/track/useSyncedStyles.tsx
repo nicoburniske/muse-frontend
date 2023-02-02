@@ -28,5 +28,5 @@ export const useLikeSvgStyle = (trackId: string, isLikedAtom: Atom<boolean>) => 
         } else {
             return 'stroke-base-content'
         }
-    }), [trackId])
+    }), [trackId, isLikedAtom])
 }

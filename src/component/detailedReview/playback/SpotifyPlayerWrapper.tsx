@@ -58,7 +58,7 @@ const useSyncNowPlayingLiked = () => {
         } else {
             setNowPlaying(undefined)
         }
-    }, [nowPlaying, isLiked])
+    }, [nowPlaying, isLiked, setNowPlaying])
 
     return isLiked
 }

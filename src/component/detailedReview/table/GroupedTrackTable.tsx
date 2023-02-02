@@ -95,9 +95,12 @@ export const GroupedTrackTable = () => {
     // Ensure new sizes are measured on re-order.
     // Derived atom ensures that values must be different for re-render.
     const order = useAtomValue(useMemo(() => atom(get => get(reviewOrderAtom).join(',')), []))
+    // To account for tracks being added, removed, or re-ordered.
+    const trackIds = useAtomValue(useMemo(() => atom(get => get(tracksAtom).map(t => t.id).join('')), []))
+
     useEffect(() => {
         rowVirtualizer.measure()
-    }, [order, rowVirtualizer])
+    }, [order, rowVirtualizer, trackIds])
 
     useScrollToSelected(rowVirtualizer)
 

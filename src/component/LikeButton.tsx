@@ -62,11 +62,10 @@ const useSyncLikedState = (trackId: string, likeAtom: PrimitiveAtom<boolean>) =>
         && get(nowPlayingIsLikedAtom) !== get(likeAtom)
     ), [trackId]))
 
-
     useEffect(() => {
         const currentLiked = getIsLiked()
         if (shouldUpdate && currentLiked !== undefined) {
             setIsLiked(currentLiked)
         }
-    }, [shouldUpdate])
+    }, [shouldUpdate, getIsLiked, setIsLiked])
 }	
