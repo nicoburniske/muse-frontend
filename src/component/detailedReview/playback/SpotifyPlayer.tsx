@@ -5,7 +5,6 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingIsLikedAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { classNames, msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
@@ -18,6 +17,8 @@ import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
 import { usePlayerActions } from 'component/sdk/PlayerActions'
 import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingIsLikedAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 
 export function SpotifyPlayerFallback() {

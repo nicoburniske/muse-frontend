@@ -1,6 +1,7 @@
 import { Atom, atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
+import { nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 // Only change styling if derived values are different.
 export const useTrackColor = (trackId: string) =>

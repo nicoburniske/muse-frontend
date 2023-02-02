@@ -1,9 +1,9 @@
 import { defaultRangeExtractor, elementScroll, Virtualizer, VirtualizerOptions, Range } from '@tanstack/virtual-core'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { MutableRefObject, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
-import { selectedTrackAtom } from 'state/Atoms'
 import { getTrack } from './Helpers'
 import { groupWithTracksAtom, expandedGroupsAtom } from './TableAtoms'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 const easeInOutQuint = (t: number) => {
     return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t

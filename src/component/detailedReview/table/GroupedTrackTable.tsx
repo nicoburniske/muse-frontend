@@ -2,11 +2,11 @@ import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
-import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
 import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, rootReviewIdAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
 import useSyncAtoms from 'platform/hook/useSyncAtoms'
+import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 
 
 interface GroupedTrackTableProps {
@@ -16,10 +16,16 @@ interface GroupedTrackTableProps {
 
 const allTrackIdsAtom = atom(get => new Set<string>(get(tracksAtom).map(t => t.id)))
 
+export const nowPlayingEnabledAtomLocal = atom((get) => {
+    const trackId = get(nowPlayingTrackAtom)?.trackId
+    const allTracks = get(allTrackIdsAtom)
+    return (trackId !== undefined && allTracks.has(trackId))
+})
+
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
 
     // Ensure that seeking for now playing works properly.
-    useSyncAtoms(allReviewTracksAtom, allTrackIdsAtom)
+    useSyncAtoms(nowPlayingEnabledAtom, nowPlayingEnabledAtomLocal)
 
     // useAtom is intentional so we trigger a re-render when the rootReviewId changes.
     const [, setRootReviewId] = useAtom(rootReviewIdAtom)

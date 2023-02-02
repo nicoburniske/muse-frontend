@@ -2,12 +2,12 @@ import { useTrackLikeQuery } from 'component/sdk/ClientHooks'
 import { useLatestPlaybackState } from 'component/sdk/PlaybackSDK'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
-import { nowPlayingTrackAtom } from 'state/Atoms'
 import { nonNullable } from 'util/Utils'
 import { SpotifyPlayerFallback } from './SpotifyPlayer'
 import { useTransferPlaybackOnMount } from './TransferPlayback'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Alert, AlertSeverity } from 'platform/component/Alert'
+import { nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 
 export const SpotifyPlayerWrapper = () => {
     return (

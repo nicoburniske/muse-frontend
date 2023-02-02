@@ -1,7 +1,6 @@
 import { EntityType, ReviewDetailsFragment, useDetailedReviewQuery, useGetPlaylistQuery, useGetAlbumQuery, DetailedPlaylistFragment, DetailedAlbumFragment } from 'graphql/generated/schema'
 import { useEffect, useMemo } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
-import { selectedTrackAtom } from 'state/Atoms'
 import { ShareReview } from './ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { EditReviewButton } from './editReview/EditReview'
@@ -19,6 +18,7 @@ import { useSetCurrentReview } from 'state/CurrentReviewAtom'
 import { UserIcon } from '@heroicons/react/20/solid'
 import { ShareIcon } from '@heroicons/react/24/outline'
 import { useCurrentUserId } from 'state/CurrentUser'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -35,13 +35,10 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
         refetchOnWindowFocus: false
     })
 
-    const setSelectedTrack = useSetAtom(selectedTrackAtom)
     const setRenderOption = useSetAtom(renderOptionAtom)
 
     useEffect(() => {
         setRenderOption(isSm ? 'tracks' : 'both')
-        // On unmount reset selected track. Avoids scroll to track on review mount.
-        return () => setSelectedTrack(undefined)
     }, [])
 
 
@@ -54,7 +51,7 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
         )
     } else if (!isLoading) {
         return (
-            <NotFound />
+            <NotFound label="Home" redirect="/app" />
         )
     }
 }
@@ -111,7 +108,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
     const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
 
     const reviewId = review.id
-    const currentUserId = useCurrentUserId() 
+    const currentUserId = useCurrentUserId()
     const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
     const isReviewOwner = currentUserId === review?.creator?.id

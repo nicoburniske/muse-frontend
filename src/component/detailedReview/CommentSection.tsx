@@ -4,8 +4,8 @@ import { useMemo } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
 import DetailedComment from './comment/DetailedComment'
 import { useQueries } from '@tanstack/react-query'
-import { selectedTrackAtom } from 'state/Atoms'
 import { ReviewOverview } from './table/Helpers'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
