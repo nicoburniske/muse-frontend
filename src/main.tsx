@@ -5,10 +5,11 @@ import { Toaster } from 'react-hot-toast'
 import { AppConfig } from 'util/AppConfig'
 import { createClient, subscriptionExchange, Provider } from 'urql'
 import { createClient as createWSClient } from 'graphql-ws'
-import { DebugAtoms } from 'state/Atoms'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
+import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
+import { DebugAtomsReduxDevTools } from 'state/Atoms'
 
 // Such a hack to get session id.
 const getSession = () => {
@@ -44,10 +45,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <DndProvider backend={HTML5Backend}>
             <Provider value={urqlClient}>
                 <MuseQueryClientProvider
-                    useCache={true}
+                    useCache={false}
                 >
                     <>
-                        <DebugAtoms />
+                        <SpotifyPlaybackSdk />
+                        {/* <DebugAtomsReduxDevTools /> */}
                         <MuseRoutes />
                         <Toaster
                             position="bottom-right"

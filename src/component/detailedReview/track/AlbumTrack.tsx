@@ -12,7 +12,7 @@ import TrackOptions from './TrackDropdown'
 export interface AlbumTrackProps {
     track: DetailedTrackFragment
     reviewId: string
-    isLikedAtom: PrimitiveAtom<boolean>
+    isLikedAtom: PrimitiveAtom<boolean | undefined>
 }
 
 // TODO: Consider making image optional for conciseness.

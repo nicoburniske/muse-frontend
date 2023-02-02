@@ -14,7 +14,7 @@ export const useTrackColor = (trackId: string) =>
     }), [trackId]))
 
 
-export const useLikeSvgStyle = (trackId: string, isLikedAtom: Atom<boolean>) => {
+export const useLikeSvgStyle = (trackId: string, isLikedAtom: Atom<boolean | undefined>) => {
     return useMemo(() => atom(get => {
         const isPlaying = get(nowPlayingTrackIdAtom) === trackId
         const isLiked = get(isLikedAtom)

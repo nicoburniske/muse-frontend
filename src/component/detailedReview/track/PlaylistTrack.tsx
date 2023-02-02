@@ -18,7 +18,7 @@ export interface PlaylistTrackProps {
     index: number
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
-    isLikedAtom: PrimitiveAtom<boolean>
+    isLikedAtom: PrimitiveAtom<boolean | undefined>
 }
 
 // TODO: Consider making image optional for conciseness.

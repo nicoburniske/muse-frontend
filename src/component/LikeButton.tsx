@@ -6,11 +6,12 @@ import { useEffect, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRemoveSavedTracksMutation, useSaveTracksMutation, useTrackLikeQuery } from './sdk/ClientHooks'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
+import { classNames } from 'util/Utils'
 
 
 interface LikeButtonProps {
     trackId: string
-    likeAtom: PrimitiveAtom<boolean>
+    likeAtom: PrimitiveAtom<boolean | undefined> 
     svgClass: Atom<string>
     className: string,
 }
@@ -44,16 +45,17 @@ export default function LikeButton({ trackId, likeAtom, svgClass, className }: L
     const handleClick = () => isLiked ? unlikeTrack(input) : likeTrack(input)
 
     const svgClassName = useAtomValue(svgClass)
+    const disabled = isLiked === undefined
 
     return (
-        <button className={className} onClick={() => handleClick()}>
+        <button className={classNames(className)} disabled={disabled} onClick={() => handleClick()}>
             {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
         </button>
     )
 }
 
 
-const useSyncLikedState = (trackId: string, likeAtom: PrimitiveAtom<boolean>) => {
+const useSyncLikedState = (trackId: string, likeAtom: PrimitiveAtom<boolean | undefined>) => {
     const setIsLiked = useSetAtom(likeAtom)
     const [getIsLiked] = useTransientAtom(nowPlayingIsLikedAtom)
 

@@ -1,11 +1,12 @@
 import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { allReviewTracksAtom } from 'state/Atoms'
 import { Group } from './Helpers'
-import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, setResultsAtom, tracksAtom } from './TableAtoms'
+import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom, reviewOrderAtom, rootReviewIdAtom, setResultsAtom, tracksAtom } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
+import useSyncAtoms from 'platform/hook/useSyncAtoms'
 
 
 interface GroupedTrackTableProps {
@@ -13,27 +14,19 @@ interface GroupedTrackTableProps {
     results: Group[]
 }
 
-// Constructor. Don't understand why jotai Provider doesn't work here.
-// Got infinite suspense when trying to use provider even though none of the atoms are async.
-// TODO: Figure out if there's a better pattern than this. 
+const allTrackIdsAtom = atom(get => new Set<string>(get(tracksAtom).map(t => t.id)))
+
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
 
-    // Ensure first group is open on load.
-    const setAllTrackIds = useSetAtom(useMemo(() => atom(null, (get, set) => {
-        const allTrackIds = new Set<string>(get(tracksAtom).map(t => t.id))
-        // Ensure that seeking for now playing works properly.
-        set(allReviewTracksAtom, allTrackIds)
-    }), []))
+    // Ensure that seeking for now playing works properly.
+    useSyncAtoms(allReviewTracksAtom, allTrackIdsAtom)
+
+    // useAtom is intentional so we trigger a re-render when the rootReviewId changes.
+    const [, setRootReviewId] = useAtom(rootReviewIdAtom)
+    useEffect(() => setRootReviewId(rootReview), [rootReview, setRootReviewId])
 
     const setResults = useSetAtom(setResultsAtom)
-
-    useEffect(() => {
-        setResults({
-            rootReviewId: rootReview,
-            results
-        })
-        setAllTrackIds()
-    }, [results])
+    useEffect(() => setResults(results), [results, setResults])
 
     return (
         <GroupedTrackTable />
@@ -95,12 +88,13 @@ export const GroupedTrackTable = () => {
     // Ensure new sizes are measured on re-order.
     // Derived atom ensures that values must be different for re-render.
     const order = useAtomValue(useMemo(() => atom(get => get(reviewOrderAtom).join(',')), []))
-    // To account for tracks being added, removed, or re-ordered.
-    const trackIds = useAtomValue(useMemo(() => atom(get => get(tracksAtom).map(t => t.id).join('')), []))
 
     useEffect(() => {
         rowVirtualizer.measure()
-    }, [order, rowVirtualizer, trackIds])
+    }, [order, rowVirtualizer])
+
+    // To account for tracks being added, removed, or re-ordered.
+    useAtomValue(useMemo(() => atom(get => get(tracksAtom).map(t => t.id).join('')), []))
 
     useScrollToSelected(rowVirtualizer)
 

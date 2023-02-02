@@ -4,7 +4,7 @@
  */
 
 import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { atom } from 'jotai'
+import { PrimitiveAtom, atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import { nonNullable, uniqueByProperty } from 'util/Utils'
 import { getTrack, getTrackId, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
@@ -21,11 +21,10 @@ export type CreateTable = {
     rootReviewId: string
 }
 
-export const setResultsAtom = atom(null, (get, set, { results, rootReviewId }: CreateTable) => {
+export const setResultsAtom = atom(null, (get, set, results: Group[]) => {
     set(resultsAtom, results)
     set(reviewOrderAtom, results.map(r => r.overview.reviewId))
-
-    set(rootReviewIdAtom, rootReviewId)
+    const rootReviewId = get(rootReviewIdAtom)
 
     if (results.length === 1 && results[0].overview.reviewId === rootReviewId) {
         set(expandedGroupsAtom, [results[0].overview.reviewId])
@@ -36,6 +35,7 @@ export const setResultsAtom = atom(null, (get, set, { results, rootReviewId }: C
 })
 
 export const showHeadersAtom = atom(true)
+showHeadersAtom.debugLabel = 'showHeadersAtom'
 
 export const rootReviewIdAtom = atom<string>('')
 rootReviewIdAtom.debugLabel = 'rootReviewIdAtom'
@@ -86,9 +86,10 @@ const getTrackLikeAtom = (trackId: string) => {
     const focused = focusAtom(uniqueTracksAtom, (optic) =>
         optic
             .find(t => t.id === trackId)
-            .prop('isLiked')
-            .valueOr(false))
-    return atom((get) => get(focused) ?? false, (_get, set, value) => set(focused, value))
+            .prop('isLiked'))
+    return atom(
+        (get) => get(focused) === null ? undefined : get(focused),
+        (_get, set, value: boolean | undefined) => set(focused, value)) as PrimitiveAtom<boolean | undefined>
 }
 
 // Render all rows and store in Atom.
@@ -102,7 +103,7 @@ export type SizedElement = {
     size: number
 }
 
-export const renderedGroupsAtom = atom<GroupRendered[]>(get => {
+const renderedGroupsAtom = atom<GroupRendered[]>(get => {
     const rootReviewId = get(rootReviewIdAtom)
     const allGroups = get(groupWithTracksAtom)
 
@@ -174,7 +175,7 @@ export const indexToSizeAtom = atom<number[]>(get => {
 // Used for sticky headers.
 // It's not my fault for loops are fast in javascript.
 export const headerIndicesAtom = atom<number[]>(get => {
-    if (!get(showHeadersAtom)) 
+    if (!get(showHeadersAtom))
         return new Array<number>()
 
     const expandedGroups = get(expandedGroupsAtom)

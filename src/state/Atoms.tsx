@@ -1,6 +1,7 @@
 import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
-import { useAtomsDebugValue } from 'jotai/devtools'
+import { useAtomsDebugValue, useAtomsDevtools } from 'jotai-devtools'
+
 
 export interface SelectedTrack { reviewId: string, trackId: string }
 export const selectedTrackAtom = atom<SelectedTrack | undefined>(undefined)
@@ -29,7 +30,11 @@ export const nowPlayingEnabledAtom = atom((get) => {
     return (trackId !== undefined && allTracks.has(trackId))
 })
 
-export const DebugAtoms = () => {
+export const DebugAtomsComponents = () => {
     useAtomsDebugValue()
+}
+
+export const DebugAtomsReduxDevTools = () => {
+    useAtomsDevtools('Muse')
     return null
 }

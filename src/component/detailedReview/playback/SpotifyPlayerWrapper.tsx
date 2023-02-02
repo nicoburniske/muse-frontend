@@ -1,5 +1,5 @@
 import { useTrackLikeQuery } from 'component/sdk/ClientHooks'
-import { useLatestPlaybackState, useSyncPlaybackState } from 'component/sdk/PlaybackSDK'
+import { useLatestPlaybackState } from 'component/sdk/PlaybackSDK'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
 import { nowPlayingTrackAtom } from 'state/Atoms'
@@ -30,7 +30,6 @@ export const SpotifyPlayerWrapper = () => {
 }
 
 const SpotifyPlayerSync = () => {
-    useSyncPlaybackState()
     useSyncNowPlayingLiked()
     useTransferPlaybackOnMount()
 

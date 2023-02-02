@@ -9,7 +9,7 @@ export interface MemoTrackProps {
     index: number
     track: DetailedPlaylistTrackFragment | DetailedTrackFragment
     reviewId: string
-    isLikedAtom: PrimitiveAtom<boolean>
+    isLikedAtom: PrimitiveAtom<boolean | undefined>
 }
 /**
  * TODO: Incorporate Podcast episode. 

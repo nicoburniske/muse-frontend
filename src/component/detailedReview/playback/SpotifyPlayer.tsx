@@ -5,7 +5,7 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingIsLikedAtom, nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
 import { classNames, msToTime, msToTimeStr } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { useQueryClient } from '@tanstack/react-query'
@@ -17,6 +17,7 @@ import { MuseTransition } from 'platform/component/MuseTransition'
 import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
 import { usePlayerActions } from 'component/sdk/PlayerActions'
+import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
 
 
 export function SpotifyPlayerFallback() {
@@ -128,23 +129,12 @@ const NowPlayingItem = () => {
     )
 }
 
-const commonBtnClass = 'btn btn-sm lg:btn-md neutral-focus p-0'
-const commonBtnClassExtra = (extraClasses?: (string | undefined)[]) => {
-    const valid = extraClasses?.filter(c => c !== undefined)
-    return valid ? `${commonBtnClass} ${valid.join(' ')}` : commonBtnClass
-}
+const commonBtnClass = 'btn btn-sm lg:btn-md p-0'
+
+const likeAtom = atomDerivedWithWrite(atom(get => get(nowPlayingIsLikedAtom)))
+const svgClassAtom = atom(get => get(likeAtom) ? 'fill-success text-success' : '')
 
 const LikeNowPlaying = () => {
-    const likeAtom = useMemo(() => atom(get => {
-        const nowPlaying = get(nowPlayingTrackAtom)
-        if (nowPlaying) {
-            return nowPlaying.isLiked
-        }
-        return false
-    }, (_get, _set, newValue) => newValue),
-    [])
-
-    const svgClassAtom = useMemo(() => atom(get => get(likeAtom) ? 'fill-success' : ''), [])
     const nowPlaying = useAtomValue(isPlayingAtom)
     const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
 
@@ -153,7 +143,7 @@ const LikeNowPlaying = () => {
             <LikeButton
                 trackId={getNowPlayingId()!}
                 likeAtom={likeAtom}
-                className={commonBtnClassExtra(['btn-ghost'])}
+                className={classNames(commonBtnClass, 'btn-ghost')}
                 svgClass={svgClassAtom}
             />
         )
@@ -259,7 +249,7 @@ const PlayerButtons = () => {
     }
 
     const toggleShuffle = () => setShuffle(!isShuffled)
-    const successButton = commonBtnClassExtra(['btn-success'])
+    const successButton = classNames(commonBtnClass, 'btn-success')
     const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
     const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
@@ -285,8 +275,9 @@ const TransferPlaybackButton = () => {
     const { transfer: { mutate, isLoading }, needsReconnect } = useTransferPlayback({
         onError: () => toast.error('Failed to transfer playback')
     })
-    const extraClasses = [needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined, isLoading ? 'loading' : undefined]
-    const className = commonBtnClassExtra(extraClasses)
+    const className = classNames(commonBtnClass,
+        needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
+        isLoading ? 'loading' : undefined)
 
     return (
         <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip="start">
@@ -306,10 +297,11 @@ const PlayOrTransferButton = () => {
     return (
         needsReconnect ?
             <TransferPlaybackButton />
-            :
-            <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
-                {isPlaying ? <PauseIcon /> : <PlayIcon />}
-            </button >
+            : (
+                <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
+                    {isPlaying ? <PauseIcon /> : <PlayIcon />}
+                </button >
+            )
     )
 }
 

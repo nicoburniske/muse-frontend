@@ -3,7 +3,7 @@ import { StrictMode, Suspense, useCallback, useEffect, useRef } from 'react'
 import { SpotifyPlayerWrapper } from 'component/detailedReview/playback/SpotifyPlayerWrapper'
 import { MobileMenu } from './MobileMenu'
 import Portal from 'platform/component/Portal'
-import { SpotifyPlaybackSdk, useSetTokenFunction } from 'component/sdk/PlaybackSDK'
+import { useSetTokenFunction } from 'component/sdk/PlaybackSDK'
 import useAccessTokenQuery from 'state/useAccessTokenQuery'
 import { useExecuteOnce } from 'platform/hook/useExecuteOnce'
 import { nonNullable } from 'util/Utils'
@@ -30,7 +30,6 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />
-            <SpotifyPlaybackSdk />
             <div className="flex grow flex-row overflow-hidden" >
                 <SideNavBar />
                 <Suspense fallback={null}>
