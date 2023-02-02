@@ -44,7 +44,6 @@ export const SeekIntervalSetter = () => {
                         'block w-full rounded-md sm:text-sm input input-bordered input-primary border-base-300',
                         hasErrors ? 'input-error text-error' : ''
                     )}
-                    defaultValue={tempInterval}
                     value={tempInterval}
                     onChange={onChange}
                     aria-invalid="true"

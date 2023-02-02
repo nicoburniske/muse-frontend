@@ -36,12 +36,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
         return groupBy(childComments, c => c.parentCommentId, c => c)
     }, [comments])
 
-    const rootComments = useMemo(() =>
-        // TODO: Fix this!
-        comments
-            .filter(comment => comment.parentCommentId === null)
-            .filter(comment => nonNullable(comment.comment) || (childComments.get(comment.id) ?? []).length > 0)
-    , [comments])
+    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
 
     const setSelectedTrack = useSetAtom(selectedTrackAtom)
 

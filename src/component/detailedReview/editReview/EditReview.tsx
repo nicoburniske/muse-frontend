@@ -151,7 +151,7 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
     const { mutate: deleteReviewMutation } = useDeleteReviewMutation({
         onError: () => toast.error('Failed to delete review.'),
         onSuccess: () => {
-            nav('/')
+            nav('/app/reviews')
             toast.success('Successfully deleted review.')
         }
     })
