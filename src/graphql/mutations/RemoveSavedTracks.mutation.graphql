@@ -1,3 +1,0 @@
-mutation RemoveSavedTracks($trackIds: [String!]!) {
-    removeSavedTracks(input: $trackIds) 
-} 

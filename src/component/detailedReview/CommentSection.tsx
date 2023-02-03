@@ -64,3 +64,34 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
         </div>
     )
 }
+
+// const subscribeToReview = (reviewIds: string[]) => {
+
+//     useReviewUpdatesSubscription({
+//         variables: { reviewId }, onSubscriptionData: (data) => {
+//             const commentEvent = data.subscriptionData.data?.reviewUpdates
+//             if (commentEvent?.__typename) {
+//                 switch (commentEvent.__typename) {
+//                     case "CreatedComment":
+//                         setComments([...comments, commentEvent.comment])
+//                         break;
+//                     case "UpdatedComment":
+//                         const updatedCommentId = commentEvent.comment.id
+//                         const filtered = comments.filter(comment => comment.id !== updatedCommentId)
+//                         filtered.push(commentEvent.comment)
+//                         setComments(filtered)
+//                         break;
+//                     case "DeletedComment":
+//                         const deletedCommentId = commentEvent.commentId
+//                         const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
+//                         setComments(removeDeleted)
+//                         break;
+//                     default:
+//                         console.error("Unhandled review update event", commentEvent)
+//                 }
+//             }
+//         }
+//     })
+//     return comments
+// }
+// }

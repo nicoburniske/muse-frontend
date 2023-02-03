@@ -1,3 +1,0 @@
-mutation PausePlayback($deviceId: String) {
-    pausePlayback(deviceId: $deviceId) 
-}

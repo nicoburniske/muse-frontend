@@ -1,4 +1,0 @@
-
-mutation PlayEntityContext($input: PlayEntityContextInput!) {
-   playEntityContext(input: $input) 
-}

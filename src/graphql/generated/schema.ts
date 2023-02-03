@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useInfiniteQuery, UseMutationOptions, UseQueryOptions, UseInfiniteQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
 import { fetcher } from 'graphql/fetcher'
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -642,7 +642,23 @@ export type UserPlaylistsArgs = {
   input: SearchUserPlaylistsInput;
 };
 
-export type UserWithSpotifyOverviewFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null };
+export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
+
+export type DetailedAlbumFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
+
+export type AlbumDetailsFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
+
+export type DetailedArtistFragment = { __typename?: 'Artist', numFollowers?: number | null, href: string, id: string, name: string, artistGenres?: Array<string> | null, artistImages?: Array<string> | null, artistPopularity?: number | null };
+
+export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null };
+
+export type DetailedPlaylistFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
+
+export type PlaylistDetailsFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
+
+export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } };
+
+export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
 
 export type ReviewDetailsFragment = { __typename?: 'Review', id: string, createdAt: string, reviewName: string, isPublic: boolean, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity?: { __typename: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, childReviews?: Array<{ __typename?: 'Review', id: string, createdAt: string, reviewName: string, isPublic: boolean, creator: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entity?: { __typename: 'Album', images: Array<string>, id: string, name: string, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | { __typename: 'Artist', id: string, name: string, artistImages?: Array<string> | null } | { __typename: 'Playlist', images: Array<string>, id: string, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', id: string, displayName?: string | null, images?: Array<string> | null, numFollowers?: number | null } | null } } | { __typename: 'Track', id: string, name: string, album?: { __typename?: 'Album', images: Array<string> } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null } | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null }> | null, collaborators?: Array<{ __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null };
 
@@ -656,27 +672,7 @@ type ReviewEntityOverview_Track_Fragment = { __typename: 'Track', id: string, na
 
 export type ReviewEntityOverviewFragment = ReviewEntityOverview_Album_Fragment | ReviewEntityOverview_Artist_Fragment | ReviewEntityOverview_Playlist_Fragment | ReviewEntityOverview_Track_Fragment;
 
-export type CollaboratorFragment = { __typename?: 'Collaborator', accessLevel: AccessLevel, user: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
-
-export type DetailedCommentFragment = { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null };
-
-export type DetailedAlbumFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
-
-export type AlbumDetailsFragment = { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null };
-
-export type DetailedTrackFragment = { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null };
-
-export type DetailedPlaylistFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
-
-export type PlaylistDetailsFragment = { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
-
-export type DetailedPlaylistTrackFragment = { __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } };
-
-export type SearchPlaylistFragment = { __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
-
-export type SearchAlbumFragment = { __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null };
-
-export type SearchArtistFragment = { __typename: 'Artist', id: string, name: string, images?: Array<string> | null };
+export type UserWithSpotifyOverviewFragment = { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   input: CreateCommentInput;
@@ -720,89 +716,12 @@ export type LinkReviewsMutationVariables = Exact<{
 
 export type LinkReviewsMutation = { __typename?: 'Mutations', linkReviews?: boolean | null };
 
-export type PausePlaybackMutationVariables = Exact<{
-  deviceId?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type PausePlaybackMutation = { __typename?: 'Mutations', pausePlayback?: boolean | null };
-
-export type PlayMutationVariables = Exact<{
-  input: PlayInput;
-}>;
-
-
-export type PlayMutation = { __typename?: 'Mutations', play?: boolean | null };
-
-export type PlayEntityContextMutationVariables = Exact<{
-  input: PlayEntityContextInput;
-}>;
-
-
-export type PlayEntityContextMutation = { __typename?: 'Mutations', playEntityContext?: boolean | null };
-
-export type PlayTracksMutationVariables = Exact<{
-  input: PlayTracksInput;
-}>;
-
-
-export type PlayTracksMutation = { __typename?: 'Mutations', playTracks?: boolean | null };
-
-export type RemoveSavedTracksMutationVariables = Exact<{
-  trackIds: Array<Scalars['String']> | Scalars['String'];
-}>;
-
-
-export type RemoveSavedTracksMutation = { __typename?: 'Mutations', removeSavedTracks?: boolean | null };
-
-export type SaveTracksMutationVariables = Exact<{
-  trackIds: Array<Scalars['String']> | Scalars['String'];
-}>;
-
-
-export type SaveTracksMutation = { __typename?: 'Mutations', saveTracks?: boolean | null };
-
-export type SeekPlaybackMutationVariables = Exact<{
-  input: SeekPlaybackInput;
-}>;
-
-
-export type SeekPlaybackMutation = { __typename?: 'Mutations', seekPlayback?: boolean | null };
-
 export type ShareReviewMutationVariables = Exact<{
   input: ShareReviewInput;
 }>;
 
 
 export type ShareReviewMutation = { __typename?: 'Mutations', shareReview?: boolean | null };
-
-export type ToggleShuffleMutationVariables = Exact<{
-  input: Scalars['Boolean'];
-}>;
-
-
-export type ToggleShuffleMutation = { __typename?: 'Mutations', toggleShuffle?: boolean | null };
-
-export type SkipToNextMutationVariables = Exact<{
-  deviceId?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type SkipToNextMutation = { __typename?: 'Mutations', skipToNext?: boolean | null };
-
-export type SkipToPreviousMutationVariables = Exact<{
-  deviceId?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type SkipToPreviousMutation = { __typename?: 'Mutations', skipToPrevious?: boolean | null };
-
-export type TransferPlaybackMutationVariables = Exact<{
-  input: TransferPlaybackInput;
-}>;
-
-
-export type TransferPlaybackMutation = { __typename?: 'Mutations', transferPlayback?: boolean | null };
 
 export type UpdateCommentMutationVariables = Exact<{
   input: UpdateCommentInput;
@@ -849,14 +768,14 @@ export type GetAlbumQueryVariables = Exact<{
 }>;
 
 
-export type GetAlbumQuery = { __typename?: 'Queries', getAlbum?: { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null } | null };
+export type GetAlbumQuery = { __typename?: 'Queries', getAlbum?: { __typename: 'Album', albumGroup?: string | null, albumType: string, genres: Array<string>, id: string, images: Array<string>, label?: string | null, name: string, releaseDate: string, albumPopularity?: number | null, tracks?: Array<{ __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }> | null, artists?: Array<{ __typename?: 'Artist', id: string, name: string }> | null } | null };
 
 export type GetPlaylistQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
 
-export type GetPlaylistQuery = { __typename?: 'Queries', getPlaylist?: { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null } | null };
+export type GetPlaylistQuery = { __typename?: 'Queries', getPlaylist?: { __typename: 'Playlist', collaborative: boolean, description: string, id: string, images: Array<string>, name: string, primaryColor?: string | null, public?: boolean | null, tracks?: Array<{ __typename?: 'PlaylistTrack', addedAt: string, addedBy: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, track: { __typename?: 'Track', uri: string, id: string, name: string, durationMs: number, explicit: boolean, isPlayable?: boolean | null, previewUrl?: string | null, popularity?: number | null, album?: { __typename?: 'Album', images: Array<string>, id: string, name: string } | null, artists?: Array<{ __typename?: 'Artist', name: string, id: string }> | null }, playlist: { __typename?: 'Playlist', id: string } }> | null, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } } | null };
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -872,6 +791,12 @@ export type SearchSpotifyQueryVariables = Exact<{
 
 export type SearchSpotifyQuery = { __typename?: 'Queries', search?: { __typename?: 'SearchResult', playlists?: { __typename?: 'PaginationResultPlaylist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> } | null, albums?: { __typename?: 'PaginationResultAlbum', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null }> } | null, artists?: { __typename?: 'PaginationResultArtist', limit: number, nextOffset?: number | null, itemsLeft: number, items: Array<{ __typename: 'Artist', id: string, name: string, images?: Array<string> | null }> } | null } | null };
 
+export type SearchAlbumFragment = { __typename: 'Album', id: string, name: string, images: Array<string>, popularity?: number | null, artists?: Array<{ __typename?: 'Artist', name: string }> | null };
+
+export type SearchPlaylistFragment = { __typename: 'Playlist', id: string, name: string, images: Array<string>, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } };
+
+export type SearchArtistFragment = { __typename: 'Artist', id: string, name: string, images?: Array<string> | null };
+
 export type TrackLikeQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -885,6 +810,13 @@ export type UserPlaylistsQueryVariables = Exact<{
 
 
 export type UserPlaylistsQuery = { __typename?: 'Queries', user?: { __typename?: 'User', id: string, playlists?: Array<{ __typename?: 'Playlist', id: string, images: Array<string>, name: string, owner: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null } }> | null } | null };
+
+export type ReviewUpdatesSubscriptionVariables = Exact<{
+  reviewIds: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type ReviewUpdatesSubscription = { __typename?: 'Subscriptions', reviewUpdates?: { __typename?: 'CreatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | { __typename?: 'DeletedComment', reviewId: string, commentId: number } | { __typename?: 'UpdatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | null };
 
 export const AlbumDetailsFragmentDoc = `
     fragment AlbumDetails on Album {
@@ -953,6 +885,23 @@ export const UserWithSpotifyOverviewFragmentDoc = `
   }
 }
     `
+export const DetailedCommentFragmentDoc = `
+    fragment DetailedComment on Comment {
+  id
+  reviewId
+  createdAt
+  updatedAt
+  parentCommentId
+  commenter {
+    ...UserWithSpotifyOverview
+  }
+  comment
+  entities {
+    __typename
+    id
+  }
+}
+    `
 export const PlaylistDetailsFragmentDoc = `
     fragment PlaylistDetails on Playlist {
   __typename
@@ -987,23 +936,6 @@ export const DetailedPlaylistFragmentDoc = `
   ...PlaylistDetails
   tracks {
     ...DetailedPlaylistTrack
-  }
-}
-    `
-export const DetailedCommentFragmentDoc = `
-    fragment DetailedComment on Comment {
-  id
-  reviewId
-  createdAt
-  updatedAt
-  parentCommentId
-  commenter {
-    ...UserWithSpotifyOverview
-  }
-  comment
-  entities {
-    __typename
-    id
   }
 }
     `
@@ -1212,111 +1144,6 @@ export const useLinkReviewsMutation = <
             options
         )
 useLinkReviewsMutation.fetcher = (variables: LinkReviewsMutationVariables, options?: RequestInit['headers']) => fetcher<LinkReviewsMutation, LinkReviewsMutationVariables>(LinkReviewsDocument, variables, options)
-export const PausePlaybackDocument = `
-    mutation PausePlayback($deviceId: String) {
-  pausePlayback(deviceId: $deviceId)
-}
-    `
-export const usePausePlaybackMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<PausePlaybackMutation, TError, PausePlaybackMutationVariables, TContext>) =>
-        useMutation<PausePlaybackMutation, TError, PausePlaybackMutationVariables, TContext>(
-            ['PausePlayback'],
-            (variables?: PausePlaybackMutationVariables) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables)(),
-            options
-        )
-usePausePlaybackMutation.fetcher = (variables?: PausePlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<PausePlaybackMutation, PausePlaybackMutationVariables>(PausePlaybackDocument, variables, options)
-export const PlayDocument = `
-    mutation Play($input: PlayInput!) {
-  play(input: $input)
-}
-    `
-export const usePlayMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<PlayMutation, TError, PlayMutationVariables, TContext>) =>
-        useMutation<PlayMutation, TError, PlayMutationVariables, TContext>(
-            ['Play'],
-            (variables?: PlayMutationVariables) => fetcher<PlayMutation, PlayMutationVariables>(PlayDocument, variables)(),
-            options
-        )
-usePlayMutation.fetcher = (variables: PlayMutationVariables, options?: RequestInit['headers']) => fetcher<PlayMutation, PlayMutationVariables>(PlayDocument, variables, options)
-export const PlayEntityContextDocument = `
-    mutation PlayEntityContext($input: PlayEntityContextInput!) {
-  playEntityContext(input: $input)
-}
-    `
-export const usePlayEntityContextMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<PlayEntityContextMutation, TError, PlayEntityContextMutationVariables, TContext>) =>
-        useMutation<PlayEntityContextMutation, TError, PlayEntityContextMutationVariables, TContext>(
-            ['PlayEntityContext'],
-            (variables?: PlayEntityContextMutationVariables) => fetcher<PlayEntityContextMutation, PlayEntityContextMutationVariables>(PlayEntityContextDocument, variables)(),
-            options
-        )
-usePlayEntityContextMutation.fetcher = (variables: PlayEntityContextMutationVariables, options?: RequestInit['headers']) => fetcher<PlayEntityContextMutation, PlayEntityContextMutationVariables>(PlayEntityContextDocument, variables, options)
-export const PlayTracksDocument = `
-    mutation PlayTracks($input: PlayTracksInput!) {
-  playTracks(input: $input)
-}
-    `
-export const usePlayTracksMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<PlayTracksMutation, TError, PlayTracksMutationVariables, TContext>) =>
-        useMutation<PlayTracksMutation, TError, PlayTracksMutationVariables, TContext>(
-            ['PlayTracks'],
-            (variables?: PlayTracksMutationVariables) => fetcher<PlayTracksMutation, PlayTracksMutationVariables>(PlayTracksDocument, variables)(),
-            options
-        )
-usePlayTracksMutation.fetcher = (variables: PlayTracksMutationVariables, options?: RequestInit['headers']) => fetcher<PlayTracksMutation, PlayTracksMutationVariables>(PlayTracksDocument, variables, options)
-export const RemoveSavedTracksDocument = `
-    mutation RemoveSavedTracks($trackIds: [String!]!) {
-  removeSavedTracks(input: $trackIds)
-}
-    `
-export const useRemoveSavedTracksMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<RemoveSavedTracksMutation, TError, RemoveSavedTracksMutationVariables, TContext>) =>
-        useMutation<RemoveSavedTracksMutation, TError, RemoveSavedTracksMutationVariables, TContext>(
-            ['RemoveSavedTracks'],
-            (variables?: RemoveSavedTracksMutationVariables) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables)(),
-            options
-        )
-useRemoveSavedTracksMutation.fetcher = (variables: RemoveSavedTracksMutationVariables, options?: RequestInit['headers']) => fetcher<RemoveSavedTracksMutation, RemoveSavedTracksMutationVariables>(RemoveSavedTracksDocument, variables, options)
-export const SaveTracksDocument = `
-    mutation SaveTracks($trackIds: [String!]!) {
-  saveTracks(input: $trackIds)
-}
-    `
-export const useSaveTracksMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<SaveTracksMutation, TError, SaveTracksMutationVariables, TContext>) =>
-        useMutation<SaveTracksMutation, TError, SaveTracksMutationVariables, TContext>(
-            ['SaveTracks'],
-            (variables?: SaveTracksMutationVariables) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables)(),
-            options
-        )
-useSaveTracksMutation.fetcher = (variables: SaveTracksMutationVariables, options?: RequestInit['headers']) => fetcher<SaveTracksMutation, SaveTracksMutationVariables>(SaveTracksDocument, variables, options)
-export const SeekPlaybackDocument = `
-    mutation SeekPlayback($input: SeekPlaybackInput!) {
-  seekPlayback(input: $input)
-}
-    `
-export const useSeekPlaybackMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<SeekPlaybackMutation, TError, SeekPlaybackMutationVariables, TContext>) =>
-        useMutation<SeekPlaybackMutation, TError, SeekPlaybackMutationVariables, TContext>(
-            ['SeekPlayback'],
-            (variables?: SeekPlaybackMutationVariables) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables)(),
-            options
-        )
-useSeekPlaybackMutation.fetcher = (variables: SeekPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<SeekPlaybackMutation, SeekPlaybackMutationVariables>(SeekPlaybackDocument, variables, options)
 export const ShareReviewDocument = `
     mutation ShareReview($input: ShareReviewInput!) {
   shareReview(input: $input)
@@ -1332,66 +1159,6 @@ export const useShareReviewMutation = <
             options
         )
 useShareReviewMutation.fetcher = (variables: ShareReviewMutationVariables, options?: RequestInit['headers']) => fetcher<ShareReviewMutation, ShareReviewMutationVariables>(ShareReviewDocument, variables, options)
-export const ToggleShuffleDocument = `
-    mutation ToggleShuffle($input: Boolean!) {
-  toggleShuffle(input: $input)
-}
-    `
-export const useToggleShuffleMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<ToggleShuffleMutation, TError, ToggleShuffleMutationVariables, TContext>) =>
-        useMutation<ToggleShuffleMutation, TError, ToggleShuffleMutationVariables, TContext>(
-            ['ToggleShuffle'],
-            (variables?: ToggleShuffleMutationVariables) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables)(),
-            options
-        )
-useToggleShuffleMutation.fetcher = (variables: ToggleShuffleMutationVariables, options?: RequestInit['headers']) => fetcher<ToggleShuffleMutation, ToggleShuffleMutationVariables>(ToggleShuffleDocument, variables, options)
-export const SkipToNextDocument = `
-    mutation SkipToNext($deviceId: String) {
-  skipToNext(deviceId: $deviceId)
-}
-    `
-export const useSkipToNextMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<SkipToNextMutation, TError, SkipToNextMutationVariables, TContext>) =>
-        useMutation<SkipToNextMutation, TError, SkipToNextMutationVariables, TContext>(
-            ['SkipToNext'],
-            (variables?: SkipToNextMutationVariables) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables)(),
-            options
-        )
-useSkipToNextMutation.fetcher = (variables?: SkipToNextMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToNextMutation, SkipToNextMutationVariables>(SkipToNextDocument, variables, options)
-export const SkipToPreviousDocument = `
-    mutation SkipToPrevious($deviceId: String) {
-  skipToPrevious(deviceId: $deviceId)
-}
-    `
-export const useSkipToPreviousMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<SkipToPreviousMutation, TError, SkipToPreviousMutationVariables, TContext>) =>
-        useMutation<SkipToPreviousMutation, TError, SkipToPreviousMutationVariables, TContext>(
-            ['SkipToPrevious'],
-            (variables?: SkipToPreviousMutationVariables) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables)(),
-            options
-        )
-useSkipToPreviousMutation.fetcher = (variables?: SkipToPreviousMutationVariables, options?: RequestInit['headers']) => fetcher<SkipToPreviousMutation, SkipToPreviousMutationVariables>(SkipToPreviousDocument, variables, options)
-export const TransferPlaybackDocument = `
-    mutation TransferPlayback($input: TransferPlaybackInput!) {
-  transferPlayback(input: $input)
-}
-    `
-export const useTransferPlaybackMutation = <
-      TError = unknown,
-      TContext = unknown
-    >(options?: UseMutationOptions<TransferPlaybackMutation, TError, TransferPlaybackMutationVariables, TContext>) =>
-        useMutation<TransferPlaybackMutation, TError, TransferPlaybackMutationVariables, TContext>(
-            ['TransferPlayback'],
-            (variables?: TransferPlaybackMutationVariables) => fetcher<TransferPlaybackMutation, TransferPlaybackMutationVariables>(TransferPlaybackDocument, variables)(),
-            options
-        )
-useTransferPlaybackMutation.fetcher = (variables: TransferPlaybackMutationVariables, options?: RequestInit['headers']) => fetcher<TransferPlaybackMutation, TransferPlaybackMutationVariables>(TransferPlaybackDocument, variables, options)
 export const UpdateCommentDocument = `
     mutation UpdateComment($input: UpdateCommentInput!) {
   updateComment(input: $input) {
@@ -1464,25 +1231,6 @@ export const useCurrentUserQuery = <
 useCurrentUserQuery.getKey = (variables?: CurrentUserQueryVariables) => variables === undefined ? ['CurrentUser'] : ['CurrentUser', variables]
 
 
-export const useInfiniteCurrentUserQuery = <
-      TData = CurrentUserQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof CurrentUserQueryVariables,
-        variables?: CurrentUserQueryVariables,
-        options?: UseInfiniteQueryOptions<CurrentUserQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<CurrentUserQuery, TError, TData>(
-        variables === undefined ? ['CurrentUser.infinite'] : ['CurrentUser.infinite', variables],
-        (metaData) => fetcher<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteCurrentUserQuery.getKey = (variables?: CurrentUserQueryVariables) => variables === undefined ? ['CurrentUser.infinite'] : ['CurrentUser.infinite', variables]
-
-
 useCurrentUserQuery.fetcher = (variables?: CurrentUserQueryVariables, options?: RequestInit['headers']) => fetcher<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, variables, options)
 export const DetailedReviewDocument = `
     query DetailedReview($reviewId: ID!) {
@@ -1508,25 +1256,6 @@ export const useDetailedReviewQuery = <
         )
 
 useDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview', variables]
-
-
-export const useInfiniteDetailedReviewQuery = <
-      TData = DetailedReviewQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof DetailedReviewQueryVariables,
-        variables: DetailedReviewQueryVariables,
-        options?: UseInfiniteQueryOptions<DetailedReviewQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<DetailedReviewQuery, TError, TData>(
-        ['DetailedReview.infinite', variables],
-        (metaData) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview.infinite', variables]
 
 
 useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables, options?: RequestInit['headers']) => fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables, options)
@@ -1556,25 +1285,6 @@ export const useDetailedReviewCommentsQuery = <
 useDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryVariables) => ['DetailedReviewComments', variables]
 
 
-export const useInfiniteDetailedReviewCommentsQuery = <
-      TData = DetailedReviewCommentsQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof DetailedReviewCommentsQueryVariables,
-        variables: DetailedReviewCommentsQueryVariables,
-        options?: UseInfiniteQueryOptions<DetailedReviewCommentsQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<DetailedReviewCommentsQuery, TError, TData>(
-        ['DetailedReviewComments.infinite', variables],
-        (metaData) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryVariables) => ['DetailedReviewComments.infinite', variables]
-
-
 useDetailedReviewCommentsQuery.fetcher = (variables: DetailedReviewCommentsQueryVariables, options?: RequestInit['headers']) => fetcher<DetailedReviewCommentsQuery, DetailedReviewCommentsQueryVariables>(DetailedReviewCommentsDocument, variables, options)
 export const GetAlbumDocument = `
     query GetAlbum($id: String!) {
@@ -1599,25 +1309,6 @@ export const useGetAlbumQuery = <
         )
 
 useGetAlbumQuery.getKey = (variables: GetAlbumQueryVariables) => ['GetAlbum', variables]
-
-
-export const useInfiniteGetAlbumQuery = <
-      TData = GetAlbumQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof GetAlbumQueryVariables,
-        variables: GetAlbumQueryVariables,
-        options?: UseInfiniteQueryOptions<GetAlbumQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<GetAlbumQuery, TError, TData>(
-        ['GetAlbum.infinite', variables],
-        (metaData) => fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteGetAlbumQuery.getKey = (variables: GetAlbumQueryVariables) => ['GetAlbum.infinite', variables]
 
 
 useGetAlbumQuery.fetcher = (variables: GetAlbumQueryVariables, options?: RequestInit['headers']) => fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, variables, options)
@@ -1646,25 +1337,6 @@ export const useGetPlaylistQuery = <
         )
 
 useGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist', variables]
-
-
-export const useInfiniteGetPlaylistQuery = <
-      TData = GetPlaylistQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof GetPlaylistQueryVariables,
-        variables: GetPlaylistQueryVariables,
-        options?: UseInfiniteQueryOptions<GetPlaylistQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<GetPlaylistQuery, TError, TData>(
-        ['GetPlaylist.infinite', variables],
-        (metaData) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist.infinite', variables]
 
 
 useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables, options?: RequestInit['headers']) => fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables, options)
@@ -1701,25 +1373,6 @@ export const useProfileAndReviewsQuery = <
         )
 
 useProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) => variables === undefined ? ['ProfileAndReviews'] : ['ProfileAndReviews', variables]
-
-
-export const useInfiniteProfileAndReviewsQuery = <
-      TData = ProfileAndReviewsQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof ProfileAndReviewsQueryVariables,
-        variables?: ProfileAndReviewsQueryVariables,
-        options?: UseInfiniteQueryOptions<ProfileAndReviewsQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<ProfileAndReviewsQuery, TError, TData>(
-        variables === undefined ? ['ProfileAndReviews.infinite'] : ['ProfileAndReviews.infinite', variables],
-        (metaData) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) => variables === undefined ? ['ProfileAndReviews.infinite'] : ['ProfileAndReviews.infinite', variables]
 
 
 useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables, options?: RequestInit['headers']) => fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables, options)
@@ -1772,25 +1425,6 @@ export const useSearchSpotifyQuery = <
 useSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify', variables]
 
 
-export const useInfiniteSearchSpotifyQuery = <
-      TData = SearchSpotifyQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof SearchSpotifyQueryVariables,
-        variables: SearchSpotifyQueryVariables,
-        options?: UseInfiniteQueryOptions<SearchSpotifyQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<SearchSpotifyQuery, TError, TData>(
-        ['SearchSpotify.infinite', variables],
-        (metaData) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify.infinite', variables]
-
-
 useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables, options?: RequestInit['headers']) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables, options)
 export const TrackLikeDocument = `
     query TrackLike($id: String!) {
@@ -1814,25 +1448,6 @@ export const useTrackLikeQuery = <
         )
 
 useTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike', variables]
-
-
-export const useInfiniteTrackLikeQuery = <
-      TData = TrackLikeQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof TrackLikeQueryVariables,
-        variables: TrackLikeQueryVariables,
-        options?: UseInfiniteQueryOptions<TrackLikeQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<TrackLikeQuery, TError, TData>(
-        ['TrackLike.infinite', variables],
-        (metaData) => fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike.infinite', variables]
 
 
 useTrackLikeQuery.fetcher = (variables: TrackLikeQueryVariables, options?: RequestInit['headers']) => fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, variables, options)
@@ -1867,23 +1482,25 @@ export const useUserPlaylistsQuery = <
 useUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists', variables]
 
 
-export const useInfiniteUserPlaylistsQuery = <
-      TData = UserPlaylistsQuery,
-      TError = unknown
-    >(
-        pageParamKey: keyof UserPlaylistsQueryVariables,
-        variables: UserPlaylistsQueryVariables,
-        options?: UseInfiniteQueryOptions<UserPlaylistsQuery, TError, TData>
-    ) =>{
-    
-    return useInfiniteQuery<UserPlaylistsQuery, TError, TData>(
-        ['UserPlaylists.infinite', variables],
-        (metaData) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, {...variables, [pageParamKey]: metaData.pageParam })(),
-        options
-    )}
-
-
-useInfiniteUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists.infinite', variables]
-
-
 useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables, options?: RequestInit['headers']) => fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables, options)
+export const ReviewUpdatesDocument = `
+    subscription ReviewUpdates($reviewIds: [ID!]!) {
+  reviewUpdates(reviewIds: $reviewIds) {
+    ... on DeletedComment {
+      reviewId
+      commentId
+    }
+    ... on UpdatedComment {
+      comment {
+        ...DetailedComment
+      }
+    }
+    ... on CreatedComment {
+      comment {
+        ...DetailedComment
+      }
+    }
+  }
+}
+    ${DetailedCommentFragmentDoc}
+${UserWithSpotifyOverviewFragmentDoc}`

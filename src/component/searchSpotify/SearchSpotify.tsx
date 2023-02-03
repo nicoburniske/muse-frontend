@@ -1,10 +1,12 @@
-import { EntityType, SearchAlbumFragment, SearchArtistFragment, SearchPlaylistFragment, useInfiniteSearchSpotifyQuery } from 'graphql/generated/schema'
+import { EntityType, SearchAlbumFragment, SearchArtistFragment, SearchPlaylistFragment, SearchSpotifyDocument, SearchSpotifyQuery, SearchSpotifyQueryVariables } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { Virtuoso } from 'react-virtuoso'
 import { CrossIcon } from '../Icons'
 import { Atom, atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import atomWithDebounce from 'platform/atom/atomWithDebounce'
+import { UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { fetcher } from 'graphql/fetcher'
 
 type SearchResult = SearchPlaylistFragment | SearchAlbumFragment | SearchArtistFragment
 const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5 max-w-[50%]'
@@ -161,3 +163,19 @@ const SearchResults = ({ fetchMore, searchResultAtom, entityIdAtom }: SearchResu
             }} />
     )
 }
+
+const useInfiniteSearchSpotifyQuery = (
+    pageParamKey: keyof SearchSpotifyQueryVariables,
+    variables: SearchSpotifyQueryVariables,
+    options?: UseInfiniteQueryOptions<SearchSpotifyQuery, unknown, SearchSpotifyQuery>
+) => {
+
+    return useInfiniteQuery<SearchSpotifyQuery, unknown, SearchSpotifyQuery>(
+        ['SearchSpotify.infinite', variables],
+        (metaData) => fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, { ...variables, [pageParamKey]: metaData.pageParam })(),
+        options
+    )
+}
+
+
+useInfiniteSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify.infinite', variables]
