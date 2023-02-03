@@ -266,16 +266,16 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
             queryFn: useGetPlaylistQuery.fetcher({ id }),
-            staleTime: 45 * 1000,
+            staleTime: 2000 * 1000,
             refetchOnWindowFocus: false,
         }))
     })
-    // Is there a better way of handling likes than this? Hypothetically we have an infinite stale time.  
+
     const albumResults = useQueries({
         queries: albumIds.map(id => ({
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
-            staleTime: 45 * 1000,
+            staleTime: Infinity,
             refetchOnWindowFocus: false,
         })),
     })

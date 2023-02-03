@@ -23,6 +23,7 @@
     "@types/spotify-web-playback-sdk": "^0.1.15",
     "axios": "^1.2.6",
     "daisyui": "^2.31.0",
+    "dataloader": "^2.2.1",
     "graphql": "^16.6.0",
     "graphql-ws": "^5.11.2",
     "jotai": "^2.0.0",

@@ -18,11 +18,10 @@ export interface PlaylistTrackProps {
     index: number
     playlistTrack: DetailedPlaylistTrackFragment
     reviewId: string
-    isLikedAtom: PrimitiveAtom<boolean | undefined>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedAtom }: PlaylistTrackProps) {
+export default function PlaylistTrack({ index, playlistTrack, reviewId }: PlaylistTrackProps) {
     const { addedAt, addedBy, track, playlist: { id: playlistId } } = playlistTrack
     const { data: playlistOwner } = useGetPlaylistQuery({ id: playlistId }, {
         select: useCallback((data: GetPlaylistQuery) => data.getPlaylist?.owner.id, [])
@@ -36,7 +35,6 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
 
     // Get track styles.
     const styles = useTrackColor(track.id)
-    const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
 
     const { playlistOffset, isLoading } = usePlayMutation()
 
@@ -125,6 +123,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
         }),
     }), [trackId])
 
+    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(trackId)(isLiked), [trackId])
 
     return (
         <div
@@ -167,9 +166,9 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId, isLikedA
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}
-                    likeAtom={isLikedAtom}
-                    svgClass={svgClassAtom}
+                    svgStyle={svgStyle}
                     className={'btn btn-sm btn-ghost p-0'}
+                    options={{ staleTime: 1000 * 60 }}
                 />
             </div>
             <div className='w-5 flex mr-5'>

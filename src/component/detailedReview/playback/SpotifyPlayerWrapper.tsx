@@ -43,21 +43,11 @@ const useSyncNowPlayingLiked = () => {
     const nowPlaying = playbackState?.track_window?.current_track?.id
     const setNowPlaying = useSetAtom(nowPlayingTrackAtom)
 
-    const { data } = useTrackLikeQuery(
-        nowPlaying!,
-        {
-            enabled: nonNullable(nowPlaying),
-            staleTime: 10 * 1000
-        },
-    )
-    const isLiked = data ?? undefined
     useEffect(() => {
-        if (nonNullable(nowPlaying) && nonNullable(isLiked)) {
-            setNowPlaying({ trackId: nowPlaying, isLiked })
+        if (nonNullable(nowPlaying)) {
+            setNowPlaying({ trackId: nowPlaying })
         } else {
             setNowPlaying(undefined)
         }
-    }, [nowPlaying, isLiked, setNowPlaying])
-
-    return isLiked
+    }, [nowPlaying, setNowPlaying])
 }

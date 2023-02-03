@@ -16,8 +16,7 @@ import { MuseTransition } from 'platform/component/MuseTransition'
 import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
 import { usePlayerActions } from 'component/sdk/PlayerActions'
-import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
-import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingIsLikedAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 
@@ -132,8 +131,7 @@ const NowPlayingItem = () => {
 
 const commonBtnClass = 'btn btn-sm lg:btn-md p-0'
 
-const likeAtom = atomDerivedWithWrite(atom(get => get(nowPlayingIsLikedAtom)))
-const svgClassAtom = atom(get => get(likeAtom) ? 'fill-success text-success' : '')
+const svgStyle = (isLiked: boolean | undefined) => isLiked ? 'fill-success text-success' : ''
 
 const LikeNowPlaying = () => {
     const nowPlaying = useAtomValue(isPlayingAtom)
@@ -143,9 +141,9 @@ const LikeNowPlaying = () => {
         return (
             <LikeButton
                 trackId={getNowPlayingId()!}
-                likeAtom={likeAtom}
+                svgStyle={svgStyle}
+                options={{ refetchInterval: 10 * 1000 }}
                 className={classNames(commonBtnClass, 'btn-ghost')}
-                svgClass={svgClassAtom}
             />
         )
     } else {

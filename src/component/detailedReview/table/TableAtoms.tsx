@@ -4,13 +4,11 @@
  */
 
 import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { PrimitiveAtom, atom } from 'jotai'
-import { focusAtom } from 'jotai-optics'
-import { nonNullable, uniqueByProperty } from 'util/Utils'
-import { getTrack, getTrackId, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
+import { atom } from 'jotai'
+import { nonNullable } from 'util/Utils'
+import { getTrack, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
-import atomDerivedWithWrite from 'platform/atom/atomDerivedWithWrite'
 
 /**
  * Constructor atoms!
@@ -80,18 +78,6 @@ export const tracksAtom = atom<DetailedTrackFragment[]>(get =>
         .filter(nonNullable))
 tracksAtom.debugLabel = 'tracksAtom'
 
-const uniqueTracksAtom = atomDerivedWithWrite(atom<DetailedTrackFragment[]>(get => uniqueByProperty(get(tracksAtom), t => t.id)))
-uniqueTracksAtom.debugLabel = 'uniqueTracksAtom'
-const getTrackLikeAtom = (trackId: string) => {
-    const focused = focusAtom(uniqueTracksAtom, (optic) =>
-        optic
-            .find(t => t.id === trackId)
-            .prop('isLiked'))
-    return atom(
-        (get) => get(focused) === null ? undefined : get(focused),
-        (_get, set, value: boolean | undefined) => set(focused, value)) as PrimitiveAtom<boolean | undefined>
-}
-
 // Render all rows and store in Atom.
 export type GroupRendered = {
     reviewId: string
@@ -120,14 +106,13 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
         }
         const { reviewId } = overview
         const children = tracks.map((t, i) => {
-            const likeAtom = getTrackLikeAtom(getTrackId(t))
             return {
                 element: (
                     <MemoTrack
                         track={t}
                         index={i}
                         reviewId={overview.reviewId}
-                        isLikedAtom={likeAtom} />),
+                    />),
                 size: 60
             }
         })

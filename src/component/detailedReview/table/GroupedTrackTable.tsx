@@ -7,6 +7,7 @@ import { expandedGroupsAtom, headerIndicesAtom, indexToJsxAtom, indexToSizeAtom,
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
 import useSyncAtoms from 'platform/hook/useSyncAtoms'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
+import { usePrefetchLikes } from 'state/useTrackLikeQuery'
 
 
 interface GroupedTrackTableProps {
@@ -14,16 +15,18 @@ interface GroupedTrackTableProps {
     results: Group[]
 }
 
-const allTrackIdsAtom = atom(get => new Set<string>(get(tracksAtom).map(t => t.id)))
+const trackIdsAtom = atom(get => get(tracksAtom).map(t => t.id))
+const uniqueTrackIdsAtom = atom(get => new Set(get(trackIdsAtom)))
 
 export const nowPlayingEnabledAtomLocal = atom((get) => {
     const trackId = get(nowPlayingTrackAtom)?.trackId
-    const allTracks = get(allTrackIdsAtom)
+    const allTracks = get(uniqueTrackIdsAtom)
     return (trackId !== undefined && allTracks.has(trackId))
 })
 
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
-
+    const trackIds = useAtomValue(trackIdsAtom)
+    usePrefetchLikes(trackIds)
     // Ensure that seeking for now playing works properly.
     useSyncAtoms(nowPlayingEnabledAtom, nowPlayingEnabledAtomLocal)
 
