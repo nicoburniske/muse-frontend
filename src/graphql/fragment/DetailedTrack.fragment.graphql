@@ -5,7 +5,6 @@ fragment DetailedTrack on Track {
   durationMs
   explicit
   isPlayable
-  isLiked
   previewUrl
   popularity
   album {

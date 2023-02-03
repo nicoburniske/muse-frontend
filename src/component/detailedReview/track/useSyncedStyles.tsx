@@ -1,6 +1,7 @@
-import { Atom, atom, useAtomValue } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { nowPlayingTrackIdAtom, selectedTrackAtom } from 'state/Atoms'
+import { nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 // Only change styling if derived values are different.
 export const useTrackColor = (trackId: string) =>
@@ -14,19 +15,20 @@ export const useTrackColor = (trackId: string) =>
     }), [trackId]))
 
 
-export const useLikeSvgStyle = (trackId: string, isLikedAtom: Atom<boolean>) => {
-    return useMemo(() => atom(get => {
-        const isPlaying = get(nowPlayingTrackIdAtom) === trackId
-        const isLiked = get(isLikedAtom)
-
-        if (isLiked && isPlaying) {
-            return 'fill-success-content'
-        } else if (isLiked) {
-            return 'fill-success'
-        } else if (isPlaying) {
-            return 'stroke-success-content'
-        } else {
-            return 'stroke-base-content'
+export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefined) => {
+    return useAtomValue(useMemo(() => atom(get => {
+        if (isLiked !== undefined) {
+            const isPlaying = get(nowPlayingTrackIdAtom) === trackId
+            if (isLiked && isPlaying) {
+                return 'fill-success-content'
+            } else if (isLiked) {
+                return 'fill-success'
+            } else if (isPlaying) {
+                return 'stroke-success-content'
+            } else {
+                return 'stroke-base-content'
+            }
         }
-    }), [trackId, isLikedAtom])
+        return ''
+    }), [trackId, isLiked]))
 }

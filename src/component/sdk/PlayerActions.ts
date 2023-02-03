@@ -47,11 +47,11 @@ interface PlayerActions {
     previousTrack: () => Promise<void>
 }
 
-export const playerActionsAtom = atom<PlayerActions>((get) => {
-    const player = get(playerAtom)
-    const current = get(asyncPlaybackStateAtom)
+export const playerActionsAtom = atom<Promise<PlayerActions>>(async (get) => {
+    const player = await get(playerAtom)
+    const current = await get(asyncPlaybackStateAtom)
     const seekInterval = get(seekIntervalAtom)
-    const client = get(spotifyClientAtom)
+    const client = await get(spotifyClientAtom)
     const needsReconnect = get(needsReconnectAtom)
 
     const disallows = current.disallows

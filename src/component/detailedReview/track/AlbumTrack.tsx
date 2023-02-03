@@ -1,6 +1,6 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { PrimitiveAtom } from 'jotai'
-import { RefObject, useRef } from 'react'
+import { RefObject, useCallback, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
@@ -12,18 +12,16 @@ import TrackOptions from './TrackDropdown'
 export interface AlbumTrackProps {
     track: DetailedTrackFragment
     reviewId: string
-    isLikedAtom: PrimitiveAtom<boolean>
 }
 
 // TODO: Consider making image optional for conciseness.
-export default function AlbumTrack({ track, reviewId, isLikedAtom }: AlbumTrackProps) {
+export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
 
     const artistNames = track.artists?.slice(0, 3).map(a => a.name).join(', ')
 
-
     // Get track styles.
     const styles = useTrackColor(track.id)
-    const svgClassAtom = useLikeSvgStyle(track.id, isLikedAtom)
+    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(track.id)(isLiked), [track.id])
 
     const { albumOffset, isLoading } = usePlayMutation()
 
@@ -63,8 +61,8 @@ export default function AlbumTrack({ track, reviewId, isLikedAtom }: AlbumTrackP
             <div className="grid place-items-center">
                 <LikeButton
                     trackId={track.id}
-                    likeAtom={isLikedAtom}
-                    svgClass={svgClassAtom}
+                    svgStyle={svgStyle}
+                    options={{ staleTime: 1000 * 60 }}
                     className={'btn btn-sm btn-ghost p-0'}
                 />
             </div>

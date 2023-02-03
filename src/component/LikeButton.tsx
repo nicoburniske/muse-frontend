@@ -1,71 +1,47 @@
 import { HeartOutlineIcon, HeartSolidIcon } from './Icons'
 import toast from 'react-hot-toast'
-import { atom, Atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { nowPlayingIsLikedAtom, nowPlayingTrackIdAtom } from 'state/Atoms'
-import { useEffect, useMemo } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { useRemoveSavedTracksMutation, useSaveTracksMutation, useTrackLikeQuery } from './sdk/ClientHooks'
-import { useTransientAtom } from 'platform/hook/useTransientAtom'
+import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
+import { classNames } from 'util/Utils'
+import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
+import { useLikeSvgStyle } from './detailedReview/track/useSyncedStyles'
+import { UseQueryOptions } from '@tanstack/react-query'
 
 
 interface LikeButtonProps {
     trackId: string
-    likeAtom: PrimitiveAtom<boolean>
-    svgClass: Atom<string>
+    svgStyle: (isLiked: boolean | undefined) => string
     className: string,
+    options?: UseQueryOptions<boolean, unknown, boolean, string[]>
 }
 
-export default function LikeButton({ trackId, likeAtom, svgClass, className }: LikeButtonProps) {
-    const [isLiked, setIsLiked] = useAtom(likeAtom)
-    const queryClient = useQueryClient()
-
-    // Sychronizing state with now playing track.
-    useSyncLikedState(trackId, likeAtom)
-
-    const invalidateLikeQuery = () => queryClient.invalidateQueries(useTrackLikeQuery.getKey(trackId))
+export default function LikeButton({ trackId, className, svgStyle, options }: LikeButtonProps) {
+    const { query: { data: isLiked }, updateLike } = useTrackLikeQuery(trackId, options)
 
     const { mutate: likeTrack } = useSaveTracksMutation({
         onError: () => toast.error('Failed to save track.'),
         onSuccess: () => {
-            setIsLiked(true)
-            invalidateLikeQuery()
+            updateLike(true)
         },
     })
 
     const { mutate: unlikeTrack } = useRemoveSavedTracksMutation({
         onError: () => toast.error('Failed to unsave track.'),
         onSuccess: () => {
-            setIsLiked(false)
-            invalidateLikeQuery()
+            updateLike(false)
         }
     })
 
     const input: [string] = [trackId]
-    const handleClick = () => isLiked ? unlikeTrack(input) : likeTrack(input)
+    const handleClick = () => {
+        isLiked ? unlikeTrack(input) : likeTrack(input)
+    }
 
-    const svgClassName = useAtomValue(svgClass)
+    const svgClassName = svgStyle(isLiked)
+    const disabled = isLiked === undefined
 
     return (
-        <button className={className} onClick={() => handleClick()}>
+        <button className={classNames(className)} disabled={disabled} onClick={() => handleClick()}>
             {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
         </button>
     )
 }
-
-
-const useSyncLikedState = (trackId: string, likeAtom: PrimitiveAtom<boolean>) => {
-    const setIsLiked = useSetAtom(likeAtom)
-    const [getIsLiked] = useTransientAtom(nowPlayingIsLikedAtom)
-
-    const shouldUpdate = useAtomValue(useMemo(() => atom(get =>
-        get(nowPlayingTrackIdAtom) === trackId
-        && get(nowPlayingIsLikedAtom) !== get(likeAtom)
-    ), [trackId]))
-
-    useEffect(() => {
-        const currentLiked = getIsLiked()
-        if (shouldUpdate && currentLiked !== undefined) {
-            setIsLiked(currentLiked)
-        }
-    }, [shouldUpdate, getIsLiked, setIsLiked])
-}	
