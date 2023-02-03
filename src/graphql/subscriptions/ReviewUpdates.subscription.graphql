@@ -1,11 +1,12 @@
 subscription ReviewUpdates($reviewIds: [ID!]!) {
   reviewUpdates(reviewIds: $reviewIds) {
+    __typename
     ... on DeletedComment {
         reviewId
         commentId
     }
     ... on UpdatedComment {
-        comment{
+        comment {
             ...DetailedComment
         }
     }

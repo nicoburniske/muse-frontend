@@ -1,15 +1,18 @@
-import { DetailedCommentFragment, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
+import { DetailedCommentFragment, DetailedReviewCommentsQuery, ReviewUpdatesSubscription, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { useSetAtom } from 'jotai'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
 import DetailedComment from './comment/DetailedComment'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from './table/Helpers'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
 
 
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
     const reviewIds = reviews.map(r => r.reviewId)
+    subscribeToReviews(reviewIds)
+
     const results = useQueries({
         queries: reviewIds.map(reviewId => ({
             queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }),
@@ -65,33 +68,74 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
     )
 }
 
-// const subscribeToReview = (reviewIds: string[]) => {
+const subscribeToReviews = (reviewIds: string[]) => {
+    const queryClient = useQueryClient()
 
-//     useReviewUpdatesSubscription({
-//         variables: { reviewId }, onSubscriptionData: (data) => {
-//             const commentEvent = data.subscriptionData.data?.reviewUpdates
-//             if (commentEvent?.__typename) {
-//                 switch (commentEvent.__typename) {
-//                     case "CreatedComment":
-//                         setComments([...comments, commentEvent.comment])
-//                         break;
-//                     case "UpdatedComment":
-//                         const updatedCommentId = commentEvent.comment.id
-//                         const filtered = comments.filter(comment => comment.id !== updatedCommentId)
-//                         filtered.push(commentEvent.comment)
-//                         setComments(filtered)
-//                         break;
-//                     case "DeletedComment":
-//                         const deletedCommentId = commentEvent.commentId
-//                         const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
-//                         setComments(removeDeleted)
-//                         break;
-//                     default:
-//                         console.error("Unhandled review update event", commentEvent)
-//                 }
-//             }
-//         }
-//     })
-//     return comments
-// }
-// }
+    const handleReviewUpdate = useCallback((_previous: ReviewUpdatesSubscription | undefined, newEvent: ReviewUpdatesSubscription) => {
+        const event = newEvent?.reviewUpdates
+
+        if (event?.__typename) {
+            switch (event.__typename) {
+            case 'CreatedComment':
+                queryClient.setQueryData< DetailedReviewCommentsQuery>(useDetailedReviewCommentsQuery.getKey({ reviewId: event.comment.reviewId }), data => {
+                    if (data === undefined) {
+                        return undefined
+                    }
+                    const comments = data?.review?.comments ?? []
+                    const updatedCommentId = event.comment.id
+                    const newComments = comments.filter(comment => comment.id !== updatedCommentId)
+                    newComments.push(event.comment)
+                    return {
+                        review: {
+                            ...data?.review,
+                            comments: newComments 
+                        }
+                    } 
+                })
+                break
+            case 'UpdatedComment':
+                queryClient.setQueryData<DetailedReviewCommentsQuery>(useDetailedReviewCommentsQuery.getKey({ reviewId: event.comment.reviewId }), (data) => {
+                    if(data === undefined) {
+                        return undefined
+                    }
+                    const comments = data?.review?.comments ?? []
+                    const updatedCommentId = event.comment.id
+                    const filtered = comments.filter(comment => comment.id !== updatedCommentId)
+                    filtered.push(event.comment)
+                    return {
+                        review: {
+                            ...data?.review,
+                            comments: filtered
+                        }
+                    } 
+                })
+                break
+            case 'DeletedComment': {
+                const cacheKey = useDetailedReviewCommentsQuery.getKey({ reviewId: event.reviewId })
+                queryClient.setQueryData<DetailedReviewCommentsQuery>(cacheKey, (data) => {
+                    const comments = data?.review?.comments ?? []
+                    const deletedCommentId = event.commentId
+                    const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
+                    return {
+                        review: {
+                            ...data?.review,
+                            comments: removeDeleted
+                        }
+                    }
+                })
+                queryClient.invalidateQueries(cacheKey)
+                break
+            }
+            default:
+                console.error('Unhandled review update event', event)
+            }
+        }
+        return newEvent
+    }, [queryClient])
+
+    useReviewUpdatesSubscription({
+        variables: { reviewIds },
+    },
+    handleReviewUpdate
+    )
+}

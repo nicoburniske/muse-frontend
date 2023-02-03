@@ -10,20 +10,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 
-// Such a hack to get session id.
-const getSession = async () => {
-    try {
-        const r = await fetch(AppConfig.httpSessionEndpoint, { method: 'GET', credentials: 'include' })
-        const a = await r.text()
-        return { Authorization: a }
-    } catch (e) {
-        return console.error('Failed to get session', e)
-    }
-}
-
 const wsClient = createWSClient({
     url: AppConfig.websocketGraphEndpoint,
-    connectionParams: getSession as () => Promise<{ Authorization: string }>,
 })
 
 const urqlClient = createClient({

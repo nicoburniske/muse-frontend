@@ -652,7 +652,7 @@ export type ReviewUpdatesSubscriptionVariables = Exact<{
 }>;
 
 
-export type ReviewUpdatesSubscription = { __typename?: 'Subscriptions', reviewUpdates?: { __typename?: 'CreatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | { __typename?: 'DeletedComment', reviewId: string, commentId: number } | { __typename?: 'UpdatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | null };
+export type ReviewUpdatesSubscription = { __typename?: 'Subscriptions', reviewUpdates?: { __typename: 'CreatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | { __typename: 'DeletedComment', reviewId: string, commentId: number } | { __typename: 'UpdatedComment', comment: { __typename?: 'Comment', id: number, reviewId: string, createdAt: string, updatedAt: string, parentCommentId?: number | null, comment?: string | null, commenter: { __typename?: 'User', id: string, spotifyProfile?: { __typename?: 'SpotifyProfile', displayName?: string | null, images?: Array<string> | null } | null }, entities?: Array<{ __typename: 'Album', id: string } | { __typename: 'Artist', id: string } | { __typename: 'Playlist', id: string } | { __typename: 'Track', id: string }> | null } } | null };
 
 export const UserWithSpotifyOverviewFragmentDoc = gql`
     fragment UserWithSpotifyOverview on User {
@@ -683,6 +683,7 @@ export const DetailedCommentFragmentDoc = gql`
 export const ReviewUpdatesDocument = gql`
     subscription ReviewUpdates($reviewIds: [ID!]!) {
   reviewUpdates(reviewIds: $reviewIds) {
+    __typename
     ... on DeletedComment {
       reviewId
       commentId
