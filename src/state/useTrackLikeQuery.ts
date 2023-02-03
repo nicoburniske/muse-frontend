@@ -27,10 +27,10 @@ export const usePrefetchLikes = (trackIds: string[]) => {
 const useTrackLikeQueryKey = (trackId: string) => ['AreTracksSaved', trackId]
 const useCreateLikeFetcher = () => {
     const dataLoader = useAtomValue(DataLoaderAtom)
-    return (trackId: string) => ({
+    return useCallback((trackId: string) => ({
         queryKey: useTrackLikeQueryKey(trackId),
         queryFn: () => dataLoader.load(trackId),
-    })
+    }), [dataLoader])
 }
 export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boolean, unknown, boolean, string[]>) => {
     const queryClient = useQueryClient()

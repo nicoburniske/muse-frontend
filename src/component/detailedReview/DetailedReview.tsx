@@ -266,7 +266,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
             queryFn: useGetPlaylistQuery.fetcher({ id }),
-            staleTime: 2000 * 1000,
+            staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
         }))
     })
@@ -275,7 +275,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: albumIds.map(id => ({
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
-            staleTime: Infinity,
+            staleTime: 60 * 60 * 1000,
             refetchOnWindowFocus: false,
         })),
     })
