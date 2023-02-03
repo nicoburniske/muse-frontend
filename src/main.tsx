@@ -44,7 +44,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <DndProvider backend={HTML5Backend}>
             <Provider value={urqlClient}>
                 <MuseQueryClientProvider
-                    useCache={false}
+                    useCache={true}
                 >
                     <>
                         <SpotifyPlaybackSdk errorHandler={
