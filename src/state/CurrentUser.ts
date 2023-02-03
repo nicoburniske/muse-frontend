@@ -1,8 +1,8 @@
-import { useCurrentUserQuery } from 'graphql/generated/schema'
+import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { loadable } from 'jotai/utils'
 import atomValueOrSuspend from 'platform/atom/atomValueOrSuspend'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 const maybeCurrentUserIdAtom = atom<string | undefined>(undefined)
 const currentUserIdAtom = atomValueOrSuspend(maybeCurrentUserIdAtom)
@@ -15,7 +15,7 @@ export const SyncCurrentUser = () => {
     const { data } = useCurrentUserQuery({}, {
         staleTime: 10 * 60 * 1000,
         cacheTime: 10 * 60 * 1000,
-        select: (data) => data?.user?.id
+        select: useCallback((data: CurrentUserQuery) => data?.user?.id, [])
     })
     const setCurrentUser = useSetAtom(maybeCurrentUserIdAtom)
 

@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { AppConfig } from 'util/AppConfig'
 import { useThemeValue } from 'state/UserPreferences'
-import { useCurrentUserQuery } from 'graphql/generated/schema'
+import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { Link } from 'react-router-dom'
 
 type NavigationItem = {
@@ -17,9 +17,9 @@ const useCurrentUsername = () => {
     const { data } = useCurrentUserQuery({}, {
         staleTime: 10 * 60 * 1000,
         cacheTime: 10 * 60 * 1000,
-        select: (data) => data?.user?.spotifyProfile?.displayName ?? data?.user?.id 
+        select: useCallback((data: CurrentUserQuery) => data?.user?.spotifyProfile?.displayName ?? data?.user?.id, [])
     })
-    return data 
+    return data
 }
 
 export default function AboutPage() {
