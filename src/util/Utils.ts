@@ -96,11 +96,3 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
 export function classNames(...classes: (string | undefined)[]) {
     return classes.filter(Boolean).join(' ')
 }
-
-export function chunkArrayInGroups<T>(arr: readonly T[], size: number): T[][] {
-    const result: T[][] = []
-    for (let i = 0; i < arr.length; i += size) {
-        result.push(arr.slice(i, i + size))
-    }
-    return result
-}
