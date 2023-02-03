@@ -9,6 +9,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const wsClient = createWSClient({
     url: AppConfig.websocketGraphEndpoint,
@@ -46,6 +47,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                                 playbackError: e => toast.error(`SDK playback error: ${e.message}`),
                             }
                         } />
+                        <ReactQueryDevtools initialIsOpen={false} />
                         {/* <DebugAtomsReduxDevTools /> */}
                         <MuseRoutes />
                         <Toaster

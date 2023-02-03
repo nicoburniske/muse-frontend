@@ -266,8 +266,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
         queries: playlistIds.map(id => ({
             queryKey: useGetPlaylistQuery.getKey({ id }),
             queryFn: useGetPlaylistQuery.fetcher({ id }),
-            staleTime: 60 * 1000,
-            refetchOnWindowFocus: false,
+            staleTime: 1 * 60 * 1000,
         }))
     })
 
@@ -276,12 +275,11 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
             queryKey: useGetAlbumQuery.getKey({ id }),
             queryFn: useGetAlbumQuery.fetcher({ id }),
             staleTime: 60 * 60 * 1000,
-            refetchOnWindowFocus: false,
         })),
     })
 
     // Ensure that indicies line up.
-    const matchedReviews = useMemo(() => {
+    const matchedReviews = (() => {
         const allReviews = all.filter(r => r.entityType === EntityType.Album || r.entityType === EntityType.Playlist)
         // get all reviews that are not nullable
         const results: (DetailedAlbumFragment | DetailedPlaylistFragment)[] =
@@ -295,7 +293,7 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
             }
             return acc
         }, new Array<Group>())
-    }, [all, albumResults, playlistResults])
+    })()
 
     const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 

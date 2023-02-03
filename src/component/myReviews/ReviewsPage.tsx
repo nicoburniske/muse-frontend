@@ -192,8 +192,6 @@ const useProfileAndReviews = () => {
         {
             onError: () => toast.error('Failed to load profile.'),
             staleTime: 30 * 1000,
-            refetchOnWindowFocus: false,
-            refetchOnMount: true
         }
     )
 
