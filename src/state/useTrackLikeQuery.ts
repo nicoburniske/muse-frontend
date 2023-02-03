@@ -20,7 +20,12 @@ export const usePrefetchLikes = (trackIds: string[]) => {
     const createQuery = useCreateLikeFetcher()
 
     useEffect(() => {
-        trackIds.forEach(trackId => queryClient.fetchQuery(createQuery(trackId)))
+        const needToPrefetch = trackIds
+            .filter(trackId => {
+                const cacheEntry = queryClient.getQueryCache().find(useTrackLikeQueryKey(trackId))
+                return cacheEntry === undefined
+            })
+        needToPrefetch.forEach(trackId => queryClient.fetchQuery(createQuery(trackId)))
     }, [trackIds, queryClient, createQuery])
 }
 

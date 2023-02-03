@@ -168,7 +168,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                     trackId={track.id}
                     svgStyle={svgStyle}
                     className={'btn btn-sm btn-ghost p-0'}
-                    options={{ staleTime: 1000 * 60 }}
+                    options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
                 />
             </div>
             <div className='w-5 flex mr-5'>

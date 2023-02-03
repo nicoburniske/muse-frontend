@@ -25,8 +25,8 @@ export const nowPlayingEnabledAtomLocal = atom((get) => {
 })
 
 export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTableProps) => {
-    const trackIds = useAtomValue(trackIdsAtom)
-    usePrefetchLikes(trackIds)
+    const [trackIds] = useTransientAtom(trackIdsAtom)
+    usePrefetchLikes(trackIds())
     // Ensure that seeking for now playing works properly.
     useSyncAtoms(nowPlayingEnabledAtom, nowPlayingEnabledAtomLocal)
 
