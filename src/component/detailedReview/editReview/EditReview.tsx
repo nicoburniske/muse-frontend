@@ -2,14 +2,13 @@ import { Dialog } from '@headlessui/react'
 import { CheckIcon, CrossIcon, EllipsisIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { useUpdateReviewMutation, useDeleteReviewMutation } from 'graphql/generated/schema'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
-import { atom, PrimitiveAtom, Provider, useAtom, useAtomValue, WritableAtom } from 'jotai'
+import { atom, PrimitiveAtom, useAtom, useAtomValue, useStore, WritableAtom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import ReactDOM from 'react-dom'
-import { useHydrateAtoms } from 'jotai/utils'
 
 type FormValues = {
    isPublic: boolean
@@ -70,11 +69,9 @@ const EditReviewFormButtons = ({ onCancel, onSuccess }: { onCancel: () => void; 
    return (
       <div className='flex w-full flex-row items-center justify-around'>
          <button className='btn btn-success' disabled={disabled} onClick={updateReview}>
-            {' '}
             <CheckIcon />{' '}
          </button>
          <button className='btn btn-info' onClick={onCancel}>
-            {' '}
             <CrossIcon />{' '}
          </button>
       </div>
@@ -162,11 +159,13 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
 
    const defaultValues = useMemo(() => ({ name: reviewName, isPublic }), [reviewName, isPublic])
 
-   useHydrateAtoms([
-      [reviewIdAtom, reviewId],
-      [defaultFormValuesAtom, defaultValues],
-      [formValuesAtom, defaultValues],
-   ])
+   // Sync atoms with incoming props.
+   const store = useStore()
+   useEffect(() => {
+      store.set(reviewIdAtom, reviewId)
+      store.set(defaultFormValuesAtom, defaultValues)
+      store.set(formValuesAtom, defaultValues)
+   }, [reviewId, defaultValues])
 
    return (
       <ThemeModal open={isOpen} className='max-w-md grow'>

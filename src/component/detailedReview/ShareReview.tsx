@@ -91,7 +91,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                               <span className='label-text font-bold'> Collaborators </span>
                            </label>
                            {/* TODO: do I need this color? */}
-                           <ul className='menu h-32 divide-y divide-base-200 overflow-y-scroll bg-base-100'>
+                           <ul className='menu h-32 flex-nowrap divide-y divide-base-200 overflow-y-scroll bg-base-200'>
                               {collaborators.map(c => (
                                  <li key={c.user.id}>
                                     <div className='group flex flex-row'>

@@ -54,15 +54,15 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='grid w-full grid-cols-2 rounded border border-accent bg-neutral sm:grid-cols-3 lg:grid-cols-4'>
+      <div className='flex h-20 w-full justify-between overflow-hidden rounded border border-accent bg-neutral'>
          <NowPlayingItem />
-         <div className='flex w-full flex-col items-center justify-center rounded-lg sm:col-span-2'>
+         <div className='flex grow basis-1/2 flex-col items-end justify-center rounded-lg'>
             <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
                <PlayerButtons />
             </div>
             <PlaybackProgress />
          </div>
-         <div className='m-1 hidden place-items-center lg:col-span-1 lg:grid'>
+         <div className='m-2 hidden basis-1/4 place-items-center lg:grid'>
             <VolumeSlider />
          </div>
       </div>
@@ -133,7 +133,10 @@ const NowPlayingItem = () => {
    return (
       <div
          ref={drag}
-         className={classNames('flex select-none flex-row items-center px-1', isDragging ? 'opacity-20' : 'bg-neutral')}
+         className={classNames(
+            'flex flex-none basis-1/4 select-none flex-row items-center justify-start',
+            isDragging ? 'opacity-20' : 'bg-neutral'
+         )}
       >
          <button
             className={classNames(
@@ -145,19 +148,15 @@ const NowPlayingItem = () => {
             disabled={!nowPlayingEnabled}
          >
             <div className='avatar'>
-               <div className='w-12 rounded md:w-16 lg:w-20'>
+               <div className='w-16 rounded lg:w-20'>
                   <img loading='lazy' src={nowPlayingImage} />
                </div>
             </div>
          </button>
          <div className={'flex flex-col justify-around overflow-hidden'}>
+            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>{trackName}</div>
             <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
-               {' '}
-               {trackName}{' '}
-            </div>
-            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
-               {' '}
-               {nowPlayingArtist}{' '}
+               {nowPlayingArtist}
             </div>
          </div>
       </div>
@@ -290,26 +289,42 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+         <button className={classNames(commonBtnClass)} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
             <SearchIcon />
          </button>
          <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
             <PreviousTrackIcon />
          </button>
-         <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}>
+         <button
+            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            onClick={seekBackward}
+            disabled={seekDisabled}
+         >
             <SkipBackwardIcon />
          </button>
          <PlayOrTransferButton />
-         <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}>
+         <button
+            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            onClick={seekForward}
+            disabled={seekDisabled}
+         >
             <SkipForwardIcon />
          </button>
          <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}>
             <NextTrackIcon />
          </button>
-         <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}>
+         <button
+            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            onClick={toggleShuffle}
+            disabled={toggleShuffleDisabled}
+         >
             <ShuffleIcon />
          </button>
-         <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}>
+         <button
+            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            onClick={cycleRepeatMode}
+            disabled={repeatModeDisabled}
+         >
             <RepeatIcon />
          </button>
       </>
@@ -362,7 +377,7 @@ const VolumeSlider = () => {
    const isMuted = volume === 0
    const onClick = () => toggleMute(undefined)
    return (
-      <div className='flex w-full flex-row items-center'>
+      <div className='flex w-full grow flex-row items-center'>
          <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
             {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
          </button>

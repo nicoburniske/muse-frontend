@@ -31,7 +31,11 @@ const urqlClient = createClient({
 
 // Set the height of the viewport to the height of the device.
 // Needed to support mobile browsers.
-document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px')
+window.addEventListener('resize', () => {
+   // We execute the same script as before
+   let vh = window.innerHeight * 0.01
+   document.documentElement.style.setProperty('--vh', `${vh}px`)
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
    <BrowserRouter>

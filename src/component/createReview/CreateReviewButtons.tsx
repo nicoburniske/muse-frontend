@@ -68,7 +68,7 @@ export const CreateReviewButtons = ({
    }
 
    return (
-      <div className='m-0 flex w-full flex-row items-center justify-around'>
+      <div className='m-2 flex w-full flex-row items-center justify-around'>
          <button
             className='btn btn-success disabled:btn-outline'
             disabled={!canSubmit}
