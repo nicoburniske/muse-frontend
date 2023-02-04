@@ -12,61 +12,57 @@ import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const wsClient = createWSClient({
-    url: AppConfig.websocketGraphEndpoint,
+   url: AppConfig.websocketGraphEndpoint,
 })
 
 const urqlClient = createClient({
-    url: AppConfig.httpGraphEndpoint,
-    exchanges: [
-        // ...defaultExchanges,
-        subscriptionExchange({
-            forwardSubscription: (operation) => ({
-                subscribe: (sink) => ({
-                    unsubscribe: wsClient.subscribe(operation, sink),
-                }),
+   url: AppConfig.httpGraphEndpoint,
+   exchanges: [
+      // ...defaultExchanges,
+      subscriptionExchange({
+         forwardSubscription: operation => ({
+            subscribe: sink => ({
+               unsubscribe: wsClient.subscribe(operation, sink),
             }),
-        }),
-    ],
+         }),
+      }),
+   ],
 })
 
-
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <BrowserRouter>
-        <DndProvider backend={HTML5Backend}>
-            <Provider value={urqlClient}>
-                <MuseQueryClientProvider
-                    useCache={true}
-                >
-                    <>
-                        <SpotifyPlaybackSdk errorHandler={
-                            {
-                                initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
-                                authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
-                                accountError: e => toast.error(`SDK account error: ${e.message}`),
-                                playbackError: e => toast.error(`SDK playback error: ${e.message}`),
-                            }
-                        } />
-                        <ReactQueryDevtools initialIsOpen={false} />
-                        {/* <DebugAtomsReduxDevTools /> */}
-                        <MuseRoutes />
-                        <Toaster
-                            position="bottom-right"
-                            reverseOrder={false}
-                            gutter={8}
-                            toastOptions={{
-                                duration: 3000,
-                                success: {
-                                    className: 'bg-success text-success-content',
-                                },
-                                error: {
-                                    className: 'bg-error text-error-content'
-                                },
-                            }}
-                        />
-                    </>
-                </MuseQueryClientProvider>
-            </Provider>
-        </DndProvider>
-    </BrowserRouter>
+   <BrowserRouter>
+      <DndProvider backend={HTML5Backend}>
+         <Provider value={urqlClient}>
+            <MuseQueryClientProvider useCache={true}>
+               <>
+                  <SpotifyPlaybackSdk
+                     errorHandler={{
+                        initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
+                        authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
+                        accountError: e => toast.error(`SDK account error: ${e.message}`),
+                        playbackError: e => toast.error(`SDK playback error: ${e.message}`),
+                     }}
+                  />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                  {/* <DebugAtomsReduxDevTools /> */}
+                  <MuseRoutes />
+                  <Toaster
+                     position='bottom-right'
+                     reverseOrder={false}
+                     gutter={8}
+                     toastOptions={{
+                        duration: 3000,
+                        success: {
+                           className: 'bg-success text-success-content',
+                        },
+                        error: {
+                           className: 'bg-error text-error-content',
+                        },
+                     }}
+                  />
+               </>
+            </MuseQueryClientProvider>
+         </Provider>
+      </DndProvider>
+   </BrowserRouter>
 )

@@ -1,15 +1,14 @@
 query ProfileAndReviews {
-  user {
-    id
-    spotifyProfile {
+   user {
       id
-      displayName
-      images
-      numFollowers
-    }
-    reviews {
-      ...ReviewDetails
-    }
-  }
+      spotifyProfile {
+         id
+         displayName
+         images
+         numFollowers
+      }
+      reviews {
+         ...ReviewDetails
+      }
+   }
 }
-

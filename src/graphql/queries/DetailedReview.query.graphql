@@ -1,5 +1,5 @@
 query DetailedReview($reviewId: ID!) {
-  review(id: $reviewId) {
-    ...ReviewDetails
-  }
+   review(id: $reviewId) {
+      ...ReviewDetails
+   }
 }

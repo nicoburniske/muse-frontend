@@ -13,89 +13,82 @@ import { useThemeValue } from 'state/UserPreferences'
 import { useSetAccessToken } from 'component/sdk/ClientAtoms'
 import { SyncCurrentUser } from 'state/CurrentUser'
 
-
 export const NavPlayerPageOutlet = () => {
-    return (
-        <NavPlayerPage>
-            <Outlet />
-        </NavPlayerPage>
-    )
+   return (
+      <NavPlayerPage>
+         <Outlet />
+      </NavPlayerPage>
+   )
 }
 
 // Add navbar and player to the page.
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
-    const theme = useThemeValue()
-    return (
-        <div className="flex h-screen flex-col bg-base-100" data-theme={theme}>
-            {/* Effects lower in component tree to avoid re-render */}
-            <SyncAccessToken />
-            <SyncCurrentUser />
-            <div className="grow flex flex-row overflow-hidden" >
-                <SideNavBar />
-                <Suspense fallback={null}>
-                    <StrictMode>
-                        {children}
-                    </StrictMode>
-                </Suspense>
-            </div>
-            <div className='w-full' >
-                <SpotifyPlayerWrapper />
-            </div>
-            <Portal>
-                <MobileMenu />
-            </Portal>
-            <Portal>
-                <UserPreferencesModal />
-            </Portal>
-        </div >
-    )
+   const theme = useThemeValue()
+   return (
+      <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
+         {/* Effects lower in component tree to avoid re-render */}
+         <SyncAccessToken />
+         <SyncCurrentUser />
+         <div className='flex grow flex-row overflow-hidden'>
+            <SideNavBar />
+            <Suspense fallback={null}>
+               <StrictMode>{children}</StrictMode>
+            </Suspense>
+         </div>
+         <div className='w-full'>
+            <SpotifyPlayerWrapper />
+         </div>
+         <Portal>
+            <MobileMenu />
+         </Portal>
+         <Portal>
+            <UserPreferencesModal />
+         </Portal>
+      </div>
+   )
 }
 
-
 const SyncAccessToken = () => {
-    /**
+   /**
     * Setup Playback SDK.
     */
-    const accessTokenRef = useRef<string | null>(null)
+   const accessTokenRef = useRef<string | null>(null)
 
-    const { data } = useAccessTokenQuery()
+   const { data } = useAccessTokenQuery()
 
-    useEffect(() => {
-        if (data) {
-            accessTokenRef.current = data
-        }
-    }, [data])
+   useEffect(() => {
+      if (data) {
+         accessTokenRef.current = data
+      }
+   }, [data])
 
-    const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(
-        (callback) => {
-            const accessToken = accessTokenRef.current
-            if (accessToken) {
-                callback(accessToken)
-            }
-        },
-        [],
-    )
+   const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(callback => {
+      const accessToken = accessTokenRef.current
+      if (accessToken) {
+         callback(accessToken)
+      }
+   }, [])
 
-    /**
-     * Set Token callback for Playback SDK.
-     */
-    const setTokenFunction = useSetTokenFunction()
-    useExecuteOnce(
-        () => nonNullable(data),
-        () => setTokenFunction({ getOAuthToken: accessTokenFunc }),
-        [data]
-    )
+   /**
+    * Set Token callback for Playback SDK.
+    */
+   const setTokenFunction = useSetTokenFunction()
+   useExecuteOnce(
+      () => nonNullable(data),
+      () => setTokenFunction({ getOAuthToken: accessTokenFunc }),
+      [data]
+   )
 
-    /**
-     * Setup Spotify API.
-     */
-    const setAccessToken = useSetAccessToken()
+   /**
+    * Setup Spotify API.
+    */
+   const setAccessToken = useSetAccessToken()
 
-    useEffect(() => {
-        if (data) {
-            setAccessToken(data)
-        }
-    }, [data])
+   useEffect(() => {
+      if (data) {
+         setAccessToken(data)
+      }
+   }, [data])
 
-    return null
+   return null
 }

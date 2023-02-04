@@ -1,6 +1,6 @@
 fragment Collaborator on Collaborator {
-  accessLevel
-  user {
-    ...UserWithSpotifyOverview
-  } 
+   accessLevel
+   user {
+      ...UserWithSpotifyOverview
+   }
 }

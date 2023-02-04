@@ -1,5 +1,5 @@
 query CurrentUser {
-    user {
-        ...UserWithSpotifyOverview
-    }
+   user {
+      ...UserWithSpotifyOverview
+   }
 }

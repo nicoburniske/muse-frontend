@@ -9,20 +9,19 @@ export const currentReviewAtom = atom<string | undefined>(undefined)
 export const useCurrentReview = () => useAtomValue(currentReviewAtom)
 
 export const useSetCurrentReview = (reviewId: string) => {
-    const addToHistory = useAddToHistory()
-    const setReviewId = useSetAtom(currentReviewAtom)
-    const setSelectedTrack = useSetAtom(selectedTrackAtom)
-    const setNowPlayingEnabled = useSetAtom(nowPlayingEnabledAtom)
+   const addToHistory = useAddToHistory()
+   const setReviewId = useSetAtom(currentReviewAtom)
+   const setSelectedTrack = useSetAtom(selectedTrackAtom)
+   const setNowPlayingEnabled = useSetAtom(nowPlayingEnabledAtom)
 
-    useEffect(() => {
-        addToHistory(reviewId)
-        setReviewId(reviewId)
+   useEffect(() => {
+      addToHistory(reviewId)
+      setReviewId(reviewId)
 
-        return () => { 
-            setSelectedTrack(undefined)
-            setReviewId(undefined) 
-            setNowPlayingEnabled(false)
-        }
-
-    }, [reviewId, addToHistory, setReviewId, setNowPlayingEnabled])
+      return () => {
+         setSelectedTrack(undefined)
+         setReviewId(undefined)
+         setNowPlayingEnabled(false)
+      }
+   }, [reviewId, addToHistory, setReviewId, setNowPlayingEnabled])
 }

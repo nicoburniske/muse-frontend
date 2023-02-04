@@ -1,7 +1,7 @@
 fragment UserWithSpotifyOverview on User {
-  id
-  spotifyProfile {
-    displayName
-    images
-  }
+   id
+   spotifyProfile {
+      displayName
+      images
+   }
 }

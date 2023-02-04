@@ -5,10 +5,10 @@ import { atomWithStorage } from 'jotai/utils'
 const viewHistoryAtom = atomWithStorage<string[]>('MuseReviewViewHistory', [])
 
 const addToHistoryAtom = atom(null, (get, set, reviewId: string) => {
-    const history = get(viewHistoryAtom)
-    const newHistory = [reviewId, ...history.filter(id => id !== reviewId)].slice(0, 10)
-    set(viewHistoryAtom, newHistory)
+   const history = get(viewHistoryAtom)
+   const newHistory = [reviewId, ...history.filter(id => id !== reviewId)].slice(0, 10)
+   set(viewHistoryAtom, newHistory)
 })
 
-export const useAddToHistory = () =>  useSetAtom(addToHistoryAtom)
+export const useAddToHistory = () => useSetAtom(addToHistoryAtom)
 export const useViewHistory = () => useAtomValue(viewHistoryAtom)

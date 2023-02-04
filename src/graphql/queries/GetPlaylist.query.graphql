@@ -1,5 +1,5 @@
 query GetPlaylist($id: String!) {
-  getPlaylist(id: $id) {
-    ...DetailedPlaylist
-  }
+   getPlaylist(id: $id) {
+      ...DetailedPlaylist
+   }
 }

@@ -1,23 +1,23 @@
 fragment DetailedAlbum on Album {
-  ...AlbumDetails
-  tracks {
-    ...DetailedTrack
-  }
+   ...AlbumDetails
+   tracks {
+      ...DetailedTrack
+   }
 }
 
 fragment AlbumDetails on Album {
-  __typename
-  albumGroup
-  albumType
-  genres
-  id
-  images
-  label
-  name
-  albumPopularity: popularity
-  releaseDate
-  artists {
-    id
-    name
-  }
+   __typename
+   albumGroup
+   albumType
+   genres
+   id
+   images
+   label
+   name
+   albumPopularity: popularity
+   releaseDate
+   artists {
+      id
+      name
+   }
 }

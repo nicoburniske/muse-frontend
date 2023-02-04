@@ -1,15 +1,15 @@
 fragment DetailedComment on Comment {
-  id
-  reviewId
-  createdAt
-  updatedAt
-  parentCommentId
-  commenter {
-      ...UserWithSpotifyOverview 
-  } 
-  comment
-  entities {
-    __typename
-    id 
-  }
+   id
+   reviewId
+   createdAt
+   updatedAt
+   parentCommentId
+   commenter {
+      ...UserWithSpotifyOverview
+   }
+   comment
+   entities {
+      __typename
+      id
+   }
 }

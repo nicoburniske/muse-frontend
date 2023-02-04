@@ -1,19 +1,19 @@
 fragment DetailedTrack on Track {
-  uri
-  id
-  name
-  durationMs
-  explicit
-  isPlayable
-  previewUrl
-  popularity
-  album {
-    images
-    id 
-    name
-  }
-  artists {
-    name
-    id
-  } 
+   uri
+   id
+   name
+   durationMs
+   explicit
+   isPlayable
+   previewUrl
+   popularity
+   album {
+      images
+      id
+      name
+   }
+   artists {
+      name
+      id
+   }
 }

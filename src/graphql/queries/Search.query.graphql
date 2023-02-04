@@ -1,57 +1,56 @@
 query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
-  search(query: $query, types: $types,pagination: $pagination) {
-    playlists {
-        limit
-        nextOffset
-        itemsLeft
-        items {
+   search(query: $query, types: $types, pagination: $pagination) {
+      playlists {
+         limit
+         nextOffset
+         itemsLeft
+         items {
             ...SearchPlaylist
-        }
-    }
-    albums {
-        limit
-        nextOffset
-        itemsLeft
-        items {
+         }
+      }
+      albums {
+         limit
+         nextOffset
+         itemsLeft
+         items {
             ...SearchAlbum
-        }
-    }
-    artists {
-        limit
-        nextOffset
-        itemsLeft
-        items {
+         }
+      }
+      artists {
+         limit
+         nextOffset
+         itemsLeft
+         items {
             ...SearchArtist
-        }
-    }
-  }
+         }
+      }
+   }
 }
 
 fragment SearchAlbum on Album {
-    __typename
-    id 
-    name
-    images
-    popularity
-    artists {
-        name
-    }
+   __typename
+   id
+   name
+   images
+   popularity
+   artists {
+      name
+   }
 }
 
 fragment SearchPlaylist on Playlist {
-    __typename
-    id
-    name
-    images
-    owner {
-        ...UserWithSpotifyOverview
-    }
+   __typename
+   id
+   name
+   images
+   owner {
+      ...UserWithSpotifyOverview
+   }
 }
 
 fragment SearchArtist on Artist {
-    __typename
-    id
-    name
-    images
+   __typename
+   id
+   name
+   images
 }
-

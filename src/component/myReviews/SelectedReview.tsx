@@ -1,8 +1,18 @@
 import { Transition } from '@headlessui/react'
-import { ArrowTopRightOnSquareIcon, ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon } from '@heroicons/react/20/solid'
+import {
+   ArrowTopRightOnSquareIcon,
+   ChevronRightIcon,
+   PlusIcon as PlusIconMini,
+   TrashIcon,
+} from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
 import { ShareReview } from 'component/detailedReview/ShareReview'
-import { ReviewDetailsFragment, useDeleteReviewMutation, useProfileAndReviewsQuery, useShareReviewMutation } from 'graphql/generated/schema'
+import {
+   ReviewDetailsFragment,
+   useDeleteReviewMutation,
+   useProfileAndReviewsQuery,
+   useShareReviewMutation,
+} from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Portal from 'platform/component/Portal'
 import { ThemeModal } from 'platform/component/ThemeModal'
@@ -14,257 +24,225 @@ import { nonNullable, findFirstImage, classNames } from 'util/Utils'
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)
 const openSelectedReview = atom(null, (_get, set, reviewId: string) => {
-    set(selectedReviewOpenAtom, true)
-    set(selectedReviewIdAtom, reviewId)
+   set(selectedReviewOpenAtom, true)
+   set(selectedReviewIdAtom, reviewId)
 })
 const closeSelectedReviewAtom = atom(null, (_get, set) => {
-    set(selectedReviewOpenAtom, false)
-    setTimeout(() => set(selectedReviewIdAtom, undefined), 500)
+   set(selectedReviewOpenAtom, false)
+   setTimeout(() => set(selectedReviewIdAtom, undefined), 500)
 })
 export const useSelectReview = () => {
-    const setSelectedReview = useSetAtom(openSelectedReview)
-    const closeSelectedReview = useSetAtom(closeSelectedReviewAtom)
-    return {
-        setSelectedReview,
-        closeSelectedReview,
-    }
+   const setSelectedReview = useSetAtom(openSelectedReview)
+   const closeSelectedReview = useSetAtom(closeSelectedReviewAtom)
+   return {
+      setSelectedReview,
+      closeSelectedReview,
+   }
 }
 
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = () => {
-    const reviewId = useAtomValue(selectedReviewIdAtom)
-    const { data } = useProfileAndReviewsQuery({}, { staleTime: Infinity })
+   const reviewId = useAtomValue(selectedReviewIdAtom)
+   const { data } = useProfileAndReviewsQuery({}, { staleTime: Infinity })
 
-    if (reviewId) {
-        return data?.user?.reviews?.find(r => r.id === reviewId)
-    } else {
-        return undefined
-    }
+   if (reviewId) {
+      return data?.user?.reviews?.find(r => r.id === reviewId)
+   } else {
+      return undefined
+   }
 }
 
 const textColorSecondary = 'text-secondary-content/50'
 
 export const SelectedReview = () => {
-    const { closeSelectedReview } = useSelectReview()
-    // Close review details after going to new page.
-    useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
-    const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
-    const review = useSelectedReview()
+   const { closeSelectedReview } = useSelectReview()
+   // Close review details after going to new page.
+   useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
+   const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
+   const review = useSelectedReview()
 
-    return (
-        <Transition
-            show={selectedReviewOpen}
-            as={Fragment}
-            enter="transform transition ease-in-out duration-300"
-            enterFrom="translate-x-full"
-            enterTo="translate-x-0"
-            leave="transform transition ease-in-out duration-300"
-            leaveFrom="translate-x-0"
-            leaveTo="translate-x-full"
-        >
-            <div className="fixed right-0 flex flex-col z-10 h-full bg-secondary text-secondary-content">
-                <aside className="hidden w-96 h-full overflow-y-auto md:block">
-                    {
-                        review && <SidebarContent review={review} />
-                    }
-                </aside>
-            </div>
-        </Transition>
-    )
+   return (
+      <Transition
+         show={selectedReviewOpen}
+         as={Fragment}
+         enter='transform transition ease-in-out duration-300'
+         enterFrom='translate-x-full'
+         enterTo='translate-x-0'
+         leave='transform transition ease-in-out duration-300'
+         leaveFrom='translate-x-0'
+         leaveTo='translate-x-full'
+      >
+         <div className='fixed right-0 z-10 flex h-full flex-col bg-secondary text-secondary-content'>
+            <aside className='hidden h-full w-96 overflow-y-auto md:block'>
+               {review && <SidebarContent review={review} />}
+            </aside>
+         </div>
+      </Transition>
+   )
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
-    const { closeSelectedReview } = useSelectReview()
-    const nav = useNavigate()
-    const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
+   const { closeSelectedReview } = useSelectReview()
+   const nav = useNavigate()
+   const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
 
-    const queryClient = useQueryClient()
-    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
-    const { mutate: shareReview } = useShareReviewMutation(
-        {
-            onError: () => toast.error('Failed to update review sharing.'),
-            onSuccess: () => {
-                toast.success('Updated review sharing.')
-                resetReviewOverviews()
-            }
-        }
-    )
-    const unShareReview = (reviewId: string, userId: string) => shareReview({ input: { reviewId, userId } })
+   const queryClient = useQueryClient()
+   const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
+   const { mutate: shareReview } = useShareReviewMutation({
+      onError: () => toast.error('Failed to update review sharing.'),
+      onSuccess: () => {
+         toast.success('Updated review sharing.')
+         resetReviewOverviews()
+      },
+   })
+   const unShareReview = (reviewId: string, userId: string) => shareReview({ input: { reviewId, userId } })
 
-    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
-    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
-    const image = findFirstImage(allEntities)
-    const entityType = review?.entity?.__typename
-    const info = (() => ({
-        'Review Owner': review?.creator?.id,
-        'Created': new Date(review?.createdAt).toLocaleDateString(),
-        'Public': review?.isPublic ? 'True' : 'False',
-        'Links': childEntities?.length ?? 0,
+   const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
+   const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
+   const image = findFirstImage(allEntities)
+   const entityType = review?.entity?.__typename
+   const info = (() => ({
+      'Review Owner': review?.creator?.id,
+      Created: new Date(review?.createdAt).toLocaleDateString(),
+      Public: review?.isPublic ? 'True' : 'False',
+      Links: childEntities?.length ?? 0,
 
-        // Include playlist owner, popularity / num followers, num tracks.
-        [`${entityType} Name`]: review?.entity?.name,
-    }))()
+      // Include playlist owner, popularity / num followers, num tracks.
+      [`${entityType} Name`]: review?.entity?.name,
+   }))()
 
-    const collaborators = review?.collaborators
-        ?.map(collaborator => (
-            {
-                userId: collaborator?.user?.id,
-                accessLevel: collaborator?.accessLevel,
-                image: collaborator?.user?.spotifyProfile?.images?.at(-1),
-            }))
-        .filter(nonNullable) ?? []
+   const collaborators =
+      review?.collaborators
+         ?.map(collaborator => ({
+            userId: collaborator?.user?.id,
+            accessLevel: collaborator?.accessLevel,
+            image: collaborator?.user?.spotifyProfile?.images?.at(-1),
+         }))
+         .filter(nonNullable) ?? []
 
+   return (
+      <div className='space-y-2'>
+         <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
+               <span className='sr-only'>Close panel</span>
+               <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
+            </button>
 
-    return (
-        <div className="space-y-2">
-            <div className="pl-1 mt-4 flex items-start justify-start w-full space-x-5">
-                <button
-                    type="button"
-                    className="btn btn-ghost btn-square"
-                    onClick={() => closeSelectedReview()}
-                >
-                    <span className="sr-only">Close panel</span>
-                    <ChevronRightIcon className="h-8 w-8" aria-hidden="true" />
-                </button>
-
-                <div>
-                    <h2 className="text-xl font-bold">
-                        <span className="sr-only">Details for </span>
-                        {review.reviewName}
-                    </h2>
-                    <p className={classNames('text-sm font-medium', textColorSecondary)}>{entityType}</p>
-                </div>
+            <div>
+               <h2 className='text-xl font-bold'>
+                  <span className='sr-only'>Details for </span>
+                  {review.reviewName}
+               </h2>
+               <p className={classNames('text-sm font-medium', textColorSecondary)}>{entityType}</p>
             </div>
-            <div
-                className="group relative cursor-pointer"
-                onClick={linkToReviewPage}
-            >
-                <img src={image} alt="" className="h-full w-full object-cover" />
-                <button
-                    className="z-10 absolute top-0 right-0 btn btn-lg btn-square btn-ghost"
-                >
-                    <ArrowTopRightOnSquareIcon className="h-10 w-10 stroke-accent transition-all ease-out opacity-0 group-hover:opacity-100 hover:scale-125 duration-300" />
-                </button>
+         </div>
+         <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
+            <img src={image} alt='' className='h-full w-full object-cover' />
+            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
+               <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
+            </button>
+         </div>
+         <div className='space-y-6 px-8'>
+            <div>
+               <h3 className='font-medium'>Information</h3>
+               <dl className='mt-2 divide-y divide-secondary-content/50'>
+                  {Object.keys(info).map(key => (
+                     <div key={key} className='flex justify-between py-3 text-sm font-medium'>
+                        <dt className={classNames(textColorSecondary)}>{key}</dt>
+                        <dd className='whitespace-nowrap'>{info[key]}</dd>
+                     </div>
+                  ))}
+               </dl>
             </div>
-            <div className="space-y-6 px-8">
-                <div>
-                    <h3 className="font-medium">Information</h3>
-                    <dl className="mt-2 divide-y divide-secondary-content/50">
-                        {Object.keys(info).map((key) => (
-                            <div key={key} className="flex justify-between py-3 text-sm font-medium">
-                                <dt className={classNames(textColorSecondary)}>{key}</dt>
-                                <dd className="whitespace-nowrap">{info[key]}</dd>
-                            </div>
-                        ))}
-                    </dl>
-                </div>
-                <div>
-                    <h3 className="font-medium">Shared with</h3>
-                    <ul role="list" className="mt-2 divide-y divide-base-100 border-t border-b border-base-100">
-                        {collaborators.map(({ userId, accessLevel, image }) => (
-                            <li key={userId} className="flex items-center justify-between py-3">
-                                <div className="flex items-center">
-                                    <img src={image} alt="" className="h-8 w-8 rounded-full" />
-                                    <p className="ml-4 text-sm font-medium">{userId}</p>
-                                </div>
-                                <span className="badge badge-primary">{accessLevel}</span>
-                                <button
-                                    type="button"
-                                    className="btn btn-sm btn-error"
-                                    onClick={() => unShareReview(review.id, userId)}
-                                >
-                                    Remove
-                                    <span className="sr-only"> {userId}</span>
-                                </button>
-                            </li>
-                        ))}
-                        <li className="flex items-center justify-center py-2 m-auto">
-                            <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []} >
-                                <span className="flex items-center justify-center rounded-full border-2 border-dashed">
-                                    <PlusIconMini className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                                <span className="ml-4">
-                                    Share
-                                </span>
-                            </ShareReview>
-                        </li>
-                    </ul>
-                </div>
-                <div className="flex justify-center">
-                    <DeleteReviewButton reviewId={review.id} />
-                </div>
-            </div >
-        </div>
-    )
+            <div>
+               <h3 className='font-medium'>Shared with</h3>
+               <ul role='list' className='mt-2 divide-y divide-base-100 border-t border-b border-base-100'>
+                  {collaborators.map(({ userId, accessLevel, image }) => (
+                     <li key={userId} className='flex items-center justify-between py-3'>
+                        <div className='flex items-center'>
+                           <img src={image} alt='' className='h-8 w-8 rounded-full' />
+                           <p className='ml-4 text-sm font-medium'>{userId}</p>
+                        </div>
+                        <span className='badge badge-primary'>{accessLevel}</span>
+                        <button
+                           type='button'
+                           className='btn btn-error btn-sm'
+                           onClick={() => unShareReview(review.id, userId)}
+                        >
+                           Remove
+                           <span className='sr-only'> {userId}</span>
+                        </button>
+                     </li>
+                  ))}
+                  <li className='m-auto flex items-center justify-center py-2'>
+                     <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
+                        <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
+                           <PlusIconMini className='h-5 w-5' aria-hidden='true' />
+                        </span>
+                        <span className='ml-4'>Share</span>
+                     </ShareReview>
+                  </li>
+               </ul>
+            </div>
+            <div className='flex justify-center'>
+               <DeleteReviewButton reviewId={review.id} />
+            </div>
+         </div>
+      </div>
+   )
 }
 
 const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
+   const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const queryClient = useQueryClient()
-    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
-    const { closeSelectedReview } = useSelectReview()
+   const queryClient = useQueryClient()
+   const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
+   const { closeSelectedReview } = useSelectReview()
 
-    const { mutate } = useDeleteReviewMutation({
-        onError: () => toast.error('Failed to delete review.'),
-        onSuccess: () => {
-            toast.success('Successfully deleted review.')
-            resetReviewOverviews()
-        },
-        onSettled: () => {
-            setIsModalOpen(false)
-            closeSelectedReview()
-        }
-    })
+   const { mutate } = useDeleteReviewMutation({
+      onError: () => toast.error('Failed to delete review.'),
+      onSuccess: () => {
+         toast.success('Successfully deleted review.')
+         resetReviewOverviews()
+      },
+      onSettled: () => {
+         setIsModalOpen(false)
+         closeSelectedReview()
+      },
+   })
 
-    const deleteReview = () => {
-        mutate({ input: { id: reviewId } })
-    }
+   const deleteReview = () => {
+      mutate({ input: { id: reviewId } })
+   }
 
-    return (
-        <>
-            <Portal>
-                <ThemeModal open={isModalOpen} className="max-w-md">
-                    <div className="bg-base-100 shadow sm:rounded-lg text-base-content">
-                        <div className="px-4 py-5 sm:p-6">
-                            <h3 className="text-lg font-medium leading-6 ">Delete Review</h3>
-                            <div className="mt-2 max-w-xl text-sm">
-                                <p>Once you delete your review, you won't be able to recover it.</p>
-                            </div>
-                            <div className="mt-5 flex flex-row w-full justify-around items-center">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="btn btn-md btn-primary"
-                                >
-                                    Cancel
-                                </button>
+   return (
+      <>
+         <Portal>
+            <ThemeModal open={isModalOpen} className='max-w-md'>
+               <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
+                  <div className='px-4 py-5 sm:p-6'>
+                     <h3 className='text-lg font-medium leading-6 '>Delete Review</h3>
+                     <div className='mt-2 max-w-xl text-sm'>
+                        <p>Once you delete your review, you won't be able to recover it.</p>
+                     </div>
+                     <div className='mt-5 flex w-full flex-row items-center justify-around'>
+                        <button type='button' onClick={() => setIsModalOpen(false)} className='btn btn-primary btn-md'>
+                           Cancel
+                        </button>
 
-                                <button
-                                    type="button"
-                                    onClick={deleteReview}
-                                    className="btn btn-md btn-error"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </ThemeModal>
-            </Portal>
+                        <button type='button' onClick={deleteReview} className='btn btn-error btn-md'>
+                           Delete
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </ThemeModal>
+         </Portal>
 
-            <button
-                type="button"
-                className="btn btn-error"
-                onClick={() => setIsModalOpen(true)}
-            >
-                <TrashIcon className="h-5 w-5" aria-hidden="true" />
-                <span className="ml-4">
-                    Delete
-                </span>
-            </button>
-        </>
-    )
-
-
+         <button type='button' className='btn btn-error' onClick={() => setIsModalOpen(true)}>
+            <TrashIcon className='h-5 w-5' aria-hidden='true' />
+            <span className='ml-4'>Delete</span>
+         </button>
+      </>
+   )
 }

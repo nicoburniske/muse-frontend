@@ -7,27 +7,27 @@ import { AppConfig } from 'util/AppConfig'
 const accessTokenInterval = 55 * 60 * 1000
 
 const getAccessToken = async () => {
-    const response = await axios.get(AppConfig.httpAccessTokenEndpoint, { responseType: 'text', withCredentials: true})
-    return response.data as string
+   const response = await axios.get(AppConfig.httpAccessTokenEndpoint, { responseType: 'text', withCredentials: true })
+   return response.data as string
 }
 
 const queryKey = ['SpotifyAccessToken']
 const useAccessTokenQuery = () => {
-    const nav = useNavigate()
-    const queryClient = useQueryClient()
-    return useQuery(queryKey, getAccessToken, {
-        refetchInterval: accessTokenInterval,
-        staleTime: accessTokenInterval,
-        cacheTime: accessTokenInterval,
-        refetchIntervalInBackground: true,
-        retry: false,
-        onError: (error) => {
-            if (axios.isAxiosError(error) && error.response?.status === 401) {
-                queryClient.clear()
-                nav('/')
-            }
-        }
-    })
+   const nav = useNavigate()
+   const queryClient = useQueryClient()
+   return useQuery(queryKey, getAccessToken, {
+      refetchInterval: accessTokenInterval,
+      staleTime: accessTokenInterval,
+      cacheTime: accessTokenInterval,
+      refetchIntervalInBackground: true,
+      retry: false,
+      onError: error => {
+         if (axios.isAxiosError(error) && error.response?.status === 401) {
+            queryClient.clear()
+            nav('/')
+         }
+      },
+   })
 }
 useAccessTokenQuery.getKey = () => queryKey
 

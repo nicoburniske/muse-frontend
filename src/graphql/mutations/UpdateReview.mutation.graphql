@@ -1,5 +1,5 @@
 mutation UpdateReview($input: UpdateReviewInput!) {
-    updateReview(input: $input) {
-        id
-    }
+   updateReview(input: $input) {
+      id
+   }
 }

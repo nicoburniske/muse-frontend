@@ -1,13 +1,12 @@
-
 fragment DetailedPlaylistTrack on PlaylistTrack {
-  addedAt
-  addedBy {
-    ...UserWithSpotifyOverview
-  }
-  track {
-    ...DetailedTrack 
-  }
-  playlist {
-    id
-  }
+   addedAt
+   addedBy {
+      ...UserWithSpotifyOverview
+   }
+   track {
+      ...DetailedTrack
+   }
+   playlist {
+      id
+   }
 }

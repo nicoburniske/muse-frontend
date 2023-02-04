@@ -1,4 +1,18 @@
-import { HeartOutlineIcon, MutedSpeakerIcon, NextTrackIcon, PauseIcon, PlayIcon, PowerIcon, PreviousTrackIcon, RepeatIcon, SearchIcon, ShuffleIcon, SkipBackwardIcon, SkipForwardIcon, SpeakerIcon } from 'component/Icons'
+import {
+   HeartOutlineIcon,
+   MutedSpeakerIcon,
+   NextTrackIcon,
+   PauseIcon,
+   PlayIcon,
+   PowerIcon,
+   PreviousTrackIcon,
+   RepeatIcon,
+   SearchIcon,
+   ShuffleIcon,
+   SkipBackwardIcon,
+   SkipForwardIcon,
+   SpeakerIcon,
+} from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
@@ -19,317 +33,350 @@ import { usePlayerActions } from 'component/sdk/PlayerActions'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
-
 export function SpotifyPlayerFallback() {
-    const exists = useExistsPlaybackState()
-    if (exists) {
-        return (
-            <MuseTransition option={'BottomFlyIn'} >
-                <SpotifyPlayer />
-            </MuseTransition>
-        )
-    } else {
-        return (
-            <div className="grid place-items-center w-full border border-accent rounded bg-neutral">
-                <div className="py-2">
-                    <TransferPlaybackButton />
-                </div>
+   const exists = useExistsPlaybackState()
+   if (exists) {
+      return (
+         <MuseTransition option={'BottomFlyIn'}>
+            <SpotifyPlayer />
+         </MuseTransition>
+      )
+   } else {
+      return (
+         <div className='grid w-full place-items-center rounded border border-accent bg-neutral'>
+            <div className='py-2'>
+               <TransferPlaybackButton />
             </div>
-        )
-    }
+         </div>
+      )
+   }
 }
 
 export function SpotifyPlayer() {
-    return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 rounded w-full border border-accent bg-neutral">
-            <NowPlayingItem />
-            <div className="sm:col-span-2 flex flex-col justify-center items-center rounded-lg w-full">
-                <div className="flex flex-row justify-evenly items-center text-neutral-content w-full">
-                    <PlayerButtons />
-                </div>
-                <PlaybackProgress />
+   return (
+      <div className='grid w-full grid-cols-2 rounded border border-accent bg-neutral sm:grid-cols-3 lg:grid-cols-4'>
+         <NowPlayingItem />
+         <div className='flex w-full flex-col items-center justify-center rounded-lg sm:col-span-2'>
+            <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
+               <PlayerButtons />
             </div>
-            <div className="hidden lg:grid lg:col-span-1 place-items-center m-1">
-                <VolumeSlider />
-            </div>
-        </div >
-    )
+            <PlaybackProgress />
+         </div>
+         <div className='m-1 hidden place-items-center lg:col-span-1 lg:grid'>
+            <VolumeSlider />
+         </div>
+      </div>
+   )
 }
 const NowPlayingItem = () => {
-    const {
-        album,
-        artists,
-        id: trackId,
-        name: trackName,
-    } = useCurrentTrack()
+   const { album, artists, id: trackId, name: trackName } = useCurrentTrack()
 
-    const { getCurrentPositionMs } = usePlayerActions()
+   const { getCurrentPositionMs } = usePlayerActions()
 
-    // get largest image.
-    const nowPlayingImage = album.images.slice().reverse()[0].url
-    const nowPlayingArtist = artists.map(a => a.name).join(', ')
+   // get largest image.
+   const nowPlayingImage = album.images.slice().reverse()[0].url
+   const nowPlayingArtist = artists.map(a => a.name).join(', ')
 
-    const { openCommentModal, closeCommentModal } = useCommentModal()
+   const { openCommentModal, closeCommentModal } = useCommentModal()
 
-    const { mutateAsync: createComment } = useCreateCommentMutation({
-        onSuccess: () => { toast.success('comment created'); closeCommentModal() },
-        onError: () => toast.error('failed to create comment')
-    })
+   const { mutateAsync: createComment } = useCreateCommentMutation({
+      onSuccess: () => {
+         toast.success('comment created')
+         closeCommentModal()
+      },
+      onError: () => toast.error('failed to create comment'),
+   })
 
-    const queryClient = useQueryClient()
-    const reviewId = useCurrentReview()
-    const onSubmit = async (comment: string) => {
-        if (reviewId) {
-            await createComment({ input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId } })
-            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
-        }
-    }
+   const queryClient = useQueryClient()
+   const reviewId = useCurrentReview()
+   const onSubmit = async (comment: string) => {
+      if (reviewId) {
+         await createComment({
+            input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId },
+         })
+         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+      }
+   }
 
-    const showModal = () => {
-        const { minutes, seconds } = msToTimeStr(getCurrentPositionMs())
-        const initialValue = `<Stamp at="${minutes}:${seconds}" />`
-        const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, initialValue, trackId: trackId! }
-        openCommentModal(values)
-    }
+   const showModal = () => {
+      const { minutes, seconds } = msToTimeStr(getCurrentPositionMs())
+      const initialValue = `<Stamp at="${minutes}:${seconds}" />`
+      const values = {
+         title: 'create comment',
+         onCancel: () => closeCommentModal(),
+         onSubmit,
+         initialValue,
+         trackId: trackId!,
+      }
+      openCommentModal(values)
+   }
 
-    const nowPlayingEnabled = useAtomValue(useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), []))
-    const tooltipContent = useAtomValue(useMemo(() => atom(get => get(nowPlayingEnabledAtom) ? 'Comment at timestamp' : ''), []))
+   const nowPlayingEnabled = useAtomValue(
+      useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), [])
+   )
+   const tooltipContent = useAtomValue(
+      useMemo(() => atom(get => (get(nowPlayingEnabledAtom) ? 'Comment at timestamp' : '')), [])
+   )
 
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'Track',
-        item: { trackId },
-        canDrag: true,
-        collect: monitor => ({
+   const [{ isDragging }, drag] = useDrag(
+      () => ({
+         type: 'Track',
+         item: { trackId },
+         canDrag: true,
+         collect: monitor => ({
             isDragging: !!monitor.isDragging(),
-        }),
-    }), [trackId])
+         }),
+      }),
+      [trackId]
+   )
 
-    return (
-        <div
-            ref={drag}
+   return (
+      <div
+         ref={drag}
+         className={classNames('flex select-none flex-row items-center px-1', isDragging ? 'opacity-20' : 'bg-neutral')}
+      >
+         <button
             className={classNames(
-                'flex flex-row px-1 items-center select-none',
-                isDragging ? 'opacity-20' : 'bg-neutral'
+               'hidden place-items-center p-1 sm:grid',
+               nowPlayingEnabled ? 'tooltip tooltip-right' : ''
             )}
-        >
-            <button
-                className={classNames('hidden sm:grid place-items-center p-1', nowPlayingEnabled ? 'tooltip tooltip-right' : '')}
-                data-tip={tooltipContent} onClick={showModal} disabled={!nowPlayingEnabled} >
-                <div className="avatar" >
-                    <div className="w-12 md:w-16 lg:w-20 rounded">
-                        <img loading='lazy' src={nowPlayingImage} />
-                    </div>
-                </div>
-            </button>
-            <div className={'flex flex-col justify-around overflow-hidden'}>
-                <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {trackName} </div>
-                <div className="text-left truncate md:p-0.5 prose text-neutral-content text-xs lg:text-md"> {nowPlayingArtist} </div>
+            data-tip={tooltipContent}
+            onClick={showModal}
+            disabled={!nowPlayingEnabled}
+         >
+            <div className='avatar'>
+               <div className='w-12 rounded md:w-16 lg:w-20'>
+                  <img loading='lazy' src={nowPlayingImage} />
+               </div>
             </div>
-        </div >
-    )
+         </button>
+         <div className={'flex flex-col justify-around overflow-hidden'}>
+            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
+               {' '}
+               {trackName}{' '}
+            </div>
+            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
+               {' '}
+               {nowPlayingArtist}{' '}
+            </div>
+         </div>
+      </div>
+   )
 }
 
 const commonBtnClass = 'btn btn-sm lg:btn-md p-0'
 
-const svgStyle = (isLiked: boolean | undefined) => isLiked ? 'fill-success text-success' : ''
+const svgStyle = (isLiked: boolean | undefined) => (isLiked ? 'fill-success text-success' : '')
 
 const LikeNowPlaying = () => {
-    const nowPlaying = useAtomValue(isPlayingAtom)
-    const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
+   const nowPlaying = useAtomValue(isPlayingAtom)
+   const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
 
-    if (nowPlaying) {
-        return (
-            <LikeButton
-                trackId={getNowPlayingId()!}
-                svgStyle={svgStyle}
-                options={{ refetchInterval: 10 * 1000 }}
-                className={classNames(commonBtnClass, 'btn-ghost')}
-            />
-        )
-    } else {
-        return (
-            <button className={commonBtnClass} disabled={true}>
-                <HeartOutlineIcon />
-            </button>
-        )
-    }
+   if (nowPlaying) {
+      return (
+         <LikeButton
+            trackId={getNowPlayingId()!}
+            svgStyle={svgStyle}
+            options={{ refetchInterval: 10 * 1000 }}
+            className={classNames(commonBtnClass, 'btn-ghost')}
+         />
+      )
+   } else {
+      return (
+         <button className={commonBtnClass} disabled={true}>
+            <HeartOutlineIcon />
+         </button>
+      )
+   }
 }
-
 
 const PlaybackProgress = () => {
-    // Convert to percentage.
-    const { durationMs, seekTo, seekDisabled } = usePlayerActions()
-    const positionMs = useCurrentPosition(100)
-    const progress = Math.min((positionMs / durationMs) * 1000, 1000)
-    const [progressState, setProgressState] = useState<[number]>([progress])
-    const [isSeeking, setIsSeeking] = useState(false)
+   // Convert to percentage.
+   const { durationMs, seekTo, seekDisabled } = usePlayerActions()
+   const positionMs = useCurrentPosition(100)
+   const progress = Math.min((positionMs / durationMs) * 1000, 1000)
+   const [progressState, setProgressState] = useState<[number]>([progress])
+   const [isSeeking, setIsSeeking] = useState(false)
 
-    useEffect(() => {
-        if (!isSeeking) {
-            setProgressState([progress])
-        }
-    }, [progress, isSeeking])
+   useEffect(() => {
+      if (!isSeeking) {
+         setProgressState([progress])
+      }
+   }, [progress, isSeeking])
 
-    const commitChange = async (value: [number]) => {
-        const asMillis = Math.floor((value.at(0)! / 1000) * durationMs)
-        await seekTo(asMillis)
-        // Don't sync with current progress until change has gone through.
-        setTimeout(() => setIsSeeking(false), 10)
-    }
+   const commitChange = async (value: [number]) => {
+      const asMillis = Math.floor((value.at(0)! / 1000) * durationMs)
+      await seekTo(asMillis)
+      // Don't sync with current progress until change has gone through.
+      setTimeout(() => setIsSeeking(false), 10)
+   }
 
-    // TODO: tooltip with time to change to. 
-    const handleSeek = (value: number[]) => {
-        setIsSeeking(true)
-        setProgressState(value as [number])
-    }
+   // TODO: tooltip with time to change to.
+   const handleSeek = (value: number[]) => {
+      setIsSeeking(true)
+      setProgressState(value as [number])
+   }
 
-    const { minutes: minProgress, seconds: secProgress } = msToTime(positionMs)
-    const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
+   const { minutes: minProgress, seconds: secProgress } = msToTime(positionMs)
+   const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
 
-    return (
-        <div className="flex flex-row text-neutral-content items-center justify-center space-x-1 p-1 w-full">
-            <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ '--value': minProgress }}></span>:
-                <span style={{ '--value': secProgress }}></span>
-            </span>
-            <Slider.Root
-                disabled={seekDisabled}
-                onValueCommit={commitChange}
-                defaultValue={progressState}
-                value={progressState}
-                onValueChange={handleSeek}
-                max={1000}
-                step={10}
-                aria-label="value"
-                className="relative flex h-5 w-5/6 touch-none items-center"
-            >
-                <Slider.Track className="relative h-3 grow rounded-full bg-neutral-focus">
-                    <Slider.Range className="absolute h-full rounded-full bg-success" />
-                </Slider.Track>
-            </Slider.Root>
-            <span className="countdown font-mono text-sm lg:text-lg">
-                <span style={{ '--value': minDuration }}></span>:
-                <span style={{ '--value': secDuration }}></span>
-            </span>
-        </div>)
+   return (
+      <div className='flex w-full flex-row items-center justify-center space-x-1 p-1 text-neutral-content'>
+         <span className='countdown font-mono text-sm lg:text-lg'>
+            <span style={{ '--value': minProgress }}></span>:<span style={{ '--value': secProgress }}></span>
+         </span>
+         <Slider.Root
+            disabled={seekDisabled}
+            onValueCommit={commitChange}
+            defaultValue={progressState}
+            value={progressState}
+            onValueChange={handleSeek}
+            max={1000}
+            step={10}
+            aria-label='value'
+            className='relative flex h-5 w-5/6 touch-none items-center'
+         >
+            <Slider.Track className='relative h-3 grow rounded-full bg-neutral-focus'>
+               <Slider.Range className='absolute h-full rounded-full bg-success' />
+            </Slider.Track>
+         </Slider.Root>
+         <span className='countdown font-mono text-sm lg:text-lg'>
+            <span style={{ '--value': minDuration }}></span>:<span style={{ '--value': secDuration }}></span>
+         </span>
+      </div>
+   )
 }
 
-
 const PlayerButtons = () => {
-    const {
-        isShuffled,
-        toggleShuffleDisabled,
-        setShuffle,
+   const {
+      isShuffled,
+      toggleShuffleDisabled,
+      setShuffle,
 
-        repeatMode,
-        repeatModeDisabled,
-        setRepeatMode,
+      repeatMode,
+      repeatModeDisabled,
+      setRepeatMode,
 
-        seekDisabled,
-        seekBackward,
-        seekForward,
+      seekDisabled,
+      seekBackward,
+      seekForward,
 
-        prevTrackDisabled,
-        previousTrack,
-        nextTrackDisabled,
-        nextTrack
-    } = usePlayerActions()
-    const { id: trackId } = useCurrentTrack()
+      prevTrackDisabled,
+      previousTrack,
+      nextTrackDisabled,
+      nextTrack,
+   } = usePlayerActions()
+   const { id: trackId } = useCurrentTrack()
 
-    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
-    // TODO: Need to account for multiple reviews!!
-    const setSelectedTrack = useSetAtom(selectedTrackAtom)
-    const reviewId = useCurrentReview()
-    const selectNowPlaying = () => {
-        if (reviewId) {
-            setSelectedTrack(undefined)
-            setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
-        }
-    }
+   const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
+   // TODO: Need to account for multiple reviews!!
+   const setSelectedTrack = useSetAtom(selectedTrackAtom)
+   const reviewId = useCurrentReview()
+   const selectNowPlaying = () => {
+      if (reviewId) {
+         setSelectedTrack(undefined)
+         setTimeout(() => setSelectedTrack({ trackId: trackId!, reviewId }), 1)
+      }
+   }
 
-    const toggleShuffle = () => setShuffle(!isShuffled)
-    const successButton = classNames(commonBtnClass, 'btn-success')
-    const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
+   const toggleShuffle = () => setShuffle(!isShuffled)
+   const successButton = classNames(commonBtnClass, 'btn-success')
+   const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
-    const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
-    const nextRepeatMode = repeatMode !== 0 ? 'off' : 'context'
-    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
+   const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
+   const nextRepeatMode = repeatMode !== 0 ? 'off' : 'context'
+   const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
 
-    return (
-        <>
-            <LikeNowPlaying />
-            <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}><SearchIcon /></button>
-            <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}><PreviousTrackIcon /></button>
-            <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}><SkipBackwardIcon /></button>
-            <PlayOrTransferButton />
-            <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}><SkipForwardIcon /></button>
-            <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}><NextTrackIcon /></button>
-            <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}><ShuffleIcon /></button>
-            <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}><RepeatIcon /></button>
-        </>
-    )
+   return (
+      <>
+         <LikeNowPlaying />
+         <button className={commonBtnClass} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+            <SearchIcon />
+         </button>
+         <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
+            <PreviousTrackIcon />
+         </button>
+         <button className={commonBtnClass} onClick={seekBackward} disabled={seekDisabled}>
+            <SkipBackwardIcon />
+         </button>
+         <PlayOrTransferButton />
+         <button className={commonBtnClass} onClick={seekForward} disabled={seekDisabled}>
+            <SkipForwardIcon />
+         </button>
+         <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}>
+            <NextTrackIcon />
+         </button>
+         <button className={shuffleButtonClass} onClick={toggleShuffle} disabled={toggleShuffleDisabled}>
+            <ShuffleIcon />
+         </button>
+         <button className={repeatModeColor} onClick={cycleRepeatMode} disabled={repeatModeDisabled}>
+            <RepeatIcon />
+         </button>
+      </>
+   )
 }
 
 const TransferPlaybackButton = () => {
-    const { transfer: { mutate, isLoading }, needsReconnect } = useTransferPlayback({
-        onError: () => toast.error('Failed to transfer playback')
-    })
-    const className = classNames(commonBtnClass,
-        needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
-        isLoading ? 'loading' : undefined)
+   const {
+      transfer: { mutate, isLoading },
+      needsReconnect,
+   } = useTransferPlayback({
+      onError: () => toast.error('Failed to transfer playback'),
+   })
+   const className = classNames(
+      commonBtnClass,
+      needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
+      isLoading ? 'loading' : undefined
+   )
 
-    return (
-        <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip="start">
-            <PowerIcon />
-        </button>
-    )
+   return (
+      <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip='start'>
+         <PowerIcon />
+      </button>
+   )
 }
 
 const PlayOrTransferButton = () => {
-    const {
-        isPlaying,
-        togglePlayDisabled,
-        togglePlay,
-    } = usePlayerActions()
-    const { needsReconnect } = useTransferPlayback()
+   const { isPlaying, togglePlayDisabled, togglePlay } = usePlayerActions()
+   const { needsReconnect } = useTransferPlayback()
 
-    return (
-        needsReconnect ?
-            <TransferPlaybackButton />
-            : (
-                <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
-                    {isPlaying ? <PauseIcon /> : <PlayIcon />}
-                </button >
-            )
-    )
+   return needsReconnect ? (
+      <TransferPlaybackButton />
+   ) : (
+      <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
+         {isPlaying ? <PauseIcon /> : <PlayIcon />}
+      </button>
+   )
 }
 
 const VolumeSlider = () => {
-    const { disabled, volume, setVolume, toggleMute } = useVolume()
+   const { disabled, volume, setVolume, toggleMute } = useVolume()
 
-    const asInt = Math.floor(volume * 100)
+   const asInt = Math.floor(volume * 100)
 
-    const convertAndSetVolume = (e: ChangeEvent<HTMLInputElement>) => {
-        const newVolumeInt = parseInt(e.currentTarget.value)
-        setVolume(newVolumeInt / 100)
-    }
+   const convertAndSetVolume = (e: ChangeEvent<HTMLInputElement>) => {
+      const newVolumeInt = parseInt(e.currentTarget.value)
+      setVolume(newVolumeInt / 100)
+   }
 
-    const isMuted = volume === 0
-    const onClick = () => toggleMute(undefined)
-    return (
-        <div className="flex flex-row items-center w-full">
-            <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
-                {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
-            </button>
+   const isMuted = volume === 0
+   const onClick = () => toggleMute(undefined)
+   return (
+      <div className='flex w-full flex-row items-center'>
+         <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
+            {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
+         </button>
 
-            <input
-                type="range"
-                className="range range-primary bg-primary/50"
-                disabled={disabled}
-                min={0} max={100} step={1}
-                value={asInt}
-                onChange={e => convertAndSetVolume(e)}
-            />
-        </div>
-    )
+         <input
+            type='range'
+            className='range range-primary bg-primary/50'
+            disabled={disabled}
+            min={0}
+            max={100}
+            step={1}
+            value={asInt}
+            onChange={e => convertAndSetVolume(e)}
+         />
+      </div>
+   )
 }

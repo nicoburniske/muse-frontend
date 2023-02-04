@@ -1,9 +1,9 @@
 fragment DetailedArtist on Artist {
-  numFollowers
-  artistGenres: genres
-  href
-  id
-  artistImages: images
-  name
-  artistPopularity: popularity
+   numFollowers
+   artistGenres: genres
+   href
+   id
+   artistImages: images
+   name
+   artistPopularity: popularity
 }

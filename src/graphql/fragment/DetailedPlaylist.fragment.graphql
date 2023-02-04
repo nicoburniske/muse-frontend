@@ -1,20 +1,20 @@
 fragment DetailedPlaylist on Playlist {
-  ...PlaylistDetails
-  tracks {
-    ...DetailedPlaylistTrack
-  }
+   ...PlaylistDetails
+   tracks {
+      ...DetailedPlaylistTrack
+   }
 }
 
 fragment PlaylistDetails on Playlist {
-  __typename
-  collaborative
-  description
-  id
-  images
-  name
-  owner {
-    ...UserWithSpotifyOverview
-  }
-  primaryColor
-  public
+   __typename
+   collaborative
+   description
+   id
+   images
+   name
+   owner {
+      ...UserWithSpotifyOverview
+   }
+   primaryColor
+   public
 }

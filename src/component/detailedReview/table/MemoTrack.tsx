@@ -5,31 +5,21 @@ import PlaylistTrack from '../track/PlaylistTrack'
 import { getTrackId } from './Helpers'
 
 export interface MemoTrackProps {
-    index: number
-    track: DetailedPlaylistTrackFragment | DetailedTrackFragment
-    reviewId: string
+   index: number
+   track: DetailedPlaylistTrackFragment | DetailedTrackFragment
+   reviewId: string
 }
 /**
- * TODO: Incorporate Podcast episode. 
+ * TODO: Incorporate Podcast episode.
  */
 
-export const MemoTrack = memo(({ reviewId, track, index }: MemoTrackProps) => {
-    if ('track' in track) {
-        return (
-            <PlaylistTrack
-                index={index}
-                reviewId={reviewId}
-                playlistTrack={track}
-            />
-        )
-    } else {
-        return (
-            <AlbumTrack
-                track={track}
-                reviewId={reviewId}
-            />
-        )
-    }
-}, (a, b) =>
-    a.reviewId === b.reviewId &&
-    getTrackId(a.track) === getTrackId(b.track))
+export const MemoTrack = memo(
+   ({ reviewId, track, index }: MemoTrackProps) => {
+      if ('track' in track) {
+         return <PlaylistTrack index={index} reviewId={reviewId} playlistTrack={track} />
+      } else {
+         return <AlbumTrack track={track} reviewId={reviewId} />
+      }
+   },
+   (a, b) => a.reviewId === b.reviewId && getTrackId(a.track) === getTrackId(b.track)
+)

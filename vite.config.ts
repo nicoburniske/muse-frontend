@@ -6,15 +6,16 @@ const localBackendUrl = 'http://localhost:8883'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    server: {
-        proxy: {
-            '/api/graphql': localBackendUrl ,
-            '/ws/graphql': localBackendUrl,
-            '/login': localBackendUrl,
-            '/logout': localBackendUrl,
-            '/session': localBackendUrl,
-            '/token': localBackendUrl,
-        }
-    },
-    plugins: [react(), tsconfigPaths()]
+   server: {
+      port: 3001,
+      proxy: {
+         '/api/graphql': localBackendUrl,
+         '/ws/graphql': localBackendUrl,
+         '/login': localBackendUrl,
+         '/logout': localBackendUrl,
+         '/session': localBackendUrl,
+         '/token': localBackendUrl,
+      },
+   },
+   plugins: [react(), tsconfigPaths()],
 })
