@@ -50,7 +50,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
             <LinkIcon />
          </button>
          <Portal>
-            <ThemeModal open={isModalOpen} className='h-[80%] max-w-2xl'>
+            <ThemeModal open={isModalOpen} className='h-4/5 max-w-2xl grow'>
                <div className='flex h-full w-full flex-col items-center justify-between space-y-5 p-3 '>
                   <Dialog.Title>
                      <h3 className='flex-1 text-lg font-bold text-base-content'> Link Review </h3>

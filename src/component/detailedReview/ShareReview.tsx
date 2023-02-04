@@ -8,10 +8,10 @@ import {
 } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { ThemeModal } from 'platform/component/ThemeModal'
-import { CheckIcon, CrossIcon, ReplyIcon } from 'component/Icons'
 import useStateWithReset from 'platform/hook/useStateWithReset'
 import Portal from 'platform/component/Portal'
 import { useQueryClient } from '@tanstack/react-query'
+import { ArrowUturnLeftIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 
 export interface ShareReviewProps {
    reviewId: string
@@ -80,16 +80,46 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
    return (
       <>
          <Portal>
-            <ThemeModal open={isModalOpen} className='max-w-md'>
-               <div className='flex flex-col items-center justify-between space-y-5 p-3'>
+            <ThemeModal open={isModalOpen} className='min-h-96 h-fit w-96 '>
+               <div className='flex flex-col items-center justify-between space-y-2 p-3'>
                   <Dialog.Title className='text-lg font-bold'>Share Review</Dialog.Title>
+
+                  {collabProp.length > 0 && (
+                     <>
+                        <div className='form-control w-full'>
+                           <label className='label'>
+                              <span className='label-text font-bold'> Collaborators </span>
+                           </label>
+                           {/* TODO: do I need this color? */}
+                           <ul className='menu h-32 divide-y divide-base-200 overflow-y-scroll bg-base-100'>
+                              {collaborators.map(c => (
+                                 <li key={c.user.id}>
+                                    <div className='group flex flex-row'>
+                                       <p className='basis-full'>{c.user.id}</p>
+                                       <p className='basis-full'>{c.accessLevel}</p>
+                                       <button
+                                          className='btn btn-error btn-xs opacity-0 group-hover:opacity-100'
+                                          onClick={() =>
+                                             setCollaborators(collaborators.filter(c2 => c2.user.id !== c.user.id))
+                                          }
+                                       >
+                                          <XMarkIcon className='h-4 w-4' />
+                                       </button>
+                                    </div>
+                                 </li>
+                              ))}
+                           </ul>
+                        </div>
+                        <div className='divider-primary divider' />
+                     </>
+                  )}
                   <div className='form-control w-full'>
                      <label className='label'>
-                        <span className='label-text'>Who do you want to share with?</span>
+                        <span className='label-text font-bold'>Add Collaborator</span>
                      </label>
                      <input
                         type='text'
-                        placeholder='spotify username'
+                        placeholder='Spotify ID'
                         className='input input-bordered w-full'
                         onChange={e => setUsername(e.target.value as string)}
                         value={username}
@@ -97,7 +127,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                   </div>
                   <div className='form-control w-full'>
                      <label className='label'>
-                        <span className='label-text'>Access Level</span>
+                        <span className='label-text font-bold'>Access Level</span>
                      </label>
                      <select
                         value={accessLevel}
@@ -106,50 +136,28 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                      >
                         {Object.values(AccessLevel).map(a => (
                            <option key={a} value={a}>
-                              {a.toLowerCase()}
+                              {a}
                            </option>
                         ))}
                      </select>
                   </div>
-                  {collabProp.length > 0 && (
-                     <div className='form-control w-full items-center'>
-                        <label className='label'>
-                           <span className='label-text'> collaborators </span>
-                        </label>
-                        {/* TODO: do I need this color? */}
-                        <ul className='menu w-full bg-base-100'>
-                           {collaborators.map(c => (
-                              <li key={c.user.id}>
-                                 <div className='flex flex-row justify-between'>
-                                    <p>{c.user.id}</p>
-                                    <p>{c.accessLevel}</p>
-                                    <button
-                                       className='btn btn-error'
-                                       onClick={() =>
-                                          setCollaborators(collaborators.filter(c2 => c2.user.id !== c.user.id))
-                                       }
-                                    >
-                                       <CrossIcon />
-                                    </button>
-                                 </div>
-                              </li>
-                           ))}
-                        </ul>
-                     </div>
-                  )}
-                  <div className='flex w-full flex-row items-center justify-around lg:w-1/2'>
+                  <div className='flex w-full flex-row items-center justify-around'>
                      <button className='btn btn-success disabled:btn-outline' onClick={onSubmit} disabled={disabled}>
-                        <CheckIcon />
+                        <span className='hidden md:block'>Confirm</span>
+                        <CheckIcon className='h-5 w-5' />
                      </button>
+
                      <button
-                        className='btn btn-info'
+                        className='btn btn-info gap-2'
                         disabled={disabledUndo}
                         onClick={() => setCollaborators(collabProp)}
                      >
-                        <ReplyIcon />
+                        <span className='hidden md:block'>Undo</span>
+                        <ArrowUturnLeftIcon className='h-5 w-5' />
                      </button>
-                     <button className='btn btn-info' onClick={onCancel}>
-                        <CrossIcon />
+                     <button className='btn btn-info gap-2' onClick={onCancel}>
+                        <span className='hidden md:block'>Cancel</span>
+                        <XMarkIcon className='h-5 w-5' />
                      </button>
                   </div>
                </div>
@@ -161,3 +169,10 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
       </>
    )
 }
+
+// const { mutate: copy } = useCopyToClipboard({ onSuccess: () => toast.success('Copied to clipboard!') })
+// const copyLink = () => copy(`https://muselabs.xyz/app/reviews/${reviewId}`)
+
+// <button className='btn btn-info gap-2' onClick={copyLink}>
+//    <ClipboardDocumentCheckIcon className='h-5 w-5' />
+// </button>

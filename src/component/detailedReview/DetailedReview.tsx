@@ -161,7 +161,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                            {entityName}
                         </dd>
                         <dt className='sr-only'>Creator name</dt>
-                        <dd className='mt-3 flex items-center text-sm font-medium capitalize text-gray-500 sm:mr-6 sm:mt-0'>
+                        <dd className='mt-3 flex items-center text-sm font-medium capitalize sm:mr-6 sm:mt-0'>
                            <UserIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-primary' aria-hidden='true' />
                            {creator}
                         </dd>

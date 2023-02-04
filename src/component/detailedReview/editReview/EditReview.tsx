@@ -169,7 +169,7 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
    ])
 
    return (
-      <ThemeModal open={isOpen} className='max-w-md'>
+      <ThemeModal open={isOpen} className='max-w-md grow'>
          <div className='relative flex flex-col items-center justify-between space-y-5 p-3'>
             <Dialog.Title className='text-lg font-bold'>Edit Review</Dialog.Title>
 

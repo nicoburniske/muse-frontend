@@ -4,6 +4,7 @@ import {
    ChevronRightIcon,
    PlusIcon as PlusIconMini,
    TrashIcon,
+   XMarkIcon,
 } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
 import { ShareReview } from 'component/detailedReview/ShareReview'
@@ -123,7 +124,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -138,7 +139,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </div>
          <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
+            <button className='btn btn-square btn-ghost btn-lg absolute top-0 right-0 z-10'>
                <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
             </button>
          </div>
@@ -156,12 +157,15 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
             </div>
             <div>
                <h3 className='font-medium'>Shared with</h3>
-               <ul role='list' className='mt-2 divide-y divide-base-100 border-t border-b border-base-100'>
+               <ul
+                  role='list'
+                  className='mt-2 divide-y  divide-secondary-content/50 border-t border-b border-secondary-content/50'
+               >
                   {collaborators.map(({ userId, accessLevel, image }) => (
                      <li key={userId} className='flex items-center justify-between py-3'>
-                        <div className='flex items-center'>
+                        <div className='flex  items-center'>
                            <img src={image} alt='' className='h-8 w-8 rounded-full' />
-                           <p className='ml-4 text-sm font-medium'>{userId}</p>
+                           <p className='ml-2 text-sm font-medium'>{userId}</p>
                         </div>
                         <span className='badge badge-primary'>{accessLevel}</span>
                         <button
@@ -169,7 +173,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                            className='btn btn-error btn-sm'
                            onClick={() => unShareReview(review.id, userId)}
                         >
-                           Remove
+                           <XMarkIcon className='h-4 w-4' />
                            <span className='sr-only'> {userId}</span>
                         </button>
                      </li>
@@ -241,7 +245,7 @@ const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
 
          <button type='button' className='btn btn-error' onClick={() => setIsModalOpen(true)}>
             <TrashIcon className='h-5 w-5' aria-hidden='true' />
-            <span className='ml-4'>Delete</span>
+            <span className='ml-4'>Delete Review</span>
          </button>
       </>
    )

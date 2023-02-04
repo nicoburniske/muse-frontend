@@ -7,7 +7,7 @@ const localBackendUrl = 'http://localhost:8883'
 // https://vitejs.dev/config/
 export default defineConfig({
    server: {
-      port: 3001,
+      port: 3000,
       proxy: {
          '/api/graphql': localBackendUrl,
          '/ws/graphql': localBackendUrl,
