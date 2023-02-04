@@ -25,27 +25,25 @@ export const NavPlayerPageOutlet = () => {
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
    const theme = useThemeValue()
    return (
-      <div className='absolute inset-0'>
-         <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
-            {/* Effects lower in component tree to avoid re-render */}
-            <SyncAccessToken />
-            <SyncCurrentUser />
-            <div className='flex grow flex-row overflow-hidden'>
-               <SideNavBar />
-               <Suspense fallback={null}>
-                  <StrictMode>{children}</StrictMode>
-               </Suspense>
-            </div>
-            <div className='w-full'>
-               <SpotifyPlayerWrapper />
-            </div>
-            <Portal>
-               <MobileMenu />
-            </Portal>
-            <Portal>
-               <UserPreferencesModal />
-            </Portal>
+      <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
+         {/* Effects lower in component tree to avoid re-render */}
+         <SyncAccessToken />
+         <SyncCurrentUser />
+         <div className='flex grow flex-row overflow-hidden'>
+            <SideNavBar />
+            <Suspense fallback={null}>
+               <StrictMode>{children}</StrictMode>
+            </Suspense>
          </div>
+         <div className='w-full'>
+            <SpotifyPlayerWrapper />
+         </div>
+         <Portal>
+            <MobileMenu />
+         </Portal>
+         <Portal>
+            <UserPreferencesModal />
+         </Portal>
       </div>
    )
 }
