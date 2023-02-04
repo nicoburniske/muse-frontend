@@ -1,4 +1,4 @@
-import { offset, useFloating } from '@floating-ui/react'
+import { flip, offset, useFloating } from '@floating-ui/react'
 import { Menu, Transition } from '@headlessui/react'
 import Portal from 'platform/component/Portal'
 import { useCurrentUser } from 'component/sdk/ClientHooks'
@@ -28,7 +28,7 @@ export const ProfileDropdown = () => {
                 mainAxis: 10,
                 crossAxis: 10
             }
-        )]
+        ), flip()]
     })
 
     return (

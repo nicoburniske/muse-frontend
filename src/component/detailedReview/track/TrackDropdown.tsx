@@ -12,6 +12,7 @@ import { Fragment } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetPlaylistQuery } from 'graphql/generated/schema'
 import { useCurrentUserId } from 'state/CurrentUser'
+import { flip } from '@floating-ui/react'
 
 type TrackOptionsProps = {
     trackId: string
@@ -27,7 +28,8 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
     const theme = useThemeValue()
     const { x, y, strategy, refs } = useFloating({
         placement: 'right-start',
-        strategy: 'absolute'
+        strategy: 'absolute',
+        middleware: [flip()]
     })
 
     const showCommentModal = useCommentModalTrack(reviewId, trackId)
