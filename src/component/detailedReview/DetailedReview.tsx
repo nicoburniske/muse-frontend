@@ -3,7 +3,6 @@ import { useEffect, useMemo } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { ShareReview } from './ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
-import { EditReviewButton } from './editReview/EditReview'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, classNames } from 'util/Utils'
@@ -15,10 +14,11 @@ import ReviewCommentSection from './CommentSection'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { UserIcon } from '@heroicons/react/20/solid'
+import { PencilIcon, PencilSquareIcon, UserIcon } from '@heroicons/react/20/solid'
 import { ShareIcon } from '@heroicons/react/24/outline'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import { EditReviewButton } from './editReview/EditReview'
 
 export interface DetailedReviewProps {
     reviewId: string
@@ -64,21 +64,8 @@ interface DetailedReviewContentProps {
 const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps) => {
     useSetCurrentReview(reviewId)
 
+    // Parent!
     const entityId = review.entity?.id ?? ''
-
-    // Children!
-    const children = review
-        ?.childReviews
-        ?.filter(nonNullable)
-        ?.filter(c => nonNullable(c?.id))
-        ?.filter(c => nonNullable(c.entity?.id))
-        ?.filter(c => nonNullable(c.entity?.__typename))
-        .map(child => ({
-            reviewId: child.id,
-            entityId: child.entity?.id as string,
-            entityType: child.entity?.__typename as EntityType,
-            reviewName: child?.reviewName as string
-        })) ?? []
     const parent = nonNullable(review?.entity) ?
         {
             reviewId,
@@ -87,17 +74,32 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
             reviewName: review?.reviewName as string
         }
         : undefined
+
+    // Children!
+    const children = review
+        ?.childReviews
+        ?.filter(nonNullable)
+        ?.filter(c => nonNullable(c.id))
+        ?.filter(c => nonNullable(c.entity?.id))
+        ?.filter(c => nonNullable(c.entity?.__typename))
+        .map(child => ({
+            reviewId: child.id,
+            entityId: child.entity?.id as string,
+            entityType: child.entity?.__typename as EntityType,
+            reviewName: child?.reviewName as string
+        })) ?? []
+
     const allReviews = [parent, ...children].filter(nonNullable)
 
-
     return (
-        < div className="w-full h-full flex flex-col relative">
+        <div className="grow flex flex-col relative">
             <ReviewHeader review={review} />
+            {/* For some reason I need a min-height? When doing flex-col in page. */}
             <div className="grow min-h-0 bg-base-300 mx-1">
                 <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
             </div>
             <CommentFormModalWrapper />
-        </div >
+        </div>
     )
 }
 
@@ -176,7 +178,11 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                             reviewName={title!}
                             onSuccess={() => { reload() }}
                             isPublic={isPublic === undefined ? false : isPublic}
-                        />
+                        >
+                            <button className="btn btn-primary btn-sm lg:btn-md" >
+                                <PencilIcon className="w-6 h-6" />
+                            </button>
+                        </EditReviewButton>
                         <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
                         <CreateReview
                             parentReviewIdAtom={parentReviewIdAtom}
@@ -316,54 +322,3 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[], rootRe
 const areAllLoadingNoData = (results: UseQueryResult<any, unknown>[]) => {
     return results.some(r => r.isLoading) && results.every(r => r.data === undefined)
 }
-
-// const useLatestReviewComments = (reviewId: string) => {
-//   const [comments, setComments] = useState<DetailedCommentFragment[]>([])
-
-//   useDetailedReviewCommentsQuery({
-//     variables: { reviewId },
-//     nextFetchPolicy: "cache-first",
-//     pollInterval: 0,
-//     onCompleted: (data) => data.review?.comments && setComments(data.review.comments)
-//   })
-
-//   useReviewUpdatesSubscription({
-//     variables: { reviewId }, onSubscriptionData: (data) => {
-//       const commentEvent = data.subscriptionData.data?.reviewUpdates
-//       if (commentEvent?.__typename) {
-//         switch (commentEvent.__typename) {
-//           case "CreatedComment":
-//             setComments([...comments, commentEvent.comment])
-//             break;
-//           case "UpdatedComment":
-//             const updatedCommentId = commentEvent.comment.id
-//             const filtered = comments.filter(comment => comment.id !== updatedCommentId)
-//             filtered.push(commentEvent.comment)
-//             setComments(filtered)
-//             break;
-//           case "DeletedComment":
-//             const deletedCommentId = commentEvent.commentId
-//             const removeDeleted = comments.filter(comment => comment.id !== deletedCommentId)
-//             setComments(removeDeleted)
-//             break;
-//           default:
-//             console.error("Unhandled review update event", commentEvent)
-//         }
-//       }
-//     }
-//   })
-//   return comments
-// }
-
-// Subscriptions.
-// Update jotai atom with playback devices.
-// const setDevices = useSetAtom(playbackDevicesAtom)
-// useAvailableDevicesSubscription({
-//   onSubscriptionData: (data) => {
-//     if (data.subscriptionData.data?.availableDevices) {
-//       setDevices(data.subscriptionData.data.availableDevices)
-//     } else {
-//       setDevices([])
-//     }
-//   }
-// })

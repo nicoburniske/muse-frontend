@@ -24,7 +24,9 @@ export default function DetailedReviewPage() {
                     </div>
                 </Hero>
             }>
-                <div className="bg-base-100 w-full h-full">
+
+                {/* <div className="bg-base-100 flex h-full w-full"> */}
+                <div className="bg-base-100 flex grow">
                     <Suspense fallback={<HeroLoading />}>
                         <DetailedReview reviewId={reviewId} isSm={isSm} />
                     </Suspense>

@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { atom, PrimitiveAtom, Provider, useAtom, useAtomValue, WritableAtom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 import ReactDOM from 'react-dom'
+import { useHydrateAtoms } from 'jotai/utils'
 
 type FormValues = {
     isPublic: boolean
@@ -41,7 +42,7 @@ const isValidAtom = atom((get) => {
         defaultValues.name !== currentValues.name)
 })
 
-const booleanToNumAtom = (value: PrimitiveAtom<boolean>): WritableAtom<number, number, void> => {
+const booleanToNumAtom = (value: PrimitiveAtom<boolean>): WritableAtom<number, [number], void> => {
     return atom(get => get(value) ? 1 : 0, (_get, set, newValue: number) => set(value, newValue === 1))
 }
 
@@ -112,6 +113,7 @@ type EditReviewButtonProps = {
     reviewName: string
     isPublic: boolean
     onSuccess: () => void
+    children: React.ReactNode
 }
 
 export const EditReviewButton = (props: EditReviewButtonProps) => {
@@ -128,9 +130,9 @@ export const EditReviewButton = (props: EditReviewButtonProps) => {
                     document.body
                 )
             }
-            <button className="btn btn-primary btn-sm lg:btn-md" onClick={() => setIsOpen(true)}>
-                <EllipsisIcon />
-            </button>
+            <div onClick={() => setIsOpen(true)}>
+                {props.children}
+            </div>
         </>
     )
 }
@@ -160,6 +162,12 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
 
     const defaultValues = useMemo(() => ({ name: reviewName, isPublic }), [reviewName, isPublic])
 
+    useHydrateAtoms([
+        [reviewIdAtom, reviewId],
+        [defaultFormValuesAtom, defaultValues],
+        [formValuesAtom, defaultValues]
+    ])
+
     return (
         <ThemeModal open={isOpen} className="max-w-md">
             <div className="flex flex-col items-center justify-between space-y-5 p-3 relative" >
@@ -167,19 +175,13 @@ const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCance
                     Edit Review
                 </Dialog.Title>
 
-                <Provider initialValues={[
-                    [reviewIdAtom, reviewId],
-                    [defaultFormValuesAtom, defaultValues],
-                    [formValuesAtom, defaultValues]
-                ]}>
-                    <div className="w-[75%] flex flex-col space-y-2">
-                        <EditReviewForm />
-                        <EditReviewFormButtons
-                            onSuccess={onSuccess}
-                            onCancel={onCancel}
-                        />
-                    </div>
-                </Provider>
+                <div className="w-[75%] flex flex-col space-y-2">
+                    <EditReviewForm />
+                    <EditReviewFormButtons
+                        onSuccess={onSuccess}
+                        onCancel={onCancel}
+                    />
+                </div>
                 {isDeleting ?
                     <div className="btn-group absolute top-0 right-5" >
                         <button className="btn btn-error tooltip tooltip-error" data-tip="delete review" onClick={() => deleteReview()}>

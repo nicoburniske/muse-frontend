@@ -30,7 +30,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />
-            <div className="flex grow flex-row overflow-hidden" >
+            <div className="grow flex flex-row overflow-hidden" >
                 <SideNavBar />
                 <Suspense fallback={null}>
                     <StrictMode>
