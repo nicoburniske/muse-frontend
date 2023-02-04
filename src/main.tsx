@@ -29,6 +29,10 @@ const urqlClient = createClient({
    ],
 })
 
+// Set the height of the viewport to the height of the device.
+// Needed to support mobile browsers.
+document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px')
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
    <BrowserRouter>
       <DndProvider backend={HTML5Backend}>
@@ -40,7 +44,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                         initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
                         authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
                         accountError: e => toast.error(`SDK account error: ${e.message}`),
-                        playbackError: e => toast.error(`SDK playback error: ${e.message}`),
+                        playbackError: e => toast.error(`Playback Error`, { duration: 1000 }),
                      }}
                   />
                   <ReactQueryDevtools initialIsOpen={false} />
