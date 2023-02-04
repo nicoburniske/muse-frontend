@@ -96,8 +96,8 @@ export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }:
    return (
       <>
          <div className='flex w-full flex-row items-center justify-center'>
-            <SearchInput currentSearchAtom={currentSearchAtom} debouncedSearchAtom={debouncedSearchAtom} />
-            <button className='btn btn-accent w-[10%]' onClick={resetState}>
+            <SearchInput />
+            <button className='btn btn-accent' onClick={resetState}>
                <CrossIcon />
             </button>
          </div>
@@ -108,12 +108,7 @@ export default function SearchSpotify({ onClear, entityTypeAtom, entityIdAtom }:
    )
 }
 
-interface SearchInputProps {
-   currentSearchAtom: Atom<string>
-   debouncedSearchAtom: PrimitiveAtom<string>
-}
-
-const SearchInput = ({ currentSearchAtom, debouncedSearchAtom }: SearchInputProps) => {
+const SearchInput = () => {
    const currentValue = useAtomValue(currentSearchAtom)
    const setDebouncedValue = useSetAtom(debouncedSearchAtom)
 
@@ -121,7 +116,7 @@ const SearchInput = ({ currentSearchAtom, debouncedSearchAtom }: SearchInputProp
       <input
          type='text'
          placeholder='search'
-         className='input input-bordered w-[90%]'
+         className='input input-bordered grow'
          onChange={e => setDebouncedValue(e.target.value as string)}
          value={currentValue}
       />
