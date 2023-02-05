@@ -158,7 +158,7 @@ export default function DetailedComment({
                   </div>
                </div>
                <div className='mx-1 grid w-full place-items-center'>
-                  <article className='prose card card-body min-h-full min-w-full bg-base-100 p-0.5 text-sm text-base-content md:text-base lg:p-2'>
+                  <article className='prose card card-body min-h-full min-w-full overflow-visible bg-base-100 p-0.5 text-sm text-base-content md:text-base lg:p-2'>
                      <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
                   </article>
                </div>

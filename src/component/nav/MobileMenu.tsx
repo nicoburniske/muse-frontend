@@ -4,11 +4,15 @@ import { Fragment } from 'react'
 import { classNames } from 'util/Utils'
 import { NAVIGATION } from './NavConstants'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export const mobileMenuOpenAtom = atom(false)
 
 export function MobileMenu() {
    const [mobileMenuOpen, setMobileMenuOpen] = useAtom(mobileMenuOpenAtom)
+   const nav = useNavigate()
+   const location = useLocation()
+   const path = location.pathname
    return (
       <Transition.Root show={mobileMenuOpen} as={Fragment}>
          <Dialog as='div' className='relative z-40 md:hidden' onClose={setMobileMenuOpen}>
@@ -35,7 +39,7 @@ export function MobileMenu() {
                   leaveFrom='translate-x-0'
                   leaveTo='-translate-x-full'
                >
-                  <Dialog.Panel className='relative flex w-full max-w-xs flex-1 flex-col bg-indigo-700 pt-5 pb-4'>
+                  <Dialog.Panel className='relative flex w-full max-w-xs flex-1 flex-col bg-base-100 pt-5 pb-4'>
                      <Transition.Child
                         as={Fragment}
                         enter='ease-in-out duration-300'
@@ -57,11 +61,7 @@ export function MobileMenu() {
                         </div>
                      </Transition.Child>
                      <div className='flex flex-shrink-0 items-center px-4'>
-                        <img
-                           className='h-8 w-auto'
-                           src='https://tailwindui.com/img/logos/mark.svg?color=white'
-                           alt='Your Company'
-                        />
+                        <img className='h-8 w-auto' src='logo.png' alt='Your Company' />
                      </div>
                      <div className='mt-5 h-0 flex-1 overflow-y-auto px-2'>
                         <nav className='flex h-full flex-col'>
@@ -69,18 +69,16 @@ export function MobileMenu() {
                               {NAVIGATION.map(item => (
                                  <a
                                     key={item.name}
-                                    href={item.href}
+                                    onClick={() => nav(item.href)}
                                     className={classNames(
-                                       item.current
-                                          ? 'bg-indigo-800 text-white'
-                                          : 'text-indigo-100 hover:bg-indigo-800 hover:text-white',
+                                       path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
                                        'group flex items-center rounded-md py-2 px-3 text-sm font-medium'
                                     )}
-                                    aria-current={item.current ? 'page' : undefined}
+                                    aria-current={path.includes(item.href) ? 'page' : undefined}
                                  >
                                     <item.icon
                                        className={classNames(
-                                          item.current ? 'text-white' : 'text-indigo-300 group-hover:text-white',
+                                          path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
                                           'mr-3 h-6 w-6'
                                        )}
                                        aria-hidden='true'

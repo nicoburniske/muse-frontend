@@ -54,7 +54,7 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='flex h-20 w-full justify-between overflow-hidden rounded border border-accent bg-neutral'>
+      <div className='flex h-20 w-full justify-between rounded border border-accent bg-neutral'>
          <NowPlayingItem />
          <div className='flex grow basis-1/2 flex-col items-end justify-center rounded-lg'>
             <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
@@ -102,7 +102,7 @@ const NowPlayingItem = () => {
       const { minutes, seconds } = msToTimeStr(getCurrentPositionMs())
       const initialValue = `<Stamp at="${minutes}:${seconds}" />`
       const values = {
-         title: 'create comment',
+         title: 'Create Comment',
          onCancel: () => closeCommentModal(),
          onSubmit,
          initialValue,
@@ -134,22 +134,22 @@ const NowPlayingItem = () => {
       <div
          ref={drag}
          className={classNames(
-            'flex flex-none basis-1/4 select-none flex-row items-center justify-start',
+            'flex flex-none basis-1/4 select-none flex-row items-center justify-start ',
             isDragging ? 'opacity-20' : 'bg-neutral'
          )}
       >
          <button
             className={classNames(
                'hidden place-items-center p-1 sm:grid',
-               nowPlayingEnabled ? 'tooltip tooltip-right' : ''
+               nowPlayingEnabled ? 'tooltip tooltip-right tooltip-primary' : ''
             )}
             data-tip={tooltipContent}
             onClick={showModal}
             disabled={!nowPlayingEnabled}
          >
             <div className='avatar'>
-               <div className='w-16 rounded lg:w-20'>
-                  <img loading='lazy' src={nowPlayingImage} />
+               <div className='w-16 rounded'>
+                  <img src={nowPlayingImage} />
                </div>
             </div>
          </button>
