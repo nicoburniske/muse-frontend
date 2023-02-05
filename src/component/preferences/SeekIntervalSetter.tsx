@@ -34,9 +34,8 @@ export const SeekIntervalSetter = () => {
    }, [tempInterval])
 
    return (
-      // <div className="flex flex-row justify-between">
       <div>
-         <div className='relative rounded-md shadow-sm '>
+         <div className='relative'>
             <label htmlFor='seekInterval' className='block text-sm font-bold text-base-content'>
                Seek interval (seconds)
             </label>
@@ -45,7 +44,7 @@ export const SeekIntervalSetter = () => {
                name='number'
                id='seekInterval'
                className={classNames(
-                  'input input-bordered input-primary block w-full rounded-md border-base-300 sm:text-sm',
+                  'input input-bordered w-full sm:text-sm',
                   hasErrors ? 'input-error text-error' : ''
                )}
                value={tempInterval}

@@ -56,7 +56,7 @@ export default function ReviewsPage() {
          <header className='w-full'>
             <div className='relative z-10 flex h-16 flex-shrink-0 shadow-sm'>
                <OpenMobileMenuButton />
-               <div className='flex flex-1 justify-between px-4 sm:px-6'>
+               <div className='flex flex-1 justify-center py-2 px-4 sm:px-6'>
                   <SearchBar />
                   <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
                      <CreateReview
@@ -138,36 +138,40 @@ const SearchBar = () => {
    // TODO: Consider atomWithDebounce!
    const [search, setSearch] = useAtom(searchAtom)
    return (
-      <div className='flex flex-1'>
-         <form className='flex w-full md:ml-0'>
-            <label htmlFor='desktop-search-field' className='sr-only'>
-               Search reviews
-            </label>
-            <label htmlFor='mobile-search-field' className='sr-only'>
-               Search reviews
-            </label>
-            <div className='flex w-full flex-row items-center justify-between space-x-5 text-base-content'>
-               <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
-               <input
-                  name='mobile-search-field'
-                  id='mobile-search-field'
-                  className='input h-full w-full placeholder-base-content/50 sm:hidden'
-                  placeholder='Search'
-                  type='search'
-                  value={search}
-                  onChange={e => setSearch(e.target.value as string)}
-               />
-               <input
-                  name='desktop-search-field'
-                  id='desktop-search-field'
-                  className='input hidden w-full placeholder-base-content/50 sm:block'
-                  placeholder='Search'
-                  type='search'
-                  value={search}
-                  onChange={e => setSearch(e.target.value as string)}
-               />
-            </div>
-         </form>
+      <div className='w-full max-w-3xl'>
+         <div className='flex flex-1'>
+            <form className='flex w-full md:ml-0'>
+               <label htmlFor='desktop-search-field' className='sr-only'>
+                  Search reviews
+               </label>
+               <label htmlFor='mobile-search-field' className='sr-only'>
+                  Search reviews
+               </label>
+               <div className='flex w-full flex-row items-center justify-between space-x-5 text-base-content'>
+                  <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
+                  <input
+                     name='mobile-search-field'
+                     id='mobile-search-field'
+                     className='input h-full w-full placeholder-base-content/50 sm:hidden'
+                     placeholder='Search'
+                     type='search'
+                     autoComplete='off'
+                     value={search}
+                     onChange={e => setSearch(e.target.value as string)}
+                  />
+                  <input
+                     name='desktop-search-field'
+                     id='desktop-search-field'
+                     className='input hidden w-full placeholder-base-content/50 sm:block'
+                     placeholder='Search'
+                     type='search'
+                     autoComplete='off'
+                     value={search}
+                     onChange={e => setSearch(e.target.value as string)}
+                  />
+               </div>
+            </form>
+         </div>
       </div>
    )
 }

@@ -14,11 +14,19 @@ export const ProfileDropdown = () => {
    const theme = useThemeValue()
    const { mutate: logout } = useLogoutMutation()
 
-   const { data: image } = useCurrentUser({
+   const { data } = useCurrentUser({
       suspense: true,
       staleTime: 1000 * 60 * 60,
-      select: useCallback((data?: PrivateUser) => data?.images.at(0)?.url, []),
+      select: useCallback((data?: PrivateUser) => {
+         return {
+            image: data?.images.at(0)?.url,
+            id: data?.id ?? '',
+            displayName: data?.display_name ?? '',
+         }
+      }, []),
    })
+
+   const { image, id, displayName } = data ?? {}
 
    const { x, y, strategy, refs } = useFloating({
       placement: 'top-start',
@@ -62,35 +70,42 @@ export const ProfileDropdown = () => {
                      top: y ?? 0,
                      left: x ?? 0,
                   }}
-                  className='menu w-32 rounded-md bg-neutral text-neutral-content shadow-lg'
+                  className=' divide-y divide-base-content/20 rounded-md bg-base-100 text-base-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'
                >
-                  <Menu.Item>
-                     {({ active }) => (
-                        <li>
-                           <a className={classNames(active ? 'active' : '')}>Profile</a>
-                        </li>
-                     )}
-                  </Menu.Item>
-
-                  <Menu.Item>
-                     {({ active }) => (
-                        <li>
-                           <a className={classNames(active ? 'active' : '')} onClick={() => openPreferencesModal()}>
-                              Settings
-                           </a>
-                        </li>
-                     )}
-                  </Menu.Item>
-
-                  <Menu.Item>
-                     {({ active }) => (
-                        <li>
-                           <a className={classNames(active ? 'active' : '')} onClick={() => logout(undefined)}>
-                              Logout
-                           </a>
-                        </li>
-                     )}
-                  </Menu.Item>
+                  <div className='py-1'>
+                     <Menu.Item>
+                        {({ active }) => (
+                           <button
+                              onClick={() => logout(undefined)}
+                              className={classNames(
+                                 active ? 'bg-base-300' : '',
+                                 'block w-full px-4 py-2 text-left text-sm'
+                              )}
+                           >
+                              Sign out
+                           </button>
+                        )}
+                     </Menu.Item>
+                  </div>
+                  <div className='py-1'>
+                     <Menu.Item>
+                        {({ active }) => (
+                           <button
+                              onClick={() => openPreferencesModal()}
+                              className={classNames(
+                                 active ? 'bg-base-300' : '',
+                                 'block w-full px-4 py-2 text-left text-sm'
+                              )}
+                           >
+                              Preferences
+                           </button>
+                        )}
+                     </Menu.Item>
+                  </div>
+                  <div className='px-4 py-3'>
+                     <p className='text-sm'>{displayName}</p>
+                     <p className='truncate text-sm font-medium'>@{id}</p>
+                  </div>
                </Menu.Items>
             </Transition>
          </Portal>

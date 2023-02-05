@@ -2,7 +2,7 @@ import { Atom, atom, useAtom, useSetAtom } from 'jotai'
 import SearchSpotify from 'component/searchSpotify/SearchSpotify'
 import { PlusIcon } from 'component/Icons'
 import { ThemeModal } from 'platform/component/ThemeModal'
-import { Dialog } from '@headlessui/react'
+import { Dialog, Portal } from '@headlessui/react'
 import { EditReviewName } from './EditReviewName'
 import { CreateReviewButtons } from './CreateReviewButtons'
 import { ReviewProperties } from './ReviewProperties'
@@ -33,32 +33,34 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
 
    return (
       <>
-         <ThemeModal open={isModalOpen} className='max-h-[80%] max-w-2xl grow'>
-            <div className='flex w-full flex-col items-center justify-between space-y-4 p-3'>
-               <Dialog.Title className='text-lg font-bold text-base-content'>{modalTitle}</Dialog.Title>
-               <EditReviewName
-                  debouncedReviewNameAtom={debouncedReviewNameAtom}
-                  currentReviewNameAtom={currentReviewNameAtom}
-               />
-               <ReviewProperties entityTypeAtom={entityTypeAtom} isPublicAtom={isPublicAtom} />
-               <SearchSpotify
-                  entityIdAtom={entityIdAtom}
-                  entityTypeAtom={entityTypeAtom}
-                  onClear={() => {
-                     setEntityId(undefined)
-                     setReviewName('')
-                  }}
-               />
-               <CreateReviewButtons
-                  entityTypeAtom={entityTypeAtom}
-                  entityIdAtom={entityIdAtom}
-                  isPublicAtom={isPublicAtom}
-                  parentReviewIdAtom={parentReviewIdAtom}
-                  debouncedReviewNameAtom={debouncedReviewNameAtom}
-                  createReviewModalOpenAtom={createReviewModalOpenAtom}
-               />
-            </div>
-         </ThemeModal>
+         <Portal>
+            <ThemeModal open={isModalOpen} className='max-h-[80%] max-w-2xl grow'>
+               <div className='flex w-full flex-col items-center justify-between space-y-4 p-3'>
+                  <Dialog.Title className='text-lg font-bold text-base-content'>{modalTitle}</Dialog.Title>
+                  <EditReviewName
+                     debouncedReviewNameAtom={debouncedReviewNameAtom}
+                     currentReviewNameAtom={currentReviewNameAtom}
+                  />
+                  <ReviewProperties entityTypeAtom={entityTypeAtom} isPublicAtom={isPublicAtom} />
+                  <SearchSpotify
+                     entityIdAtom={entityIdAtom}
+                     entityTypeAtom={entityTypeAtom}
+                     onClear={() => {
+                        setEntityId(undefined)
+                        setReviewName('')
+                     }}
+                  />
+                  <CreateReviewButtons
+                     entityTypeAtom={entityTypeAtom}
+                     entityIdAtom={entityIdAtom}
+                     isPublicAtom={isPublicAtom}
+                     parentReviewIdAtom={parentReviewIdAtom}
+                     debouncedReviewNameAtom={debouncedReviewNameAtom}
+                     createReviewModalOpenAtom={createReviewModalOpenAtom}
+                  />
+               </div>
+            </ThemeModal>
+         </Portal>
 
          <button className={className} onClick={() => setModalOpen(true)}>
             {openModalIcon}

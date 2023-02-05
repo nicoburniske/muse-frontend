@@ -25,8 +25,7 @@ interface GroupedTrackTableProps {
 
 const trackIdsAtom = atom(get => get(tracksAtom).map(t => t.id))
 const uniqueTrackIdsAtom = atom(get => new Set(get(trackIdsAtom)))
-
-export const nowPlayingEnabledAtomLocal = atom(get => {
+const nowPlayingEnabledAtomLocal = atom(get => {
    const trackId = get(nowPlayingTrackAtom)?.trackId
    const allTracks = get(uniqueTrackIdsAtom)
    return trackId !== undefined && allTracks.has(trackId)
