@@ -25,7 +25,6 @@ export function MobileMenu() {
                leaveFrom='opacity-100'
                leaveTo='opacity-0'
             >
-               {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-75" /> */}
                <div className='fixed inset-x-0 top-0 z-20 bg-neutral/60 sm:inset-0' aria-hidden='true' />
             </Transition.Child>
 
@@ -52,10 +51,10 @@ export function MobileMenu() {
                         <div className='absolute top-1 right-0 -mr-14 p-1'>
                            <button
                               type='button'
-                              className='flex h-12 w-12 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-white'
+                              className='btn btn-secondary btn-circle'
                               onClick={() => setMobileMenuOpen(false)}
                            >
-                              <XMarkIcon className='h-6 w-6 text-white' aria-hidden='true' />
+                              <XMarkIcon className='h-6 w-6 text-secondary-content' aria-hidden='true' />
                               <span className='sr-only'>Close sidebar</span>
                            </button>
                         </div>
