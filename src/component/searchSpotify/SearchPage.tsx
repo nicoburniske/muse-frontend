@@ -247,7 +247,7 @@ const ScrollSearchResults = () => {
       count: hasNextPage ? allRows.length + 1 : allRows.length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => 130,
-      overscan: 20,
+      overscan: 0,
    })
 
    // Fetch next page on bottom.
@@ -299,9 +299,7 @@ const ScrollSearchResults = () => {
                         {isLoaderRow ? (
                            hasNextPage ? (
                               <progress className='progress w-full'></progress>
-                           ) : (
-                              'Nothing more to load'
-                           )
+                           ) : null
                         ) : (
                            <MemoResultRow searchRow={searchRow} />
                         )}
