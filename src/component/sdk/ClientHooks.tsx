@@ -146,7 +146,7 @@ export type SearchConfig = {
    options?: SearchOptions
 }
 
-export const useSearchSpotify = <T,>(
+export const useSearchSpotify = (
    searchConfig: SearchConfig,
    options?: UseQueryOptions<SearchResponse, unknown, SearchResponse, string[]>
 ) => {

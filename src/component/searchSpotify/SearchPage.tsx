@@ -1,7 +1,6 @@
 import {
    BackspaceIcon,
    ChartBarIcon,
-   CheckCircleIcon,
    InformationCircleIcon,
    MagnifyingGlassIcon,
    UserIcon,
@@ -34,7 +33,7 @@ import { classNames, nonNullable, uniqueByProperty } from 'util/Utils'
 import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import SelectMany from 'platform/component/SelectMany'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import { Dialog, Portal } from '@headlessui/react'
+import { Portal } from '@headlessui/react'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -85,7 +84,7 @@ const SelectHipsterFilter = () => {
    return (
       <ToggleWithDescription
          label={'Hipster'}
-         description={'10% Least popular '}
+         description={'10% Least Popular'}
          enabled={hipster}
          setEnabled={onChange}
       />
@@ -105,7 +104,7 @@ const SelectNewFilter = () => {
    return (
       <ToggleWithDescription
          label='New'
-         description='Released in last 2 weeks'
+         description='Released In Last 2 Weeks'
          enabled={newOnly}
          setEnabled={onChange}
       />
@@ -517,10 +516,10 @@ const CreateReviewModal = () => {
 
    return (
       <Portal>
-         <ThemeModal open={isModalOpen} className='max-w-md border-0 bg-transparent lg:max-w-5xl'>
+         <ThemeModal open={isModalOpen} className='max-w-md border-0 bg-transparent lg:max-w-2xl'>
             <div className='card bg-base-100 shadow-xl lg:card-side'>
                <figure>
-                  <img src={entityImage} alt='ReviewEntityImage' />
+                  <img src={entityImage} alt='ReviewEntityImage' className='h-96 w-96' />
                </figure>
                <div className='card-body justify-between'>
                   <h2 className='card-title w-full text-center'>

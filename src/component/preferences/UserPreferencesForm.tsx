@@ -60,7 +60,7 @@ export const UserPreferencesForm = () => {
                </button>
             )}
          </div>
-         <button className='btn btn-error btn-square btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
+         <button className='btn btn-square btn-error btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
             <CrossIcon />
          </button>
       </div>

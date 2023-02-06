@@ -154,7 +154,7 @@ const NowPlayingItem = () => {
             </div>
          </button>
          <div className={'flex flex-col justify-around overflow-hidden'}>
-            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>{trackName}</div>
+            <div className='truncate text-left text-xs text-neutral-content md:p-0.5 lg:text-base'>{trackName}</div>
             <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
                {nowPlayingArtist}
             </div>
@@ -282,7 +282,7 @@ const PlayerButtons = () => {
    const successButton = classNames(commonBtnClass, 'btn-success')
    const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
-   const repeatModeColor = repeatMode !== 0 ? successButton : commonBtnClass
+   const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
    const nextRepeatMode = repeatMode !== 0 ? 'off' : 'context'
    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
 
@@ -314,14 +314,14 @@ const PlayerButtons = () => {
             <NextTrackIcon />
          </button>
          <button
-            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            className={classNames(shuffleButtonClass, 'hidden sm:inline-flex ')}
             onClick={toggleShuffle}
             disabled={toggleShuffleDisabled}
          >
             <ShuffleIcon />
          </button>
          <button
-            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            className={classNames(repeatModeClass, 'hidden sm:inline-flex ')}
             onClick={cycleRepeatMode}
             disabled={repeatModeDisabled}
          >

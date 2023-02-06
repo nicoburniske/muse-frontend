@@ -1,4 +1,3 @@
-import { useTrackLikeQuery } from 'component/sdk/ClientHooks'
 import { useLatestPlaybackState } from 'component/sdk/PlaybackSDK'
 import { useSetAtom } from 'jotai'
 import { Suspense, useEffect } from 'react'
