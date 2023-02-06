@@ -124,7 +124,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -139,7 +139,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </div>
          <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-            <button className='btn btn-square btn-ghost btn-lg absolute top-0 right-0 z-10'>
+            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
                <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
             </button>
          </div>
@@ -167,14 +167,22 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                         className='grid h-full w-full grid-cols-3 place-content-between place-items-center py-3 md:grid-cols-5'
                      >
                         <div className='col-span-2 flex items-center place-self-start'>
-                           <img src={image} alt='' className='hidden h-8 w-8 rounded-md md:block' />
+                           {image ? (
+                              <img src={image} alt='' className='hidden h-8 w-8 rounded-lg md:block' />
+                           ) : (
+                              <div className='avatar placeholder'>
+                                 <div className='w-8 rounded-lg bg-neutral-focus text-neutral-content'>
+                                    <span className='text-xl'>{userId.charAt(0) ?? '?'}</span>
+                                 </div>
+                              </div>
+                           )}
                            <p className='ml-2 truncate text-sm font-medium'>{userId}</p>
                         </div>
                         <div className='badge badge-primary col-span-2 hidden md:flex'>{accessLevel}</div>
                         <div className='col-span-1 place-self-end'>
                            <button
                               type='button'
-                              className='btn btn-square btn-error btn-xs'
+                              className='btn btn-error btn-square btn-xs'
                               onClick={() => unShareReview(review.id, userId)}
                            >
                               <XMarkIcon className='h-4 w-4' />

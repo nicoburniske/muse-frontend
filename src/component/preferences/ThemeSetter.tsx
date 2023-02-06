@@ -37,13 +37,13 @@ export const ThemeSetter = () => {
                                  classNames(
                                     active ? 'bg-secondary text-secondary-content' : 'text-base-content',
                                     selected ? 'bg-primary text-primary-content' : 'text-base-content',
-                                    'relative cursor-default select-none py-2 pl-3 pr-9'
+                                    'cursor-default select-none py-2 px-2'
                                  )
                               }
                               value={theme}
                            >
                               {({ selected, active }) => (
-                                 <>
+                                 <div className='grid w-full grid-cols-3'>
                                     <span
                                        className={classNames(
                                           selected ? 'font-semibold' : 'font-normal',
@@ -52,19 +52,27 @@ export const ThemeSetter = () => {
                                     >
                                        {theme}
                                     </span>
+                                    <span data-theme={theme} className='flex w-8 justify-evenly justify-self-center'>
+                                       <span className='w-2 bg-base-100' />
+                                       <span className='w-2 bg-primary' />
+                                       <span className='w-2 bg-secondary' />
+                                       <span className='w-2 bg-accent' />
+                                    </span>
 
                                     {selected ? (
                                        <span
                                           className={classNames(
                                              active ? 'bg-secondary text-secondary-content' : 'text-base-content',
                                              selected ? 'bg-primary text-primary-content' : 'text-base-content',
-                                             'absolute inset-y-0 right-0 flex items-center pr-4'
+                                             'flex items-center justify-self-end pr-4'
                                           )}
                                        >
                                           <CheckIcon className='h-5 w-5' aria-hidden='true' />
                                        </span>
-                                    ) : null}
-                                 </>
+                                    ) : (
+                                       <div />
+                                    )}
+                                 </div>
                               )}
                            </Listbox.Option>
                         ))}

@@ -13,7 +13,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 type ProfileDropdownProps = {
    onModalOpen?: () => void
 }
-export const ProfileDropdownSuspense = ({ onModalOpen = () => {} }: ProfileDropdownProps) => {
+export const ProfileDropdownSuspense = ({ onModalOpen }: ProfileDropdownProps) => {
    return (
       <ErrorBoundary fallback={<ProfilePlaceholder />}>
          <Suspense fallback={<ProfilePlaceholder />}>
@@ -23,7 +23,7 @@ export const ProfileDropdownSuspense = ({ onModalOpen = () => {} }: ProfileDropd
    )
 }
 
-export const ProfileDropdown = ({ onModalOpen }: ProfileDropdownProps) => {
+export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps) => {
    const { openPreferencesModal } = usePreferencesModal()
    const theme = useThemeValue()
    const { mutate: logout } = useLogoutMutation()

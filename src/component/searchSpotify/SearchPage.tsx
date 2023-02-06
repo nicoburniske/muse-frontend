@@ -128,7 +128,7 @@ const SearchInputBar = () => {
                <input
                   name='search-field'
                   id='search-field'
-                  className='input w-full border-2 border-base-content/20 text-base placeholder-base-content/50 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm'
+                  className='input w-full border-2 border-base-content/20 text-base placeholder-base-content/50 caret-primary focus:border-primary focus:outline-none focus:ring-primary sm:text-sm'
                   placeholder='Search'
                   value={search}
                   type='search'
@@ -522,9 +522,13 @@ const CreateReviewModal = () => {
    return (
       <Portal>
          <ThemeModal open={isModalOpen} className='max-w-md border-0 bg-transparent lg:max-w-2xl'>
-            <div className='card bg-base-100 shadow-xl lg:card-side'>
+            <div className='card max-h-full bg-base-100 shadow-xl lg:card-side'>
                <figure>
-                  <img src={entityImage} alt='ReviewEntityImage' className='h-96 w-96' />
+                  <img
+                     src={entityImage}
+                     alt='ReviewEntityImage'
+                     className='h-36 w-36 md:h-64 md:w-64 lg:h-96 lg:w-96'
+                  />
                </figure>
                <div className='card-body justify-between'>
                   <h2 className='card-title w-full text-center'>

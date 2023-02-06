@@ -54,7 +54,7 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='flex h-20 w-full justify-between rounded border border-accent bg-neutral'>
+      <div className='flex h-20 w-full justify-between bg-neutral'>
          <NowPlayingItem />
          <div className='flex grow basis-1/2 flex-col items-end justify-center rounded-lg'>
             <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>

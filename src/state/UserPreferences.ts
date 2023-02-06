@@ -41,7 +41,7 @@ export enum Theme {
 }
 
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', {
-   theme: Theme.Business,
+   theme: Theme.Black,
    shouldTransferPlaybackOnMount: false,
    seekInterval: 10000,
 })
