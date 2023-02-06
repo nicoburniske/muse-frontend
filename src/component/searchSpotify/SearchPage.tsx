@@ -215,15 +215,6 @@ const searchConfigAtom = atom(get => {
    }
 })
 
-type SearchResults = {
-   albums: SimplifiedAlbum[]
-   artists: Artist[]
-   episodes: SimplifiedEpisode[]
-   playlists: SimplifiedPlaylist[]
-   shows: SimplifiedShow[]
-   tracks: Track[]
-}
-
 const ScrollSearchResults = () => {
    const searchConfig = useAtomValue(searchConfigAtom)
    const isDisabled = searchConfig === null
@@ -236,25 +227,20 @@ const ScrollSearchResults = () => {
 
    const response = data?.pages ?? []
 
-   const results = useMemo(
-      () =>
-         ({
-            albums: response.flatMap(r => r.albums?.items ?? []),
-            artists: response.flatMap(r => r.artists?.items ?? []),
-            episodes: response.flatMap(r => r.episodes?.items ?? []),
-            playlists: response.flatMap(r => r.playlists?.items ?? []),
-            shows: response.flatMap(r => r.shows?.items ?? []),
-            tracks: response.flatMap(r => r.tracks?.items ?? []),
-         } as SearchResults),
-      [response]
-   )
    const allRows = useMemo(() => {
-      const validResults = Object.values(results)
+      const validResults = [
+         response.flatMap(r => r.albums?.items ?? []),
+         response.flatMap(r => r.artists?.items ?? []),
+         response.flatMap(r => r.episodes?.items ?? []),
+         response.flatMap(r => r.playlists?.items ?? []),
+         response.flatMap(r => r.shows?.items ?? []),
+         response.flatMap(r => r.tracks?.items ?? []),
+      ]
          .flat()
          .filter(r => nonNullable(r?.href ?? r?.id))
          .filter(r => nonNullable(r.type))
       return uniqueByProperty(validResults, r => r?.href ?? r?.id)
-   }, [results])
+   }, [response])
 
    const parentRef = useRef<HTMLDivElement>(null)
    const rowVirtualizer = useVirtualizer({
@@ -312,7 +298,7 @@ const ScrollSearchResults = () => {
                      >
                         {isLoaderRow ? (
                            hasNextPage ? (
-                              'Loading more...'
+                              <progress className='progress w-full'></progress>
                            ) : (
                               'Nothing more to load'
                            )
