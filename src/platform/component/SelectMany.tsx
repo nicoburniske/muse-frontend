@@ -13,7 +13,7 @@ type SelectManyProps<T> = {
    renderSelected: (t: T[]) => string
 }
 
-const SelectMany = <T,>({
+const SelectMany = <T extends any>({
    label,
    selected,
    allOptions,

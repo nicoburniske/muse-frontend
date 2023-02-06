@@ -257,9 +257,7 @@ const ScrollSearchResults = () => {
    }, [results])
 
    const parentRef = useRef<HTMLDivElement>(null)
-   // const [mountedRef, keepMounted] = useKeepMountedRangeExtractor()
    const rowVirtualizer = useVirtualizer({
-      //   rangeExtractor: keepMounted,
       count: hasNextPage ? allRows.length + 1 : allRows.length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => 130,
