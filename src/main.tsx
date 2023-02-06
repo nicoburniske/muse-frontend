@@ -30,21 +30,7 @@ const urqlClient = createClient({
    ],
 })
 
-// Set the height of the viewport to the height of the device.
-// Needed to support mobile browsers.
-const adjustViewHeight = () => {
-   const vh = window.innerHeight * 0.01
-   document.documentElement.style.setProperty('--vh', `${vh}px`)
-}
-
 const Main = () => {
-   useEffect(() => {
-      // Set the height of the viewport to the height of the device.
-      // Needed to support mobile browsers.
-      window.addEventListener('resize', adjustViewHeight)
-      return () => window.removeEventListener('resize', adjustViewHeight)
-   }, [])
-
    return (
       <BrowserRouter>
          <DndProvider backend={HTML5Backend}>
