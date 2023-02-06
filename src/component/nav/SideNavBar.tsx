@@ -1,10 +1,8 @@
 import { NAVIGATION } from './NavConstants'
 import { classNames } from 'util/Utils'
-import { Suspense } from 'react'
 import LogoImage from '/logo.png'
-import { ProfileDropdown } from './ProfileDropdown'
+import { ProfileDropdownSuspense } from './ProfileDropdown'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ErrorBoundary } from 'react-error-boundary'
 
 export const SideNavBar = () => {
    const nav = useNavigate()
@@ -21,29 +19,13 @@ export const SideNavBar = () => {
                   </div>
                   <div className='flex flex-shrink-0 pb-5'>
                      <div className='w-full flex-shrink-0'>
-                        <ErrorBoundary fallback={<ProfilePlaceholder />}>
-                           <Suspense fallback={<ProfilePlaceholder />}>
-                              <ProfileDropdown />
-                           </Suspense>
-                        </ErrorBoundary>
+                        <ProfileDropdownSuspense />
                      </div>
                   </div>
                </div>
             </div>
          </div>
       </>
-   )
-}
-
-const ProfilePlaceholder = () => {
-   return (
-      <div className='flex w-full justify-center'>
-         <div className='avatar placeholder'>
-            <div className='w-10 rounded-full bg-neutral-focus text-neutral-content'>
-               <span className='text-xl'>?</span>
-            </div>
-         </div>
-      </div>
    )
 }
 

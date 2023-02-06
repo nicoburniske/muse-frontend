@@ -5,6 +5,7 @@ import { classNames } from 'util/Utils'
 import { NAVIGATION } from './NavConstants'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { ProfileDropdownSuspense } from './ProfileDropdown'
 
 export const mobileMenuOpenAtom = atom(false)
 
@@ -62,7 +63,7 @@ export function MobileMenu() {
                      <div className='flex flex-shrink-0 items-center px-4'>
                         <img className='h-8 w-auto' src='logo.png' alt='Your Company' />
                      </div>
-                     <div className='mt-5 h-0 flex-1 overflow-y-auto px-2'>
+                     <div className='mt-5 flex h-0 flex-1 flex-col justify-between overflow-y-auto px-2'>
                         <nav className='flex h-full flex-col'>
                            <div className='space-y-1'>
                               {NAVIGATION.map(item => (
@@ -87,6 +88,9 @@ export function MobileMenu() {
                               ))}
                            </div>
                         </nav>
+                        <div className='self-start px-2'>
+                           <ProfileDropdownSuspense />
+                        </div>
                      </div>
                   </Dialog.Panel>
                </Transition.Child>

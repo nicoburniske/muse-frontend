@@ -88,7 +88,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                      <>
                         <div className='form-control w-full'>
                            <label className='label'>
-                              <span className='label-text font-bold'> Collaborators </span>
+                              <span className='label-text font-bold'> Shared With </span>
                            </label>
                            {/* TODO: do I need this color? */}
                            <ul className='menu h-32 flex-nowrap divide-y divide-base-200 overflow-y-scroll bg-base-200'>

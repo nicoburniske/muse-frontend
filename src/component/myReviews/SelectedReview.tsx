@@ -74,7 +74,7 @@ export const SelectedReview = () => {
          leaveTo='translate-x-full'
       >
          <div className='fixed right-0 z-10 flex h-full flex-col bg-secondary text-secondary-content'>
-            <aside className='hidden h-full w-96 overflow-y-auto md:block'>
+            <aside className='h-full w-52 overflow-y-auto  md:w-96'>
                {review && <SidebarContent review={review} />}
             </aside>
          </div>
@@ -124,7 +124,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -139,11 +139,11 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </div>
          <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
+            <button className='btn btn-square btn-ghost btn-lg absolute top-0 right-0 z-10'>
                <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
             </button>
          </div>
-         <div className='space-y-6 px-8'>
+         <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
                <h3 className='font-medium'>Information</h3>
                <dl className='mt-2 divide-y divide-secondary-content/50'>
@@ -162,20 +162,25 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   className='mt-2 divide-y  divide-secondary-content/50 border-t border-b border-secondary-content/50'
                >
                   {collaborators.map(({ userId, accessLevel, image }) => (
-                     <li key={userId} className='flex items-center justify-between py-3'>
-                        <div className='flex  items-center'>
-                           <img src={image} alt='' className='h-8 w-8 rounded-full' />
-                           <p className='ml-2 text-sm font-medium'>{userId}</p>
+                     <li
+                        key={userId}
+                        className='grid h-full w-full grid-cols-3 place-content-between place-items-center py-3 md:grid-cols-5'
+                     >
+                        <div className='col-span-2 flex items-center place-self-start'>
+                           <img src={image} alt='' className='hidden h-8 w-8 rounded-md md:block' />
+                           <p className='ml-2 truncate text-sm font-medium'>{userId}</p>
                         </div>
-                        <span className='badge badge-primary'>{accessLevel}</span>
-                        <button
-                           type='button'
-                           className='btn btn-error btn-sm'
-                           onClick={() => unShareReview(review.id, userId)}
-                        >
-                           <XMarkIcon className='h-4 w-4' />
-                           <span className='sr-only'> {userId}</span>
-                        </button>
+                        <div className='badge badge-primary col-span-2 hidden md:flex'>{accessLevel}</div>
+                        <div className='col-span-1 place-self-end'>
+                           <button
+                              type='button'
+                              className='btn btn-square btn-error btn-xs'
+                              onClick={() => unShareReview(review.id, userId)}
+                           >
+                              <XMarkIcon className='h-4 w-4' />
+                              <span className='sr-only'> {userId}</span>
+                           </button>
+                        </div>
                      </li>
                   ))}
                   <li className='m-auto flex items-center justify-center py-2'>

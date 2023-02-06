@@ -4,10 +4,21 @@ import Portal from 'platform/component/Portal'
 import { useCurrentUser } from 'component/sdk/ClientHooks'
 import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
 import useLogoutMutation from 'state/useLogoutMutation'
-import { Fragment, useCallback } from 'react'
+import { Fragment, Suspense, useCallback } from 'react'
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { useThemeValue } from 'state/UserPreferences'
 import { classNames } from 'util/Utils'
+import { ErrorBoundary } from 'react-error-boundary'
+
+export const ProfileDropdownSuspense = () => {
+   return (
+      <ErrorBoundary fallback={<ProfilePlaceholder />}>
+         <Suspense fallback={<ProfilePlaceholder />}>
+            <ProfileDropdown />
+         </Suspense>
+      </ErrorBoundary>
+   )
+}
 
 export const ProfileDropdown = () => {
    const { openPreferencesModal } = usePreferencesModal()
@@ -69,8 +80,9 @@ export const ProfileDropdown = () => {
                      position: strategy,
                      top: y ?? 0,
                      left: x ?? 0,
+                     zIndex: 50,
                   }}
-                  className=' divide-y divide-base-content/20 rounded-md bg-base-100 text-base-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'
+                  className='divide-y divide-base-content/20 rounded-md bg-base-100 text-base-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'
                >
                   <div className='py-1'>
                      <Menu.Item>
@@ -110,5 +122,17 @@ export const ProfileDropdown = () => {
             </Transition>
          </Portal>
       </Menu>
+   )
+}
+
+export const ProfilePlaceholder = () => {
+   return (
+      <div className='flex w-full justify-center'>
+         <div className='avatar placeholder'>
+            <div className='w-10 rounded-full bg-neutral-focus text-neutral-content'>
+               <span className='text-xl'>?</span>
+            </div>
+         </div>
+      </div>
    )
 }
