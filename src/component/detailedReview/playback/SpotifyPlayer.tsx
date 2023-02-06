@@ -134,7 +134,7 @@ const NowPlayingItem = () => {
       <div
          ref={drag}
          className={classNames(
-            'flex flex-none basis-1/4 select-none flex-row items-center justify-start ',
+            'flex max-w-sm basis-1/4 select-none flex-row items-center justify-start lg:max-w-lg ',
             isDragging ? 'opacity-20' : 'bg-neutral'
          )}
       >

@@ -8,7 +8,7 @@ import {
 import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSpotifyClient } from 'component/sdk/ClientAtoms'
-import { SearchConfig, useAvailableGenreSeeds } from 'component/sdk/ClientHooks'
+import { SearchConfig, useAvailableGenreSeeds, usePlayMutation } from 'component/sdk/ClientHooks'
 import {
    CreateReviewMutationVariables,
    EntityType,
@@ -18,7 +18,7 @@ import {
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import atomWithDebounce from 'platform/atom/atomWithDebounce'
 import { HeroLoading } from 'platform/component/HeroLoading'
-import { useEffect, useMemo, useRef, memo, ReactNode, useState } from 'react'
+import { useEffect, useMemo, useRef, memo, ReactNode, useState, RefObject } from 'react'
 import {
    Artist,
    SearchType,
@@ -37,12 +37,13 @@ import { Portal } from '@headlessui/react'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import useDoubleClick from 'platform/hook/useDoubleClick'
 
 const SearchPage = () => {
    return (
       <>
          <div className='flex h-full w-full'>
-            <div className='flex w-56 flex-col space-y-5 bg-base-200 p-4'>
+            <div className='flex w-40 flex-col space-y-5 bg-base-200 p-4 sm:w-56'>
                <SelectEntityTypes />
                <SelectGenreSeeds />
                <SelectHipsterFilter />
@@ -116,12 +117,14 @@ const SearchInputBar = () => {
    const setSearch = useSetAtom(debouncedQueryString)
    return (
       <div className='flex py-1'>
-         <form className='flex w-full md:ml-0'>
+         <div className='flex w-full md:ml-0'>
             <label htmlFor='search-field' className='sr-only'>
                Search reviews
             </label>
-            <div className='flex w-full flex-row items-center justify-between space-x-5 text-base-content'>
-               <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
+            <div className='flex w-full flex-row items-center justify-between pr-4 text-base-content'>
+               <div className='p-4'>
+                  <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
+               </div>
                <input
                   name='search-field'
                   id='search-field'
@@ -133,7 +136,7 @@ const SearchInputBar = () => {
                   onChange={e => setSearch(e.target.value as string)}
                />
             </div>
-         </form>
+         </div>
       </div>
    )
 }
@@ -222,7 +225,7 @@ const ScrollSearchResults = () => {
    const { isLoading, data, error, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteSearch(
       searchConfig!,
       20,
-      { enabled: !isDisabled, retry: false }
+      { enabled: !isDisabled, retry: false, staleTime: 1 * 60 * 1000 }
    )
 
    const response = data?.pages ?? []
@@ -324,8 +327,28 @@ const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
       entityType: capitalizeFirst(type) as EntityType,
    })
 
+   const { playAlbumIndexOffset, playTracks, playArtist, playPlaylistIndexOffset } = usePlayMutation()
+
+   const play = () => {
+      if (type === 'track') {
+         playTracks([searchRow.id])
+      } else if (type === 'artist') {
+         playArtist(searchRow.id)
+      } else if (type === 'playlist') {
+         playPlaylistIndexOffset(searchRow.id, 0)
+      } else if (type === 'album') {
+         playAlbumIndexOffset(searchRow.id, 0)
+      }
+   }
+
+   const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
+   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: play })
+
    return (
-      <div className='block rounded-md text-base-content hover:bg-base-200 hover:delay-100'>
+      <div
+         className='block rounded-md text-base-content hover:bg-base-200 hover:delay-[10ms]'
+         ref={playOnDoubleClickRef}
+      >
          <div className='flex items-center px-4 py-3 sm:px-6'>
             <div className='flex min-w-0 flex-1 items-center'>
                <div className='flex-shrink-0'>

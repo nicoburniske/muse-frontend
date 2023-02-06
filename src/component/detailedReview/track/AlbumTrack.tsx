@@ -25,12 +25,12 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
    const styles = useTrackColor(track.id)
    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(track.id)(isLiked), [track.id])
 
-   const { albumOffset, isLoading } = usePlayMutation()
+   const { playAlbumOffset, isLoading } = usePlayMutation()
 
    const onPlayTrack = () => {
       if (!isLoading) {
          // TODO: fix this?
-         albumOffset(track?.album?.id ?? '', track.id)
+         playAlbumOffset(track?.album?.id ?? '', track.id)
       }
    }
 

@@ -50,11 +50,11 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    // Get track styles.
    const styles = useTrackColor(track.id)
 
-   const { playlistOffset, isLoading } = usePlayMutation()
+   const { playPlaylistOffset, isLoading } = usePlayMutation()
 
    const onPlayTrack = () => {
       if (!isLoading) {
-         playlistOffset(playlistId, track.id)
+         playPlaylistOffset(playlistId, track.id)
       }
    }
 

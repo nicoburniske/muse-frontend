@@ -4,9 +4,9 @@ import { PlayOptions, SearchOptions } from 'spotify-web-api-ts/types/types/Spoti
 import { useSpotifyClient } from './ClientAtoms'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
 
-export type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
+type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
 
-export const toUri = (entityType: EntityType, id: string) => {
+const toUri = (entityType: EntityType, id: string) => {
    return `spotify:${entityType.toLowerCase()}:${id}`
 }
 
@@ -21,17 +21,34 @@ export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, P
       mutation.mutate(input)
    }
 
-   const playlistOffset = (playlistId: string, trackId: string) => {
+   const playArtist = (artistId: string) => {
+      const artistUri = toUri('Artist', artistId)
+      mutation.mutate({ context_uri: artistUri })
+   }
+
+   const playPlaylistOffset = (playlistId: string, trackId: string) => {
       const trackUri = toUri('Track', trackId)
       const context_uri = toUri('Playlist', playlistId)
       const input = { context_uri, offset: { uri: trackUri } }
       mutation.mutate(input)
    }
 
-   const albumOffset = (albumId: string, trackId: string) => {
+   const playPlaylistIndexOffset = (playlistId: string, position: number) => {
+      const context_uri = toUri('Playlist', playlistId)
+      const input = { context_uri, offset: { position } }
+      mutation.mutate(input)
+   }
+
+   const playAlbumOffset = (albumId: string, trackId: string) => {
       const trackUri = toUri('Track', trackId)
       const context_uri = toUri('Album', albumId)
       const input = { context_uri, offset: { uri: trackUri } }
+      mutation.mutate(input)
+   }
+
+   const playAlbumIndexOffset = (playlistId: string, position: number) => {
+      const context_uri = toUri('Album', playlistId)
+      const input = { context_uri, offset: { position } }
       mutation.mutate(input)
    }
 
@@ -43,8 +60,11 @@ export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, P
    return {
       ...mutation,
       playTrackOffset,
-      playlistOffset,
-      albumOffset,
+      playArtist,
+      playPlaylistOffset,
+      playPlaylistIndexOffset,
+      playAlbumOffset,
+      playAlbumIndexOffset,
       playTracks,
    }
 }
