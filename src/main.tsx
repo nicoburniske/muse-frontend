@@ -10,6 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { useEffect } from 'react'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -31,46 +32,57 @@ const urqlClient = createClient({
 
 // Set the height of the viewport to the height of the device.
 // Needed to support mobile browsers.
-window.addEventListener('resize', () => {
-   // We execute the same script as before
+const adjustViewHeight = () => {
    const vh = window.innerHeight * 0.01
    document.documentElement.style.setProperty('--vh', `${vh}px`)
-})
+}
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-   <BrowserRouter>
-      <DndProvider backend={HTML5Backend}>
-         <Provider value={urqlClient}>
-            <MuseQueryClientProvider useCache={true}>
-               <>
-                  <SpotifyPlaybackSdk
-                     errorHandler={{
-                        initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
-                        authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
-                        accountError: e => toast.error(`SDK account error: ${e.message}`),
-                        playbackError: e => toast.error(`Playback Error`, { duration: 1000 }),
-                     }}
-                  />
-                  <ReactQueryDevtools initialIsOpen={false} />
-                  {/* <DebugAtomsReduxDevTools /> */}
-                  <MuseRoutes />
-                  <Toaster
-                     position='bottom-right'
-                     reverseOrder={false}
-                     gutter={8}
-                     toastOptions={{
-                        duration: 3000,
-                        success: {
-                           className: 'bg-success text-success-content',
-                        },
-                        error: {
-                           className: 'bg-error text-error-content',
-                        },
-                     }}
-                  />
-               </>
-            </MuseQueryClientProvider>
-         </Provider>
-      </DndProvider>
-   </BrowserRouter>
-)
+const Main = () => {
+   useEffect(() => {
+      // Set the height of the viewport to the height of the device.
+      // Needed to support mobile browsers.
+      window.addEventListener('resize', adjustViewHeight)
+      return () => window.removeEventListener('resize', adjustViewHeight)
+   }, [])
+
+   return (
+      <BrowserRouter>
+         <DndProvider backend={HTML5Backend}>
+            <Provider value={urqlClient}>
+               <MuseQueryClientProvider useCache={true}>
+                  <>
+                     <SpotifyPlaybackSdk
+                        errorHandler={{
+                           initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
+                           authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
+                           accountError: e => toast.error(`SDK account error: ${e.message}`),
+                           playbackError: e => toast.error(`Playback Error`, { duration: 1000 }),
+                        }}
+                     />
+                     <ReactQueryDevtools initialIsOpen={false} />
+                     {/* <DebugAtomsReduxDevTools /> */}
+                     <MuseRoutes />
+                     <Toaster
+                        position='bottom-right'
+                        reverseOrder={false}
+                        gutter={8}
+                        toastOptions={{
+                           duration: 3000,
+                           position: 'top-right',
+                           success: {
+                              className: 'bg-success text-success-content',
+                           },
+                           error: {
+                              className: 'bg-error text-error-content',
+                           },
+                        }}
+                     />
+                  </>
+               </MuseQueryClientProvider>
+            </Provider>
+         </DndProvider>
+      </BrowserRouter>
+   )
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(<Main />)
