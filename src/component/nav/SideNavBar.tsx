@@ -59,8 +59,10 @@ const NavBarLinks = () => {
                key={item.name}
                onClick={() => nav(item.href)}
                className={classNames(
-                  'flex flex-col items-center bg-secondary p-3 text-secondary-content transition-all duration-100 hover:bg-primary-focus hover:text-primary-content',
-                  path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
+                  'flex flex-col items-center p-3 transition-all duration-100 hover:bg-primary-focus hover:text-primary-content',
+                  path.includes(item.href)
+                     ? 'bg-primary-focus text-primary-content'
+                     : 'bg-secondary text-secondary-content',
                   'rounded-3xl hover:w-full hover:rounded-xl'
                )}
             >

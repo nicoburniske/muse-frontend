@@ -124,7 +124,7 @@ export const ReviewGroupHeader = ({
                   {isDeleting ? (
                      <div className='btn-group justify-center'>
                         <button
-                           className='btn tooltip tooltip-left btn-error btn-sm tooltip-error'
+                           className='btn tooltip tooltip-left btn-error tooltip-error btn-sm'
                            data-tip='remove review link'
                            onClick={e => handleDeleteReviewLink(e)}
                         >

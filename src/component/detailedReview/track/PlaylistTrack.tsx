@@ -1,5 +1,4 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { PrimitiveAtom } from 'jotai'
 import { RefObject, useCallback, useEffect, useRef } from 'react'
 import UserAvatar, { TooltipPos } from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'

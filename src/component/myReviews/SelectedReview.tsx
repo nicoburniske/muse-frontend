@@ -124,7 +124,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -139,7 +139,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </div>
          <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-            <button className='btn btn-square btn-ghost btn-lg absolute top-0 right-0 z-10'>
+            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
                <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
             </button>
          </div>
@@ -203,7 +203,7 @@ const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
    const { closeSelectedReview } = useSelectReview()
 
-   const { mutate } = useDeleteReviewMutation({
+   const { mutate, isLoading } = useDeleteReviewMutation({
       onError: () => toast.error('Failed to delete review.'),
       onSuccess: () => {
          toast.success('Successfully deleted review.')
@@ -230,11 +230,21 @@ const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
                         <p>Once you delete your review, you won't be able to recover it.</p>
                      </div>
                      <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                        <button type='button' onClick={() => setIsModalOpen(false)} className='btn btn-primary btn-md'>
+                        <button
+                           type='button'
+                           disabled={isLoading}
+                           onClick={() => setIsModalOpen(false)}
+                           className={classNames('btn btn-primary btn-md', isLoading && 'btn-loading')}
+                        >
                            Cancel
                         </button>
 
-                        <button type='button' onClick={deleteReview} className='btn btn-error btn-md'>
+                        <button
+                           type='button'
+                           disabled={isLoading}
+                           onClick={deleteReview}
+                           className={classNames('btn btn-error btn-md', isLoading && 'btn-loading')}
+                        >
                            Delete
                         </button>
                      </div>

@@ -1,7 +1,8 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
-import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
-import { PlayOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
+import { PrivateUser, SearchType } from 'spotify-web-api-ts/types/types/SpotifyObjects'
+import { PlayOptions, SearchOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 import { useSpotifyClient } from './ClientAtoms'
+import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
 
 export type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
 
@@ -137,4 +138,24 @@ export const useAddTrackToQueue = (options?: UseMutationOptions<unknown, unknown
       (trackId: string) => client.player.addToQueue(toUri('Track', trackId)),
       options
    )
+}
+
+export type SearchConfig = {
+   query: string
+   type: SearchType[]
+   options?: SearchOptions
+}
+
+export const useSearchSpotify = (
+   searchConfig: SearchConfig,
+   options?: UseQueryOptions<SearchResponse, unknown, SearchResponse, string[]>
+) => {
+   const { query, type, options: searchOptions } = searchConfig
+   const client = useSpotifyClient()
+   return useQuery(['Search', query, ...type], () => client.search.search(query, type, searchOptions), options)
+}
+
+export const useAvailableGenreSeeds = (options?: UseQueryOptions<unknown, unknown, string[], string[]>) => {
+   const client = useSpotifyClient()
+   return useQuery(['AvailableGenreSeeds'], () => client.browse.getAvailableGenreSeeds(), options)
 }
