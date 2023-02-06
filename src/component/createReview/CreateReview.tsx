@@ -34,7 +34,7 @@ export default function CreateReview({ title, icon, className, parentReviewIdAto
    return (
       <>
          <Portal>
-            <ThemeModal open={isModalOpen} className='max-h-[80%] max-w-2xl grow'>
+            <ThemeModal open={isModalOpen} className='max-w-2xl grow'>
                <div className='flex w-full flex-col items-center justify-between space-y-4 p-3'>
                   <Dialog.Title className='text-lg font-bold text-base-content'>{modalTitle}</Dialog.Title>
                   <EditReviewName
