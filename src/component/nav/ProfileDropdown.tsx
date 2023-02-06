@@ -10,17 +10,20 @@ import { useThemeValue } from 'state/UserPreferences'
 import { classNames } from 'util/Utils'
 import { ErrorBoundary } from 'react-error-boundary'
 
-export const ProfileDropdownSuspense = () => {
+type ProfileDropdownProps = {
+   onModalOpen?: () => void
+}
+export const ProfileDropdownSuspense = ({ onModalOpen = () => {} }: ProfileDropdownProps) => {
    return (
       <ErrorBoundary fallback={<ProfilePlaceholder />}>
          <Suspense fallback={<ProfilePlaceholder />}>
-            <ProfileDropdown />
+            <ProfileDropdown onModalOpen={onModalOpen} />
          </Suspense>
       </ErrorBoundary>
    )
 }
 
-export const ProfileDropdown = () => {
+export const ProfileDropdown = ({ onModalOpen }: ProfileDropdownProps) => {
    const { openPreferencesModal } = usePreferencesModal()
    const theme = useThemeValue()
    const { mutate: logout } = useLogoutMutation()
@@ -50,6 +53,11 @@ export const ProfileDropdown = () => {
          flip(),
       ],
    })
+
+   const openPreferences = () => {
+      onModalOpen()
+      openPreferencesModal()
+   }
 
    return (
       <Menu as='div'>
@@ -103,7 +111,7 @@ export const ProfileDropdown = () => {
                      <Menu.Item>
                         {({ active }) => (
                            <button
-                              onClick={() => openPreferencesModal()}
+                              onClick={openPreferences}
                               className={classNames(
                                  active ? 'bg-base-300' : '',
                                  'block w-full px-4 py-2 text-left text-sm'

@@ -6,17 +6,19 @@ import { NAVIGATION } from './NavConstants'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
+import { useThemeValue } from 'state/UserPreferences'
 
 export const mobileMenuOpenAtom = atom(false)
 
 export function MobileMenu() {
    const [mobileMenuOpen, setMobileMenuOpen] = useAtom(mobileMenuOpenAtom)
+   const theme = useThemeValue()
    const nav = useNavigate()
    const location = useLocation()
    const path = location.pathname
    return (
       <Transition.Root show={mobileMenuOpen} as={Fragment}>
-         <Dialog as='div' className='relative z-40 md:hidden' onClose={setMobileMenuOpen}>
+         <Dialog as='div' className='relative z-40 md:hidden' onClose={setMobileMenuOpen} data-theme={theme}>
             <Transition.Child
                as={Fragment}
                enter='transition-opacity ease-linear duration-300'
@@ -61,7 +63,7 @@ export function MobileMenu() {
                         </div>
                      </Transition.Child>
                      <div className='flex flex-shrink-0 items-center px-4'>
-                        <img className='h-8 w-auto' src='logo.png' alt='Your Company' />
+                        <img className='h-8 w-auto' src='/logo.png' alt='Your Company' />
                      </div>
                      <div className='mt-5 flex h-0 flex-1 flex-col justify-between overflow-y-auto px-2'>
                         <nav className='flex h-full flex-col'>
@@ -89,7 +91,7 @@ export function MobileMenu() {
                            </div>
                         </nav>
                         <div className='self-start px-2'>
-                           <ProfileDropdownSuspense />
+                           <ProfileDropdownSuspense onModalOpen={() => setMobileMenuOpen(false)} />
                         </div>
                      </div>
                   </Dialog.Panel>
