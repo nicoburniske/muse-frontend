@@ -111,10 +111,10 @@ export default function ReviewsPage() {
                      <h2 id='gallery-heading' className='sr-only'>
                         Recently viewed
                      </h2>
-                     <MuseTransition option={'BottomFlyIn'}>
+                     <MuseTransition option={'Simple'} duration='duration-500'>
                         <ul
                            role='list'
-                           className='grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-8'
+                           className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-8'
                         >
                            {reviews.map(review => (
                               <BrowseCard

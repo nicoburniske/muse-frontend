@@ -1,23 +1,38 @@
 import { Transition } from '@headlessui/react'
 import { JSXElementConstructor } from 'react'
+import { classNames } from 'util/Utils'
 
 type MuseTransitionProps = {
    children: React.ReactNode
    option: TransitionOption
    className?: string
+   duration?: (typeof Durations)[number]
    as?: ReactTag
 }
 type ReactTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>
 
-export const MuseTransition = ({ children, option, as, className }: MuseTransitionProps) => {
+export const MuseTransition = ({ children, option, as, className, duration }: MuseTransitionProps) => {
+   const selected = MuseTransitions[option]
+   const withDuration = { ...selected, enter: classNames(selected.enter, duration) }
    return (
-      <Transition appear={true} show={true} className={className} as={as} {...MuseTransitions[option]}>
+      <Transition appear={true} show={true} className={className} as={as} {...withDuration}>
          {children}
       </Transition>
    )
 }
 
 type TransitionOption = keyof typeof MuseTransitions
+
+const Durations = [
+   'duration-100',
+   'duration-150',
+   'duration-200',
+   'duration-300',
+   'duration-500',
+   'duration-700',
+   'duration-1000',
+] as const
+
 const MuseTransitions = {
    Grow: {
       enter: 'transform transition-all',
@@ -44,7 +59,7 @@ const MuseTransitions = {
       leaveTo: 'opacity-0',
    },
    Simple: {
-      enter: 'transition-opacity duration-75',
+      enter: 'transition-opacity duration-150',
       enterFrom: 'opacity-0',
       enterTo: 'opacity-100',
       leave: 'transition-opacity duration-150',
