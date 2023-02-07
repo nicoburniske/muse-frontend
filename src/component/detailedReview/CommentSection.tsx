@@ -4,14 +4,13 @@ import {
    ReviewUpdatesSubscription,
    useDetailedReviewCommentsQuery,
 } from 'graphql/generated/schema'
-import { useSetAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
 import DetailedComment from './comment/DetailedComment'
 import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from './table/Helpers'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
+import { DeleteCommentConfirmation } from './comment/DeleteCommentConfirmation'
 
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
    const reviewIds = reviews.map(r => r.reviewId)
@@ -52,30 +51,21 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
 
-   const setSelectedTrack = useSetAtom(selectedTrackAtom)
-
-   // We want to find the track that the comment is applied to and scroll to it.
-   const onCommentClick = (commentId: number, reviewId: string) => {
-      const trackId = comments.find(c => c.id == commentId)?.entities?.at(0)?.id
-      if (trackId) {
-         setSelectedTrack(undefined)
-         setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
-      }
-   }
-
    return (
-      <div className='flex h-full w-full flex-col space-y-0.5 overflow-auto lg:space-y-1'>
-         {rootComments.map((c: DetailedCommentFragment) => (
-            <div key={c.id}>
-               <DetailedComment
-                  review={reviewOverviews.get(c.reviewId)?.at(0)!}
-                  comment={c}
-                  childComments={childComments.get(c.id) ?? []}
-                  onClick={() => onCommentClick(c.id, c.reviewId)}
-               />
-            </div>
-         ))}
-      </div>
+      <>
+         <div className='flex h-full w-full flex-col space-y-0.5 overflow-auto lg:space-y-1'>
+            {rootComments.map((c: DetailedCommentFragment) => (
+               <div key={c.id}>
+                  <DetailedComment
+                     review={reviewOverviews.get(c.reviewId)?.at(0)!}
+                     comment={c}
+                     childComments={childComments.get(c.id) ?? []}
+                  />
+               </div>
+            ))}
+         </div>
+         <DeleteCommentConfirmation />
+      </>
    )
 }
 

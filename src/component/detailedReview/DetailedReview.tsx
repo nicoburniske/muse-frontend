@@ -98,7 +98,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
       <div className='relative flex grow flex-col'>
          <ReviewHeader review={review} />
          {/* For some reason I need a min-height? When doing flex-col in page. */}
-         <div className='mx-1 min-h-0 grow bg-base-300'>
+         <div className='mx-1 min-h-0 grow bg-base-100'>
             <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
          </div>
          <CommentFormModalWrapper />
@@ -145,12 +145,6 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      src={reviewEntityImage}
                   />
                   <div>
-                     <div className='flex items-center'>
-                        <img
-                           className='h-10 w-10 object-scale-down object-center shadow-2xl sm:hidden'
-                           src={reviewEntityImage}
-                        />
-                     </div>
                      <dl className='ml-1 flex flex-col items-start justify-center space-y-1'>
                         <h1 className='text-2xl font-bold leading-7 sm:truncate sm:leading-9'>{title}</h1>
                         <dt className='sr-only'>Entity Details</dt>

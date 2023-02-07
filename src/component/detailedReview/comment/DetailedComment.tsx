@@ -1,243 +1,229 @@
-import {
-   DetailedCommentFragment,
-   EntityType,
-   useCreateCommentMutation,
-   useDeleteCommentMutation,
-   useDetailedReviewCommentsQuery,
-   useUpdateCommentMutation,
-} from 'graphql/generated/schema'
-import { useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
-import { CommentFormModal } from '../commentForm/CommentFormModal'
-import UserAvatar, { TooltipPos } from 'component/UserAvatar'
-import {
-   ArrowDownIcon,
-   ArrowUpIcon,
-   EditIcon,
-   HazardIcon,
-   PlayIcon,
-   ReplyIcon,
-   SearchIcon,
-   TrashIcon,
-} from 'component/Icons'
-import { useQueryClient } from '@tanstack/react-query'
+import { DetailedCommentFragment } from 'graphql/generated/schema'
+import { Fragment, useState } from 'react'
 import CommentMarkdown from './CommentMarkdown'
-import { usePlayMutation } from 'component/sdk/ClientHooks'
-import { nonNullable, padTime } from 'util/Utils'
+import { findFirstImage, classNames } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 import { useCurrentUserId } from 'state/CurrentUser'
+import { Menu, Transition } from '@headlessui/react'
+import {
+   ChatBubbleLeftEllipsisIcon,
+   ChatBubbleOvalLeftEllipsisIcon,
+   EllipsisVerticalIcon,
+   MagnifyingGlassCircleIcon,
+   PencilIcon,
+   TrashIcon,
+} from '@heroicons/react/20/solid'
+import { useSetAtom } from 'jotai'
+import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import { useOpenNewComment } from '../commentForm/useOpenNewComment'
+import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
+import { useOpenUpdateComment } from '../commentForm/useOpenUpdateComment'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
    comment: DetailedCommentFragment
    childComments: DetailedCommentFragment[]
-   onClick: () => void
 }
 
-// TODO: CHANGE STYLING BASED ON NOW PLAYING!
-export default function DetailedComment({
-   review,
-   comment: detailedComment,
-   childComments,
-   onClick,
-}: DetailedCommentProps) {
+export default function DetailedComment({ review, comment: detailedComment, childComments }: DetailedCommentProps) {
    const reviewId = review.reviewId
-   const queryClient = useQueryClient()
-   const currentUserId = useCurrentUserId()
-   const isEditable = useMemo(() => detailedComment.commenter?.id === currentUserId, [detailedComment, currentUserId])
-
-   const [isEditing, setIsEditing] = useState(false)
-   const [isReplying, setIsReplying] = useState(false)
-   const [isExpanded, setIsExpanded] = useState(false)
-   const [isDeleting, setIsDeleting] = useState(false)
-
-   const { mutateAsync: deleteCommentMutation, isLoading: loadingDelete } = useDeleteCommentMutation()
-   const deleteComment = async () => deleteCommentMutation({ input: { reviewId, commentId: detailedComment.id } })
-   const { mutateAsync: updateComment, isLoading: loadingUpdate } = useUpdateCommentMutation()
-   const { mutateAsync: replyComment, isLoading: loadingReply } = useCreateCommentMutation()
-
    const isChild = detailedComment.parentCommentId != null
-   const isDeleted = !nonNullable(detailedComment?.comment)
-   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1)
-   const comment = detailedComment?.comment ?? '**deleted**'
-   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? detailedComment.commenter?.id
+
+   const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1) ?? ''
+   const comment = detailedComment?.comment ?? '** deleted **'
+   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? ''
+   const commenterId = detailedComment.commenter?.id ?? ''
    const createdAt = (() => {
       const date = new Date(detailedComment?.updatedAt)
-      return `${date.toLocaleDateString()}  ${padTime(date.getHours())}:${padTime(date.getMinutes())}`
+      return date.toLocaleDateString()
    })()
 
-   const reloadComments = () =>
-      queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+   const image = findFirstImage(detailedComment.entities ?? [])
+   const name = detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name'
 
-   const onDelete = async () => {
-      await deleteComment()
-      reloadComments()
+   // We want to find the track that the comment is applied to and scroll to it.
+   const setSelectedTrack = useSetAtom(selectedTrackAtom)
+   const selectTrack = () => {
+      const trackId = detailedComment.entities?.at(0)?.id
+      if (trackId) {
+         setSelectedTrack(undefined)
+         setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
+      }
    }
-
-   const onUpdate = async (content: string) => {
-      const input = { reviewId, commentId: detailedComment.id, comment: content }
-      await updateComment({ input })
-      resetState()
-      reloadComments()
-   }
-
-   const tracks = (detailedComment.entities ?? []).map(e => e.id)
-   const { playTracks, isLoading } = usePlayMutation({
-      onError: () => toast.error('Failed to play track.'),
+   const replyComment = useOpenNewComment({
+      reviewId,
+      trackId: detailedComment?.entities?.at(0)?.id!,
+      parentCommentId: detailedComment.id,
+      title: 'Reply To Comment',
    })
 
-   const onPlayTrack = () => {
-      if (tracks.length > 0 && !isLoading) {
-         playTracks(tracks)
-      }
-   }
+   const [isExpanded, setIsExpanded] = useState(false)
 
-   const onReply = async (content: string) => {
-      const input = {
-         reviewId,
-         comment: content,
-         parentCommentId: detailedComment.id,
-         entities:
-            detailedComment?.entities?.map(e => ({ entityId: e.id, entityType: EntityType[e.__typename!] })) ?? [],
-      }
-      await replyComment({ input })
-      resetState()
-      reloadComments()
-   }
-
-   const resetState = () => {
-      setIsEditing(false)
-      setIsReplying(false)
-   }
-
-   const expanded = isExpanded && childComments.length > 0 ? 'collapse-open' : 'collapse-close'
-   const childrenBg = isExpanded ? 'bg-primary card p-2' : ''
-   const buttonClass = 'btn btn-ghost btn-xs p-0 lg:btn-s'
    return (
-      <div tabIndex={0} className={`group collapse rounded-box ${expanded} py-1`}>
-         <div className='card card-body collapse-title relative flex w-full flex-col items-center justify-around space-y-px bg-base-200 py-0.5 px-0 text-base-content md:py-1'>
-            {/* Delete confirmation */}
-            {isDeleting ? (
-               <div className='absolute inset-0 z-10 bg-base-300/60'>
-                  <div className='grid h-full w-full place-items-center'>
-                     <div className='flex flex-col items-center'>
-                        <p>are you sure?</p>
-                        <div className='btn-group btn-group-horizontal '>
-                           <button
-                              className={`btn tooltip tooltip-bottom btn-error tooltip-error ${
-                                 loadingDelete ?? 'loading'
-                              }`}
-                              data-tip='delete comment'
-                              onClick={onDelete}
-                           >
-                              <HazardIcon />
-                           </button>
-                           <button
-                              className='btn tooltip tooltip-bottom btn-info tooltip-info'
-                              data-tip='cancel delete'
-                              onClick={() => setIsDeleting(false)}
-                           >
-                              <ReplyIcon />
-                           </button>
+      <>
+         <div className='bg-base-200 px-4 py-6 text-base-content shadow sm:rounded-lg sm:p-6'>
+            <article>
+               <div>
+                  <div className='flex space-x-3'>
+                     <div className='flex-shrink-0'>
+                        <img className='h-10 w-10 rounded-full' src={avatar} alt='' />
+                     </div>
+                     <div className='min-w-0 flex-1'>
+                        <p className='space-x-1 text-sm font-medium text-base-content'>
+                           <a className=''>{commenterName}</a>
+
+                           <a className='hidden text-xs text-base-content/50 md:inline'>
+                              <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
+                           </a>
+                        </p>
+                        <p className='text-sm text-base-content/50'>
+                           <a className='text-xs text-base-content/50 hover:underline'>@{commenterId}</a>
+                        </p>
+                     </div>
+
+                     <div className='avatar ml-1 hidden sm:flex'>
+                        <div className='h-10 w-10 rounded'>
+                           <img src={image} />
                         </div>
                      </div>
+                     <div className='min-w-0 flex-1'>
+                        {/* <p className='text-sm font-medium text-gray-900'>
+                        <a className='hover:underline'>{commenterName}</a>
+                     </p> */}
+                        <p className='select-none truncate p-0.5 text-base'> {name} </p>
+                        {/* <div className='select-none	truncate p-0.5 text-sm font-light'> {'SECONDARY INFO'} </div> */}
+                        {/* <p className='text-sm text-gray-500'>
+                        <a>
+                           <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
+                        </a>
+                     </p> */}
+                     </div>
+                     <div className='flex flex-shrink-0 self-center'>
+                        <CommentMenu reviewId={reviewId} comment={detailedComment} />
+                     </div>
                   </div>
+                  {/* <h2 id={'question-title-' + detailedComment.id} className='mt-4 text-base font-medium text-gray-900'>
+                  {'TRACK NAME??'}
+               </h2> */}
                </div>
-            ) : null}
 
-            <div className='flex w-full flex-row '>
-               <div className='flex flex-col items-center justify-around space-y-2 self-start justify-self-start py-1'>
-                  <UserAvatar
-                     displayName={commenterName as string}
-                     image={avatar as string}
-                     tooltipPos={TooltipPos.Down}
-                  />
-                  <div className='text-wrap text-center text-xs text-base-content md:text-base lg:w-full'>
-                     {' '}
-                     {createdAt}{' '}
+               <article className='prose  p-0.5 text-sm md:text-base lg:p-2'>
+                  <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
+               </article>
+               <div className='mt-6 flex justify-between space-x-8'>
+                  <div className='flex space-x-6'>
+                     <span className='inline-flex items-center text-sm'>
+                        <button
+                           type='button'
+                           className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
+                           onClick={selectTrack}
+                        >
+                           <MagnifyingGlassCircleIcon className='h-5 w-5' aria-hidden='true' />
+                           <span className='font-medium text-base-content/50'>Find</span>
+                           <span className='sr-only'>Find Track</span>
+                        </button>
+                     </span>
+                     <span className='inline-flex items-center text-sm'>
+                        <button
+                           type='button'
+                           className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
+                           onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                           <ChatBubbleLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                           <span className='font-medium text-base-content/50'>{childComments.length}</span>
+                           <span className='sr-only'>replies</span>
+                        </button>
+                     </span>
                   </div>
-               </div>
-               <div className='mx-1 grid w-full place-items-center'>
-                  <article className='prose card card-body min-h-full min-w-full overflow-visible bg-base-100 p-0.5 text-sm text-base-content md:text-base lg:p-2'>
-                     <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
-                  </article>
-               </div>
-            </div>
-            <div className='flex-grow-1 flex w-full flex-row justify-around'>
-               {isDeleted ? null : (
-                  <>
-                     <button className={`${buttonClass} btn-success`} onClick={onClick}>
-                        <SearchIcon />
-                     </button>
-                     <button className={`${buttonClass} btn-success`} onClick={onPlayTrack}>
-                        <PlayIcon />
-                     </button>
-                     {/* For now we don't want to permit infinite nesting */}
-                     <button
-                        className={`${buttonClass} ${loadingReply ?? 'loading'}`}
-                        disabled={isChild || loadingReply}
-                        onClick={() => setIsReplying(true)}
-                     >
-                        <ReplyIcon />
-                     </button>
-                     {isEditable ? (
-                        <>
+                  {!isChild && (
+                     <div className='flex text-sm'>
+                        <span className='inline-flex items-center text-sm'>
                            <button
-                              className={`${buttonClass} btn-error ${loadingDelete ?? 'loading'}`}
-                              disabled={loadingDelete}
-                              onClick={() => setIsDeleting(true)}
+                              type='button'
+                              className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
+                              onClick={replyComment}
                            >
-                              <TrashIcon />
+                              <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                              <span className='font-medium text-base-content/50'>Reply</span>
                            </button>
-                           <button
-                              className={`${buttonClass} btn-primary ${loadingUpdate ?? 'loading'}`}
-                              disabled={loadingUpdate}
-                              onClick={() => setIsEditing(true)}
-                           >
-                              <EditIcon />
-                           </button>
-                        </>
-                     ) : null}
-                  </>
-               )}
-
-               {childComments.length > 0 ? (
-                  <button className={`${buttonClass} btn-info`} onClick={() => setIsExpanded(!isExpanded)}>
-                     {isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                  </button>
-               ) : null}
-            </div>
+                        </span>
+                     </div>
+                  )}
+               </div>
+            </article>
          </div>
-         {childComments.length > 0 ? (
-            <div tabIndex={0} className={`collapse-content ${childrenBg} space-y-0.5 px-1`}>
+
+         {childComments.length > 0 && isExpanded ? (
+            <div className='ml-2 py-1'>
                {childComments.map(child => (
-                  <DetailedComment
-                     key={child.id}
-                     review={review}
-                     comment={child}
-                     childComments={[]}
-                     onClick={onClick}
-                  />
+                  <DetailedComment key={child.id} review={review} comment={child} childComments={[]} />
                ))}
             </div>
          ) : null}
+      </>
+   )
+}
 
-         {/* TODO: move this to an inline editor! */}
-         <CommentFormModal
-            title={'edit comment'}
-            open={isEditing}
-            onSubmit={onUpdate}
-            onCancel={resetState}
-            trackId={detailedComment?.entities?.at(0)?.id!}
-            initialValue={comment}
-         />
-         <CommentFormModal
-            title={'reply to comment'}
-            open={isReplying}
-            onSubmit={onReply}
-            trackId={detailedComment?.entities?.at(0)?.id!}
-            onCancel={resetState}
-         />
-      </div>
+const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: DetailedCommentFragment }) => {
+   const currentUserId = useCurrentUserId()
+   const isEditable = comment.commenter?.id === currentUserId
+
+   const openDelete = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
+   const openEdit = useOpenUpdateComment({
+      reviewId,
+      commentId: comment.id,
+      comment: comment.comment ?? '',
+      trackId: comment.entities?.at(0)?.id || '',
+   })
+   return (
+      <Menu as='div' className='relative inline-block text-left'>
+         <div>
+            <Menu.Button className='-m-2 flex items-center rounded-full p-2 text-base-content hover:text-base-content/50'>
+               <span className='sr-only'>Open options</span>
+               <EllipsisVerticalIcon className='h-5 w-5' aria-hidden='true' />
+            </Menu.Button>
+         </div>
+
+         <Transition
+            as={Fragment}
+            enter='transition ease-out duration-100'
+            enterFrom='transform opacity-0 scale-95'
+            enterTo='transform opacity-100 scale-100'
+            leave='transition ease-in duration-75'
+            leaveFrom='transform opacity-100 scale-100'
+            leaveTo='transform opacity-0 scale-95'
+         >
+            <Menu.Items className='absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-neutral text-neutral-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'>
+               <div className='py-1'>
+                  {isEditable && (
+                     <>
+                        <Menu.Item>
+                           {({ active }) => (
+                              <div
+                                 className={classNames(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
+                                 onClick={openEdit}
+                              >
+                                 <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                                 <span>Edit comment</span>
+                              </div>
+                           )}
+                        </Menu.Item>
+                        <Menu.Item>
+                           {({ active }) => (
+                              <div
+                                 className={classNames(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
+                                 onClick={openDelete}
+                              >
+                                 <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                                 <span>Delete comment</span>
+                              </div>
+                           )}
+                        </Menu.Item>
+                     </>
+                  )}
+               </div>
+            </Menu.Items>
+         </Transition>
+      </Menu>
    )
 }

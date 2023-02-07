@@ -44,7 +44,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       <div
          ref={playOnDoubleClickRef}
          className={classNames(
-            'group card card-body m-0 flex select-none flex-row items-center justify-between border-2 border-base-300 p-0.5',
+            'group m-0 flex select-none flex-row items-center justify-between border-2 border-transparent  p-0.5',
             styles
          )}
       >

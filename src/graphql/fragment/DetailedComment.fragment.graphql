@@ -9,7 +9,6 @@ fragment DetailedComment on Comment {
    }
    comment
    entities {
-      __typename
-      id
+      ...ReviewEntityOverview
    }
 }

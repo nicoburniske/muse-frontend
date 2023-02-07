@@ -95,11 +95,6 @@ export type Comment = {
    updatedAt: Scalars['Instant']
 }
 
-export type ContextInput = {
-   entityId: Scalars['String']
-   entityType: EntityType
-}
-
 export type CreateCommentInput = {
    comment: Scalars['String']
    commentIndex?: InputMaybe<Scalars['Int']>
@@ -138,11 +133,6 @@ export type DeletedComment = {
    __typename?: 'DeletedComment'
    commentId: Scalars['Int']
    reviewId: Scalars['ID']
-}
-
-export type EntityOffsetInput = {
-   inner: ContextInput
-   outer: ContextInput
 }
 
 export enum EntityType {
@@ -184,19 +174,7 @@ export type Mutations = {
    deleteReview?: Maybe<Scalars['Boolean']>
    deleteReviewLink?: Maybe<Scalars['Boolean']>
    linkReviews?: Maybe<Scalars['Boolean']>
-   pausePlayback?: Maybe<Scalars['Boolean']>
-   play?: Maybe<Scalars['Boolean']>
-   playEntityContext?: Maybe<Scalars['Boolean']>
-   playOffsetContext?: Maybe<Scalars['Boolean']>
-   playTracks?: Maybe<Scalars['Boolean']>
-   removeSavedTracks?: Maybe<Scalars['Boolean']>
-   saveTracks?: Maybe<Scalars['Boolean']>
-   seekPlayback?: Maybe<Scalars['Boolean']>
    shareReview?: Maybe<Scalars['Boolean']>
-   skipToNext?: Maybe<Scalars['Boolean']>
-   skipToPrevious?: Maybe<Scalars['Boolean']>
-   toggleShuffle?: Maybe<Scalars['Boolean']>
-   transferPlayback?: Maybe<Scalars['Boolean']>
    updateComment?: Maybe<Comment>
    updateReview?: Maybe<Review>
    updateReviewEntity?: Maybe<Review>
@@ -227,56 +205,8 @@ export type MutationsLinkReviewsArgs = {
    input: LinkReviewsInput
 }
 
-export type MutationsPausePlaybackArgs = {
-   deviceId?: InputMaybe<Scalars['String']>
-}
-
-export type MutationsPlayArgs = {
-   input: PlayInput
-}
-
-export type MutationsPlayEntityContextArgs = {
-   input: PlayEntityContextInput
-}
-
-export type MutationsPlayOffsetContextArgs = {
-   input: PlayOffsetContextInput
-}
-
-export type MutationsPlayTracksArgs = {
-   input: PlayTracksInput
-}
-
-export type MutationsRemoveSavedTracksArgs = {
-   input: Array<Scalars['String']>
-}
-
-export type MutationsSaveTracksArgs = {
-   input: Array<Scalars['String']>
-}
-
-export type MutationsSeekPlaybackArgs = {
-   input: SeekPlaybackInput
-}
-
 export type MutationsShareReviewArgs = {
    input: ShareReviewInput
-}
-
-export type MutationsSkipToNextArgs = {
-   deviceId?: InputMaybe<Scalars['String']>
-}
-
-export type MutationsSkipToPreviousArgs = {
-   deviceId?: InputMaybe<Scalars['String']>
-}
-
-export type MutationsToggleShuffleArgs = {
-   input: Scalars['Boolean']
-}
-
-export type MutationsTransferPlaybackArgs = {
-   input: TransferPlaybackInput
 }
 
 export type MutationsUpdateCommentArgs = {
@@ -330,28 +260,6 @@ export type PaginationResultTrack = {
    itemsLeft: Scalars['Int']
    limit: Scalars['Int']
    nextOffset?: Maybe<Scalars['Int']>
-}
-
-export type PlayEntityContextInput = {
-   deviceId?: InputMaybe<Scalars['String']>
-   offset: EntityOffsetInput
-   positionMs?: InputMaybe<Scalars['Int']>
-}
-
-export type PlayInput = {
-   deviceId?: InputMaybe<Scalars['String']>
-}
-
-export type PlayOffsetContextInput = {
-   deviceId?: InputMaybe<Scalars['String']>
-   offset: PositionOffsetInput
-   positionMs?: InputMaybe<Scalars['Int']>
-}
-
-export type PlayTracksInput = {
-   deviceId?: InputMaybe<Scalars['String']>
-   positionMs?: InputMaybe<Scalars['Int']>
-   trackIds: Array<Scalars['String']>
 }
 
 export type PlaybackContext = {
@@ -411,11 +319,6 @@ export type PlaylistTrack = {
    track: Track
 }
 
-export type PositionOffsetInput = {
-   context: ContextInput
-   position: Scalars['Int']
-}
-
 export type Queries = {
    __typename?: 'Queries'
    availableDevices?: Maybe<Array<PlaybackDevice>>
@@ -425,7 +328,8 @@ export type Queries = {
    review?: Maybe<Review>
    reviews?: Maybe<Array<Review>>
    search?: Maybe<SearchResult>
-   user?: Maybe<User>
+   user: User
+   userMaybe?: Maybe<User>
 }
 
 export type QueriesGetAlbumArgs = {
@@ -455,6 +359,10 @@ export type QueriesSearchArgs = {
 }
 
 export type QueriesUserArgs = {
+   id?: InputMaybe<Scalars['String']>
+}
+
+export type QueriesUserMaybeArgs = {
    id?: InputMaybe<Scalars['String']>
 }
 
@@ -496,11 +404,6 @@ export type SearchResult = {
 export type SearchUserPlaylistsInput = {
    pagination: PaginationInput
    search?: InputMaybe<Scalars['String']>
-}
-
-export type SeekPlaybackInput = {
-   deviceId?: InputMaybe<Scalars['String']>
-   positionMs: Scalars['Int']
 }
 
 export type ShareReviewInput = {
@@ -560,11 +463,6 @@ export type Track = ReviewEntity & {
    previewUrl?: Maybe<Scalars['String']>
    trackNumber: Scalars['Int']
    uri: Scalars['String']
-}
-
-export type TransferPlaybackInput = {
-   deviceId: Scalars['String']
-   play?: InputMaybe<Scalars['Boolean']>
 }
 
 export type UpdateCommentInput = {
@@ -692,10 +590,38 @@ export type DetailedCommentFragment = {
       } | null
    }
    entities?: Array<
-      | { __typename: 'Album'; id: string }
-      | { __typename: 'Artist'; id: string }
-      | { __typename: 'Playlist'; id: string }
-      | { __typename: 'Track'; id: string }
+      | {
+           __typename: 'Album'
+           images: Array<string>
+           id: string
+           name: string
+           artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+        }
+      | { __typename: 'Artist'; id: string; name: string; artistImages?: Array<string> | null }
+      | {
+           __typename: 'Playlist'
+           images: Array<string>
+           id: string
+           name: string
+           owner: {
+              __typename?: 'User'
+              id: string
+              spotifyProfile?: {
+                 __typename?: 'SpotifyProfile'
+                 id: string
+                 displayName?: string | null
+                 images?: Array<string> | null
+                 numFollowers?: number | null
+              } | null
+           }
+        }
+      | {
+           __typename: 'Track'
+           id: string
+           name: string
+           album?: { __typename?: 'Album'; images: Array<string> } | null
+           artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+        }
    > | null
 }
 
@@ -985,11 +911,7 @@ export type ReviewEntityOverviewFragment =
 export type UserWithSpotifyOverviewFragment = {
    __typename?: 'User'
    id: string
-   spotifyProfile?: {
-      __typename?: 'SpotifyProfile'
-      displayName?: string | null
-      images?: Array<string> | null
-   } | null
+   spotifyProfile?: { __typename?: 'SpotifyProfile'; displayName?: string | null; images?: Array<string> | null } | null
 }
 
 export type CreateCommentMutationVariables = Exact<{
@@ -1068,7 +990,7 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>
 
 export type CurrentUserQuery = {
    __typename?: 'Queries'
-   user?: {
+   user: {
       __typename?: 'User'
       id: string
       spotifyProfile?: {
@@ -1076,7 +998,7 @@ export type CurrentUserQuery = {
          displayName?: string | null
          images?: Array<string> | null
       } | null
-   } | null
+   }
 }
 
 export type DetailedReviewQueryVariables = Exact<{
@@ -1239,10 +1161,38 @@ export type DetailedReviewCommentsQuery = {
             } | null
          }
          entities?: Array<
-            | { __typename: 'Album'; id: string }
-            | { __typename: 'Artist'; id: string }
-            | { __typename: 'Playlist'; id: string }
-            | { __typename: 'Track'; id: string }
+            | {
+                 __typename: 'Album'
+                 images: Array<string>
+                 id: string
+                 name: string
+                 artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+              }
+            | { __typename: 'Artist'; id: string; name: string; artistImages?: Array<string> | null }
+            | {
+                 __typename: 'Playlist'
+                 images: Array<string>
+                 id: string
+                 name: string
+                 owner: {
+                    __typename?: 'User'
+                    id: string
+                    spotifyProfile?: {
+                       __typename?: 'SpotifyProfile'
+                       id: string
+                       displayName?: string | null
+                       images?: Array<string> | null
+                       numFollowers?: number | null
+                    } | null
+                 }
+              }
+            | {
+                 __typename: 'Track'
+                 id: string
+                 name: string
+                 album?: { __typename?: 'Album'; images: Array<string> } | null
+                 artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+              }
          > | null
       }> | null
    } | null
@@ -1340,7 +1290,7 @@ export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never }>
 
 export type ProfileAndReviewsQuery = {
    __typename?: 'Queries'
-   user?: {
+   user: {
       __typename?: 'User'
       id: string
       spotifyProfile?: {
@@ -1476,7 +1426,7 @@ export type ProfileAndReviewsQuery = {
             }
          }> | null
       }> | null
-   } | null
+   }
 }
 
 export type SearchSpotifyQueryVariables = Exact<{
@@ -1576,7 +1526,7 @@ export type UserPlaylistsQueryVariables = Exact<{
 
 export type UserPlaylistsQuery = {
    __typename?: 'Queries'
-   user?: {
+   user: {
       __typename?: 'User'
       id: string
       playlists?: Array<{
@@ -1594,7 +1544,7 @@ export type UserPlaylistsQuery = {
             } | null
          }
       }> | null
-   } | null
+   }
 }
 
 export type ReviewUpdatesSubscriptionVariables = Exact<{
@@ -1605,7 +1555,7 @@ export type ReviewUpdatesSubscription = {
    __typename?: 'Subscriptions'
    reviewUpdates?:
       | {
-           __typename?: 'CreatedComment'
+           __typename: 'CreatedComment'
            comment: {
               __typename?: 'Comment'
               id: number
@@ -1624,16 +1574,44 @@ export type ReviewUpdatesSubscription = {
                  } | null
               }
               entities?: Array<
-                 | { __typename: 'Album'; id: string }
-                 | { __typename: 'Artist'; id: string }
-                 | { __typename: 'Playlist'; id: string }
-                 | { __typename: 'Track'; id: string }
+                 | {
+                      __typename: 'Album'
+                      images: Array<string>
+                      id: string
+                      name: string
+                      artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+                   }
+                 | { __typename: 'Artist'; id: string; name: string; artistImages?: Array<string> | null }
+                 | {
+                      __typename: 'Playlist'
+                      images: Array<string>
+                      id: string
+                      name: string
+                      owner: {
+                         __typename?: 'User'
+                         id: string
+                         spotifyProfile?: {
+                            __typename?: 'SpotifyProfile'
+                            id: string
+                            displayName?: string | null
+                            images?: Array<string> | null
+                            numFollowers?: number | null
+                         } | null
+                      }
+                   }
+                 | {
+                      __typename: 'Track'
+                      id: string
+                      name: string
+                      album?: { __typename?: 'Album'; images: Array<string> } | null
+                      artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+                   }
               > | null
            }
         }
-      | { __typename?: 'DeletedComment'; reviewId: string; commentId: number }
+      | { __typename: 'DeletedComment'; reviewId: string; commentId: number }
       | {
-           __typename?: 'UpdatedComment'
+           __typename: 'UpdatedComment'
            comment: {
               __typename?: 'Comment'
               id: number
@@ -1652,10 +1630,38 @@ export type ReviewUpdatesSubscription = {
                  } | null
               }
               entities?: Array<
-                 | { __typename: 'Album'; id: string }
-                 | { __typename: 'Artist'; id: string }
-                 | { __typename: 'Playlist'; id: string }
-                 | { __typename: 'Track'; id: string }
+                 | {
+                      __typename: 'Album'
+                      images: Array<string>
+                      id: string
+                      name: string
+                      artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+                   }
+                 | { __typename: 'Artist'; id: string; name: string; artistImages?: Array<string> | null }
+                 | {
+                      __typename: 'Playlist'
+                      images: Array<string>
+                      id: string
+                      name: string
+                      owner: {
+                         __typename?: 'User'
+                         id: string
+                         spotifyProfile?: {
+                            __typename?: 'SpotifyProfile'
+                            id: string
+                            displayName?: string | null
+                            images?: Array<string> | null
+                            numFollowers?: number | null
+                         } | null
+                      }
+                   }
+                 | {
+                      __typename: 'Track'
+                      id: string
+                      name: string
+                      album?: { __typename?: 'Album'; images: Array<string> } | null
+                      artists?: Array<{ __typename?: 'Artist'; name: string; id: string }> | null
+                   }
               > | null
            }
         }
@@ -1729,6 +1735,44 @@ export const UserWithSpotifyOverviewFragmentDoc = `
   }
 }
     `
+export const ReviewEntityOverviewFragmentDoc = `
+    fragment ReviewEntityOverview on ReviewEntity {
+  __typename
+  id
+  name
+  ... on Album {
+    images
+    artists {
+      name
+      id
+    }
+  }
+  ... on Artist {
+    artistImages: images
+  }
+  ... on Playlist {
+    owner {
+      id
+      spotifyProfile {
+        id
+        displayName
+        images
+        numFollowers
+      }
+    }
+    images
+  }
+  ... on Track {
+    album {
+      images
+    }
+    artists {
+      name
+      id
+    }
+  }
+}
+    `
 export const DetailedCommentFragmentDoc = `
     fragment DetailedComment on Comment {
   id
@@ -1741,8 +1785,7 @@ export const DetailedCommentFragmentDoc = `
   }
   comment
   entities {
-    __typename
-    id
+    ...ReviewEntityOverview
   }
 }
     `
@@ -1780,44 +1823,6 @@ export const DetailedPlaylistFragmentDoc = `
   ...PlaylistDetails
   tracks {
     ...DetailedPlaylistTrack
-  }
-}
-    `
-export const ReviewEntityOverviewFragmentDoc = `
-    fragment ReviewEntityOverview on ReviewEntity {
-  __typename
-  id
-  name
-  ... on Album {
-    images
-    artists {
-      name
-      id
-    }
-  }
-  ... on Artist {
-    artistImages: images
-  }
-  ... on Playlist {
-    owner {
-      id
-      spotifyProfile {
-        id
-        displayName
-        images
-        numFollowers
-      }
-    }
-    images
-  }
-  ... on Track {
-    album {
-      images
-    }
-    artists {
-      name
-      id
-    }
   }
 }
     `
@@ -2085,7 +2090,6 @@ export const useCurrentUserQuery = <TData = CurrentUserQuery, TError = unknown>(
 
 useCurrentUserQuery.getKey = (variables?: CurrentUserQueryVariables) =>
    variables === undefined ? ['CurrentUser'] : ['CurrentUser', variables]
-
 useCurrentUserQuery.fetcher = (variables?: CurrentUserQueryVariables, options?: RequestInit['headers']) =>
    fetcher<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, variables, options)
 export const DetailedReviewDocument = `
@@ -2109,7 +2113,6 @@ export const useDetailedReviewQuery = <TData = DetailedReviewQuery, TError = unk
    )
 
 useDetailedReviewQuery.getKey = (variables: DetailedReviewQueryVariables) => ['DetailedReview', variables]
-
 useDetailedReviewQuery.fetcher = (variables: DetailedReviewQueryVariables, options?: RequestInit['headers']) =>
    fetcher<DetailedReviewQuery, DetailedReviewQueryVariables>(DetailedReviewDocument, variables, options)
 export const DetailedReviewCommentsDocument = `
@@ -2121,7 +2124,8 @@ export const DetailedReviewCommentsDocument = `
   }
 }
     ${DetailedCommentFragmentDoc}
-${UserWithSpotifyOverviewFragmentDoc}`
+${UserWithSpotifyOverviewFragmentDoc}
+${ReviewEntityOverviewFragmentDoc}`
 export const useDetailedReviewCommentsQuery = <TData = DetailedReviewCommentsQuery, TError = unknown>(
    variables: DetailedReviewCommentsQueryVariables,
    options?: UseQueryOptions<DetailedReviewCommentsQuery, TError, TData>
@@ -2139,7 +2143,6 @@ useDetailedReviewCommentsQuery.getKey = (variables: DetailedReviewCommentsQueryV
    'DetailedReviewComments',
    variables,
 ]
-
 useDetailedReviewCommentsQuery.fetcher = (
    variables: DetailedReviewCommentsQueryVariables,
    options?: RequestInit['headers']
@@ -2169,7 +2172,6 @@ export const useGetAlbumQuery = <TData = GetAlbumQuery, TError = unknown>(
    )
 
 useGetAlbumQuery.getKey = (variables: GetAlbumQueryVariables) => ['GetAlbum', variables]
-
 useGetAlbumQuery.fetcher = (variables: GetAlbumQueryVariables, options?: RequestInit['headers']) =>
    fetcher<GetAlbumQuery, GetAlbumQueryVariables>(GetAlbumDocument, variables, options)
 export const GetPlaylistDocument = `
@@ -2194,7 +2196,6 @@ export const useGetPlaylistQuery = <TData = GetPlaylistQuery, TError = unknown>(
    )
 
 useGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist', variables]
-
 useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables, options?: RequestInit['headers']) =>
    fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables, options)
 export const ProfileAndReviewsDocument = `
@@ -2228,7 +2229,6 @@ export const useProfileAndReviewsQuery = <TData = ProfileAndReviewsQuery, TError
 
 useProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables) =>
    variables === undefined ? ['ProfileAndReviews'] : ['ProfileAndReviews', variables]
-
 useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables, options?: RequestInit['headers']) =>
    fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables, options)
 export const SearchSpotifyDocument = `
@@ -2275,7 +2275,6 @@ export const useSearchSpotifyQuery = <TData = SearchSpotifyQuery, TError = unkno
    )
 
 useSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify', variables]
-
 useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables, options?: RequestInit['headers']) =>
    fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables, options)
 export const TrackLikeDocument = `
@@ -2297,7 +2296,6 @@ export const useTrackLikeQuery = <TData = TrackLikeQuery, TError = unknown>(
    )
 
 useTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike', variables]
-
 useTrackLikeQuery.fetcher = (variables: TrackLikeQueryVariables, options?: RequestInit['headers']) =>
    fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, variables, options)
 export const UserPlaylistsDocument = `
@@ -2326,12 +2324,12 @@ export const useUserPlaylistsQuery = <TData = UserPlaylistsQuery, TError = unkno
    )
 
 useUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists', variables]
-
 useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables, options?: RequestInit['headers']) =>
    fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables, options)
 export const ReviewUpdatesDocument = `
     subscription ReviewUpdates($reviewIds: [ID!]!) {
   reviewUpdates(reviewIds: $reviewIds) {
+    __typename
     ... on DeletedComment {
       reviewId
       commentId
@@ -2349,4 +2347,5 @@ export const ReviewUpdatesDocument = `
   }
 }
     ${DetailedCommentFragmentDoc}
-${UserWithSpotifyOverviewFragmentDoc}`
+${UserWithSpotifyOverviewFragmentDoc}
+${ReviewEntityOverviewFragmentDoc}`

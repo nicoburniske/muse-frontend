@@ -146,7 +146,7 @@ export const GroupedTrackTable = () => {
    const [getRows] = useTransientAtom(indexToJsxAtom)
    const rows = getRows()
    return (
-      <div ref={parentRef} className='w-full overflow-y-auto'>
+      <div ref={parentRef} className='no-scrollbar w-full overflow-y-auto'>
          <div
             className='relative w-full'
             style={{

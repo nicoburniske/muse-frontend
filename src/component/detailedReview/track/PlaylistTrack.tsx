@@ -154,7 +154,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             trackDivRef.current = el
          }}
          className={classNames(
-            'group card card-body m-0 flex h-full w-full select-none flex-row items-center justify-between border-2 border-base-300 p-0.5',
+            'group m-0 flex h-full w-full select-none flex-row items-center justify-between border-2 border-transparent p-0.5',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
