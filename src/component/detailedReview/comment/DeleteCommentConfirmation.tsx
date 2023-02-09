@@ -1,16 +1,17 @@
 import { Portal } from '@headlessui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithReset, useResetAtom } from 'jotai/utils'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { useCallback } from 'react'
 import { toast } from 'react-hot-toast'
 import { classNames } from 'util/Utils'
 
-const deleteModalOpenAtom = atom(false)
-const defaultValues = { reviewId: '', commentId: -1 }
 type DeleteModalValues = { reviewId: string; commentId: number; invalidate?: boolean }
-const deleteModalValues = atom<DeleteModalValues>(defaultValues)
+
+const deleteModalOpenAtom = atom(false)
+const deleteModalValues = atomWithReset<DeleteModalValues>({ reviewId: '', commentId: -1, invalidate: false })
 const setModalValuesAtom = atom(null, (_get, set, values: DeleteModalValues) => {
    set(deleteModalOpenAtom, true)
    set(deleteModalValues, values)
@@ -23,21 +24,22 @@ export const useOpenDeleteConfirmation = (values: DeleteModalValues) => {
 
 export const DeleteCommentConfirmation = () => {
    const [isModalOpen, setIsModalOpen] = useAtom(deleteModalOpenAtom)
-   const [{ reviewId, commentId, invalidate = false }, setAtomValues] = useAtom(deleteModalValues)
+   const resetModalValues = useResetAtom(deleteModalValues)
+   const { reviewId, commentId, invalidate = false } = useAtomValue(deleteModalValues)
 
    const queryClient = useQueryClient()
 
    const { mutateAsync: deleteCommentMutation, isLoading } = useDeleteCommentMutation({
       onSuccess: () => {
          setIsModalOpen(false)
-         setAtomValues({ reviewId: '', commentId: -1 })
          if (invalidate) {
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
          }
+         resetModalValues()
       },
       onError: () => toast.error('Failed to delete comment'),
    })
-   const deleteComment = async () => deleteCommentMutation({ input: { reviewId, commentId } })
+   const deleteComment = () => deleteCommentMutation({ input: { reviewId, commentId } })
 
    return (
       <Portal>

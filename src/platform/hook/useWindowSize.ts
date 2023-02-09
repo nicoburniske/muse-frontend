@@ -1,3 +1,5 @@
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { selectAtom } from 'jotai/utils'
 import { useState, useEffect } from 'react'
 export interface Size {
    width: number
@@ -6,6 +8,37 @@ export interface Size {
    isMd: boolean
    isLg: boolean
    isXl: boolean
+}
+
+const windowSizeAtom = atom<Size>({
+   width: 0,
+   height: 0,
+   isSm: false,
+   isMd: false,
+   isLg: false,
+   isXl: false,
+})
+
+export const useWindowSizeAtom = <T>(select: (size: Size) => T) => {
+   const setWindowSize = useSetAtom(windowSizeAtom)
+
+   useEffect(() => {
+      function handleResize() {
+         setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            isSm: window.innerWidth > 640,
+            isMd: window.innerWidth >= 768,
+            isLg: window.innerWidth >= 1024,
+            isXl: window.innerWidth >= 1280,
+         })
+      }
+      handleResize()
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+   }, [setWindowSize])
+
+   return useAtomValue(selectAtom(windowSizeAtom, select))
 }
 
 export default function useWindowSize(update = false): Size {

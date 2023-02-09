@@ -1,4 +1,3 @@
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
 import { ReviewDetailsFragment } from 'graphql/generated/schema'
 import { useNavigate } from 'react-router'
 import { nonNullable, findFirstImage } from 'util/Utils'
@@ -18,11 +17,13 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
    const creatorName = review?.creator?.spotifyProfile?.displayName ?? 'Unknown'
    return (
       <div
-         className='card  bg-base-200 shadow-xl transition-all duration-200 hover:-translate-y-1 hover:bg-base-300 hover:shadow'
+         className='bg-base-200 shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl'
          key={review.id}
       >
-         <div className='aspect-w-4 aspect-h-4 block w-full overflow-hidden' onClick={onClick}>
-            <img src={image} alt='' className='object-cover' />
+         {/* This ensures that we have square aspect ratio */}
+         <div className='aspect-w-4 aspect-h-4' onClick={onClick}>
+            {/* No image distortion and crop the image into center */}
+            <img src={image} alt='ReviewImage' className='object-cover object-center' />
          </div>
 
          <div
@@ -30,7 +31,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
             onClick={linkToReviewPage}
          >
             <div className='stat-title w-full truncate text-xs md:text-base'>{entityName}</div>
-            <div className='stat-value w-full truncate text-xs md:text-base'>{review.reviewName}</div>
+            <div className='w-full truncate text-xs font-extrabold md:text-base'>{review.reviewName}</div>
             <div className='stat-desc w-full truncate text-xs md:text-base'> {creatorName} </div>
          </div>
       </div>

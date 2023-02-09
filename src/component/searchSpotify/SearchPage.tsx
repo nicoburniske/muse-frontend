@@ -1,10 +1,4 @@
-import {
-   BackspaceIcon,
-   ChartBarIcon,
-   InformationCircleIcon,
-   MagnifyingGlassIcon,
-   UserIcon,
-} from '@heroicons/react/20/solid'
+import { BackspaceIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSpotifyClient } from 'component/sdk/ClientAtoms'
@@ -18,7 +12,7 @@ import {
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import atomWithDebounce from 'platform/atom/atomWithDebounce'
 import { HeroLoading } from 'platform/component/HeroLoading'
-import { useEffect, useMemo, useRef, memo, ReactNode, useState, RefObject } from 'react'
+import { useEffect, useMemo, useRef, memo, ReactNode, useState, RefObject, useCallback } from 'react'
 import {
    Artist,
    SearchType,
@@ -29,21 +23,21 @@ import {
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
-import { classNames, nonNullable, uniqueByProperty } from 'util/Utils'
+import { chunkArrayInGroups, classNames, nonNullable, uniqueByProperty } from 'util/Utils'
 import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import SelectMany from 'platform/component/SelectMany'
-import { PlusIcon } from '@heroicons/react/24/outline'
 import { Portal } from '@headlessui/react'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import useDoubleClick from 'platform/hook/useDoubleClick'
+import { useWindowSizeAtom } from 'platform/hook/useWindowSize'
 
 const SearchPage = () => {
    return (
       <>
          <div className='flex h-full w-full'>
-            <div className='flex w-40 flex-col space-y-5 bg-base-200 p-4 sm:w-56'>
+            <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
                <SelectEntityTypes />
                <SelectGenreSeeds />
                <SelectHipsterFilter />
@@ -162,7 +156,7 @@ const SelectEntityTypes = () => {
                renderSelected={renderString}
             />
          </div>
-         <button className='btn btn-md w-32 gap-2' onClick={clear} disabled={selected.length === 0}>
+         <button className='btn btn-md w-20 gap-2 md:w-32' onClick={clear} disabled={selected.length === 0}>
             <span className='hidden md:block'>Clear</span>
             <BackspaceIcon className='h-6 w-6' />
          </button>
@@ -189,7 +183,7 @@ const SelectGenreSeeds = () => {
                }
             />
          </div>
-         <button className='btn btn-md w-32 gap-2' onClick={clear} disabled={selected.length === 0}>
+         <button className='btn btn-md w-20 gap-2 md:w-32' onClick={clear} disabled={selected.length === 0}>
             <span className='hidden md:block'>Clear</span>
             <BackspaceIcon className='h-6 w-6' />
          </button>
@@ -230,6 +224,18 @@ const ScrollSearchResults = () => {
 
    const response = data?.pages ?? []
 
+   const [numCols, colsStyle, height]: [number, string, number] = useWindowSizeAtom(
+      useCallback(s => {
+         if (s.isLg) {
+            return [5, 'grid-cols-5', 300]
+         } else if (s.isMd) {
+            return [3, 'grid-cols-3', 300]
+         } else {
+            return [2, 'grid-cols-2', 200]
+         }
+      }, [])
+   )
+
    const allRows = useMemo(() => {
       const validResults = [
          response.flatMap(r => r.albums?.items ?? []),
@@ -242,14 +248,15 @@ const ScrollSearchResults = () => {
          .flat()
          .filter(r => nonNullable(r?.href ?? r?.id))
          .filter(r => nonNullable(r.type))
-      return uniqueByProperty(validResults, r => r?.href ?? r?.id)
-   }, [response])
+      const unique = uniqueByProperty(validResults, r => r?.href ?? r?.id)
+      return chunkArrayInGroups(unique, numCols)
+   }, [response, numCols])
 
    const parentRef = useRef<HTMLDivElement>(null)
    const rowVirtualizer = useVirtualizer({
       count: hasNextPage ? allRows.length + 1 : allRows.length,
       getScrollElement: () => parentRef.current,
-      estimateSize: () => 130,
+      estimateSize: () => height,
       overscan: 20,
    })
 
@@ -274,7 +281,7 @@ const ScrollSearchResults = () => {
       )
    } else {
       return (
-         <div ref={parentRef} className='h-full w-full overflow-y-auto px-1'>
+         <div ref={parentRef} className='h-full w-full overflow-y-auto'>
             <div
                className='relative w-full'
                style={{
@@ -304,7 +311,11 @@ const ScrollSearchResults = () => {
                               <progress className='progress w-full'></progress>
                            ) : null
                         ) : (
-                           <MemoResultRow searchRow={searchRow} />
+                           <div className={classNames('grid place-items-center gap-x-4', colsStyle)}>
+                              {searchRow.map((searchRow, i) => (
+                                 <MemoResultRow key={i} searchRow={searchRow} />
+                              ))}
+                           </div>
                         )}
                      </div>
                   )
@@ -316,13 +327,23 @@ const ScrollSearchResults = () => {
 }
 
 type SearchRow = SimplifiedAlbum | Artist | SimplifiedEpisode | SimplifiedPlaylist | SimplifiedShow | Track
+const findImage = (searchRow: SearchRow, index: number) => {
+   const images = searchRow.type === 'track' ? searchRow.album?.images : searchRow.images
+   return (
+      images
+         ?.map(i => i.url)
+         .filter((_, i) => i <= index)
+         .at(-1) ?? ''
+   )
+}
 const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
-   const image = searchRow?.images?.at(0)?.url ?? searchRow?.album?.images?.at(-2)?.url
+   const tileImage = findImage(searchRow, 1)
+   const bigImage = findImage(searchRow, 0)
    const type = searchRow.type
 
    const { open } = useCreateReviewModal({
       entityId: searchRow.id,
-      entityImage: image,
+      entityImage: bigImage,
       entityName: searchRow.name,
       entityType: capitalizeFirst(type) as EntityType,
    })
@@ -346,33 +367,14 @@ const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
 
    return (
       <div
-         className='block rounded-md text-base-content hover:bg-base-200 hover:delay-[10ms]'
+         className='flex w-32 flex-col bg-base-200 text-base-content shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl md:w-48'
          ref={playOnDoubleClickRef}
       >
-         <div className='flex items-center px-4 py-3 sm:px-6'>
-            <div className='flex min-w-0 flex-1 items-center'>
-               <div className='flex-shrink-0'>
-                  <img className='h-24 w-24 rounded-md' src={image} alt='' />
-               </div>
-               <div className='min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4'>
-                  <div>
-                     <p className='truncate text-lg font-bold'>{searchRow.name}</p>
-                     <p className='mt-2 flex items-center text-base font-normal'>
-                        <InformationCircleIcon
-                           className='mr-1.5 h-5 w-5 flex-shrink-0 font-light text-primary'
-                           aria-hidden='true'
-                        />
-                        <span className='truncate'>{capitalizeFirst(type)}</span>
-                     </p>
-                  </div>
-                  <div className='hidden md:block'>{secondaryData(searchRow)}</div>
-               </div>
-            </div>
-            <div>
-               <button type='button' className='btn btn-primary' onClick={() => open()}>
-                  <PlusIcon className='h-5 w-5' aria-hidden='true' />
-               </button>
-            </div>
+         <img src={tileImage} className='h-32 w-32 object-center md:h-48 md:w-48' alt='SearchResult' />
+         <div className='flex cursor-pointer flex-col items-center justify-evenly text-center' onClick={open}>
+            <div className='w-full text-xs font-extrabold line-clamp-1 md:text-base'>{searchRow.name}</div>
+            <div className='badge badge-primary truncate text-xs md:text-sm'>{capitalizeFirst(searchRow.type)}</div>
+            <p className='text-clip text-sm line-clamp-1'>{secondaryData(searchRow)}</p>
          </div>
       </div>
    )
@@ -380,43 +382,13 @@ const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
 
 const secondaryData = (searchRow: SearchRow): ReactNode => {
    if (searchRow.type === 'artist') {
-      return (
-         <>
-            <p className='flex items-center text-base'>
-               <ChartBarIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-secondary' aria-hidden='true' />
-               Total Followers
-            </p>
-            <p className='mt-2 flex items-center text-base'>{searchRow.followers.total.toLocaleString()}</p>
-         </>
-      )
+      return `${searchRow.followers.total.toLocaleString()} Followers`
    } else if (searchRow.type === 'album') {
-      return (
-         <>
-            <p className='flex items-center text-base'>
-               <UserIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-secondary' aria-hidden='true' />
-               Artist
-            </p>
-            <p className='mt-2 flex items-center text-base'>
-               {searchRow.artists.map(artist => artist.name).join(', ')}
-            </p>
-         </>
-      )
+      return searchRow.artists.at(0)?.name
    } else if (searchRow.type === 'track') {
-      ;<>
-         <p className='flex items-center text-base'>
-            <UserIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-secondary' aria-hidden='true' />
-            Artist
-         </p>
-         <p className='mt-2 flex items-center text-base'>{searchRow.artists.map(artist => artist.name).join(', ')}</p>
-      </>
+      return searchRow.artists.map(artist => artist.name).join(', ')
    } else if (searchRow.type === 'playlist') {
-      ;<>
-         <p className='flex items-center text-base'>
-            <UserIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-secondary' aria-hidden='true' />
-            Owner
-         </p>
-         <p className='mt-2 flex items-center text-base'>{`@${searchRow.owner.id}`}</p>
-      </>
+      return searchRow.owner.display_name ?? searchRow.owner.id
    }
    // Other cases are not supported.
    return null
@@ -547,7 +519,7 @@ const CreateReviewModal = () => {
                      </div>
                   </div>
                   <ToggleWithDescription
-                     label='Is Public'
+                     label='Public'
                      description='If this review is public, it will be viewable by other users.'
                      enabled={isPublic}
                      setEnabled={setIsPublic}

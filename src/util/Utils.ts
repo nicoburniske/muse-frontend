@@ -46,7 +46,7 @@ export function zip<A, B>(i: A[], j: B[]): [A, B][] {
 export function groupBy<K, V, R>(
    list: Array<V>,
    keyGetter: (input: V) => K,
-   mapFunc: (value: V) => R
+   mapFunc: (value: V) => R = (value: V) => value as unknown as R
 ): Map<K, Array<R>> {
    const map = new Map<K, Array<R>>()
    list.forEach(item => {
@@ -107,4 +107,12 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
 
 export function classNames(...classes: (string | undefined | boolean)[]) {
    return classes.filter(Boolean).join(' ')
+}
+
+export function chunkArrayInGroups<T>(arr: T[], size: number): T[][] {
+   const myArray = []
+   for (let i = 0; i < arr.length; i += size) {
+      myArray.push(arr.slice(i, i + size))
+   }
+   return myArray
 }

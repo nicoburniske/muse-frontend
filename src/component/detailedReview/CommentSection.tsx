@@ -37,11 +37,10 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
       const reviewsIndexed = new Map(reviews.map((r, index) => [r.reviewId, index]))
       const flatComments = results.flatMap(c => c.data?.filter(nonNullable) ?? [])
 
-      return [...flatComments].sort((a, b) => {
-         const reviewDiff = reviewsIndexed.get(a.reviewId)! - reviewsIndexed.get(b.reviewId)!
-         return reviewDiff === 0 ? a.commentIndex - b.commentIndex : reviewDiff
-      })
-   }, [reviews])
+      return flatComments.sort(
+         (a, b) => reviewsIndexed.get(a.reviewId)! - reviewsIndexed.get(b.reviewId)! || a.commentIndex - b.commentIndex
+      )
+   }, [reviews, results])
 
    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
 
@@ -121,7 +120,6 @@ const subscribeToReviews = (reviewIds: string[]) => {
                         },
                      }
                   })
-                  queryClient.invalidateQueries(cacheKey)
                   break
                }
                default:
