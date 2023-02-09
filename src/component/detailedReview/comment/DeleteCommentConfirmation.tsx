@@ -9,7 +9,7 @@ import { classNames } from 'util/Utils'
 
 const deleteModalOpenAtom = atom(false)
 const defaultValues = { reviewId: '', commentId: -1 }
-type DeleteModalValues = { reviewId: string; commentId: number }
+type DeleteModalValues = { reviewId: string; commentId: number; invalidate?: boolean }
 const deleteModalValues = atom<DeleteModalValues>(defaultValues)
 const setModalValuesAtom = atom(null, (_get, set, values: DeleteModalValues) => {
    set(deleteModalOpenAtom, true)
@@ -23,7 +23,7 @@ export const useOpenDeleteConfirmation = (values: DeleteModalValues) => {
 
 export const DeleteCommentConfirmation = () => {
    const [isModalOpen, setIsModalOpen] = useAtom(deleteModalOpenAtom)
-   const [{ reviewId, commentId }, setAtomValues] = useAtom(deleteModalValues)
+   const [{ reviewId, commentId, invalidate = false }, setAtomValues] = useAtom(deleteModalValues)
 
    const queryClient = useQueryClient()
 
@@ -31,7 +31,9 @@ export const DeleteCommentConfirmation = () => {
       onSuccess: () => {
          setIsModalOpen(false)
          setAtomValues({ reviewId: '', commentId: -1 })
-         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         if (invalidate) {
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         }
       },
       onError: () => toast.error('Failed to delete comment'),
    })

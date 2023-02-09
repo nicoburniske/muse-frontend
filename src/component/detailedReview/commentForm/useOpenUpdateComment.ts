@@ -3,10 +3,12 @@ import { UpdateCommentInput, useDetailedReviewCommentsQuery, useUpdateCommentMut
 import toast from 'react-hot-toast'
 import { useCommentModal } from './CommentFormModalWrapper'
 import { Prettify } from 'util/Types'
+import { useCallback } from 'react'
 
 type UpdateComment = {
    title?: string
    errorToastMessage?: string
+   invalidate?: boolean
    trackId: string
    comment: string
 } & Omit<UpdateCommentInput, 'comment'>
@@ -21,15 +23,23 @@ export const useOpenUpdateComment = (options: UpdateCommentParams) => {
       comment,
       title = 'Edit Comment',
       errorToastMessage = 'Failed to update comment.',
+      invalidate = false,
    } = options
 
+   const queryClient = useQueryClient()
    const { openCommentModal, closeCommentModal } = useCommentModal()
+
    const { mutate, isLoading } = useUpdateCommentMutation({
       onSuccess: () => closeCommentModal(),
-      onError: () => toast.error(errorToastMessage),
-      onSettled: () => queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) }),
+      onError: () => useCallback(() => toast.error(errorToastMessage), [errorToastMessage]),
+      onSettled: () => {
+         // Review comment subscription should take care of this.
+         if (invalidate) {
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         }
+      },
    })
-   const queryClient = useQueryClient()
+
    const onSubmit = async (editedComment: string) => {
       if (!isLoading) {
          mutate({

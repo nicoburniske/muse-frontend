@@ -1,5 +1,9 @@
-import { DetailedCommentFragment } from 'graphql/generated/schema'
-import { Fragment, useState } from 'react'
+import {
+   DetailedCommentFragment,
+   useDetailedReviewCommentsQuery,
+   useUpdateCommentIndexMutation,
+} from 'graphql/generated/schema'
+import { Fragment, useCallback, useState } from 'react'
 import CommentMarkdown from './CommentMarkdown'
 import { findFirstImage, classNames } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
@@ -18,19 +22,20 @@ import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { useOpenNewComment } from '../commentForm/useOpenNewComment'
 import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
 import { useOpenUpdateComment } from '../commentForm/useOpenUpdateComment'
+import { useDrag, useDrop } from 'react-dnd'
+import { toast } from 'react-hot-toast'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
    comment: DetailedCommentFragment
-   childComments: DetailedCommentFragment[]
 }
 
-export default function DetailedComment({ review, comment: detailedComment, childComments }: DetailedCommentProps) {
+export default function DetailedComment({ review, comment: detailedComment }: DetailedCommentProps) {
    const reviewId = review.reviewId
-   const isChild = detailedComment.parentCommentId != null
 
    const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1) ?? ''
-   const comment = detailedComment?.comment ?? '** deleted **'
+   const comment = detailedComment.deleted ? '** deleted **' : detailedComment?.comment ?? ''
    const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? ''
    const commenterId = detailedComment.commenter?.id ?? ''
    const createdAt = (() => {
@@ -59,9 +64,66 @@ export default function DetailedComment({ review, comment: detailedComment, chil
 
    const [isExpanded, setIsExpanded] = useState(false)
 
+   const currentUserId = useCurrentUserId()
+   const isEditable = detailedComment.commenter?.id === currentUserId
+
+   const queryClient = useQueryClient()
+   const { mutate } = useUpdateCommentIndexMutation({
+      onError: useCallback(() => toast.error('Failed to update comment index'), []),
+      onSettled: () => queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) }),
+   })
+
+   type DndEvent = { reviewId: string; commentId: number; parentCommentId: number; commentIndex: number }
+   const [{ isDragging }, drag] = useDrag(
+      () => ({
+         type: 'ReorderComment',
+         item: {
+            reviewId,
+            commentId: detailedComment.id,
+            parentCommentId: detailedComment.parentCommentId,
+            commentIndex: detailedComment.commentIndex,
+         },
+         canDrag: isEditable,
+         collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+         }),
+      }),
+      [isEditable, reviewId, detailedComment.id, detailedComment.parentCommentId]
+   )
+
+   const [{ isOver, canDrop }, drop] = useDrop(
+      () => ({
+         accept: 'ReorderComment',
+         canDrop: (item: DndEvent) =>
+            item.parentCommentId === detailedComment.parentCommentId &&
+            item.commentId !== detailedComment.id &&
+            item.reviewId === reviewId,
+         drop: (item: DndEvent) => {
+            mutate({ input: { reviewId, commentId: item.commentId, index: detailedComment.commentIndex } })
+         },
+         collect: monitor => ({
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop(),
+         }),
+      }),
+      [reviewId, detailedComment.parentCommentId, detailedComment.id, detailedComment.commentIndex]
+   )
+
+   const childComments = useChildCommentsQuery(reviewId, detailedComment.id)
+
    return (
       <>
-         <div className='bg-base-200 px-4 py-6 text-base-content shadow sm:rounded-lg sm:p-6'>
+         <div
+            ref={el => {
+               drop(el)
+               drag(el)
+            }}
+            className={classNames(
+               isDragging ?? 'opacity-50',
+               isOver && canDrop ? 'bg-base-300' : 'bg-base-200',
+               'px-4 py-6 text-base-content shadow sm:rounded-lg sm:p-6'
+            )}
+         >
             <article>
                <div>
                   <div className='flex space-x-3'>
@@ -135,33 +197,44 @@ export default function DetailedComment({ review, comment: detailedComment, chil
                         </button>
                      </span>
                   </div>
-                  {!isChild && (
-                     <div className='flex text-sm'>
-                        <span className='inline-flex items-center text-sm'>
-                           <button
-                              type='button'
-                              className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
-                              onClick={replyComment}
-                           >
-                              <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                              <span className='font-medium text-base-content/50'>Reply</span>
-                           </button>
-                        </span>
-                     </div>
-                  )}
+                  <div className='flex text-sm'>
+                     <span className='inline-flex items-center text-sm'>
+                        <button
+                           type='button'
+                           className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
+                           onClick={replyComment}
+                        >
+                           <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                           <span className='font-medium text-base-content/50'>Reply</span>
+                        </button>
+                     </span>
+                  </div>
                </div>
             </article>
          </div>
 
          {childComments.length > 0 && isExpanded ? (
-            <div className='ml-2 py-1'>
+            <div className='mt-1 ml-2 space-y-1 lg:ml-4'>
                {childComments.map(child => (
-                  <DetailedComment key={child.id} review={review} comment={child} childComments={[]} />
+                  <DetailedComment key={child.id} review={review} comment={child} />
                ))}
             </div>
          ) : null}
       </>
    )
+}
+
+const useChildCommentsQuery = (reviewId: string, commentId: number) => {
+   const { data } = useDetailedReviewCommentsQuery(
+      { reviewId },
+      {
+         select: data =>
+            (data?.review?.comments?.filter(c => c.parentCommentId === commentId) ?? []).sort(
+               (a, b) => a.commentIndex - b.commentIndex
+            ),
+      }
+   )
+   return data ?? []
 }
 
 const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: DetailedCommentFragment }) => {

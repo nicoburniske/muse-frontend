@@ -1,0 +1,3 @@
+mutation UpdateCommentIndex($input: UpdateCommentIndexInput!) {
+   updateCommentIndex(input: $input)
+}

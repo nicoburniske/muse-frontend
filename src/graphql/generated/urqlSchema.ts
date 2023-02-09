@@ -89,9 +89,10 @@ export type Comment = {
    commentIndex: Scalars['Int']
    commenter: User
    createdAt: Scalars['Instant']
+   deleted: Scalars['Boolean']
    entities?: Maybe<Array<ReviewEntity>>
-   id: Scalars['Int']
-   parentCommentId?: Maybe<Scalars['Int']>
+   id: Scalars['Long']
+   parentCommentId?: Maybe<Scalars['Long']>
    reviewId: Scalars['ID']
    updatedAt: Scalars['Instant']
 }
@@ -117,7 +118,7 @@ export type CreatedComment = {
 }
 
 export type DeleteCommentInput = {
-   commentId: Scalars['Int']
+   commentId: Scalars['Long']
    reviewId: Scalars['ID']
 }
 
@@ -132,7 +133,7 @@ export type DeleteReviewLinkInput = {
 
 export type DeletedComment = {
    __typename?: 'DeletedComment'
-   commentId: Scalars['Int']
+   commentId: Scalars['Long']
    reviewId: Scalars['ID']
 }
 
@@ -177,6 +178,7 @@ export type Mutations = {
    linkReviews?: Maybe<Scalars['Boolean']>
    shareReview?: Maybe<Scalars['Boolean']>
    updateComment?: Maybe<Comment>
+   updateCommentIndex?: Maybe<Scalars['Boolean']>
    updateReview?: Maybe<Review>
    updateReviewEntity?: Maybe<Review>
    updateReviewLink?: Maybe<Scalars['Boolean']>
@@ -214,6 +216,10 @@ export type MutationsUpdateCommentArgs = {
    input: UpdateCommentInput
 }
 
+export type MutationsUpdateCommentIndexArgs = {
+   input: UpdateCommentIndexInput
+}
+
 export type MutationsUpdateReviewArgs = {
    input: UpdateReviewInput
 }
@@ -224,6 +230,12 @@ export type MutationsUpdateReviewEntityArgs = {
 
 export type MutationsUpdateReviewLinkArgs = {
    input: UpdateReviewLinkInput
+}
+
+export type NewCommentIndex = {
+   __typename?: 'NewCommentIndex'
+   commentId: Scalars['Long']
+   commentIndex: Scalars['Int']
 }
 
 export type PaginationInput = {
@@ -392,7 +404,7 @@ export type ReviewEntityInput = {
    entityType: EntityType
 }
 
-export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment
+export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment | UpdatedCommentIndex
 
 export type SearchResult = {
    __typename?: 'SearchResult'
@@ -466,9 +478,15 @@ export type Track = ReviewEntity & {
    uri: Scalars['String']
 }
 
-export type UpdateCommentInput = {
-   comment?: InputMaybe<Scalars['String']>
+export type UpdateCommentIndexInput = {
    commentId: Scalars['Int']
+   index: Scalars['Int']
+   reviewId: Scalars['ID']
+}
+
+export type UpdateCommentInput = {
+   comment: Scalars['String']
+   commentId: Scalars['Long']
    reviewId: Scalars['ID']
 }
 
@@ -493,6 +511,12 @@ export type UpdateReviewLinkInput = {
 export type UpdatedComment = {
    __typename?: 'UpdatedComment'
    comment: Comment
+}
+
+export type UpdatedCommentIndex = {
+   __typename?: 'UpdatedCommentIndex'
+   reviewId: Scalars['ID']
+   updatedIndices: Array<NewCommentIndex>
 }
 
 export type User = {
@@ -576,9 +600,11 @@ export type DetailedArtistFragment = {
 export type DetailedCommentFragment = {
    __typename?: 'Comment'
    id: number
+   commentIndex: number
    reviewId: string
    createdAt: string
    updatedAt: string
+   deleted: boolean
    parentCommentId?: number | null
    comment?: string | null
    commenter: {
@@ -927,9 +953,11 @@ export type ReviewUpdatesSubscription = {
            comment: {
               __typename?: 'Comment'
               id: number
+              commentIndex: number
               reviewId: string
               createdAt: string
               updatedAt: string
+              deleted: boolean
               parentCommentId?: number | null
               comment?: string | null
               commenter: {
@@ -983,9 +1011,11 @@ export type ReviewUpdatesSubscription = {
            comment: {
               __typename?: 'Comment'
               id: number
+              commentIndex: number
               reviewId: string
               createdAt: string
               updatedAt: string
+              deleted: boolean
               parentCommentId?: number | null
               comment?: string | null
               commenter: {
@@ -1033,6 +1063,7 @@ export type ReviewUpdatesSubscription = {
               > | null
            }
         }
+      | { __typename: 'UpdatedCommentIndex' }
       | null
 }
 
@@ -1146,9 +1177,11 @@ export const ReviewEntityOverviewFragmentDoc = gql`
 export const DetailedCommentFragmentDoc = gql`
    fragment DetailedComment on Comment {
       id
+      commentIndex
       reviewId
       createdAt
       updatedAt
+      deleted
       parentCommentId
       commenter {
          ...UserWithSpotifyOverview

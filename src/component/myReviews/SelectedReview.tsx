@@ -1,11 +1,5 @@
 import { Transition } from '@headlessui/react'
-import {
-   ArrowTopRightOnSquareIcon,
-   ChevronRightIcon,
-   PlusIcon as PlusIconMini,
-   TrashIcon,
-   XMarkIcon,
-} from '@heroicons/react/20/solid'
+import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
 import { ShareReview } from 'component/detailedReview/ShareReview'
 import {
@@ -137,11 +131,8 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                <p className={classNames('text-sm font-medium', textColorSecondary)}>{entityType}</p>
             </div>
          </div>
-         <div className='group relative cursor-pointer' onClick={linkToReviewPage}>
+         <div className='relative cursor-pointer' onClick={linkToReviewPage}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-            <button className='btn btn-ghost btn-square btn-lg absolute top-0 right-0 z-10'>
-               <ArrowTopRightOnSquareIcon className='h-10 w-10 stroke-accent opacity-0 transition-all duration-300 ease-out hover:scale-125 group-hover:opacity-100' />
-            </button>
          </div>
          <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>

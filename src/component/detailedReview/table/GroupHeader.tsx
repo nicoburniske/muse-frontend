@@ -108,7 +108,7 @@ export const ReviewGroupHeader = ({
                <div className='badge badge-accent text-center text-accent-content'>{entityType}</div>
                <div className='divider divider-horizontal m-0' />
                {isPlaylist ? null : (
-                  <div className='avatar'>
+                  <div className='avatar hidden md:inline-flex'>
                      <div className='w-12 rounded'>
                         <img src={albumImage} />
                      </div>

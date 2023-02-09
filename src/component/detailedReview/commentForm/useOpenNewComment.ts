@@ -8,22 +8,25 @@ import {
 import toast from 'react-hot-toast'
 import { useCommentModal } from './CommentFormModalWrapper'
 import { Prettify } from 'util/Types'
+import { useCallback } from 'react'
 
 type OpenNewComment = {
    title: string
    trackId: string
    errorToastMessage?: string
+   invalidate?: boolean
 } & Omit<CreateCommentInput, 'entities' | 'comment'>
 
 export type OpenNewCommentParams = Prettify<OpenNewComment>
 
 export const useOpenNewComment = (options: OpenNewCommentParams) => {
-   const { title, reviewId, parentCommentId, trackId, errorToastMessage } = options
+   const { title, reviewId, parentCommentId, trackId, errorToastMessage, invalidate = false } = options
 
    const { openCommentModal, closeCommentModal } = useCommentModal()
    const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
       onSuccess: () => closeCommentModal(),
-      onError: () => toast.error(errorToastMessage ?? 'Failed to create comment'),
+      onError: () =>
+         useCallback(() => toast.error(errorToastMessage ?? 'Failed to create comment'), [errorToastMessage]),
    })
    const queryClient = useQueryClient()
    const onSubmit = async (comment: string) => {
@@ -36,7 +39,10 @@ export const useOpenNewComment = (options: OpenNewCommentParams) => {
                parentCommentId,
             },
          })
-         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         // Review comment subscription should take care of this.
+         if (invalidate) {
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         }
       }
    }
 

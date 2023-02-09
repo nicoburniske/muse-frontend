@@ -1,4 +1,8 @@
-import { ReviewDetailsFragment, ReviewEntityOverviewFragment } from 'graphql/generated/schema'
+import {
+   ReviewDetailsFragment,
+   ReviewEntityOverviewFragment,
+   UserWithSpotifyOverviewFragment,
+} from 'graphql/generated/schema'
 
 export type BoolNum = 0 | 1
 
@@ -74,6 +78,10 @@ export const getReviewOverviewImage = (review: ReviewDetailsFragment) => {
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    return findFirstImage(allEntities)
+}
+
+export const userDisplayNameOrId = (user: UserWithSpotifyOverviewFragment) => {
+   return user?.spotifyProfile?.displayName ?? user?.id
 }
 
 export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {

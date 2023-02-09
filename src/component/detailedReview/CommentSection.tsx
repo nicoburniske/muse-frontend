@@ -12,6 +12,8 @@ import { ReviewOverview } from './table/Helpers'
 import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
 import { DeleteCommentConfirmation } from './comment/DeleteCommentConfirmation'
 
+const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
+
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
    const reviewIds = reviews.map(r => r.reviewId)
    subscribeToReviews(reviewIds)
@@ -20,13 +22,9 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
       queries: reviewIds.map(reviewId => ({
          queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }),
          queryFn: useDetailedReviewCommentsQuery.fetcher({ reviewId }),
+         select: selectComments,
       })),
    })
-
-   const validComments = results
-      .map(r => r.data?.review?.comments)
-      .filter(nonNullable)
-      .flatMap(c => c)
 
    const reviewOverviews = groupBy(
       reviews,
@@ -34,33 +32,25 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
       r => r
    )
 
+   // Sort comments by review position and then by comment index.
    const comments = useMemo(() => {
-      return [...validComments].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-   }, [validComments])
+      const reviewsIndexed = new Map(reviews.map((r, index) => [r.reviewId, index]))
+      const flatComments = results.flatMap(c => c.data?.filter(nonNullable) ?? [])
 
-   const childComments = useMemo(() => {
-      const childComments = comments
-         .filter(comment => comment.parentCommentId !== null)
-         .filter(comment => comment.parentCommentId !== undefined)
-      return groupBy(
-         childComments,
-         c => c.parentCommentId,
-         c => c
-      )
-   }, [comments])
+      return [...flatComments].sort((a, b) => {
+         const reviewDiff = reviewsIndexed.get(a.reviewId)! - reviewsIndexed.get(b.reviewId)!
+         return reviewDiff === 0 ? a.commentIndex - b.commentIndex : reviewDiff
+      })
+   }, [reviews])
 
    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
 
    return (
       <>
-         <div className='flex h-full w-full flex-col space-y-0.5 overflow-auto lg:space-y-1'>
+         <div className='flex h-full w-full flex-col space-y-1 overflow-auto'>
             {rootComments.map((c: DetailedCommentFragment) => (
                <div key={c.id}>
-                  <DetailedComment
-                     review={reviewOverviews.get(c.reviewId)?.at(0)!}
-                     comment={c}
-                     childComments={childComments.get(c.id) ?? []}
-                  />
+                  <DetailedComment review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
                </div>
             ))}
          </div>
