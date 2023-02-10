@@ -154,26 +154,27 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             trackDivRef.current = el
          }}
          className={classNames(
-            'group m-0 flex h-full w-full select-none flex-row items-center justify-between border-2 border-transparent p-0.5',
+            'group m-0 h-full w-full select-none border-2 border-transparent p-0.5',
+            'grid grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
                ? ''
                : isAbove
-               ? 'order-t-2 border-t-success '
-               : 'border-b-2 border-b-success'
+               ? 'border-t-2 border-t-primary'
+               : 'border-b-2 border-b-primary'
          )}
       >
-         <div className='flex flex-row items-center justify-start space-x-1'>
-            <div className='avatar ml-1 hidden sm:flex'>
+         <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
+            <div className='avatar ml-1 hidden flex-none sm:flex'>
                <div className='h-8 w-8 rounded md:h-12 md:w-12'>
                   <img src={albumImage} />
                </div>
             </div>
 
-            <div className='flex w-32 flex-col pl-1 md:w-36 lg:w-64'>
-               <div className='select-none	truncate p-0.5 text-base'> {track.name} </div>
-               <div className='select-none	truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+            <div className='flex min-w-0 flex-col pl-1'>
+               <div className='select-none truncate p-0.5 text-base'> {track.name} </div>
+               <div className='select-none truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
             </div>
          </div>
 
@@ -186,10 +187,10 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             />
          </div>
 
-         <div className='hidden	select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
+         <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
             {`${minutes}:${seconds}`}
          </div>
-         <div className='grid place-items-center'>
+         <div className='cols-span-1 grid place-items-center'>
             <LikeButton
                trackId={track.id}
                svgStyle={svgStyle}
@@ -197,7 +198,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
             />
          </div>
-         <div className='mr-5 flex w-5'>
+         <div className='flex w-full justify-center'>
             <TrackOptions
                trackId={track.id}
                reviewId={reviewId}

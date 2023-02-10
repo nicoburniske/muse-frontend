@@ -1,5 +1,4 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { PrimitiveAtom } from 'jotai'
 import { RefObject, useCallback, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
@@ -44,16 +43,17 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       <div
          ref={playOnDoubleClickRef}
          className={classNames(
-            'group m-0 flex select-none flex-row items-center justify-between border-2 border-transparent  p-0.5',
+            'group m-0 select-none border-2 border-transparent p-0.5',
+            'grid grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6',
             styles
          )}
       >
-         <div className='flex w-24 flex-col pl-1 md:w-40 lg:w-48'>
-            <div className='select-none	truncate p-0.5 text-base'> {track.name} </div>
-            <div className='select-none	truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+         <div className='col-span-2 flex min-w-0 flex-col pl-1'>
+            <div className='select-none truncate p-0.5 text-base'> {track.name} </div>
+            <div className='select-none truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
          </div>
 
-         <div className='hidden	select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
+         <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
             {`${minutes}:${seconds}`}
          </div>
          <div className='hidden place-items-center md:grid'>
@@ -67,7 +67,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                className={'btn btn-ghost btn-sm p-0'}
             />
          </div>
-         <div className='mr-5 flex w-5'>
+         <div className='flex w-full justify-center'>
             <TrackOptions trackId={track.id} reviewId={reviewId} />
          </div>
       </div>
