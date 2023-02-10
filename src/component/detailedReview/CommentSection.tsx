@@ -4,13 +4,14 @@ import {
    ReviewUpdatesSubscription,
    useDetailedReviewCommentsQuery,
 } from 'graphql/generated/schema'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
 import DetailedComment from './comment/DetailedComment'
 import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from './table/Helpers'
 import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
 import { DeleteCommentConfirmation } from './comment/DeleteCommentConfirmation'
+import { useDndScrolling } from 'react-dnd-scrolling'
 
 const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
 
@@ -43,10 +44,12 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
    }, [reviews, results])
 
    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
+   const ref = useRef<HTMLDivElement>(null)
+   useDndScrolling(ref, {})
 
    return (
       <>
-         <div className='flex flex-1 flex-col space-y-1 overflow-y-auto'>
+         <div className='flex flex-1 flex-col space-y-1 overflow-y-auto' ref={ref}>
             {rootComments.map((c: DetailedCommentFragment) => (
                <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
             ))}
