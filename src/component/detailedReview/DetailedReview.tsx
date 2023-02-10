@@ -156,7 +156,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             </div>
          </div>
          {isReviewOwner ? (
-            <div className='grid grid-cols-2 place-content-evenly gap-1 lg:flex lg:space-x-1'>
+            <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
                <EditReviewButton
                   reviewId={reviewId}
                   reviewName={title!}
