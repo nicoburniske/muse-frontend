@@ -43,11 +43,11 @@ export const ThemeSetter = () => {
                               value={theme}
                            >
                               {({ selected, active }) => (
-                                 <div className='grid w-full grid-cols-3'>
+                                 <div className='grid w-full grid-cols-4'>
                                     <span
                                        className={classNames(
                                           selected ? 'font-semibold' : 'font-normal',
-                                          'block truncate'
+                                          'col-span-2 block truncate'
                                        )}
                                     >
                                        {theme}

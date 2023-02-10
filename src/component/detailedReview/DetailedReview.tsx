@@ -7,36 +7,33 @@ import {
    DetailedPlaylistFragment,
    DetailedAlbumFragment,
 } from 'graphql/generated/schema'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { ShareReview } from './ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, classNames } from 'util/Utils'
-import CreateReview from 'component/createReview/CreateReview'
 import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
-import { LinkReviewButton } from './LinkReview'
 import ReviewCommentSection from './CommentSection'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { PencilIcon, PencilSquareIcon, UserIcon } from '@heroicons/react/20/solid'
-import { ShareIcon } from '@heroicons/react/24/outline'
+import { Bars3BottomLeftIcon, PencilIcon, ShareIcon, UserIcon } from '@heroicons/react/20/solid'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { EditReviewButton } from './editReview/EditReview'
+import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 
 export interface DetailedReviewProps {
    reviewId: string
-   isSm: boolean
 }
 
 export type RenderOptions = 'tracks' | 'comments' | 'both'
 const renderOptionAtom = atom<RenderOptions>('both')
 
-export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
+export function DetailedReview({ reviewId }: DetailedReviewProps) {
    const { data, isLoading } = useDetailedReviewQuery(
       { reviewId },
       {
@@ -45,12 +42,6 @@ export function DetailedReview({ reviewId, isSm }: DetailedReviewProps) {
          refetchOnWindowFocus: false,
       }
    )
-
-   const setRenderOption = useSetAtom(renderOptionAtom)
-
-   useEffect(() => {
-      setRenderOption(isSm ? 'tracks' : 'both')
-   }, [])
 
    if (data?.review) {
       return <DetailedReviewContent reviewId={reviewId} review={data.review} />
@@ -98,7 +89,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
       <div className='relative flex grow flex-col'>
          <ReviewHeader review={review} />
          {/* For some reason I need a min-height? When doing flex-col in page. */}
-         <div className='mx-1 min-h-0 grow bg-base-300'>
+         <div className='mx-1 min-h-0 grow bg-base-100'>
             <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
          </div>
          <CommentFormModalWrapper />
@@ -106,15 +97,12 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
    )
 }
 
-const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
-
 const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const queryClient = useQueryClient()
    const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
 
    const reviewId = review.id
    const currentUserId = useCurrentUserId()
-   const parentReviewIdAtom = useMemo(() => atom<string>(reviewId), [])
 
    const isReviewOwner = currentUserId === review?.creator?.id
    const collaborators = review?.collaborators ?? []
@@ -129,32 +117,29 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    // Root review doesn't need an entity.
    const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
 
-   const childReviewIds =
-      review?.childReviews
-         ?.filter(nonNullable)
-         ?.map(c => c?.id)
-         .filter(nonNullable) ?? []
-
    return (
-      <div className='shadow-l mb-1 flex flex-row items-center justify-between bg-base-100 px-5'>
-         <div className='col-span-3 flex flex-row items-center justify-start space-x-1 p-1 lg:col-span-2'>
+      <div className='shadow-l mb-1 flex flex-row items-center justify-between bg-base-100'>
+         <div className='flex flex-row items-center justify-start space-x-1 p-1'>
             <div className='min-w-0 flex-1'>
-               <div className='flex items-center'>
+               <div className='flex items-center justify-between'>
                   <img
                      className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
                      src={reviewEntityImage}
                   />
+
+                  <OpenMobileMenuButton>
+                     {onClick => (
+                        <button type='button' className='btn btn-primary mr-2 h-full px-4 md:hidden' onClick={onClick}>
+                           <span className='sr-only'>Open sidebar</span>
+                           <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
+                        </button>
+                     )}
+                  </OpenMobileMenuButton>
                   <div>
-                     <div className='flex items-center'>
-                        <img
-                           className='h-10 w-10 object-scale-down object-center shadow-2xl sm:hidden'
-                           src={reviewEntityImage}
-                        />
-                     </div>
-                     <dl className='ml-1 flex flex-col items-start justify-center space-y-1'>
-                        <h1 className='text-2xl font-bold leading-7 sm:truncate sm:leading-9'>{title}</h1>
+                     <dl className='ml-1 flex flex-col items-start justify-center md:ml-3 md:space-y-1'>
+                        <h1 className='text-base font-bold leading-7 sm:truncate sm:leading-9 md:text-2xl'>{title}</h1>
                         <dt className='sr-only'>Entity Details</dt>
-                        <dd className='flex items-center text-sm font-medium sm:mr-6'>
+                        <dd className='flex items-center text-sm font-medium'>
                            <div className='badge badge-secondary mr-1.5 overflow-hidden truncate whitespace-nowrap'>
                               {entity?.__typename}
                            </div>
@@ -170,14 +155,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                </div>
             </div>
          </div>
-         <div className='tabs flex flex-row justify-center'>
-            <RenderOptionTabs />
-         </div>
          {isReviewOwner ? (
-            <div className='grid grid-cols-2 gap-1 lg:flex lg:space-x-1'>
-               <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()}>
-                  <ShareIcon className='h-6 w-6' />
-               </ShareReview>
+            <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
                <EditReviewButton
                   reviewId={reviewId}
                   reviewName={title!}
@@ -186,22 +165,33 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   }}
                   isPublic={isPublic === undefined ? false : isPublic}
                >
-                  <button className='btn btn-primary btn-sm lg:btn-md'>
-                     <PencilIcon className='h-6 w-6' />
-                  </button>
+                  {onClick => (
+                     <button className='btn btn-primary btn-sm lg:btn-md' onClick={onClick}>
+                        <PencilIcon className='h-6 w-6' />
+                     </button>
+                  )}
                </EditReviewButton>
-               <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
-               <CreateReview
-                  parentReviewIdAtom={parentReviewIdAtom}
-                  title='create linked review'
-                  className='btn btn-secondary btn-sm lg:btn-md'
-               />
+
+               <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()}>
+                  <ShareIcon className='h-6 w-6' />
+               </ShareReview>
+
+               <div className='tabs col-span-2 flex flex-row items-center justify-center'>
+                  <RenderOptionTabs />
+               </div>
+               {/* <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
+                  <CreateReview
+                     parentReviewIdAtom={parentReviewIdAtom}
+                     title='create linked review'
+                     className='btn btn-secondary btn-sm lg:btn-md'
+                  /> */}
             </div>
          ) : null}
       </div>
    )
 }
 
+const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
 const RenderOptionTabs = () => {
    const [renderOption, setRenderOption] = useAtom(renderOptionAtom)
    return (
@@ -213,7 +203,11 @@ const RenderOptionTabs = () => {
             <MusicIcon />
          </button>
          <button
-            className={classNames(tabStyle, renderOption === 'both' ? 'tab-active' : '')}
+            className={classNames(
+               tabStyle,
+               // 'hidden md:tab',
+               renderOption === 'both' ? 'tab-active' : ''
+            )}
             onClick={() => setRenderOption('both')}
          >
             <ArrowRightLeftIcon />

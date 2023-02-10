@@ -3,7 +3,7 @@ import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } 
 import toast from 'react-hot-toast'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 
-export const useCommentModalTrack = (reviewId: string, trackId: string) => {
+export const useCommentModalTrack = (reviewId: string, trackId: string, invalidate = false) => {
    // On successful comment creation, clear the comment box
    const { openCommentModal, closeCommentModal } = useCommentModal()
    const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
@@ -17,7 +17,9 @@ export const useCommentModalTrack = (reviewId: string, trackId: string) => {
          await createComment({
             input: { comment, entities: [{ entityId: trackId, entityType: EntityType.Track }], reviewId },
          })
-         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         if (invalidate) {
+            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
+         }
       }
    }
 

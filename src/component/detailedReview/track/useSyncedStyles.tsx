@@ -16,7 +16,7 @@ export const useTrackColor = (trackId: string) =>
                   ? 'bg-success text-success-content'
                   : isSelected
                   ? 'bg-info text-info-content'
-                  : 'bg-base-100 text-base-content active:bg-accent active:text-accent-content'
+                  : 'bg-base-200 text-base-content active:bg-accent active:text-accent-content'
             }),
          [trackId]
       )

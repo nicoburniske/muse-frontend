@@ -4,14 +4,15 @@ import {
    ReviewUpdatesSubscription,
    useDetailedReviewCommentsQuery,
 } from 'graphql/generated/schema'
-import { useSetAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
 import DetailedComment from './comment/DetailedComment'
 import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { ReviewOverview } from './table/Helpers'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
+import { DeleteCommentConfirmation } from './comment/DeleteCommentConfirmation'
+
+const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
 
 export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverview[] }) {
    const reviewIds = reviews.map(r => r.reviewId)
@@ -21,13 +22,9 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
       queries: reviewIds.map(reviewId => ({
          queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }),
          queryFn: useDetailedReviewCommentsQuery.fetcher({ reviewId }),
+         select: selectComments,
       })),
    })
-
-   const validComments = results
-      .map(r => r.data?.review?.comments)
-      .filter(nonNullable)
-      .flatMap(c => c)
 
    const reviewOverviews = groupBy(
       reviews,
@@ -35,47 +32,29 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
       r => r
    )
 
+   // Sort comments by review position and then by comment index.
    const comments = useMemo(() => {
-      return [...validComments].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-   }, [validComments])
+      const reviewsIndexed = new Map(reviews.map((r, index) => [r.reviewId, index]))
+      const flatComments = results.flatMap(c => c.data?.filter(nonNullable) ?? [])
 
-   const childComments = useMemo(() => {
-      const childComments = comments
-         .filter(comment => comment.parentCommentId !== null)
-         .filter(comment => comment.parentCommentId !== undefined)
-      return groupBy(
-         childComments,
-         c => c.parentCommentId,
-         c => c
+      return flatComments.sort(
+         (a, b) => reviewsIndexed.get(a.reviewId)! - reviewsIndexed.get(b.reviewId)! || a.commentIndex - b.commentIndex
       )
-   }, [comments])
+   }, [reviews, results])
 
    const rootComments = useMemo(() => comments.filter(comment => comment.parentCommentId === null), [comments])
 
-   const setSelectedTrack = useSetAtom(selectedTrackAtom)
-
-   // We want to find the track that the comment is applied to and scroll to it.
-   const onCommentClick = (commentId: number, reviewId: string) => {
-      const trackId = comments.find(c => c.id == commentId)?.entities?.at(0)?.id
-      if (trackId) {
-         setSelectedTrack(undefined)
-         setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
-      }
-   }
-
    return (
-      <div className='flex h-full w-full flex-col space-y-0.5 overflow-auto lg:space-y-1'>
-         {rootComments.map((c: DetailedCommentFragment) => (
-            <div key={c.id}>
-               <DetailedComment
-                  review={reviewOverviews.get(c.reviewId)?.at(0)!}
-                  comment={c}
-                  childComments={childComments.get(c.id) ?? []}
-                  onClick={() => onCommentClick(c.id, c.reviewId)}
-               />
-            </div>
-         ))}
-      </div>
+      <>
+         <div className='flex h-full w-full flex-col space-y-1 overflow-auto'>
+            {rootComments.map((c: DetailedCommentFragment) => (
+               <div key={c.id}>
+                  <DetailedComment review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
+               </div>
+            ))}
+         </div>
+         <DeleteCommentConfirmation />
+      </>
    )
 }
 
@@ -141,7 +120,6 @@ const subscribeToReviews = (reviewIds: string[]) => {
                         },
                      }
                   })
-                  queryClient.invalidateQueries(cacheKey)
                   break
                }
                default:
