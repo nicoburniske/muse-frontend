@@ -2,7 +2,7 @@ import { RefObject, useEffect } from 'react'
 
 export default function useDoubleClick({
    ref,
-   latency = 300,
+   latency = 500,
    onSingleClick = () => null,
    onDoubleClick = () => null,
 }: {
@@ -34,5 +34,5 @@ export default function useDoubleClick({
       return () => {
          clickRef.removeEventListener('click', handleClick)
       }
-   })
+   }, [ref, latency, onSingleClick, onDoubleClick])
 }

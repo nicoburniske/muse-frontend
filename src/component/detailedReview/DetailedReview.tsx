@@ -25,6 +25,7 @@ import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { EditReviewButton } from './editReview/EditReview'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
+import { HeroLoading } from 'platform/component/HeroLoading'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -109,7 +110,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const isPublic = review.isPublic
    const title = review.reviewName
    const entityName = review.entity?.name ?? 'No Entity Linked'
-   const creator = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
+   const creatorDisplayName = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
+   const creatorId = review?.creator?.id
    const entity = review?.entity
 
    // Find first image!
@@ -126,30 +128,38 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
                      src={reviewEntityImage}
                   />
-
                   <OpenMobileMenuButton>
                      {onClick => (
-                        <button type='button' className='btn btn-primary mr-2 h-full px-4 md:hidden' onClick={onClick}>
+                        <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
                            <span className='sr-only'>Open sidebar</span>
                            <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                         </button>
                      )}
                   </OpenMobileMenuButton>
                   <div>
-                     <dl className='ml-1 flex flex-col items-start justify-center md:ml-3 md:space-y-1'>
+                     <dl className='ml-1 flex flex-col items-start justify-center space-y-1 md:ml-3'>
                         <h1 className='text-base font-bold leading-7 sm:truncate sm:leading-9 md:text-2xl'>{title}</h1>
                         <dt className='sr-only'>Entity Details</dt>
                         <dd className='flex items-center text-sm font-medium'>
                            <div className='badge badge-secondary mr-1.5 overflow-hidden truncate whitespace-nowrap'>
                               {entity?.__typename}
                            </div>
-                           {entityName}
+                           <div className='line-clamp-1'>{entityName}</div>
                         </dd>
                         <dt className='sr-only'>Creator name</dt>
-                        <dd className='mt-3 flex items-center text-sm font-medium capitalize sm:mr-6 sm:mt-0'>
-                           <UserIcon className='mr-1.5 h-5 w-5 flex-shrink-0 text-primary' aria-hidden='true' />
-                           {creator}
-                        </dd>
+                        <div className='flex min-w-0 flex-1 space-x-1'>
+                           <p className=' text-sm font-medium text-base-content'>
+                              <a className=''>{creatorDisplayName}</a>
+                           </p>
+                           {
+                              // Only show @ if it's not the same as the display name.
+                              creatorId && (
+                                 <p className='text-sm text-base-content/50'>
+                                    <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
+                                 </p>
+                              )
+                           }
+                        </div>
                      </dl>
                   </div>
                </div>
@@ -176,7 +186,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   <ShareIcon className='h-6 w-6' />
                </ShareReview>
 
-               <div className='tabs col-span-2 flex flex-row items-center justify-center'>
+               <div className='tabs col-span-2 flex flex-row flex-nowrap items-center justify-center'>
                   <RenderOptionTabs />
                </div>
                {/* <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
@@ -300,14 +310,8 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[]; rootRe
    const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
 
    return (
-      <div className='flex w-full'>
-         {isLoading ? (
-            <div className='grid w-full place-items-center'>
-               <div className='h-56 w-56 animate-spin rounded-full border-8 border-solid border-primary border-t-transparent' />
-            </div>
-         ) : (
-            <GroupedTrackTableWrapper results={matchedReviews} rootReview={rootReview} />
-         )}
+      <div className='relative flex w-full'>
+         {isLoading ? <HeroLoading /> : <GroupedTrackTableWrapper results={matchedReviews} rootReview={rootReview} />}
       </div>
    )
 }

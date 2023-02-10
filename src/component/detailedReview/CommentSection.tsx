@@ -46,11 +46,9 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
    return (
       <>
-         <div className='flex h-full w-full flex-col space-y-1 overflow-auto'>
+         <div className='flex flex-1 flex-col space-y-1 overflow-y-auto'>
             {rootComments.map((c: DetailedCommentFragment) => (
-               <div key={c.id}>
-                  <DetailedComment review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
-               </div>
+               <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
             ))}
          </div>
          <DeleteCommentConfirmation />

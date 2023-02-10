@@ -151,7 +151,6 @@ export const GroupedTrackTable = () => {
             className='relative w-full'
             style={{
                height: `${rowVirtualizer.getTotalSize()}px`,
-               willChange: 'transform',
             }}
          >
             {rowVirtualizer
