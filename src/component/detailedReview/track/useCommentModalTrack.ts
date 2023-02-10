@@ -24,7 +24,7 @@ export const useCommentModalTrack = (reviewId: string, trackId: string, invalida
    }
 
    return () => {
-      const values = { title: 'create comment', onCancel: () => closeCommentModal(), onSubmit, trackId }
+      const values = { title: 'Create Comment', onCancel: () => closeCommentModal(), onSubmit, trackId }
       openCommentModal(values)
    }
 }

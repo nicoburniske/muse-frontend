@@ -59,7 +59,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
       reviewId,
       trackId: detailedComment?.entities?.at(0)?.id!,
       parentCommentId: detailedComment.id,
-      title: 'Reply To Comment',
+      title: 'Reply',
    })
 
    const [isExpanded, setIsExpanded] = useState(false)

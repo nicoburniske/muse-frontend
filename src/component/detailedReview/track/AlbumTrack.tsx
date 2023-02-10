@@ -49,10 +49,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       >
          <div
             ref={playOnDoubleClickRef}
-            className={classNames(
-               'grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5',
-               styles
-            )}
+            className={classNames('grid grow grid-cols-3 items-center justify-center md:grid-cols-5', styles)}
          >
             <div className='col-span-2 flex min-w-0 flex-col pl-1'>
                <div className='select-none truncate p-0.5 text-base'> {track.name} </div>

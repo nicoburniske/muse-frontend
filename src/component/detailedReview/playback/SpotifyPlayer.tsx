@@ -54,15 +54,15 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='flex h-20 w-full justify-between bg-neutral'>
+      <div className='grid h-20 w-full grid-cols-3 justify-between bg-neutral md:grid-cols-6'>
          <NowPlayingItem />
-         <div className='flex grow basis-1/2 flex-col items-end justify-center rounded-lg'>
+         <div className='col-span-2 flex flex-col items-end justify-center rounded-lg md:col-span-4'>
             <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
                <PlayerButtons />
             </div>
             <PlaybackProgress />
          </div>
-         <div className='m-2 hidden basis-1/4 place-items-center lg:grid'>
+         <div className='m-2 hidden basis-1/4 place-items-center md:grid'>
             <VolumeSlider />
          </div>
       </div>
@@ -134,7 +134,7 @@ const NowPlayingItem = () => {
       <div
          ref={drag}
          className={classNames(
-            'flex max-w-sm basis-1/4 select-none flex-row items-center justify-start lg:max-w-lg ',
+            'col-span-1 flex select-none flex-row items-center justify-start lg:max-w-lg ',
             isDragging ? 'opacity-20' : 'bg-neutral'
          )}
       >
