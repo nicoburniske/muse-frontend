@@ -34,15 +34,16 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
    })
 
    const input: [string] = [trackId]
-   const handleClick = () => {
+   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      e.stopPropagation()
       isLiked ? unlikeTrack(input) : likeTrack(input)
    }
 
    const svgClassName = svgStyle(isLiked)
    const disabled = isLiked === undefined
-
+   j
    return (
-      <button className={classNames(className)} disabled={disabled} onClick={() => handleClick()}>
+      <button className={classNames(className)} disabled={disabled} onClick={e => handleClick(e)}>
          {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
       </button>
    )
