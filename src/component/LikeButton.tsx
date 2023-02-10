@@ -41,7 +41,7 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
 
    const svgClassName = svgStyle(isLiked)
    const disabled = isLiked === undefined
-   j
+
    return (
       <button className={classNames(className)} disabled={disabled} onClick={e => handleClick(e)}>
          {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
