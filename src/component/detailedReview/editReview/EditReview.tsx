@@ -118,7 +118,7 @@ type EditReviewButtonProps = {
    reviewName: string
    isPublic: boolean
    onSuccess: () => void
-   children: React.ReactNode
+   children: (onClick: () => void) => React.ReactElement
 }
 
 export const EditReviewButton = (props: EditReviewButtonProps) => {
@@ -129,7 +129,7 @@ export const EditReviewButton = (props: EditReviewButtonProps) => {
             <EditReview {...props} isOpen={isOpen} onCancel={() => setIsOpen(false)} />,
             document.body
          )}
-         <div onClick={() => setIsOpen(true)}>{props.children}</div>
+         {props.children(() => setIsOpen(true))}
       </>
    )
 }

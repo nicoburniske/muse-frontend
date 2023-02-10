@@ -141,7 +141,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
                         <dt className={classNames(textColorSecondary)}>{key}</dt>
-                        <dd className='whitespace-nowrap'>{info[key]}</dd>
+                        <dd className='text-right'>{info[key]}</dd>
                      </div>
                   ))}
                </dl>

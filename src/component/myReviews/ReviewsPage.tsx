@@ -10,7 +10,12 @@ import toast from 'react-hot-toast'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import IconToggle from 'platform/component/IconToggle'
-import { Bars4Icon, MagnifyingGlassIcon, Squares2X2Icon as Squares2X2IconMini } from '@heroicons/react/20/solid'
+import {
+   Bars3BottomLeftIcon,
+   Bars4Icon,
+   MagnifyingGlassIcon,
+   Squares2X2Icon as Squares2X2IconMini,
+} from '@heroicons/react/20/solid'
 import { classNames } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
 import { useCurrentUserId } from 'state/CurrentUser'
@@ -55,7 +60,14 @@ export default function ReviewsPage() {
       <div className='flex flex-1 flex-col bg-base-100'>
          <header className='w-full'>
             <div className='relative z-10 flex h-16 flex-shrink-0 shadow-sm'>
-               <OpenMobileMenuButton />
+               <OpenMobileMenuButton>
+                  {onClick => (
+                     <button type='button' className='btn btn-primary m-auto h-full px-4 md:hidden' onClick={onClick}>
+                        <span className='sr-only'>Open sidebar</span>
+                        <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
+                     </button>
+                  )}
+               </OpenMobileMenuButton>
                <div className='align-center flex flex-1 justify-center py-2 px-4 sm:px-6'>
                   <SearchBar />
                   <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
