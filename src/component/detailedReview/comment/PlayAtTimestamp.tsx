@@ -40,12 +40,7 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
    }, [time])
 
    const { playTrackOffset } = usePlayMutation({
-      onError: () => toast.error('Failed to start playback. Please start a playback session and try again.'),
-      onSuccess: () => {
-         if (timestamp === undefined) {
-            toast.error('Successfully started playback from start. Invalid timestamp.')
-         }
-      },
+      onError: () => toast.error('Failed to play at timestamp.'),
    })
 
    // TODO: Eventually we want to play WITH CONTEXT.

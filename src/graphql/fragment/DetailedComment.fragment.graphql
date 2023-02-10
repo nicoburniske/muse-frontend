@@ -1,15 +1,16 @@
 fragment DetailedComment on Comment {
    id
+   commentIndex
    reviewId
    createdAt
    updatedAt
+   deleted
    parentCommentId
    commenter {
       ...UserWithSpotifyOverview
    }
    comment
    entities {
-      __typename
-      id
+      ...ReviewEntityOverview
    }
 }

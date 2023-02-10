@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { DetailedReview } from 'component/detailedReview/DetailedReview'
 import { Alert, AlertSeverity } from 'platform/component/Alert'
-import useWindowSize from 'platform/hook/useWindowSize'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
@@ -9,7 +8,6 @@ import { HeroLoading } from 'platform/component/HeroLoading'
 
 export default function DetailedReviewPage() {
    const { reviewId } = useParams()
-   const { isSm } = useWindowSize()
 
    if (reviewId) {
       return (
@@ -25,10 +23,9 @@ export default function DetailedReviewPage() {
                </Hero>
             }
          >
-            {/* <div className="bg-base-100 flex h-full w-full"> */}
             <div className='flex grow bg-base-100'>
                <Suspense fallback={<HeroLoading />}>
-                  <DetailedReview reviewId={reviewId} isSm={isSm} />
+                  <DetailedReview reviewId={reviewId} />
                </Suspense>
             </div>
          </ErrorBoundary>

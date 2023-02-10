@@ -10,7 +10,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useEffect } from 'react'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,

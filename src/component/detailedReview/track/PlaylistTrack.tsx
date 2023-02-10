@@ -148,65 +148,70 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
 
    return (
       <div
-         ref={(el: HTMLDivElement) => {
-            drag(el)
-            drop(el)
-            trackDivRef.current = el
-         }}
          className={classNames(
-            'group card card-body m-0 flex h-full w-full select-none flex-row items-center justify-between border-2 border-base-300 p-0.5',
+            'group flex items-center justify-between',
+            'm-0 select-none border-2 border-transparent p-0.5',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
                ? ''
                : isAbove
-               ? 'order-t-2 border-t-success '
-               : 'border-b-2 border-b-success'
+               ? 'border-t-2 border-t-primary'
+               : 'border-b-2 border-b-primary'
          )}
       >
-         <div className='flex flex-row items-center justify-start space-x-1'>
-            <div className='avatar ml-1 hidden sm:flex'>
-               <div className='h-8 w-8 rounded md:h-12 md:w-12'>
-                  <img src={albumImage} />
+         <div
+            ref={(el: HTMLDivElement) => {
+               drag(el)
+               drop(el)
+               trackDivRef.current = el
+            }}
+            className={classNames('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
+         >
+            <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
+               <div className='avatar ml-1 hidden flex-none sm:flex'>
+                  <div className='h-8 w-8 rounded md:h-12 md:w-12'>
+                     <img src={albumImage} />
+                  </div>
+               </div>
+
+               <div className='flex min-w-0 flex-col pl-1'>
+                  <div className='select-none truncate p-0.5 text-base'> {track.name} </div>
+                  <div className='select-none truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
                </div>
             </div>
 
-            <div className='flex w-32 flex-col pl-1 md:w-36 lg:w-64'>
-               <div className='select-none	truncate p-0.5 text-base'> {track.name} </div>
-               <div className='select-none	truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+            <div className='hidden place-items-center lg:grid'>
+               <UserAvatar
+                  displayName={displayName}
+                  tooltip={`${displayName} - ${dateAdded}`}
+                  image={avatarImage as string}
+                  tooltipPos={TooltipPos.Left}
+               />
             </div>
+
+            <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
+               {`${minutes}:${seconds}`}
+            </div>
+            <div className='cols-span-1 grid place-items-center'>
+               <LikeButton
+                  trackId={track.id}
+                  svgStyle={svgStyle}
+                  className={'btn btn-ghost btn-sm p-0'}
+                  options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
+               />
+            </div>
+            <div className='flex w-full justify-center'></div>
          </div>
 
-         <div className='hidden place-items-center lg:grid'>
-            <UserAvatar
-               displayName={displayName}
-               tooltip={`${displayName} - ${dateAdded}`}
-               image={avatarImage as string}
-               tooltipPos={TooltipPos.Left}
-            />
-         </div>
-
-         <div className='hidden	select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
-            {`${minutes}:${seconds}`}
-         </div>
-         <div className='grid place-items-center'>
-            <LikeButton
-               trackId={track.id}
-               svgStyle={svgStyle}
-               className={'btn btn-ghost btn-sm p-0'}
-               options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
-            />
-         </div>
-         <div className='mr-5 flex w-5'>
-            <TrackOptions
-               trackId={track.id}
-               reviewId={reviewId}
-               playlist={{
-                  owner: playlistOwner ?? '',
-                  id: playlistId,
-               }}
-            />
-         </div>
+         <TrackOptions
+            trackId={track.id}
+            reviewId={reviewId}
+            playlist={{
+               owner: playlistOwner ?? '',
+               id: playlistId,
+            }}
+         />
       </div>
    )
 }

@@ -13,7 +13,7 @@ type SelectManyProps<T> = {
    renderSelected: (t: T[]) => string
 }
 
-const SelectMany = <T extends any>({
+const SelectMany = <T,>({
    label,
    selected,
    allOptions,
@@ -28,7 +28,7 @@ const SelectMany = <T extends any>({
             <>
                <Listbox.Label className='block text-base font-bold text-base-content'>{label}</Listbox.Label>
                <div className='relative mt-1'>
-                  <Listbox.Button className='focus:primary relative w-full cursor-default rounded-md border border-base-300 bg-base-100 py-2 pl-3 pr-10 text-left shadow-sm ring-primary focus:border-primary focus:outline-none focus:ring-1 sm:text-sm'>
+                  <Listbox.Button className='focus:primary relative w-full cursor-default rounded-md border border-base-300 bg-base-100 py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-primary focus:border-primary focus:outline-none focus:ring-1 md:text-base'>
                      <span className='block truncate text-base-content'>{renderSelected(selected)}</span>
                      <span className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2'>
                         <ChevronUpDownIcon className='h-5 w-5 text-primary' aria-hidden='true' />
@@ -59,7 +59,7 @@ const SelectMany = <T extends any>({
                                     <span
                                        className={classNames(
                                           selected ? 'font-semibold' : 'font-normal',
-                                          'block truncate'
+                                          'block text-clip text-sm md:text-base'
                                        )}
                                     >
                                        {renderOption(option)}

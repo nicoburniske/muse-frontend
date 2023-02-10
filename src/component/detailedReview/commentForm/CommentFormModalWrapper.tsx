@@ -31,9 +31,6 @@ const closeModalAtom = atom(null, (_get, set) => {
 })
 
 export const useCommentModal = () => {
-   // TODO: This breaks?
-   // const openCommentModal = useMemo(() => useSetAtom(openModalAtom), [])
-   // const closeCommentModal = useMemo(() => useSetAtom(closeModalAtom), [])
    const openCommentModal = useSetAtom(openModalAtom)
    const closeCommentModal = useSetAtom(closeModalAtom)
    return {
