@@ -20,12 +20,14 @@ import ReviewCommentSection from './CommentSection'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { Bars3BottomLeftIcon, PencilIcon, ShareIcon, UserIcon } from '@heroicons/react/20/solid'
+import { Bars3BottomLeftIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { EditReviewButton } from './editReview/EditReview'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { HeroLoading } from 'platform/component/HeroLoading'
+import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
+import { searchAtom } from 'state/Atoms'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -165,6 +167,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                </div>
             </div>
          </div>
+         <div className='hidden w-full max-w-xl lg:inline'>
+            <SearchTracks />
+         </div>
          {isReviewOwner ? (
             <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
                <EditReviewButton
@@ -196,8 +201,23 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      className='btn btn-secondary btn-sm lg:btn-md'
                   /> */}
             </div>
-         ) : null}
+         ) : (
+            <div />
+         )}
       </div>
+   )
+}
+
+const SearchTracks = () => {
+   const [search, setSearch] = useAtom(searchAtom)
+
+   return (
+      <SearchInputKbdSuggestion
+         screenReaderLabel={'Search Tracks'}
+         placeholder={'Search Tracks'}
+         search={search}
+         setSearch={setSearch}
+      />
    )
 }
 

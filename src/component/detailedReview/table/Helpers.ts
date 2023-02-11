@@ -44,3 +44,12 @@ export function getTrack(track: TrackRow): DetailedTrackFragment {
       return track
    }
 }
+
+export const searchTrack = (trackRow: TrackRow, search: string): boolean => {
+   const track = getTrack(trackRow)
+   return (
+      track.name.toLowerCase().includes(search) ||
+      track.artists?.some(artist => artist?.name?.toLowerCase().includes(search)) ||
+      false
+   )
+}

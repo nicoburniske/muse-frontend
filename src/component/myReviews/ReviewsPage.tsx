@@ -10,15 +10,11 @@ import toast from 'react-hot-toast'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import IconToggle from 'platform/component/IconToggle'
-import {
-   Bars3BottomLeftIcon,
-   Bars4Icon,
-   MagnifyingGlassIcon,
-   Squares2X2Icon as Squares2X2IconMini,
-} from '@heroicons/react/20/solid'
+import { Bars3BottomLeftIcon, Bars4Icon, Squares2X2Icon as Squares2X2IconMini } from '@heroicons/react/20/solid'
 import { classNames } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
 import { useCurrentUserId } from 'state/CurrentUser'
+import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 
 const viewToggleAtom = atom(false)
 
@@ -68,7 +64,7 @@ export default function ReviewsPage() {
                      </button>
                   )}
                </OpenMobileMenuButton>
-               <div className='align-center flex flex-1 justify-center py-2 px-4 sm:px-6'>
+               <div className='align-center flex flex-1 justify-center py-2 px-4'>
                   <SearchBar />
                   <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
                      <CreateReview
@@ -148,40 +144,17 @@ export default function ReviewsPage() {
 
 const SearchBar = () => {
    // TODO: Consider atomWithDebounce!
+   // TODO: Fix centering!
    const [search, setSearch] = useAtom(searchAtom)
+
    return (
-      <div className='flex max-w-3xl flex-1'>
-         <form className='flex w-full md:ml-0'>
-            <label htmlFor='desktop-search-field' className='sr-only'>
-               Search reviews
-            </label>
-            <label htmlFor='mobile-search-field' className='sr-only'>
-               Search reviews
-            </label>
-            <div className='flex w-full flex-row items-center justify-between space-x-5 text-base-content'>
-               <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
-               <input
-                  name='mobile-search-field'
-                  id='mobile-search-field'
-                  className='input h-full w-full placeholder-base-content/50 sm:hidden'
-                  placeholder='Search'
-                  type='search'
-                  autoComplete='off'
-                  value={search}
-                  onChange={e => setSearch(e.target.value as string)}
-               />
-               <input
-                  name='desktop-search-field'
-                  id='desktop-search-field'
-                  className='input hidden w-full placeholder-base-content/50 sm:block'
-                  placeholder='Search'
-                  type='search'
-                  autoComplete='off'
-                  value={search}
-                  onChange={e => setSearch(e.target.value as string)}
-               />
-            </div>
-         </form>
+      <div className='max-w-3xl flex-1'>
+         <SearchInputKbdSuggestion
+            screenReaderLabel='Search Reviews'
+            placeholder={'Search Reviews'}
+            search={search}
+            setSearch={setSearch}
+         />
       </div>
    )
 }

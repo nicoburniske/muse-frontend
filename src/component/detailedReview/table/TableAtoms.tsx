@@ -5,9 +5,10 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
 import { nonNullable } from 'util/Utils'
-import { getTrack, getTracks, Group, HeaderData, ReviewOverview, TrackRow } from './Helpers'
+import { getTrack, getTracks, Group, HeaderData, ReviewOverview, searchTrack, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
 import { MemoTrack } from './MemoTrack'
+import { searchLoweredAtom } from 'state/Atoms'
 
 /**
  * Constructor atoms!
@@ -67,13 +68,14 @@ const sortedGroupsAtom = atom(get => {
 sortedGroupsAtom.debugLabel = 'sortedGroupsAtom'
 
 export type GroupWithTracks = { tracks: TrackRow[]; headerData: HeaderData; overview: ReviewOverview }
-export const groupWithTracksAtom = atom<GroupWithTracks[]>(get =>
-   get(sortedGroupsAtom).map(result => ({
-      tracks: getTracks(result.data),
+export const groupWithTracksAtom = atom<GroupWithTracks[]>(get => {
+   const search = get(searchLoweredAtom)
+   return get(sortedGroupsAtom).map(result => ({
+      tracks: getTracks(result.data).filter(t => searchTrack(t, search)),
       headerData: result.data as HeaderData,
       overview: result.overview,
    }))
-)
+})
 groupWithTracksAtom.debugLabel = 'allGroupsAtom'
 
 export const tracksAtom = atom<DetailedTrackFragment[]>(get =>

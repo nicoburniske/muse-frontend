@@ -1,4 +1,4 @@
-import { MutedSpeakerIcon, RepeatIcon, SearchIcon, SpeakerIcon } from 'component/Icons'
+import { MutedSpeakerIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
