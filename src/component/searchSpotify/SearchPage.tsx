@@ -179,7 +179,7 @@ const SearchInputBar = () => {
                   value={search}
                   onClick={focus}
                >
-                  Search
+                  {search || 'Search'}
                   <span className='hidden md:inline'>
                      <kbd className='kbd'>cmd</kbd>+<kbd className='kbd'>k</kbd>
                   </span>
