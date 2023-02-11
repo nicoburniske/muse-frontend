@@ -167,7 +167,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                         onClick={selectTrack}
                      >
                         <MagnifyingGlassCircleIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='font-medium text-base-content/50'>Find</span>
+                        <span className='hidden font-medium text-base-content/50 md:inline'>Find</span>
                         <span className='sr-only'>Find Track</span>
                      </button>
                   </span>
@@ -178,7 +178,9 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                         onClick={() => setIsExpanded(!isExpanded)}
                      >
                         <ChatBubbleLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='font-medium text-base-content/50'>{childComments.length}</span>
+                        <span className='hidden font-medium text-base-content/50 md:inline'>
+                           {childComments.length}
+                        </span>
                         <span className='sr-only'>replies</span>
                      </button>
                   </span>
@@ -191,7 +193,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                         onClick={replyComment}
                      >
                         <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='font-medium text-base-content/50'>Reply</span>
+                        <span className='hidden font-medium text-base-content/50 md:inline'>Reply</span>
                      </button>
                   </span>
                </div>
