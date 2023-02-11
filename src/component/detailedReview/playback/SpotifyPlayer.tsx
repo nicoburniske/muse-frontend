@@ -54,9 +54,9 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='grid h-20 w-full grid-cols-3 justify-between bg-neutral md:grid-cols-6'>
+      <div className='grid h-20 w-full grid-cols-3 justify-between bg-neutral md:grid-cols-5'>
          <NowPlayingItem />
-         <div className='col-span-2 flex flex-col items-end justify-center rounded-lg md:col-span-4'>
+         <div className='col-span-2 flex w-full min-w-0 max-w-md grow flex-col items-end justify-center justify-self-center md:col-span-3 lg:max-w-3xl'>
             <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
                <PlayerButtons />
             </div>
@@ -134,7 +134,7 @@ const NowPlayingItem = () => {
       <div
          ref={drag}
          className={classNames(
-            'col-span-1 flex select-none flex-row items-center justify-start lg:max-w-lg ',
+            'flex select-none flex-row items-center justify-start lg:max-w-lg ',
             isDragging ? 'opacity-20' : 'bg-neutral'
          )}
       >
@@ -163,7 +163,7 @@ const NowPlayingItem = () => {
    )
 }
 
-const commonBtnClass = 'btn btn-sm lg:btn-md p-0'
+const commonBtnClass = 'btn btn-md py-0 px-0 lg:btn-square'
 
 const svgStyle = (isLiked: boolean | undefined) => (isLiked ? 'fill-success text-success' : '')
 

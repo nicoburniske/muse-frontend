@@ -1,4 +1,5 @@
 import { BackspaceIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSpotifyClient } from 'component/sdk/ClientAtoms'
@@ -32,6 +33,7 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import { useWindowSizeAtom } from 'platform/hook/useWindowSize'
+import { flushSync } from 'react-dom'
 
 const SearchPage = () => {
    return (
@@ -107,19 +109,30 @@ const SelectNewFilter = () => {
 }
 
 const SearchInputBar = () => {
+   const inputRef = useRef<HTMLInputElement>(null)
+   const [isSearching, setIsSearching] = useState(false)
+   const focus = useCallback(() => {
+      // We want to guarantee the input is rendered before focusing.
+      flushSync(() => setIsSearching(true))
+      inputRef.current?.focus()
+   }, [inputRef, setIsSearching])
+   useHotkeys('meta+k', focus, [inputRef])
+
    const search = useAtomValue(queryStringAtom)
    const setSearch = useSetAtom(debouncedQueryString)
+
    return (
       <div className='flex py-1'>
-         <div className='flex w-full md:ml-0'>
-            <label htmlFor='search-field' className='sr-only'>
-               Search reviews
-            </label>
-            <div className='flex w-full flex-row items-center justify-between pr-4 text-base-content'>
-               <div className='p-4'>
-                  <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
-               </div>
+         <label htmlFor='search-field' className='sr-only'>
+            Search reviews
+         </label>
+         <div className='flex w-full flex-row items-center justify-between pr-4 text-base-content'>
+            <div className='p-4'>
+               <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
+            </div>
+            {isSearching ? (
                <input
+                  ref={inputRef}
                   name='search-field'
                   id='search-field'
                   className='input w-full border-2 border-base-content/20 text-base placeholder-base-content/50 caret-primary focus:border-primary focus:outline-none focus:ring-primary sm:text-sm'
@@ -128,8 +141,21 @@ const SearchInputBar = () => {
                   type='search'
                   autoComplete='off'
                   onChange={e => setSearch(e.target.value as string)}
+                  onBlur={() => setIsSearching(false)}
                />
-            </div>
+            ) : (
+               <button
+                  className='input flex w-full items-center justify-between border-2 border-base-content/20 text-base placeholder-base-content/50 caret-primary sm:text-sm'
+                  placeholder='Search'
+                  value={search}
+                  onClick={focus}
+               >
+                  Search
+                  <span className='hidden md:inline'>
+                     <kbd className='kbd'>cmd</kbd>+<kbd className='kbd'>k</kbd>
+                  </span>
+               </button>
+            )}
          </div>
       </div>
    )
