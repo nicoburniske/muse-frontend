@@ -70,6 +70,35 @@ const filterNewAtom = atom(false)
 // TODO: Handle URI getting pasted in?
 const { currentValueAtom: queryStringAtom, debouncedValueAtom: debouncedQueryString } = atomWithDebounce('')
 
+const allTypes = new Set(
+   Object.values(EntityType)
+      .flatMap(t => [t, t.toLocaleLowerCase()])
+      .map(t => '/' + t)
+)
+const asMap = new Map(
+   Object.values(EntityType).flatMap(t => [
+      ['/' + t, t],
+      ['/' + t.toLocaleLowerCase(), t],
+   ])
+)
+const setQueryStringAtom = atom(null, (get, set, value: string) => {
+   const containedTypes = value
+      .split(' ')
+      .filter(t => allTypes.has(t))
+      .map(t => asMap.get(t as EntityType)! as EntityType)
+
+   if (containedTypes.length > 0) {
+      set(selectedEntityTypesAtom, containedTypes)
+   }
+
+   const filteredString = value
+      .split(' ')
+      .filter(t => !allTypes.has(t))
+      .join(' ')
+
+   set(debouncedQueryString, filteredString)
+})
+
 // Hipster only applies to albums?
 const SelectHipsterFilter = () => {
    const [hipster, setHipster] = useAtom(filterHipsterAtom)
@@ -119,7 +148,7 @@ const SearchInputBar = () => {
    useHotkeys('meta+k', focus, [inputRef])
 
    const search = useAtomValue(queryStringAtom)
-   const setSearch = useSetAtom(debouncedQueryString)
+   const setSearch = useSetAtom(setQueryStringAtom)
 
    return (
       <div className='flex py-1'>

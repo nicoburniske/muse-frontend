@@ -1,18 +1,4 @@
-import {
-   HeartOutlineIcon,
-   MutedSpeakerIcon,
-   NextTrackIcon,
-   PauseIcon,
-   PlayIcon,
-   PowerIcon,
-   PreviousTrackIcon,
-   RepeatIcon,
-   SearchIcon,
-   ShuffleIcon,
-   SkipBackwardIcon,
-   SkipForwardIcon,
-   SpeakerIcon,
-} from 'component/Icons'
+import { MutedSpeakerIcon, RepeatIcon, SearchIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
@@ -32,6 +18,19 @@ import { useDrag } from 'react-dnd'
 import { usePlayerActions } from 'component/sdk/PlayerActions'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import {
+   BackwardIcon,
+   ChevronLeftIcon,
+   ChevronRightIcon,
+   ForwardIcon,
+   PauseIcon,
+   PlayIcon,
+   HeartIcon,
+   PowerIcon,
+   ArrowsUpDownIcon,
+   MagnifyingGlassIcon,
+   ArrowPathRoundedSquareIcon,
+} from '@heroicons/react/24/outline'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -163,9 +162,9 @@ const NowPlayingItem = () => {
    )
 }
 
-const commonBtnClass = 'btn btn-md py-0 px-0 lg:btn-square'
+const commonBtnClass = 'btn btn-md btn-square'
 
-const svgStyle = (isLiked: boolean | undefined) => (isLiked ? 'fill-success text-success' : '')
+const svgStyle = (isLiked: boolean | undefined) => classNames(isLiked ? 'fill-success text-success' : '', iconClass)
 
 const LikeNowPlaying = () => {
    const nowPlaying = useAtomValue(isPlayingAtom)
@@ -183,7 +182,7 @@ const LikeNowPlaying = () => {
    } else {
       return (
          <button className={commonBtnClass} disabled={true}>
-            <HeartOutlineIcon />
+            <HeartIcon className='h-6 w-6' />
          </button>
       )
    }
@@ -246,6 +245,7 @@ const PlaybackProgress = () => {
    )
 }
 
+const iconClass = 'h-5 w-5 lg:h-6 lg:w-6'
 const PlayerButtons = () => {
    const {
       isShuffled,
@@ -283,24 +283,28 @@ const PlayerButtons = () => {
    const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
    const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
-   const nextRepeatMode = repeatMode !== 0 ? 'off' : 'context'
+   // This isn't working as intended.
+   // Spotify Playback SDK is not receiving the change, so I am going to disable it for now.
+   // const repeatModeText = repeatMode === 0 ? '' : repeatMode === 1 ? '' : '1'
+   // const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
+   const nextRepeatMode = repeatMode === 0 ? 'context' : 'off'
    const cycleRepeatMode = () => setRepeatMode(nextRepeatMode)
 
    return (
       <>
          <LikeNowPlaying />
          <button className={classNames(commonBtnClass)} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
-            <SearchIcon />
+            <MagnifyingGlassIcon className={iconClass} />
          </button>
          <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
-            <PreviousTrackIcon />
+            <BackwardIcon className={iconClass} />
          </button>
          <button
             className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
             onClick={seekBackward}
             disabled={seekDisabled}
          >
-            <SkipBackwardIcon />
+            <ChevronLeftIcon className={iconClass} />
          </button>
          <PlayOrTransferButton />
          <button
@@ -308,24 +312,24 @@ const PlayerButtons = () => {
             onClick={seekForward}
             disabled={seekDisabled}
          >
-            <SkipForwardIcon />
+            <ChevronRightIcon className={iconClass} />
          </button>
          <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}>
-            <NextTrackIcon />
+            <ForwardIcon className={iconClass} />
          </button>
          <button
             className={classNames(shuffleButtonClass, 'hidden sm:inline-flex ')}
             onClick={toggleShuffle}
             disabled={toggleShuffleDisabled}
          >
-            <ShuffleIcon />
+            <ArrowsUpDownIcon className={iconClass} />
          </button>
          <button
             className={classNames(repeatModeClass, 'hidden sm:inline-flex ')}
             onClick={cycleRepeatMode}
             disabled={repeatModeDisabled}
          >
-            <RepeatIcon />
+            <ArrowPathRoundedSquareIcon className={iconClass} />
          </button>
       </>
    )
@@ -341,12 +345,13 @@ const TransferPlaybackButton = () => {
    const className = classNames(
       commonBtnClass,
       needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
-      isLoading ? 'loading' : undefined
+      isLoading ? 'loading' : undefined,
+      'grid place-items-center'
    )
 
    return (
       <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip='start'>
-         <PowerIcon />
+         <PowerIcon className={iconClass} />
       </button>
    )
 }
@@ -359,7 +364,7 @@ const PlayOrTransferButton = () => {
       <TransferPlaybackButton />
    ) : (
       <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
-         {isPlaying ? <PauseIcon /> : <PlayIcon />}
+         {isPlaying ? <PauseIcon className={iconClass} /> : <PlayIcon className={iconClass} />}
       </button>
    )
 }

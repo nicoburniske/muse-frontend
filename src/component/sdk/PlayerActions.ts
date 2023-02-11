@@ -1,7 +1,7 @@
 import { atom, useAtomValue } from 'jotai'
 import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import { asyncPlaybackStateAtom, needsReconnectAtom, playerAtom } from './PlaybackSDK'
+import { asyncPlaybackStateAtom, deviceIdAtom, needsReconnectAtom, playerAtom, useDeviceId } from './PlaybackSDK'
 import { seekIntervalAtom } from 'state/UserPreferences'
 import { spotifyClientAtom } from './ClientAtoms'
 
@@ -47,6 +47,7 @@ interface PlayerActions {
 }
 
 export const playerActionsAtom = atom<Promise<PlayerActions>>(async get => {
+   const deviceId = await get(deviceIdAtom)
    const player = await get(playerAtom)
    const current = await get(asyncPlaybackStateAtom)
    const seekInterval = get(seekIntervalAtom)
@@ -67,11 +68,13 @@ export const playerActionsAtom = atom<Promise<PlayerActions>>(async get => {
 
       isShuffled: current.shuffle,
       toggleShuffleDisabled: needsReconnect || (disallows.toggling_shuffle ?? false),
-      setShuffle: (state: boolean, options?: DeviceIdOptions) => client.player.setShuffle(state, options),
+      setShuffle: (state: boolean, options?: DeviceIdOptions) =>
+         client.player.setShuffle(state, options ?? { device_id: deviceId }),
 
       repeatMode: current.repeat_mode as 0 & 1 & 2,
       repeatModeDisabled: needsReconnect || (disallows.toggling_repeat_context ?? false),
-      setRepeatMode: (state: RepeatState, options?: DeviceIdOptions) => client.player.setRepeat(state, options),
+      setRepeatMode: (state: RepeatState, options?: DeviceIdOptions) =>
+         client.player.setRepeat(state, options ?? { device_id: deviceId }),
 
       isPlaying: !current.paused,
       togglePlayDisabled: needsReconnect || ((current.paused ? disallows.resuming : disallows.pausing) ?? false),

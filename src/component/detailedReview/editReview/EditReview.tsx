@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react'
-import { CheckIcon, CrossIcon, EllipsisIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
+import { CheckIcon, CrossIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { useUpdateReviewMutation, useDeleteReviewMutation } from 'graphql/generated/schema'
 import { useEffect, useMemo, useState } from 'react'

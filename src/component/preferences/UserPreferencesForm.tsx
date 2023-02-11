@@ -1,5 +1,4 @@
 import { Dialog } from '@headlessui/react'
-import { CrossIcon, SettingsIcon } from 'component/Icons'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { transferPlaybackOnMountAtom } from 'state/UserPreferences'
@@ -9,6 +8,7 @@ import { TogglePreferences } from './TogglePreferences'
 import Portal from 'platform/component/Portal'
 import { useQueryClient } from '@tanstack/react-query'
 import { AppConfig } from 'util/AppConfig'
+import { CogIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const modalOpenAtom = atom(false)
 
@@ -26,7 +26,7 @@ export const UserPreferencesButton = () => {
 
    return (
       <button className='btn btn-ghost' onClick={openPreferencesModal}>
-         <SettingsIcon />
+         <CogIcon />
       </button>
    )
 }
@@ -60,8 +60,8 @@ export const UserPreferencesForm = () => {
                </button>
             )}
          </div>
-         <button className='btn btn-square btn-error btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
-            <CrossIcon />
+         <button className='btn btn-error btn-square btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
+            <XMarkIcon className='h-6 w-6' />
          </button>
       </div>
    )

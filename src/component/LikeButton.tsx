@@ -1,10 +1,10 @@
-import { HeartOutlineIcon, HeartSolidIcon } from './Icons'
 import toast from 'react-hot-toast'
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
 import { classNames } from 'util/Utils'
 import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
-import { useLikeSvgStyle } from './detailedReview/track/useSyncedStyles'
 import { UseQueryOptions } from '@tanstack/react-query'
+import { HeartIcon } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/20/solid'
 
 interface LikeButtonProps {
    trackId: string
@@ -44,7 +44,11 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
 
    return (
       <button className={classNames(className)} disabled={disabled} onClick={e => handleClick(e)}>
-         {isLiked ? <HeartSolidIcon className={svgClassName} /> : <HeartOutlineIcon className={svgClassName} />}
+         {isLiked ? (
+            <HeartIconSolid className={classNames('h-6 w-6', svgClassName)} />
+         ) : (
+            <HeartIcon className={classNames('h-6 w-6', svgClassName)} />
+         )}
       </button>
    )
 }

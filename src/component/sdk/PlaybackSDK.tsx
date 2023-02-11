@@ -102,7 +102,7 @@ export const useSpotifyPlayer = () => useAtomValue(playerAtom)
  * Device ID.
  */
 
-const deviceIdAtom = atom<Promise<string>>(async get => {
+export const deviceIdAtom = atom<Promise<string>>(async get => {
    const player = await get(playerAtom)
    return await new Promise((resolve, reject) => {
       player.addListener('ready', ({ device_id }) => {
