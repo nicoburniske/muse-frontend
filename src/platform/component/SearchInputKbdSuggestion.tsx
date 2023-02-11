@@ -34,32 +34,31 @@ export const SearchInputKbdSuggestion = ({
             <div className='p-4'>
                <MagnifyingGlassIcon className='h-5 w-5 flex-shrink-0' aria-hidden='true' />
             </div>
-            {isSearching ? (
+            <div className='relative grow'>
                <input
                   ref={inputRef}
                   name='search-field'
                   id='search-field'
-                  className='input w-full border-2 border-base-content/20 text-base placeholder-base-content/50 caret-primary focus:border-primary focus:outline-none focus:ring-primary sm:text-sm'
+                  className='input w-full border-2 border-base-content/20 text-left text-base placeholder-base-content/50 caret-primary focus:border-primary focus:outline-none focus:ring-primary sm:text-sm'
                   value={search}
                   type='search'
                   autoComplete='off'
+                  placeholder={placeholder}
                   onChange={e => setSearch(e.target.value as string)}
+                  onFocus={() => setIsSearching(true)}
                   onBlur={() => setIsSearching(false)}
                />
-            ) : (
-               <button
-                  className='input flex w-full items-center justify-between border-2 border-base-content/20 text-base placeholder-base-content/50 caret-primary sm:text-sm'
-                  placeholder='Search'
-                  value={search}
-                  onClick={focus}
-               >
-                  {search || placeholder}
-                  <span className='hidden md:inline'>
-                     <kbd className='kbd'>cmd</kbd>+<kbd className='kbd'>k</kbd>
-                  </span>
-               </button>
-            )}
+               {!isSearching && <ShortCut />}
+            </div>
          </div>
+      </div>
+   )
+}
+
+const ShortCut = () => {
+   return (
+      <div className={'pointer-events-none absolute right-8 top-3 hidden gap-1 opacity-50 lg:flex'}>
+         <kbd className='kbd kbd-sm'>⌘</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
       </div>
    )
 }
