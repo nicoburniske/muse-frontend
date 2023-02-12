@@ -116,3 +116,23 @@ export function chunkArrayInGroups<T>(arr: T[], size: number): T[][] {
    }
    return myArray
 }
+
+export const getOS = () => {
+   const userAgent = window.navigator.userAgent.toLowerCase(),
+      macosPlatforms = /(macintosh|macintel|macppc|mac68k|macos)/i,
+      windowsPlatforms = /(win32|win64|windows|wince)/i,
+      iosPlatforms = /(iphone|ipad|ipod)/i,
+      os = null
+
+   if (macosPlatforms.test(userAgent)) {
+      return 'macos'
+   } else if (iosPlatforms.test(userAgent)) {
+      return 'ios'
+   } else if (windowsPlatforms.test(userAgent)) {
+      return 'windows'
+   } else if (/android/.test(userAgent)) {
+      return 'android'
+   } else if (!os && /linux/.test(userAgent)) {
+      return 'linux'
+   }
+}

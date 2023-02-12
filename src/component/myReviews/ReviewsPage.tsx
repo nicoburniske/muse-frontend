@@ -2,7 +2,7 @@ import { atom, useAtom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { SelectedReview, useSelectReview } from './SelectedReview'
 import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { searchAtom, searchLoweredAtom } from 'state/Atoms'
+import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
 import CreateReview from 'component/createReview/CreateReview'
@@ -143,9 +143,8 @@ export default function ReviewsPage() {
 }
 
 const SearchBar = () => {
-   // TODO: Consider atomWithDebounce!
    // TODO: Fix centering!
-   const [search, setSearch] = useAtom(searchAtom)
+   const [search, setSearch] = useSearchAtom()
 
    return (
       <div className='max-w-3xl flex-1'>

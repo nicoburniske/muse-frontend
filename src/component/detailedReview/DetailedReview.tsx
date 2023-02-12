@@ -27,7 +27,7 @@ import { EditReviewButton } from './editReview/EditReview'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
-import { searchAtom } from 'state/Atoms'
+import { useSearchAtom } from 'state/Atoms'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -209,7 +209,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
 }
 
 const SearchTracks = () => {
-   const [search, setSearch] = useAtom(searchAtom)
+   const [search, setSearch] = useSearchAtom()
 
    return (
       <SearchInputKbdSuggestion

@@ -2,6 +2,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useCallback, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { getOS } from '../../util/Utils'
 
 export type SearchInputKbdSuggestionProps = {
    screenReaderLabel: string
@@ -56,9 +57,10 @@ export const SearchInputKbdSuggestion = ({
 }
 
 const ShortCut = () => {
+   const os = getOS()
    return (
       <div className={'pointer-events-none absolute right-8 top-3 hidden gap-1 opacity-50 lg:flex'}>
-         <kbd className='kbd kbd-sm'>⌘</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
+         <kbd className='kbd kbd-sm'>{os === 'macos' ? '⌘' : 'ctrl'}</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
       </div>
    )
 }
