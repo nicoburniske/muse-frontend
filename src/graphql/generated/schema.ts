@@ -84,6 +84,7 @@ export type Collaborator = {
 
 export type Comment = {
    __typename?: 'Comment'
+   childCommentIds: Array<Scalars['Long']>
    comment?: Maybe<Scalars['String']>
    commentIndex: Scalars['Int']
    commenter: User
@@ -100,7 +101,7 @@ export type CreateCommentInput = {
    comment: Scalars['String']
    commentIndex?: InputMaybe<Scalars['Int']>
    entities: Array<ReviewEntityInput>
-   parentCommentId?: InputMaybe<Scalars['Int']>
+   parentCommentId?: InputMaybe<Scalars['Long']>
    reviewId: Scalars['ID']
 }
 
@@ -315,6 +316,8 @@ export type Playlist = ReviewEntity & {
    id: Scalars['String']
    images: Array<Scalars['String']>
    name: Scalars['String']
+   numberOfFollowers?: Maybe<Scalars['Int']>
+   numberOfTracks: Scalars['Int']
    owner: User
    primaryColor?: Maybe<Scalars['String']>
    public?: Maybe<Scalars['Boolean']>
@@ -333,7 +336,6 @@ export type PlaylistTrack = {
 
 export type Queries = {
    __typename?: 'Queries'
-   availableDevices?: Maybe<Array<PlaybackDevice>>
    getAlbum?: Maybe<Album>
    getPlaylist?: Maybe<Playlist>
    getTrack?: Maybe<Track>
@@ -411,11 +413,6 @@ export type SearchResult = {
    artists?: Maybe<PaginationResultArtist>
    playlists?: Maybe<PaginationResultPlaylist>
    tracks?: Maybe<PaginationResultTrack>
-}
-
-export type SearchUserPlaylistsInput = {
-   pagination: PaginationInput
-   search?: InputMaybe<Scalars['String']>
 }
 
 export type ShareReviewInput = {
@@ -527,7 +524,7 @@ export type User = {
 }
 
 export type UserPlaylistsArgs = {
-   input: SearchUserPlaylistsInput
+   pagination?: InputMaybe<PaginationInput>
 }
 
 export type CollaboratorFragment = {
@@ -658,8 +655,10 @@ export type DetailedPlaylistFragment = {
    id: string
    images: Array<string>
    name: string
-   primaryColor?: string | null
    public?: boolean | null
+   primaryColor?: string | null
+   numberOfTracks: number
+   numberOfFollowers?: number | null
    tracks?: Array<{
       __typename?: 'PlaylistTrack'
       addedAt: string
@@ -705,8 +704,10 @@ export type PlaylistDetailsFragment = {
    id: string
    images: Array<string>
    name: string
-   primaryColor?: string | null
    public?: boolean | null
+   primaryColor?: string | null
+   numberOfTracks: number
+   numberOfFollowers?: number | null
    owner: {
       __typename?: 'User'
       id: string
@@ -1279,8 +1280,10 @@ export type GetPlaylistQuery = {
       id: string
       images: Array<string>
       name: string
-      primaryColor?: string | null
       public?: boolean | null
+      primaryColor?: string | null
+      numberOfTracks: number
+      numberOfFollowers?: number | null
       tracks?: Array<{
          __typename?: 'PlaylistTrack'
          addedAt: string
@@ -1318,6 +1321,36 @@ export type GetPlaylistQuery = {
          } | null
       }
    } | null
+}
+
+export type MyPlaylistsQueryVariables = Exact<{ [key: string]: never }>
+
+export type MyPlaylistsQuery = {
+   __typename?: 'Queries'
+   user: {
+      __typename?: 'User'
+      playlists?: Array<{
+         __typename: 'Playlist'
+         collaborative: boolean
+         description: string
+         id: string
+         images: Array<string>
+         name: string
+         public?: boolean | null
+         primaryColor?: string | null
+         numberOfTracks: number
+         numberOfFollowers?: number | null
+         owner: {
+            __typename?: 'User'
+            id: string
+            spotifyProfile?: {
+               __typename?: 'SpotifyProfile'
+               displayName?: string | null
+               images?: Array<string> | null
+            } | null
+         }
+      }> | null
+   }
 }
 
 export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never }>
@@ -1552,33 +1585,6 @@ export type TrackLikeQueryVariables = Exact<{
 export type TrackLikeQuery = {
    __typename?: 'Queries'
    getTrack?: { __typename?: 'Track'; id: string; isLiked?: boolean | null } | null
-}
-
-export type UserPlaylistsQueryVariables = Exact<{
-   input: SearchUserPlaylistsInput
-}>
-
-export type UserPlaylistsQuery = {
-   __typename?: 'Queries'
-   user: {
-      __typename?: 'User'
-      id: string
-      playlists?: Array<{
-         __typename?: 'Playlist'
-         id: string
-         images: Array<string>
-         name: string
-         owner: {
-            __typename?: 'User'
-            id: string
-            spotifyProfile?: {
-               __typename?: 'SpotifyProfile'
-               displayName?: string | null
-               images?: Array<string> | null
-            } | null
-         }
-      }> | null
-   }
 }
 
 export type ReviewUpdatesSubscriptionVariables = Exact<{
@@ -1838,11 +1844,13 @@ export const PlaylistDetailsFragmentDoc = `
   id
   images
   name
+  public
   owner {
     ...UserWithSpotifyOverview
   }
   primaryColor
-  public
+  numberOfTracks
+  numberOfFollowers
 }
     `
 export const DetailedPlaylistTrackFragmentDoc = `
@@ -2265,6 +2273,30 @@ export const useGetPlaylistQuery = <TData = GetPlaylistQuery, TError = unknown>(
 useGetPlaylistQuery.getKey = (variables: GetPlaylistQueryVariables) => ['GetPlaylist', variables]
 useGetPlaylistQuery.fetcher = (variables: GetPlaylistQueryVariables, options?: RequestInit['headers']) =>
    fetcher<GetPlaylistQuery, GetPlaylistQueryVariables>(GetPlaylistDocument, variables, options)
+export const MyPlaylistsDocument = `
+    query MyPlaylists {
+  user {
+    playlists {
+      ...PlaylistDetails
+    }
+  }
+}
+    ${PlaylistDetailsFragmentDoc}
+${UserWithSpotifyOverviewFragmentDoc}`
+export const useMyPlaylistsQuery = <TData = MyPlaylistsQuery, TError = unknown>(
+   variables?: MyPlaylistsQueryVariables,
+   options?: UseQueryOptions<MyPlaylistsQuery, TError, TData>
+) =>
+   useQuery<MyPlaylistsQuery, TError, TData>(
+      variables === undefined ? ['MyPlaylists'] : ['MyPlaylists', variables],
+      fetcher<MyPlaylistsQuery, MyPlaylistsQueryVariables>(MyPlaylistsDocument, variables),
+      options
+   )
+
+useMyPlaylistsQuery.getKey = (variables?: MyPlaylistsQueryVariables) =>
+   variables === undefined ? ['MyPlaylists'] : ['MyPlaylists', variables]
+useMyPlaylistsQuery.fetcher = (variables?: MyPlaylistsQueryVariables, options?: RequestInit['headers']) =>
+   fetcher<MyPlaylistsQuery, MyPlaylistsQueryVariables>(MyPlaylistsDocument, variables, options)
 export const ProfileAndReviewsDocument = `
     query ProfileAndReviews {
   user {
@@ -2365,34 +2397,6 @@ export const useTrackLikeQuery = <TData = TrackLikeQuery, TError = unknown>(
 useTrackLikeQuery.getKey = (variables: TrackLikeQueryVariables) => ['TrackLike', variables]
 useTrackLikeQuery.fetcher = (variables: TrackLikeQueryVariables, options?: RequestInit['headers']) =>
    fetcher<TrackLikeQuery, TrackLikeQueryVariables>(TrackLikeDocument, variables, options)
-export const UserPlaylistsDocument = `
-    query UserPlaylists($input: SearchUserPlaylistsInput!) {
-  user {
-    id
-    playlists(input: $input) {
-      id
-      images
-      name
-      owner {
-        ...UserWithSpotifyOverview
-      }
-    }
-  }
-}
-    ${UserWithSpotifyOverviewFragmentDoc}`
-export const useUserPlaylistsQuery = <TData = UserPlaylistsQuery, TError = unknown>(
-   variables: UserPlaylistsQueryVariables,
-   options?: UseQueryOptions<UserPlaylistsQuery, TError, TData>
-) =>
-   useQuery<UserPlaylistsQuery, TError, TData>(
-      ['UserPlaylists', variables],
-      fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables),
-      options
-   )
-
-useUserPlaylistsQuery.getKey = (variables: UserPlaylistsQueryVariables) => ['UserPlaylists', variables]
-useUserPlaylistsQuery.fetcher = (variables: UserPlaylistsQueryVariables, options?: RequestInit['headers']) =>
-   fetcher<UserPlaylistsQuery, UserPlaylistsQueryVariables>(UserPlaylistsDocument, variables, options)
 export const ReviewUpdatesDocument = `
     subscription ReviewUpdates($reviewIds: [ID!]!) {
   reviewUpdates(reviewIds: $reviewIds) {

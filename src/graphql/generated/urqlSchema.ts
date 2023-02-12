@@ -85,6 +85,7 @@ export type Collaborator = {
 
 export type Comment = {
    __typename?: 'Comment'
+   childCommentIds: Array<Scalars['Long']>
    comment?: Maybe<Scalars['String']>
    commentIndex: Scalars['Int']
    commenter: User
@@ -101,7 +102,7 @@ export type CreateCommentInput = {
    comment: Scalars['String']
    commentIndex?: InputMaybe<Scalars['Int']>
    entities: Array<ReviewEntityInput>
-   parentCommentId?: InputMaybe<Scalars['Int']>
+   parentCommentId?: InputMaybe<Scalars['Long']>
    reviewId: Scalars['ID']
 }
 
@@ -316,6 +317,8 @@ export type Playlist = ReviewEntity & {
    id: Scalars['String']
    images: Array<Scalars['String']>
    name: Scalars['String']
+   numberOfFollowers?: Maybe<Scalars['Int']>
+   numberOfTracks: Scalars['Int']
    owner: User
    primaryColor?: Maybe<Scalars['String']>
    public?: Maybe<Scalars['Boolean']>
@@ -334,7 +337,6 @@ export type PlaylistTrack = {
 
 export type Queries = {
    __typename?: 'Queries'
-   availableDevices?: Maybe<Array<PlaybackDevice>>
    getAlbum?: Maybe<Album>
    getPlaylist?: Maybe<Playlist>
    getTrack?: Maybe<Track>
@@ -412,11 +414,6 @@ export type SearchResult = {
    artists?: Maybe<PaginationResultArtist>
    playlists?: Maybe<PaginationResultPlaylist>
    tracks?: Maybe<PaginationResultTrack>
-}
-
-export type SearchUserPlaylistsInput = {
-   pagination: PaginationInput
-   search?: InputMaybe<Scalars['String']>
 }
 
 export type ShareReviewInput = {
@@ -528,7 +525,7 @@ export type User = {
 }
 
 export type UserPlaylistsArgs = {
-   input: SearchUserPlaylistsInput
+   pagination?: InputMaybe<PaginationInput>
 }
 
 export type CollaboratorFragment = {
@@ -659,8 +656,10 @@ export type DetailedPlaylistFragment = {
    id: string
    images: Array<string>
    name: string
-   primaryColor?: string | null
    public?: boolean | null
+   primaryColor?: string | null
+   numberOfTracks: number
+   numberOfFollowers?: number | null
    tracks?: Array<{
       __typename?: 'PlaylistTrack'
       addedAt: string
@@ -706,8 +705,10 @@ export type PlaylistDetailsFragment = {
    id: string
    images: Array<string>
    name: string
-   primaryColor?: string | null
    public?: boolean | null
+   primaryColor?: string | null
+   numberOfTracks: number
+   numberOfFollowers?: number | null
    owner: {
       __typename?: 'User'
       id: string
@@ -1202,11 +1203,13 @@ export const PlaylistDetailsFragmentDoc = gql`
       id
       images
       name
+      public
       owner {
          ...UserWithSpotifyOverview
       }
       primaryColor
-      public
+      numberOfTracks
+      numberOfFollowers
    }
    ${UserWithSpotifyOverviewFragmentDoc}
 `

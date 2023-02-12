@@ -1,8 +1,8 @@
-import { Transition } from '@headlessui/react'
 import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
 import { ShareReview } from 'component/detailedReview/ShareReview'
 import {
+   ProfileAndReviewsQuery,
    ReviewDetailsFragment,
    useDeleteReviewMutation,
    useProfileAndReviewsQuery,
@@ -10,8 +10,9 @@ import {
 } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Portal from 'platform/component/Portal'
+import RightSidePane from 'platform/component/RightSidePane'
 import { ThemeModal } from 'platform/component/ThemeModal'
-import { Fragment, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { nonNullable, findFirstImage, classNames } from 'util/Utils'
@@ -38,13 +39,17 @@ export const useSelectReview = () => {
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = () => {
    const reviewId = useAtomValue(selectedReviewIdAtom)
-   const { data } = useProfileAndReviewsQuery({}, { staleTime: Infinity })
-
-   if (reviewId) {
-      return data?.user?.reviews?.find(r => r.id === reviewId)
-   } else {
-      return undefined
-   }
+   const { data } = useProfileAndReviewsQuery(
+      {},
+      {
+         select: useCallback(
+            (data: ProfileAndReviewsQuery) => data?.user?.reviews?.find(r => r.id === reviewId),
+            [reviewId]
+         ),
+         staleTime: Infinity,
+      }
+   )
+   return data
 }
 
 const textColorSecondary = 'text-secondary-content/50'
@@ -56,24 +61,7 @@ export const SelectedReview = () => {
    const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
    const review = useSelectedReview()
 
-   return (
-      <Transition
-         show={selectedReviewOpen}
-         as={Fragment}
-         enter='transform transition ease-in-out duration-300'
-         enterFrom='translate-x-full'
-         enterTo='translate-x-0'
-         leave='transform transition ease-in-out duration-300'
-         leaveFrom='translate-x-0'
-         leaveTo='translate-x-full'
-      >
-         <div className='fixed right-0 z-10 flex h-full flex-col bg-secondary text-secondary-content'>
-            <aside className='h-full w-52 overflow-y-auto  md:w-96'>
-               {review && <SidebarContent review={review} />}
-            </aside>
-         </div>
-      </Transition>
-   )
+   return <RightSidePane isOpen={selectedReviewOpen}>{review && <SidebarContent review={review} />}</RightSidePane>
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
@@ -118,7 +106,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -173,7 +161,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                         <div className='col-span-1 place-self-end'>
                            <button
                               type='button'
-                              className='btn btn-error btn-square btn-xs'
+                              className='btn btn-square btn-error btn-xs'
                               onClick={() => unShareReview(review.id, userId)}
                            >
                               <XMarkIcon className='h-4 w-4' />

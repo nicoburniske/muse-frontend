@@ -12,9 +12,11 @@ fragment PlaylistDetails on Playlist {
    id
    images
    name
+   public
    owner {
       ...UserWithSpotifyOverview
    }
    primaryColor
-   public
+   numberOfTracks
+   numberOfFollowers
 }

@@ -12,6 +12,7 @@ import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { useThemeValue } from 'state/UserPreferences'
 import { useSetAccessToken } from 'component/sdk/ClientAtoms'
 import { SyncCurrentUser } from 'state/CurrentUser'
+import { HeroLoading } from 'platform/component/HeroLoading'
 
 export const NavPlayerPageOutlet = () => {
    return (
@@ -31,7 +32,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
          <SyncCurrentUser />
          <div className='flex grow flex-row overflow-hidden'>
             <SideNavBar />
-            <Suspense fallback={null}>
+            <Suspense fallback={<HeroLoading />}>
                <StrictMode>{children}</StrictMode>
             </Suspense>
          </div>

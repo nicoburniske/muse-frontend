@@ -2,12 +2,19 @@ import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { loadable } from 'jotai/utils'
 import atomValueOrSuspend from 'platform/atom/atomValueOrSuspend'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 
-const maybeCurrentUserIdAtom = atom<string | undefined>(undefined)
-const currentUserIdAtom = atomValueOrSuspend(maybeCurrentUserIdAtom)
+type CurrentUser = CurrentUserQuery['user']
+const maybeCurrentUserAtom = atom<CurrentUser | undefined>(undefined)
+const currentUserIdAtom = atomValueOrSuspend(atom(get => get(maybeCurrentUserAtom)?.id))
+const currentDisplayName = atomValueOrSuspend(
+   atom(get => {
+      return get(maybeCurrentUserAtom)?.spotifyProfile?.displayName ?? get(maybeCurrentUserAtom)?.id
+   })
+)
 
 export const useCurrentUserId = () => useAtomValue(currentUserIdAtom)
+export const useCurrentDisplayName = () => useAtomValue(currentDisplayName)
 
 export const SyncCurrentUser = () => {
    useAtom(loadable(currentUserIdAtom))
@@ -17,13 +24,12 @@ export const SyncCurrentUser = () => {
       {
          staleTime: 10 * 60 * 1000,
          cacheTime: 10 * 60 * 1000,
-         select: useCallback((data: CurrentUserQuery) => data?.user?.id, []),
       }
    )
-   const setCurrentUser = useSetAtom(maybeCurrentUserIdAtom)
+   const setCurrentUser = useSetAtom(maybeCurrentUserAtom)
 
    useEffect(() => {
-      setCurrentUser(data)
+      setCurrentUser(data?.user)
    }, [data])
 
    return null
