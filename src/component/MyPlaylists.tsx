@@ -229,6 +229,8 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
       }).filter(([, value]) => nonNullable(value))
    )
 
+   const image = playlist.images.at(2) ?? playlist.images.at(1) ?? playlist.images.at(0)
+
    return (
       <div className='flex flex-col items-center space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
@@ -246,7 +248,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
             </div>
          </div>
          <div>
-            <img src={playlist.images.at(0)} alt='' className='h-full w-full object-cover' />
+            <img src={image} alt='Playlist Cover Image' className='h-full w-full object-cover' />
          </div>
          <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
