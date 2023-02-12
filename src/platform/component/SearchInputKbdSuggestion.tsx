@@ -2,7 +2,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useCallback, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { getOS } from '../../util/Utils'
+import { atom, useAtomValue } from 'jotai'
+import { osAtom } from 'state/Atoms'
 
 export type SearchInputKbdSuggestionProps = {
    screenReaderLabel: string
@@ -24,7 +25,9 @@ export const SearchInputKbdSuggestion = ({
       flushSync(() => setIsSearching(true))
       inputRef.current?.focus()
    }, [inputRef, setIsSearching])
-   useHotkeys('meta+k', focus, [inputRef])
+
+   const keyCombo = useAtomValue(keyComboAtom)
+   useHotkeys(keyCombo, focus, [inputRef])
 
    return (
       <div className='flex py-1'>
@@ -56,11 +59,13 @@ export const SearchInputKbdSuggestion = ({
    )
 }
 
+const keyComboAtom = atom(get => (get(osAtom) === 'macos' ? 'meta+k' : 'ctrl+k'))
+const modifierKeyAtom = atom(get => (get(osAtom) === 'macos' ? '⌘' : 'ctrl'))
 const ShortCut = () => {
-   const os = getOS()
+   const modifier = useAtomValue(modifierKeyAtom)
    return (
       <div className={'pointer-events-none absolute right-8 top-3 hidden gap-1 opacity-50 lg:flex'}>
-         <kbd className='kbd kbd-sm'>{os === 'macos' ? '⌘' : 'ctrl'}</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
+         <kbd className='kbd kbd-sm'>{modifier}</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
       </div>
    )
 }

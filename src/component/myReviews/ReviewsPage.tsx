@@ -69,7 +69,7 @@ export default function ReviewsPage() {
                   <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
                      <CreateReview
                         title={'Create Review'}
-                        className='btn btn-primary btn-square flex items-center justify-center'
+                        className='btn btn-square btn-primary flex items-center justify-center'
                         parentReviewIdAtom={parentAtom}
                         icon={<PlusIconOutline className='h-6 w-6' aria-hidden='true' />}
                      />

@@ -129,14 +129,28 @@ const NowPlayingItem = () => {
       [trackId]
    )
 
+   const spotifyLink = `https://open.spotify.com/track/${trackId}`
+
    return (
-      <div
-         ref={drag}
-         className={classNames(
-            'flex select-none flex-row items-center justify-start lg:max-w-lg ',
-            isDragging ? 'opacity-20' : 'bg-neutral'
-         )}
-      >
+      <div className={classNames('flex select-none flex-row items-center justify-start lg:max-w-lg ')}>
+         <div ref={drag} className={classNames('flex', isDragging ? 'opacity-20' : 'bg-neutral')}>
+            <div className='avatar p-1'>
+               <div className='w-16'>
+                  <img src={nowPlayingImage} />
+               </div>
+            </div>
+            <div className={'flex flex-col justify-center overflow-hidden'}>
+               <div className='truncate text-left text-xs text-neutral-content md:p-0.5 lg:text-base'>{trackName}</div>
+               <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
+                  {nowPlayingArtist}
+               </div>
+            </div>
+         </div>
+
+         <a className='ml-2 flex-none' href={spotifyLink} rel='noreferrer' target='_blank'>
+            <img src='/spotifyIcon.png' className='h-8 w-8' />
+         </a>
+
          <button
             className={classNames(
                'hidden place-items-center p-1 sm:grid',
@@ -145,19 +159,7 @@ const NowPlayingItem = () => {
             data-tip={tooltipContent}
             onClick={showModal}
             disabled={!nowPlayingEnabled}
-         >
-            <div className='avatar'>
-               <div className='w-16 rounded'>
-                  <img src={nowPlayingImage} />
-               </div>
-            </div>
-         </button>
-         <div className={'flex flex-col justify-around overflow-hidden'}>
-            <div className='truncate text-left text-xs text-neutral-content md:p-0.5 lg:text-base'>{trackName}</div>
-            <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
-               {nowPlayingArtist}
-            </div>
-         </div>
+         ></button>
       </div>
    )
 }

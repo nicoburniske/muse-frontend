@@ -44,7 +44,8 @@ export default function DetailedComment({ review, comment: detailedComment }: De
    })()
 
    const image = findFirstImage(detailedComment.entities ?? [])
-   const name = detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name'
+   // We only need to accomodate first 23 characters of name.
+   const name = (detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name').slice(0, 23)
 
    // We want to find the track that the comment is applied to and scroll to it.
    const setSelectedTrack = useSetAtom(selectedTrackAtom)

@@ -22,6 +22,7 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
    const { mutate: likeTrack } = useSaveTracksMutation({
       onError: () => toast.error('Failed to save track.'),
       onSuccess: () => {
+         toast.success('Added to Liked Songs.')
          updateLike(true)
       },
    })
@@ -29,6 +30,7 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
    const { mutate: unlikeTrack } = useRemoveSavedTracksMutation({
       onError: () => toast.error('Failed to unsave track.'),
       onSuccess: () => {
+         toast.success('Removed from Liked Songs.')
          updateLike(false)
       },
    })

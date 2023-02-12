@@ -61,6 +61,8 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
       }
    }
 
+   const spotifyUrl = `https://open.spotify.com/track/${trackId}`
+
    return (
       <Menu>
          {({ open }) => (
@@ -97,6 +99,20 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
                         }}
                         className='menu rounded-md bg-neutral text-neutral-content shadow-lg '
                      >
+                        <Menu.Item>
+                           {({ active }) => (
+                              <li>
+                                 <a
+                                    className={classNames(active ? 'active' : '', 'text-sm')}
+                                    rel='noreferrer'
+                                    target='_blank'
+                                    href={spotifyUrl}
+                                 >
+                                    Listen to on Spotify
+                                 </a>
+                              </li>
+                           )}
+                        </Menu.Item>
                         <Menu.Item>
                            {({ active }) => (
                               <li>
