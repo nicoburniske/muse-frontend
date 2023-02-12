@@ -149,8 +149,8 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
 
          <div className='mt-auto flex flex-col items-center justify-center text-center'>
             <div className='w-full truncate text-xs font-extrabold md:text-base'>{playlist.name}</div>
-            {diffUserName && <div className='stat-desc w-full truncate text-xs md:text-base'>{creatorName}</div>}
-            <a className='text-xs text-base-content/50 hover:underline'>@{playlist.owner.id}</a>
+            {diffUserName && <div className='cw-full truncate text-xs md:text-base'>{creatorName}</div>}
+            <a className='w-full truncate text-xs text-base-content/50 hover:underline'>@{playlist.owner.id}</a>
          </div>
       </div>
    )
