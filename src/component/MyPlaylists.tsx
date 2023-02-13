@@ -130,7 +130,7 @@ const FilterTabs = ({ className }: { className?: string }) => {
 }
 
 function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
-   const image = playlist.images.at(0)
+   const image = playlist.images.at(1) ?? playlist.images.at(0)
    const creatorName = playlist?.owner?.spotifyProfile?.displayName ?? 'Unknown'
    const diffUserName = playlist.owner.id !== playlist.owner.spotifyProfile?.displayName
    const { setSelectedPlaylist } = useSelectPlaylist()
@@ -229,7 +229,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
       }).filter(([, value]) => nonNullable(value))
    )
 
-   const image = playlist.images.at(2) ?? playlist.images.at(1) ?? playlist.images.at(0)
+   const image = playlist.images.at(0)
 
    return (
       <div className='flex flex-col items-center space-y-2'>
