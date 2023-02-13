@@ -28,6 +28,7 @@ import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { useSearchAtom } from 'state/Atoms'
+import { LinkReviewButton } from './LinkReview'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -121,6 +122,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    // Root review doesn't need an entity.
    const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
 
+   const linkEnabled = review?.entity?.__typename === 'Artist'
+   const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
+
    return (
       <div className='shadow-l mb-1 flex flex-row items-center justify-between bg-base-100'>
          <div className='flex flex-row items-center justify-start space-x-1 p-1'>
@@ -170,40 +174,35 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
          <div className='hidden w-full max-w-xl lg:inline'>
             <SearchTracks />
          </div>
-         {isReviewOwner ? (
-            <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
-               <EditReviewButton
-                  reviewId={reviewId}
-                  reviewName={title!}
-                  onSuccess={() => {
-                     reload()
-                  }}
-                  isPublic={isPublic === undefined ? false : isPublic}
-               >
-                  {onClick => (
-                     <button className='btn btn-primary btn-sm lg:btn-md' onClick={onClick}>
-                        <PencilIcon className='h-6 w-6' />
-                     </button>
-                  )}
-               </EditReviewButton>
+         <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
+            {isReviewOwner ? (
+               <>
+                  <EditReviewButton
+                     reviewId={reviewId}
+                     reviewName={title!}
+                     onSuccess={() => {
+                        reload()
+                     }}
+                     isPublic={isPublic === undefined ? false : isPublic}
+                  >
+                     {onClick => (
+                        <button className='btn btn-primary btn-sm lg:btn-md' onClick={onClick}>
+                           <PencilIcon className='h-6 w-6' />
+                        </button>
+                     )}
+                  </EditReviewButton>
 
-               <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()}>
-                  <ShareIcon className='h-6 w-6' />
-               </ShareReview>
+                  <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()}>
+                     <ShareIcon className='h-6 w-6' />
+                  </ShareReview>
+                  {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
+               </>
+            ) : null}
 
-               <div className='tabs col-span-2 flex flex-row flex-nowrap items-center justify-center'>
-                  <RenderOptionTabs />
-               </div>
-               {/* <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />
-                  <CreateReview
-                     parentReviewIdAtom={parentReviewIdAtom}
-                     title='create linked review'
-                     className='btn btn-secondary btn-sm lg:btn-md'
-                  /> */}
+            <div className='tabs col-span-2 flex flex-row flex-nowrap items-center justify-center'>
+               <RenderOptionTabs />
             </div>
-         ) : (
-            <div />
-         )}
+         </div>
       </div>
    )
 }
