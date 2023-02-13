@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { atom, useAtom } from 'jotai'
 import { Fragment } from 'react'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { NAVIGATION } from './NavConstants'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -72,14 +72,14 @@ export function MobileMenu() {
                                  <a
                                     key={item.name}
                                     onClick={() => nav(item.href)}
-                                    className={classNames(
+                                    className={cn(
                                        path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
                                        'group flex items-center rounded-md py-2 px-3 text-sm font-medium'
                                     )}
                                     aria-current={path.includes(item.href) ? 'page' : undefined}
                                  >
                                     <item.icon
-                                       className={classNames(
+                                       className={cn(
                                           path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
                                           'mr-3 h-6 w-6'
                                        )}

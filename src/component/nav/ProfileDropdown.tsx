@@ -7,7 +7,7 @@ import useLogoutMutation from 'state/useLogoutMutation'
 import { Fragment, Suspense, useCallback } from 'react'
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { useThemeValue } from 'state/UserPreferences'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { ErrorBoundary } from 'react-error-boundary'
 
 type ProfileDropdownProps = {
@@ -97,10 +97,7 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
                         {({ active }) => (
                            <button
                               onClick={() => logout(undefined)}
-                              className={classNames(
-                                 active ? 'bg-base-300' : '',
-                                 'block w-full px-4 py-2 text-left text-sm'
-                              )}
+                              className={cn(active ? 'bg-base-300' : '', 'block w-full px-4 py-2 text-left text-sm')}
                            >
                               Sign out
                            </button>
@@ -112,10 +109,7 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
                         {({ active }) => (
                            <button
                               onClick={openPreferences}
-                              className={classNames(
-                                 active ? 'bg-base-300' : '',
-                                 'block w-full px-4 py-2 text-left text-sm'
-                              )}
+                              className={cn(active ? 'bg-base-300' : '', 'block w-full px-4 py-2 text-left text-sm')}
                            >
                               Preferences
                            </button>

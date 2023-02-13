@@ -1,5 +1,7 @@
+import { UserWithSpotifyOverviewFragment } from 'graphql/generated/schema'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { useMemo } from 'react'
-import { nonNullable } from 'util/Utils'
+import { cn, nonNullable } from 'util/Utils'
 
 export enum TooltipPos {
    None = '',
@@ -12,40 +14,49 @@ export enum TooltipPos {
 const size = 'w-6 md:w-8 lg:w-8'
 
 interface UserAvatarProps {
-   displayName?: string
-   tooltip?: string
-   image?: string
-   tooltipPos?: TooltipPos
-   className?: string
+   dateAdded?: string
+   user: UserWithSpotifyOverviewFragment
 }
 
-// TODO: refactor this. Use popup from headlessui.
-export default function UserAvatar({
-   displayName,
-   tooltip,
-   image,
-   tooltipPos = TooltipPos.None,
-   className,
-}: UserAvatarProps) {
-   const tooltipClasses = useMemo(() => (displayName ? 'md:tooltip md:tooltip-primary ' + tooltipPos : ''), [])
-   // Handles case where spotify created a playlist.
-   const name = (displayName?.length ?? 0) > 0 ? displayName! : 'Spotify'
+export default function UserAvatar({ dateAdded, user }: UserAvatarProps) {
+   const images = user?.spotifyProfile?.images
+   const image = images?.at(1) ?? images?.at(0)
 
-   if (nonNullable(image) && image.length > 0) {
-      return (
-         <div className={`avatar ${className} ${tooltipClasses}`} data-tip={tooltip ?? displayName}>
-            <div className={`${size} rounded-full ring ring-primary ring-offset-2 ring-offset-base-100`}>
-               <img src={image} />
+   const displayName = user.spotifyProfile?.displayName ?? undefined
+   const userId = user.id
+
+   const name = displayName ?? userId
+
+   const content = useMemo(() => {
+      if (nonNullable(image) && image.length > 0) {
+         return (
+            <div className={'avatar'}>
+               <div className={cn('rounded-full ', size)}>
+                  <img src={image} />
+               </div>
             </div>
-         </div>
-      )
-   } else {
-      return (
-         <div className={`avatar placeholder ${className} ${tooltipClasses}`} data-tip={tooltip}>
-            <div className={`w-12 rounded-full bg-neutral-focus text-neutral-content ${size}`}>
-               <span>{name.slice(0, 1)}</span>
+         )
+      } else {
+         return (
+            <div className={'avatar placeholder'}>
+               <div className={cn('w-12 rounded-full bg-neutral-focus text-neutral-content', size)}>
+                  <span>{name.slice(0, 1)}</span>
+               </div>
             </div>
-         </div>
-      )
-   }
+         )
+      }
+   }, [name, image])
+
+   return (
+      <TooltipProvider delayDuration={300}>
+         <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent side='right' align='start' className='bg-primary text-primary-content'>
+               <p>
+                  {name} on {dateAdded}
+               </p>
+            </TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
+   )
 }

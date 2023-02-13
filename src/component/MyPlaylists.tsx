@@ -7,7 +7,7 @@ import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import RightSidePane from 'platform/component/RightSidePane'
-import { classNames, nonNullable, userDisplayNameOrId } from 'util/Utils'
+import { cn, nonNullable, userDisplayNameOrId } from 'util/Utils'
 import { useCurrentDisplayName, useCurrentUserId } from 'state/CurrentUser'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
 
@@ -27,7 +27,7 @@ const RefreshButton = () => {
    return (
       <button type='button' className='btn btn-primary' onClick={() => refetch()}>
          <span className='sr-only'>Refresh</span>
-         <ArrowPathIcon className={classNames(isFetching ? 'animate-spin' : '', 'h-6 w-6')} aria-hidden='true' />
+         <ArrowPathIcon className={cn(isFetching ? 'animate-spin' : '', 'h-6 w-6')} aria-hidden='true' />
       </button>
    )
 }
@@ -115,11 +115,11 @@ const FilterTabs = ({ className }: { className?: string }) => {
    const [sortOrder, setSortOrder] = useAtom(playlistFilterAtom)
 
    return (
-      <div id='tabs' className={classNames('tabs', className)}>
+      <div id='tabs' className={cn('tabs', className)}>
          {PlaylistFilterValues.map(f => (
             <a
                key={f}
-               className={classNames('tab tab-bordered', sortOrder === f ? 'tab-active' : '')}
+               className={cn('tab tab-bordered', sortOrder === f ? 'tab-active' : '')}
                onClick={() => setSortOrder(f as PlaylistFilter)}
             >
                {f}
@@ -245,7 +245,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                   <span className='sr-only'>Details for </span>
                   {playlist.name}
                </h2>
-               <p className={classNames('text-sm font-medium', textColorSecondary)}>Playlist</p>
+               <p className={cn('text-sm font-medium', textColorSecondary)}>Playlist</p>
             </div>
          </div>
          <div>
@@ -257,7 +257,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                <dl className='mt-2 divide-y divide-secondary-content/50'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
-                        <dt className={classNames(textColorSecondary)}>{key}</dt>
+                        <dt className={cn(textColorSecondary)}>{key}</dt>
                         <dd className='text-right'>{info[key]}</dd>
                      </div>
                   ))}

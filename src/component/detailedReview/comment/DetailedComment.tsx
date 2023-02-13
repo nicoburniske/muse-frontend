@@ -5,7 +5,7 @@ import {
 } from 'graphql/generated/schema'
 import { Fragment, useCallback, useState } from 'react'
 import CommentMarkdown from './CommentMarkdown'
-import { findFirstImage, classNames } from 'util/Utils'
+import { findFirstImage, cn } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { Menu, Transition } from '@headlessui/react'
@@ -119,7 +119,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                drop(el)
                drag(el)
             }}
-            className={classNames(
+            className={cn(
                isDragging ?? 'opacity-50',
                isOver && canDrop ? 'bg-base-300' : 'bg-base-200',
                'rounded-lg p-2 text-base-content shadow md:p-4 '
@@ -261,7 +261,7 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
                         <Menu.Item>
                            {({ active }) => (
                               <div
-                                 className={classNames(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
+                                 className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
                                  onClick={openEdit}
                               >
                                  <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
@@ -272,7 +272,7 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
                         <Menu.Item>
                            {({ active }) => (
                               <div
-                                 className={classNames(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
+                                 className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
                                  onClick={openDelete}
                               >
                                  <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />

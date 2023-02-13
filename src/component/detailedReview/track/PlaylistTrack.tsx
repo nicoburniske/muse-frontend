@@ -1,6 +1,6 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { RefObject, useCallback, useEffect, useRef } from 'react'
-import UserAvatar, { TooltipPos } from 'component/UserAvatar'
+import UserAvatar from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -9,13 +9,13 @@ import {
    useReorderPlaylistTracksMutation,
 } from 'component/sdk/ClientHooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { classNames, msToTimeStr } from 'util/Utils'
+import { cn, msToTimeStr } from 'util/Utils'
 import { useDrag, useDrop } from 'react-dnd'
 import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
-import TrackOptions from './TrackDropdown'
 import { useCurrentUserId } from 'state/CurrentUser'
+import { CommentAndOptions } from './CommentAndOptions'
 
 export interface PlaylistTrackProps {
    index: number
@@ -44,8 +44,6 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
       .join(', ')
    // Sorted biggest to smallest.
    const albumImage = track.album?.images?.at(-1)
-   const avatarImage = addedBy?.spotifyProfile?.images?.at(-1)
-   const displayName = addedBy?.spotifyProfile?.displayName ?? addedBy?.id
 
    // Get track styles.
    const styles = useTrackColor(track.id)
@@ -148,7 +146,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
 
    return (
       <div
-         className={classNames(
+         className={cn(
             'group flex items-center justify-between',
             'm-0 select-none border-2 border-transparent p-0.5',
             styles,
@@ -166,7 +164,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                drop(el)
                trackDivRef.current = el
             }}
-            className={classNames('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
+            className={cn('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
          >
             <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
                <div className='avatar ml-1 hidden flex-none sm:flex'>
@@ -182,12 +180,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             </div>
 
             <div className='hidden place-items-center lg:grid'>
-               <UserAvatar
-                  displayName={displayName}
-                  tooltip={`${displayName} - ${dateAdded}`}
-                  image={avatarImage as string}
-                  tooltipPos={TooltipPos.Left}
-               />
+               <UserAvatar dateAdded={dateAdded} user={addedBy} />
             </div>
 
             <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
@@ -197,21 +190,15 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                <LikeButton
                   trackId={track.id}
                   svgStyle={svgStyle}
-                  className={'btn btn-ghost btn-sm p-0'}
+                  className={''}
                   options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
                />
             </div>
-            <div className='flex w-full justify-center'></div>
          </div>
 
-         <TrackOptions
-            trackId={track.id}
-            reviewId={reviewId}
-            playlist={{
-               owner: playlistOwner ?? '',
-               id: playlistId,
-            }}
-         />
+         <div className='flex flex-none items-center space-x-2'>
+            <CommentAndOptions trackId={track.id} reviewId={reviewId} playlistId={playlistId} />
+         </div>
       </div>
    )
 }

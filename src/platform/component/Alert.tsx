@@ -1,6 +1,6 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { ReactNode } from 'react'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 export enum AlertSeverity {
    Error,
@@ -24,7 +24,7 @@ export const Alert = ({
          ? 'alert alert-warning'
          : 'alert alert-success'
    return (
-      <div className={classNames('alert shadow-lg', alertClass, className)}>
+      <div className={cn('alert shadow-lg', alertClass, className)}>
          <div>
             <ExclamationTriangleIcon className='h-6 w-6' />
             {children}

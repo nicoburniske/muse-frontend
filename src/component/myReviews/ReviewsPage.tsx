@@ -11,7 +11,7 @@ import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import IconToggle from 'platform/component/IconToggle'
 import { Bars3BottomLeftIcon, Bars4Icon, Squares2X2Icon as Squares2X2IconMini } from '@heroicons/react/20/solid'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
@@ -32,11 +32,11 @@ const SortTabs = ({ className }: { className?: string }) => {
    const [sortOrder, setSortOrder] = useAtom(sortOrderAtom)
 
    return (
-      <div id='tabs' className={classNames('tabs', className)}>
+      <div id='tabs' className={cn('tabs', className)}>
          {Object.entries(ReviewSorts).map(([key, value]) => (
             <a
                key={key}
-               className={classNames('tab tab-bordered', sortOrder === key ? 'tab-active' : '')}
+               className={cn('tab tab-bordered', sortOrder === key ? 'tab-active' : '')}
                onClick={() => setSortOrder(key as ReviewSort)}
             >
                {value}
@@ -69,7 +69,7 @@ export default function ReviewsPage() {
                   <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
                      <CreateReview
                         title={'Create Review'}
-                        className='btn btn-primary btn-square flex items-center justify-center'
+                        className='btn btn-square btn-primary flex items-center justify-center'
                         parentReviewIdAtom={parentAtom}
                         icon={<PlusIconOutline className='h-6 w-6' aria-hidden='true' />}
                      />

@@ -2,7 +2,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { Fragment } from 'react'
 import { Theme, useTheme } from 'state/UserPreferences'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 const ThemeOptions = Object.values(Theme).sort((a, b) => a.localeCompare(b))
 
@@ -34,7 +34,7 @@ export const ThemeSetter = () => {
                            <Listbox.Option
                               key={theme}
                               className={({ active, selected }) =>
-                                 classNames(
+                                 cn(
                                     active ? 'bg-secondary text-secondary-content' : 'text-base-content',
                                     selected ? 'bg-primary text-primary-content' : 'text-base-content',
                                     'cursor-default select-none py-2 px-2'
@@ -45,7 +45,7 @@ export const ThemeSetter = () => {
                               {({ selected, active }) => (
                                  <div className='grid w-full grid-cols-4'>
                                     <span
-                                       className={classNames(
+                                       className={cn(
                                           selected ? 'font-semibold' : 'font-normal',
                                           'col-span-2 block truncate'
                                        )}
@@ -61,7 +61,7 @@ export const ThemeSetter = () => {
 
                                     {selected ? (
                                        <span
-                                          className={classNames(
+                                          className={cn(
                                              active ? 'bg-secondary text-secondary-content' : 'text-base-content',
                                              selected ? 'bg-primary text-primary-content' : 'text-base-content',
                                              'flex items-center justify-self-end pr-4'

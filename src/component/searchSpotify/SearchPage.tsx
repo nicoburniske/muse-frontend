@@ -18,7 +18,7 @@ import {
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
-import { chunkArrayInGroups, classNames, nonNullable, uniqueByProperty } from 'util/Utils'
+import { chunkArrayInGroups, cn, nonNullable, uniqueByProperty } from 'util/Utils'
 import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import SelectMany from 'platform/component/SelectMany'
 import useDoubleClick from 'platform/hook/useDoubleClick'
@@ -199,7 +199,7 @@ const searchConfigAtom = atom(get => {
    const filterHipster = get(filterHipsterAtom)
    const filterNew = get(filterNewAtom)
 
-   const withFilters = classNames(
+   const withFilters = cn(
       query,
       genre.length > 0 ? `"genre":${genre.join(' ')}` : undefined,
       filterHipster ? 'tag:hipster' : undefined,
@@ -312,7 +312,7 @@ const ScrollSearchResults = () => {
                               <progress className='progress w-full'></progress>
                            ) : null
                         ) : (
-                           <div className={classNames('grid place-items-center gap-x-4', colsStyle)}>
+                           <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
                               {searchRow.map((searchRow, i) => (
                                  <MemoResultRow key={i} searchRow={searchRow} />
                               ))}

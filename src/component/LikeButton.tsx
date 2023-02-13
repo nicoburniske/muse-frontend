@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast'
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
 import { UseQueryOptions } from '@tanstack/react-query'
 import { HeartIcon } from '@heroicons/react/24/outline'
@@ -9,11 +9,11 @@ import { HeartIcon as HeartIconSolid } from '@heroicons/react/20/solid'
 interface LikeButtonProps {
    trackId: string
    svgStyle: (isLiked: boolean | undefined) => string
-   className: string
+   className?: string
    options?: UseQueryOptions<boolean, unknown, boolean, string[]>
 }
 
-export default function LikeButton({ trackId, className, svgStyle, options }: LikeButtonProps) {
+export default function LikeButton({ trackId, className = '', svgStyle, options }: LikeButtonProps) {
    const {
       query: { data: isLiked },
       updateLike,
@@ -45,11 +45,11 @@ export default function LikeButton({ trackId, className, svgStyle, options }: Li
    const disabled = isLiked === undefined
 
    return (
-      <button className={classNames(className)} disabled={disabled} onClick={e => handleClick(e)}>
+      <button className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
          {isLiked ? (
-            <HeartIconSolid className={classNames('h-6 w-6', svgClassName)} />
+            <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
          ) : (
-            <HeartIcon className={classNames('h-6 w-6', svgClassName)} />
+            <HeartIcon className={cn('h-6 w-6', svgClassName)} />
          )}
       </button>
    )

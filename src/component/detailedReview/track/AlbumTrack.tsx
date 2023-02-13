@@ -4,9 +4,9 @@ import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
 import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { classNames, msToTimeStr } from 'util/Utils'
+import { cn, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
-import TrackOptions from './TrackDropdown'
+import { CommentAndOptions } from './CommentAndOptions'
 
 export interface AlbumTrackProps {
    track: DetailedTrackFragment
@@ -41,7 +41,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
 
    return (
       <div
-         className={classNames(
+         className={cn(
             'group flex items-center justify-between',
             'm-0 select-none border-2 border-transparent p-0.5',
             styles
@@ -49,17 +49,17 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       >
          <div
             ref={playOnDoubleClickRef}
-            className={classNames('grid grow grid-cols-3 items-center justify-center md:grid-cols-5', styles)}
+            className={cn('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
          >
             <div className='col-span-2 flex min-w-0 flex-col pl-1'>
-               <div className='select-none truncate p-0.5 text-base'> {track.name} </div>
-               <div className='select-none truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+               <div className='truncate p-0.5 text-base'> {track.name} </div>
+               <div className='truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
             </div>
 
             <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
                {`${minutes}:${seconds}`}
             </div>
-            <div className='hidden place-items-center md:grid'>
+            <div className='hidden place-items-center lg:grid'>
                <TrackPopularity popularity={track.popularity} />
             </div>
             <div className='grid place-items-center'>
@@ -67,11 +67,10 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                   trackId={track.id}
                   svgStyle={svgStyle}
                   options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
-                  className={'btn btn-ghost btn-sm p-0'}
                />
             </div>
          </div>
-         <TrackOptions trackId={track.id} reviewId={reviewId} />
+         <CommentAndOptions reviewId={reviewId} trackId={track.id} />
       </div>
    )
 }
@@ -93,7 +92,7 @@ const TrackPopularity = ({ popularity }: { popularity: number | null | undefined
    return (
       <div className='flex flex-row items-center space-x-0.5'>
          <div>{popularity}</div>
-         <FireIcon className={classNames('h-6 w-6', color)} />
+         <FireIcon className={cn('h-6 w-6', color)} />
       </div>
    )
 }

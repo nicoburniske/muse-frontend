@@ -1,7 +1,7 @@
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { Fragment, ReactNode } from 'react'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 type SelectManyProps<T> = {
    label: string
@@ -47,7 +47,7 @@ const SelectMany = <T,>({
                            <Listbox.Option
                               key={createKey(option)}
                               className={({ active }) =>
-                                 classNames(
+                                 cn(
                                     active ? 'bg-primary text-primary-content' : 'text-base-content',
                                     'relative cursor-default select-none py-2 pl-3 pr-9'
                                  )
@@ -57,7 +57,7 @@ const SelectMany = <T,>({
                               {({ selected, active }) => (
                                  <>
                                     <span
-                                       className={classNames(
+                                       className={cn(
                                           selected ? 'font-semibold' : 'font-normal',
                                           'block text-clip text-sm md:text-base'
                                        )}
@@ -67,7 +67,7 @@ const SelectMany = <T,>({
 
                                     {selected ? (
                                        <span
-                                          className={classNames(
+                                          className={cn(
                                              active ? 'text-primary-content' : 'text-base-content',
                                              'absolute inset-y-0 right-0 flex items-center pr-4'
                                           )}

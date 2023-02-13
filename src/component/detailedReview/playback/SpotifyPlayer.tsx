@@ -1,19 +1,15 @@
 import { MutedSpeakerIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
-import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { classNames, msToTime, msToTimeStr } from 'util/Utils'
+import { cn, msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
-import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentTrack, useVolume, useExistsPlaybackState, useCurrentPosition } from 'component/sdk/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
-import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { MuseTransition } from 'platform/component/MuseTransition'
-import { currentReviewAtom, useCurrentReview } from 'state/CurrentReviewAtom'
+import { useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
 import { usePlayerActions } from 'component/sdk/PlayerActions'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
@@ -61,7 +57,7 @@ export function SpotifyPlayer() {
             </div>
             <PlaybackProgress />
          </div>
-         <div className='m-2 hidden basis-1/4 place-items-center md:grid'>
+         <div className='m-2 hidden place-items-center md:grid'>
             <VolumeSlider />
          </div>
       </div>
@@ -70,52 +66,13 @@ export function SpotifyPlayer() {
 const NowPlayingItem = () => {
    const { album, artists, id: trackId, name: trackName } = useCurrentTrack()
 
-   const { getCurrentPositionMs } = usePlayerActions()
-
    // get largest image.
    const nowPlayingImage = album.images.slice().reverse()[0].url
    const nowPlayingArtist = artists.map(a => a.name).join(', ')
 
-   const { openCommentModal, closeCommentModal } = useCommentModal()
-
-   const { mutateAsync: createComment } = useCreateCommentMutation({
-      onSuccess: () => {
-         toast.success('comment created')
-         closeCommentModal()
-      },
-      onError: () => toast.error('failed to create comment'),
-   })
-
-   const queryClient = useQueryClient()
-   const reviewId = useCurrentReview()
-   const onSubmit = async (comment: string) => {
-      if (reviewId) {
-         await createComment({
-            input: { comment, entities: [{ entityType: EntityType.Track, entityId: trackId! }], reviewId },
-         })
-         queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
-      }
-   }
-
-   const showModal = () => {
-      const { minutes, seconds } = msToTimeStr(getCurrentPositionMs())
-      const initialValue = `<Stamp at="${minutes}:${seconds}" />`
-      const values = {
-         title: 'Create Comment',
-         onCancel: () => closeCommentModal(),
-         onSubmit,
-         initialValue,
-         trackId: trackId!,
-      }
-      openCommentModal(values)
-   }
-
-   const nowPlayingEnabled = useAtomValue(
-      useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), [])
-   )
-   const tooltipContent = useAtomValue(
-      useMemo(() => atom(get => (get(nowPlayingEnabledAtom) ? 'Comment at timestamp' : '')), [])
-   )
+   // const nowPlayingEnabled = useAtomValue(
+   //    useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), [])
+   // )
 
    const [{ isDragging }, drag] = useDrag(
       () => ({
@@ -132,14 +89,14 @@ const NowPlayingItem = () => {
    const spotifyLink = `https://open.spotify.com/track/${trackId}`
 
    return (
-      <div className={classNames('flex select-none flex-row items-center justify-start lg:max-w-lg ')}>
-         <div ref={drag} className={classNames('flex', isDragging ? 'opacity-20' : 'bg-neutral')}>
+      <div className={cn('col-span-1 flex select-none items-center justify-start lg:max-w-lg ')}>
+         <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : 'bg-neutral')}>
             <div className='avatar p-1'>
                <div className='w-16'>
                   <img src={nowPlayingImage} />
                </div>
             </div>
-            <div className={'flex flex-col justify-center overflow-hidden'}>
+            <div className={'flex min-w-0 flex-col justify-center'}>
                <div className='truncate text-left text-xs text-neutral-content md:p-0.5 lg:text-base'>{trackName}</div>
                <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
                   {nowPlayingArtist}
@@ -150,23 +107,13 @@ const NowPlayingItem = () => {
          <a className='ml-2 flex-none' href={spotifyLink} rel='noreferrer' target='_blank'>
             <img src='/spotifyIcon.png' className='h-8 w-8' />
          </a>
-
-         <button
-            className={classNames(
-               'hidden place-items-center p-1 sm:grid',
-               nowPlayingEnabled ? 'tooltip tooltip-right tooltip-primary' : ''
-            )}
-            data-tip={tooltipContent}
-            onClick={showModal}
-            disabled={!nowPlayingEnabled}
-         ></button>
       </div>
    )
 }
 
 const commonBtnClass = 'btn btn-md btn-square'
 
-const svgStyle = (isLiked: boolean | undefined) => classNames(isLiked ? 'fill-success text-success' : '', iconClass)
+const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-success text-success' : '', iconClass)
 
 const LikeNowPlaying = () => {
    const nowPlaying = useAtomValue(isPlayingAtom)
@@ -178,7 +125,7 @@ const LikeNowPlaying = () => {
             trackId={getNowPlayingId()!}
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
-            className={classNames(commonBtnClass, 'btn-ghost')}
+            className={'transition-all duration-500 hover:scale-125'}
          />
       )
    } else {
@@ -281,7 +228,7 @@ const PlayerButtons = () => {
    }
 
    const toggleShuffle = () => setShuffle(!isShuffled)
-   const successButton = classNames(commonBtnClass, 'btn-success')
+   const successButton = cn(commonBtnClass, 'btn-success')
    const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
    const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
@@ -295,39 +242,35 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <button className={classNames(commonBtnClass)} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+         <button className={cn(commonBtnClass)} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
             <MagnifyingGlassIcon className={iconClass} />
          </button>
          <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
             <BackwardIcon className={iconClass} />
          </button>
          <button
-            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
+            className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
             onClick={seekBackward}
             disabled={seekDisabled}
          >
             <ChevronLeftIcon className={iconClass} />
          </button>
          <PlayOrTransferButton />
-         <button
-            className={classNames(commonBtnClass, 'hidden sm:inline-flex ')}
-            onClick={seekForward}
-            disabled={seekDisabled}
-         >
+         <button className={cn(commonBtnClass, 'hidden sm:inline-flex ')} onClick={seekForward} disabled={seekDisabled}>
             <ChevronRightIcon className={iconClass} />
          </button>
          <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}>
             <ForwardIcon className={iconClass} />
          </button>
          <button
-            className={classNames(shuffleButtonClass, 'hidden sm:inline-flex ')}
+            className={cn(shuffleButtonClass, 'hidden sm:inline-flex ')}
             onClick={toggleShuffle}
             disabled={toggleShuffleDisabled}
          >
             <ArrowsUpDownIcon className={iconClass} />
          </button>
          <button
-            className={classNames(repeatModeClass, 'hidden sm:inline-flex ')}
+            className={cn(repeatModeClass, 'hidden sm:inline-flex ')}
             onClick={cycleRepeatMode}
             disabled={repeatModeDisabled}
          >
@@ -344,15 +287,23 @@ const TransferPlaybackButton = () => {
    } = useTransferPlayback({
       onError: () => toast.error('Failed to transfer playback'),
    })
-   const className = classNames(
+   const className = cn(
       commonBtnClass,
       needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
       isLoading ? 'loading' : undefined,
       'grid place-items-center'
    )
 
+   // Buffer time for playback sdk to be setup.
+   const [isReady, setIsReady] = useState(false)
+   useEffect(() => {
+      setTimeout(() => setIsReady(true), 1000)
+   }, [setIsReady])
+
+   const disabled = !isReady || isLoading
+
    return (
-      <button className={className} disabled={!needsReconnect} onClick={() => mutate()} data-tip='start'>
+      <button className={className} disabled={disabled} onClick={() => mutate()} data-tip='start playback'>
          <PowerIcon className={iconClass} />
       </button>
    )

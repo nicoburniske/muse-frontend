@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { useThemeValue } from 'state/UserPreferences'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 export const ThemeModal = ({
    open,
@@ -43,7 +43,7 @@ export const ThemeModal = ({
                leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             >
                <div className='fixed inset-0 z-20 flex items-start justify-center p-4 sm:items-center'>
-                  <Dialog.Panel className={classNames('rounded-md border-2 border-base-200 bg-base-100', className)}>
+                  <Dialog.Panel className={cn('rounded-md border-2 border-base-200 bg-base-100', className)}>
                      {children}
                   </Dialog.Panel>
                </div>

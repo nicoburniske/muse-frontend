@@ -2,6 +2,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import { cn } from 'util/Utils'
 
 // Only change styling if derived values are different.
 export const useTrackColor = (trackId: string) =>
@@ -16,12 +17,13 @@ export const useTrackColor = (trackId: string) =>
                   ? 'bg-success text-success-content'
                   : isSelected
                   ? 'bg-info text-info-content'
-                  : 'bg-base-200 text-base-content active:bg-accent active:text-accent-content'
+                  : 'bg-base-200 text-base-content active:bg-accent active:text-accent-content hover:bg-base-300 delay-[40ms]'
             }),
          [trackId]
       )
    )
 
+const animation = 'transition-all duration-500 hover:scale-125'
 export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefined) => {
    return useAtomValue(
       useMemo(
@@ -30,13 +32,13 @@ export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefine
                if (isLiked !== undefined) {
                   const isPlaying = get(nowPlayingTrackIdAtom) === trackId
                   if (isLiked && isPlaying) {
-                     return 'fill-success-content'
+                     return cn('fill-success-content', animation)
                   } else if (isLiked) {
-                     return 'fill-success'
+                     return cn('fill-success', animation)
                   } else if (isPlaying) {
-                     return 'stroke-success-content'
+                     return cn('stroke-success-content', animation)
                   } else {
-                     return 'stroke-base-content'
+                     return cn('stroke-base-content', animation)
                   }
                }
                return ''

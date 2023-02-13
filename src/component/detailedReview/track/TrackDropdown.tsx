@@ -1,37 +1,36 @@
 import { useFloating } from '@floating-ui/react-dom'
 import Portal from 'platform/component/Portal'
 import { useThemeValue } from 'state/UserPreferences'
-import { useCommentModalTrack } from './useCommentModalTrack'
 import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from 'component/sdk/ClientHooks'
 import toast from 'react-hot-toast'
 import { Menu, Transition } from '@headlessui/react'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
-import { Fragment } from 'react'
+import { Fragment, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useGetPlaylistQuery } from 'graphql/generated/schema'
+import { GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { flip } from '@floating-ui/react'
 
 type TrackOptionsProps = {
    trackId: string
-   reviewId: string
-
-   playlist?: {
-      id: string
-      owner: string
-   }
+   playlistId?: string
 }
 
-export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptionsProps) {
+export default function TrackOptions({ trackId, playlistId }: TrackOptionsProps) {
+   const { data: playlistOwner } = useGetPlaylistQuery(
+      { id: playlistId! },
+      {
+         enabled: playlistId !== undefined,
+         select: useCallback((data: GetPlaylistQuery) => data.getPlaylist?.owner.id, []),
+      }
+   )
    const theme = useThemeValue()
    const { x, y, strategy, refs } = useFloating({
       placement: 'right-start',
       strategy: 'absolute',
       middleware: [flip()],
    })
-
-   const showCommentModal = useCommentModalTrack(reviewId, trackId)
 
    const { mutate: addToQueueMutation } = useAddTrackToQueue({
       onSuccess: () => toast.success('Added track to queue.'),
@@ -41,13 +40,13 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
 
    const currentUserId = useCurrentUserId()
 
-   const isUserOwnedPlaylist = playlist?.id !== undefined && playlist?.owner === currentUserId
+   const isUserOwnedPlaylist = playlistId !== undefined && playlistOwner === currentUserId
 
    const queryClient = useQueryClient()
    const { mutate: removeFromPlaylistMutation } = useRemoveTracksFromPlaylistMutation({
       onSuccess: () => {
          toast.success('Removed track from playlist.')
-         queryClient.invalidateQueries(useGetPlaylistQuery.getKey({ id: playlist?.id! }))
+         queryClient.invalidateQueries(useGetPlaylistQuery.getKey({ id: playlistId! }))
       },
       onError: () => toast.error('Failed to add remove track from playlist.'),
    })
@@ -55,7 +54,7 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
    const removeFromPlaylist = () => {
       if (isUserOwnedPlaylist) {
          removeFromPlaylistMutation({
-            playlistId: playlist.id,
+            playlistId,
             trackIds: [trackId],
          })
       }
@@ -69,9 +68,9 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
             <>
                <Menu.Button
                   ref={refs.setReference}
-                  className={classNames(
+                  className={cn(
                      'btn btn-ghost btn-square btn-sm place-items-center',
-                     open ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                     open ? 'opacity-100' : 'opacity-0 hover:opacity-100 group-hover:opacity-100'
                   )}
                >
                   <EllipsisHorizontalIcon className='h-5 w-5' aria-hidden='true' />
@@ -103,24 +102,12 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
                            {({ active }) => (
                               <li>
                                  <a
-                                    className={classNames(active ? 'active' : '', 'text-sm')}
+                                    className={cn(active ? 'active' : '', 'text-sm')}
                                     rel='noreferrer'
                                     target='_blank'
                                     href={spotifyUrl}
                                  >
-                                    Listen to on Spotify
-                                 </a>
-                              </li>
-                           )}
-                        </Menu.Item>
-                        <Menu.Item>
-                           {({ active }) => (
-                              <li>
-                                 <a
-                                    className={classNames(active ? 'active' : '', 'text-sm')}
-                                    onClick={showCommentModal}
-                                 >
-                                    Create Comment
+                                    Listen On Spotify
                                  </a>
                               </li>
                            )}
@@ -129,7 +116,7 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
                         <Menu.Item>
                            {({ active }) => (
                               <li>
-                                 <a className={classNames(active ? 'active' : '', 'text-sm')} onClick={addToQueue}>
+                                 <a className={cn(active ? 'active' : '', 'text-sm')} onClick={addToQueue}>
                                     Add To Queue
                                  </a>
                               </li>
@@ -140,10 +127,7 @@ export default function TrackOptions({ trackId, reviewId, playlist }: TrackOptio
                            <Menu.Item>
                               {({ active }) => (
                                  <li>
-                                    <a
-                                       className={classNames(active ? 'active' : '', 'text-sm')}
-                                       onClick={removeFromPlaylist}
-                                    >
+                                    <a className={cn(active ? 'active' : '', 'text-sm')} onClick={removeFromPlaylist}>
                                        Remove From Playlist
                                     </a>
                                  </li>

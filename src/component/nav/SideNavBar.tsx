@@ -1,8 +1,9 @@
-import { NAVIGATION } from './NavConstants'
-import { classNames } from 'util/Utils'
+import { NAVIGATION, NavItem } from './NavConstants'
+import { cn } from 'util/Utils'
 import LogoImage from '/logo.png'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 
 export const SideNavBar = () => {
    const nav = useNavigate()
@@ -30,28 +31,41 @@ export const SideNavBar = () => {
 }
 
 const NavBarLinks = () => {
-   const nav = useNavigate()
-   const location = useLocation()
-   const path = location.pathname
-
    return (
       <nav aria-label='Sidebar' className='flex flex-col items-center space-y-3 py-6'>
          {NAVIGATION.map(item => (
-            <a
-               key={item.name}
-               onClick={() => nav(item.href)}
-               className={classNames(
-                  'flex flex-col items-center p-3 transition-all duration-100 hover:bg-primary-focus hover:text-primary-content',
-                  path.includes(item.href)
-                     ? 'bg-primary-focus text-primary-content'
-                     : 'bg-secondary text-secondary-content',
-                  'rounded-3xl hover:w-full hover:rounded-xl'
-               )}
-            >
-               <item.icon className='h-6 w-6' aria-hidden='true' />
-               <span className='sr-only'>{item.name}</span>
-            </a>
+            <NavBarLink key={item.name} item={item} />
          ))}
       </nav>
+   )
+}
+
+const NavBarLink = ({ item }: { item: NavItem }) => {
+   const nav = useNavigate()
+   const location = useLocation()
+   const path = location.pathname
+   return (
+      <TooltipProvider delayDuration={500}>
+         <Tooltip>
+            <TooltipTrigger asChild>
+               <a
+                  onClick={() => nav(item.href)}
+                  className={cn(
+                     'flex flex-col items-center p-3 transition-all duration-100 hover:bg-primary-focus hover:text-primary-content',
+                     path.includes(item.href)
+                        ? 'bg-primary-focus text-primary-content'
+                        : 'bg-secondary text-secondary-content',
+                     'rounded-3xl hover:w-full hover:rounded-xl'
+                  )}
+               >
+                  <item.icon className='h-6 w-6' aria-hidden='true' />
+                  <span className='sr-only'>{item.name}</span>
+               </a>
+            </TooltipTrigger>
+            <TooltipContent side='right' align='start' alignOffset={-4} className='bg-primary text-primary-content'>
+               <p>{item.name}</p>
+            </TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
    )
 }

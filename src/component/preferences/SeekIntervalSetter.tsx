@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 import { z } from 'zod'
 
 const seekIntervalSchema = z.coerce
@@ -43,10 +43,7 @@ export const SeekIntervalSetter = () => {
                type='number'
                name='number'
                id='seekInterval'
-               className={classNames(
-                  'input input-bordered w-full sm:text-sm',
-                  hasErrors ? 'input-error text-error' : ''
-               )}
+               className={cn('input input-bordered w-full sm:text-sm', hasErrors ? 'input-error text-error' : '')}
                value={tempInterval}
                onChange={onChange}
                aria-invalid='true'

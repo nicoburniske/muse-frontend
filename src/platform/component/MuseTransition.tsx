@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react'
 import { JSXElementConstructor } from 'react'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 type MuseTransitionProps = {
    children: React.ReactNode
@@ -13,7 +13,7 @@ type ReactTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>
 
 export const MuseTransition = ({ children, option, as, className, duration }: MuseTransitionProps) => {
    const selected = MuseTransitions[option]
-   const withDuration = { ...selected, enter: classNames(selected.enter, duration) }
+   const withDuration = { ...selected, enter: cn(selected.enter, duration) }
    return (
       <Transition appear={true} show={true} className={className} as={as} {...withDuration}>
          {children}

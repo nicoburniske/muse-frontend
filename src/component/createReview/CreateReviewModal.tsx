@@ -11,7 +11,7 @@ import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 export type CreateReviewProps = {
    entityId: string
@@ -109,7 +109,7 @@ export const CreateReviewModal = () => {
                            type='button'
                            disabled={isLoading}
                            onClick={() => close()}
-                           className={classNames('btn btn-primary btn-md', isLoading && 'btn-loading')}
+                           className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
                         >
                            Cancel
                         </button>
@@ -118,7 +118,7 @@ export const CreateReviewModal = () => {
                            type='button'
                            disabled={createDisabled}
                            onClick={createReviewMutation}
-                           className={classNames('btn btn-success btn-md', isLoading && 'btn-loading')}
+                           className={cn('btn btn-success btn-md', isLoading && 'btn-loading')}
                         >
                            Create
                         </button>

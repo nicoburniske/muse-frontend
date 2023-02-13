@@ -13,7 +13,7 @@ import { ShareReview } from './ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
-import { nonNullable, findFirstImage, groupBy, classNames } from 'util/Utils'
+import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
 import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import ReviewCommentSection from './CommentSection'
@@ -227,13 +227,13 @@ const RenderOptionTabs = () => {
    return (
       <>
          <button
-            className={classNames(tabStyle, renderOption === 'tracks' ? 'tab-active' : '')}
+            className={cn(tabStyle, renderOption === 'tracks' ? 'tab-active' : '')}
             onClick={() => setRenderOption('tracks')}
          >
             <MusicIcon />
          </button>
          <button
-            className={classNames(
+            className={cn(
                tabStyle,
                // 'hidden md:tab',
                renderOption === 'both' ? 'tab-active' : ''
@@ -243,7 +243,7 @@ const RenderOptionTabs = () => {
             <ArrowRightLeftIcon />
          </button>
          <button
-            className={classNames(tabStyle, renderOption === 'comments' ? 'tab-active' : '')}
+            className={cn(tabStyle, renderOption === 'comments' ? 'tab-active' : '')}
             onClick={() => setRenderOption('comments')}
          >
             <CommentIcon />

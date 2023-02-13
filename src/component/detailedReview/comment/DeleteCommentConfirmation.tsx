@@ -6,7 +6,7 @@ import { atomWithReset, useResetAtom } from 'jotai/utils'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { classNames } from 'util/Utils'
+import { cn } from 'util/Utils'
 
 type DeleteModalValues = { reviewId: string; commentId: number; invalidate?: boolean }
 
@@ -55,7 +55,7 @@ export const DeleteCommentConfirmation = () => {
                         type='button'
                         disabled={isLoading}
                         onClick={() => setIsModalOpen(false)}
-                        className={classNames('btn btn-primary btn-md', isLoading && 'btn-loading')}
+                        className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
                      >
                         Cancel
                      </button>
@@ -64,7 +64,7 @@ export const DeleteCommentConfirmation = () => {
                         type='button'
                         disabled={isLoading}
                         onClick={deleteComment}
-                        className={classNames('btn btn-error btn-md', isLoading && 'btn-loading')}
+                        className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
                      >
                         Delete
                      </button>

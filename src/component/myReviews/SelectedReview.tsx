@@ -15,7 +15,7 @@ import { ThemeModal } from 'platform/component/ThemeModal'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
-import { nonNullable, findFirstImage, classNames } from 'util/Utils'
+import { nonNullable, findFirstImage, cn } from 'util/Utils'
 
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)
@@ -116,7 +116,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   <span className='sr-only'>Details for </span>
                   {review.reviewName}
                </h2>
-               <p className={classNames('text-sm font-medium', textColorSecondary)}>{entityType}</p>
+               <p className={cn('text-sm font-medium', textColorSecondary)}>{entityType}</p>
             </div>
          </div>
          <div className='relative cursor-pointer' onClick={linkToReviewPage}>
@@ -128,7 +128,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                <dl className='mt-2 divide-y divide-secondary-content/50'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
-                        <dt className={classNames(textColorSecondary)}>{key}</dt>
+                        <dt className={cn(textColorSecondary)}>{key}</dt>
                         <dd className='text-right'>{info[key]}</dd>
                      </div>
                   ))}
@@ -226,7 +226,7 @@ const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
                            type='button'
                            disabled={isLoading}
                            onClick={() => setIsModalOpen(false)}
-                           className={classNames('btn btn-primary btn-md', isLoading && 'btn-loading')}
+                           className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
                         >
                            Cancel
                         </button>
@@ -235,7 +235,7 @@ const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
                            type='button'
                            disabled={isLoading}
                            onClick={deleteReview}
-                           className={classNames('btn btn-error btn-md', isLoading && 'btn-loading')}
+                           className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
                         >
                            Delete
                         </button>

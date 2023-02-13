@@ -1,10 +1,14 @@
+import clsx, { ClassValue } from 'clsx'
 import {
    ReviewDetailsFragment,
    ReviewEntityOverviewFragment,
    UserWithSpotifyOverviewFragment,
 } from 'graphql/generated/schema'
+import { twMerge } from 'tailwind-merge'
 
-export type BoolNum = 0 | 1
+export function cn(...inputs: ClassValue[]) {
+   return twMerge(clsx(inputs))
+}
 
 export function msToTime(duration: number) {
    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24),
@@ -103,10 +107,6 @@ export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
       )
       .filter(nonNullable)
       .at(0)
-}
-
-export function classNames(...classes: (string | undefined | boolean)[]) {
-   return classes.filter(Boolean).join(' ')
 }
 
 export function chunkArrayInGroups<T>(arr: T[], size: number): T[][] {
