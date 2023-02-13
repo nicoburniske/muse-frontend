@@ -224,9 +224,10 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
       Object.entries({
          'Playlist Owner': userDisplayNameOrId(playlist?.owner),
          Public: playlist?.public ? 'True' : 'False',
-         'Number of Tracks': playlist.numberOfTracks,
-         Followers: playlist.numberOfFollowers,
-      }).filter(([, value]) => nonNullable(value))
+         'Number of Tracks': playlist.numberOfTracks.toString(),
+         Followers: playlist.numberOfFollowers?.toString(),
+         Description: playlist.description,
+      }).filter(([, value]) => nonNullable(value) && value.length > 0)
    )
 
    const image = playlist.images.at(0)
