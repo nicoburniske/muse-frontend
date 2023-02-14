@@ -17,7 +17,6 @@ import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } fr
 import useSyncAtoms from 'platform/hook/useSyncAtoms'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 import { usePrefetchLikes } from 'state/useTrackLikeQuery'
-import withScrolling from 'react-dnd-scrolling'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -43,12 +42,13 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
    useEffect(() => setRootReviewId(rootReview), [rootReview, setRootReviewId])
 
    const setResults = useSetAtom(setResultsAtom)
-   useEffect(() => setResults(results), [results, setResults])
+   useEffect(() => {
+      setResults(results)
+      return () => setResults([])
+   }, [results, setResults])
 
    return <GroupedTrackTable />
 }
-
-const ScrollZone = withScrolling('div')
 
 /**
  * COMPONENT
@@ -150,7 +150,7 @@ export const GroupedTrackTable = () => {
    const rows = getRows()
    return (
       <div ref={parentRef} className='no-scrollbar w-full overflow-y-auto'>
-         <ScrollZone
+         <div
             className='relative w-full'
             style={{
                height: `${rowVirtualizer.getTotalSize()}px`,
@@ -166,7 +166,7 @@ export const GroupedTrackTable = () => {
                      </div>
                   )
                })}
-         </ScrollZone>
+         </div>
       </div>
    )
 }
