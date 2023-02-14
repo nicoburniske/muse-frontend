@@ -4,8 +4,6 @@ import { SelectedReview, useSelectReview } from './SelectedReview'
 import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
-import { PlusIcon as PlusIconOutline } from '@heroicons/react/24/outline'
-import CreateReview from 'component/createReview/CreateReview'
 import toast from 'react-hot-toast'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
@@ -66,14 +64,6 @@ export default function ReviewsPage() {
                </OpenMobileMenuButton>
                <div className='align-center flex flex-1 justify-center py-2 px-4'>
                   <SearchBar />
-                  <div className='ml-2 flex flex-row items-center justify-center space-x-4 sm:ml-6 sm:space-x-6'>
-                     <CreateReview
-                        title={'Create Review'}
-                        className='btn btn-square btn-primary flex items-center justify-center'
-                        parentReviewIdAtom={parentAtom}
-                        icon={<PlusIconOutline className='h-6 w-6' aria-hidden='true' />}
-                     />
-                  </div>
                </div>
             </div>
          </header>

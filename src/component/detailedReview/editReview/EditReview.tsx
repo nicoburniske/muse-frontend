@@ -15,7 +15,7 @@ type FormValues = {
    name: string
 }
 
-const nameSchema = z.string().min(1).max(100)
+const nameSchema = z.string().min(1).max(50)
 
 const reviewIdAtom = atom('')
 const defaultFormValuesAtom = atom<FormValues>({ isPublic: false, name: '' })
@@ -96,7 +96,7 @@ const EditReviewForm = () => {
                value={reviewName}
             />
          </div>
-         <div className='form-control w-full'>
+         <div className='flex w-full flex-col'>
             <label className='label'>
                <span className='label-text'>Is Public</span>
             </label>
