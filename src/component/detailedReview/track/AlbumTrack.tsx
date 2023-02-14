@@ -81,11 +81,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                <TrackPopularity popularity={track.popularity} />
             </div>
             <div className='grid place-items-center'>
-               <LikeButton
-                  trackId={track.id}
-                  svgStyle={svgStyle}
-                  options={{ staleTime: 1000 * 60, refetchOnMount: false }}
-               />
+               <LikeButton trackId={track.id} svgStyle={svgStyle} options={{ staleTime: 1000 * 60 }} />
             </div>
 
             <div className='flex flex-none items-center justify-center space-x-2'>

@@ -186,12 +186,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                {`${minutes}:${seconds}`}
             </div>
             <div className='cols-span-1 grid place-items-center'>
-               <LikeButton
-                  trackId={track.id}
-                  svgStyle={svgStyle}
-                  className={''}
-                  options={{ staleTime: 1000 * 60, refetchOnMount: false }}
-               />
+               <LikeButton trackId={track.id} svgStyle={svgStyle} className={''} options={{ staleTime: 1000 * 60 }} />
             </div>
 
             <div className='flex flex-none items-center justify-center space-x-2'>
