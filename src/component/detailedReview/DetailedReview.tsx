@@ -29,13 +29,16 @@ import { HeroLoading } from 'platform/component/HeroLoading'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { useSearchAtom } from 'state/Atoms'
 import { LinkReviewButton } from './LinkReview'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { Icon } from 'component/nav/NavConstants'
 
 export interface DetailedReviewProps {
    reviewId: string
 }
 
-export type RenderOptions = 'tracks' | 'comments' | 'both'
-const renderOptionAtom = atom<RenderOptions>('both')
+export const RenderOptionValues = ['tracks', 'comments', 'both'] as const
+export type RenderOption = (typeof RenderOptionValues)[number]
+const renderOptionAtom = atom<RenderOption>('both')
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
    const { data, isLoading } = useDetailedReviewQuery(
@@ -92,8 +95,11 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
    return (
       <div className='relative flex grow flex-col'>
          <ReviewHeader review={review} />
+         <div className='flex h-8 flex-none justify-evenly'>
+            <RenderOptionTabs />
+         </div>
          {/* For some reason I need a min-height? When doing flex-col in page. */}
-         <div className='mx-1 min-h-0 grow bg-base-100'>
+         <div className='mx-1 min-h-0 grow'>
             <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
          </div>
          <CommentFormModalWrapper />
@@ -112,7 +118,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const collaborators = review?.collaborators ?? []
    const isPublic = review.isPublic
    const title = review.reviewName
-   const entityName = review.entity?.name ?? 'No Entity Linked'
+   const entityName = review.entity?.name
    const creatorDisplayName = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
    const creatorId = review?.creator?.id
    const entity = review?.entity
@@ -126,9 +132,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
 
    return (
-      <div className='shadow-l mb-1 flex flex-row items-center justify-between bg-base-100'>
-         <div className='flex flex-row items-center justify-start space-x-1 p-1'>
-            <div className='min-w-0 flex-1'>
+      <div className='shadow-l mb-1 flex items-center justify-between bg-base-100 lg:grid lg:grid-cols-3'>
+         <div className='flex flex-row items-center justify-start space-x-1 self-start p-1'>
+            <div className='min-w-0'>
                <div className='flex items-center justify-between'>
                   <img
                      className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
@@ -136,45 +142,43 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   />
                   <OpenMobileMenuButton>
                      {onClick => (
-                        <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
+                        <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
                            <span className='sr-only'>Open sidebar</span>
                            <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                         </button>
                      )}
                   </OpenMobileMenuButton>
-                  <div>
-                     <dl className='ml-1 flex flex-col items-start justify-center space-y-1 md:ml-3'>
-                        <h1 className='text-base font-bold leading-7 sm:truncate sm:leading-9 md:text-2xl'>{title}</h1>
-                        <dt className='sr-only'>Entity Details</dt>
-                        <dd className='flex items-center text-sm font-medium'>
-                           <div className='badge badge-secondary mr-1.5 overflow-hidden truncate whitespace-nowrap'>
-                              {entity?.__typename}
-                           </div>
-                           <div className='line-clamp-1'>{entityName}</div>
-                        </dd>
-                        <dt className='sr-only'>Creator name</dt>
-                        <div className='flex min-w-0 flex-1 space-x-1'>
-                           <p className=' text-sm font-medium text-base-content'>
-                              <a className=''>{creatorDisplayName}</a>
-                           </p>
-                           {
-                              // Only show @ if it's not the same as the display name.
-                              creatorId && (
-                                 <p className='text-sm text-base-content/50'>
-                                    <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
-                                 </p>
-                              )
-                           }
+                  <dl className='ml-1 flex min-w-0 flex-col items-start justify-center space-y-1 truncate md:ml-3 '>
+                     <h1 className='truncate text-base font-bold md:text-xl'>{title}</h1>
+                     <dt className='sr-only'>Entity Details</dt>
+                     <dd className='flex items-center text-sm font-medium'>
+                        <div className='badge badge-secondary mr-1.5 overflow-hidden truncate whitespace-nowrap'>
+                           {entity?.__typename}
                         </div>
-                     </dl>
-                  </div>
+                        {entityName ?? <div className='line-clamp-1'>{entityName}</div>}
+                     </dd>
+                     <dt className='sr-only'>Creator name</dt>
+                     <div className='flex min-w-0 flex-1 space-x-1'>
+                        <p className=' text-sm font-medium text-base-content'>
+                           <a className=''>{creatorDisplayName}</a>
+                        </p>
+                        {
+                           // Only show @ if it's not the same as the display name.
+                           creatorId && (
+                              <p className='text-sm text-base-content/50'>
+                                 <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
+                              </p>
+                           )
+                        }
+                     </div>
+                  </dl>
                </div>
             </div>
          </div>
-         <div className='hidden w-full max-w-xl lg:inline'>
+         <div className='m-auto hidden w-full max-w-xl lg:inline'>
             <SearchTracks />
          </div>
-         <div className='grid h-full grid-cols-2 place-content-evenly items-center gap-1 lg:flex lg:space-x-1'>
+         <div className='mr-4 flex flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-y-0 md:space-x-1'>
             {isReviewOwner ? (
                <>
                   <EditReviewButton
@@ -198,10 +202,6 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                </>
             ) : null}
-
-            <div className='tabs col-span-2 flex flex-row flex-nowrap items-center justify-center'>
-               <RenderOptionTabs />
-            </div>
          </div>
       </div>
    )
@@ -220,34 +220,37 @@ const SearchTracks = () => {
    )
 }
 
-const tabStyle = 'tab tab-xs md:tab-md lg:tab-lg tab-boxed'
+const tabStyle = 'tab tab-xs md:tab-md tab-bordered h-8'
 const RenderOptionTabs = () => {
-   const [renderOption, setRenderOption] = useAtom(renderOptionAtom)
    return (
       <>
-         <button
-            className={cn(tabStyle, renderOption === 'tracks' ? 'tab-active' : '')}
-            onClick={() => setRenderOption('tracks')}
-         >
-            <MusicIcon />
-         </button>
-         <button
-            className={cn(
-               tabStyle,
-               // 'hidden md:tab',
-               renderOption === 'both' ? 'tab-active' : ''
-            )}
-            onClick={() => setRenderOption('both')}
-         >
-            <ArrowRightLeftIcon />
-         </button>
-         <button
-            className={cn(tabStyle, renderOption === 'comments' ? 'tab-active' : '')}
-            onClick={() => setRenderOption('comments')}
-         >
-            <CommentIcon />
-         </button>
+         <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicIcon} />
+         <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowRightLeftIcon} />
+         <RenderOptionTooltip renderOption='comments' label='Comments' icon={CommentIcon} />
       </>
+   )
+}
+const RenderOptionTooltip = (props: { renderOption: RenderOption; label: string; icon: Icon; className?: string }) => {
+   const { renderOption, label, className } = props
+   const [currentRenderOption, setRenderOption] = useAtom(renderOptionAtom)
+
+   return (
+      <TooltipProvider delayDuration={500}>
+         <Tooltip>
+            <TooltipTrigger asChild>
+               <button
+                  className={cn(tabStyle, currentRenderOption === renderOption ? 'tab-active' : '', className)}
+                  onClick={() => setRenderOption(renderOption)}
+               >
+                  <props.icon className='h-6 w-6' />
+               </button>
+            </TooltipTrigger>
+
+            <TooltipContent side='top' align='center' className='bg-primary text-primary-content'>
+               <p>{label}</p>
+            </TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
    )
 }
 
