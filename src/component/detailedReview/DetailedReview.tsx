@@ -133,52 +133,49 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
 
    return (
       <div className='shadow-l mb-1 flex items-center justify-between bg-base-100 lg:grid lg:grid-cols-3'>
-         <div className='flex flex-row items-center justify-start space-x-1 self-start p-1'>
-            <div className='min-w-0'>
-               <div className='flex items-center justify-between'>
-                  <img
-                     className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
-                     src={reviewEntityImage}
-                  />
-                  <OpenMobileMenuButton>
-                     {onClick => (
-                        <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
-                           <span className='sr-only'>Open sidebar</span>
-                           <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                        </button>
-                     )}
-                  </OpenMobileMenuButton>
-                  <dl className='ml-1 flex min-w-0 flex-col items-start justify-center space-y-1 truncate md:ml-3 '>
-                     <h1 className='truncate text-base font-bold md:text-xl'>{title}</h1>
-                     <dt className='sr-only'>Entity Details</dt>
-                     <dd className='flex items-center text-sm font-medium'>
-                        <div className='badge badge-secondary mr-1.5 overflow-hidden truncate whitespace-nowrap'>
-                           {entity?.__typename}
-                        </div>
-                        {entityName ?? <div className='line-clamp-1'>{entityName}</div>}
-                     </dd>
-                     <dt className='sr-only'>Creator name</dt>
-                     <div className='flex min-w-0 flex-1 space-x-1'>
-                        <p className=' text-sm font-medium text-base-content'>
-                           <a className=''>{creatorDisplayName}</a>
+         <div className='flex w-24 flex-1 items-center justify-start lg:w-full'>
+            <img
+               className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
+               src={reviewEntityImage}
+               alt='Review Image'
+            />
+            <OpenMobileMenuButton>
+               {onClick => (
+                  <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
+                     <span className='sr-only'>Open sidebar</span>
+                     <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
+                  </button>
+               )}
+            </OpenMobileMenuButton>
+            <dl className='ml-1 flex flex-col items-start justify-center space-y-1 md:ml-3 '>
+               <h1 className='truncate text-base font-bold md:text-xl'>{title}</h1>
+               <dt className='sr-only'>Entity Details</dt>
+               <dd className='flex items-center text-sm font-medium'>
+                  <div className='badge badge-secondary mr-1.5 truncate whitespace-nowrap text-sm'>
+                     {entity?.__typename}
+                  </div>
+                  {entityName ?? <div className='line-clamp-1'>{entityName}</div>}
+               </dd>
+               <dt className='sr-only'>Creator name</dt>
+               <div className='flex flex-1 space-x-1'>
+                  <p className=' text-sm font-medium text-base-content'>
+                     <a className=''>{creatorDisplayName}</a>
+                  </p>
+                  {
+                     // Only show @ if it's not the same as the display name.
+                     creatorId && (
+                        <p className='text-sm text-base-content/50'>
+                           <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
                         </p>
-                        {
-                           // Only show @ if it's not the same as the display name.
-                           creatorId && (
-                              <p className='text-sm text-base-content/50'>
-                                 <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
-                              </p>
-                           )
-                        }
-                     </div>
-                  </dl>
+                     )
+                  }
                </div>
-            </div>
+            </dl>
          </div>
          <div className='m-auto hidden w-full max-w-xl lg:inline'>
             <SearchTracks />
          </div>
-         <div className='mr-4 flex flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-y-0 md:space-x-1'>
+         <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-y-0 md:space-x-1'>
             {isReviewOwner ? (
                <>
                   <EditReviewButton
