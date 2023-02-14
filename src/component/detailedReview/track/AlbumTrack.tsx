@@ -84,7 +84,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                <LikeButton
                   trackId={track.id}
                   svgStyle={svgStyle}
-                  options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
+                  options={{ staleTime: 1000 * 60, refetchOnMount: false }}
                />
             </div>
 

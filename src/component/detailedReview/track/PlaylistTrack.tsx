@@ -190,7 +190,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                   trackId={track.id}
                   svgStyle={svgStyle}
                   className={''}
-                  options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
+                  options={{ staleTime: 1000 * 60, refetchOnMount: false }}
                />
             </div>
 
