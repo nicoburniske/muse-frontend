@@ -5,6 +5,8 @@ import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { cn } from 'util/Utils'
 
 // Only change styling if derived values are different.
+
+const trackAnimation = 'transition-all duration-100'
 export const useTrackColor = (trackId: string) =>
    useAtomValue(
       useMemo(
@@ -14,10 +16,13 @@ export const useTrackColor = (trackId: string) =>
                const isSelected = get(selectedTrackAtom)?.trackId === trackId
 
                return isPlaying
-                  ? 'bg-success text-success-content'
+                  ? cn(trackAnimation, 'bg-success text-success-content')
                   : isSelected
-                  ? 'bg-info text-info-content'
-                  : 'bg-base-200 text-base-content active:bg-accent active:text-accent-content hover:bg-base-300 delay-[40ms]'
+                  ? cn(trackAnimation, 'bg-info text-info-content')
+                  : cn(
+                       trackAnimation,
+                       'bg-base-200 text-base-content active:bg-accent active:text-accent-content hover:bg-base-300'
+                    )
             }),
          [trackId]
       )

@@ -45,7 +45,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
 
    const image = findFirstImage(detailedComment.entities ?? [])
    // We only need to accomodate first 23 characters of name.
-   const name = (detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name').slice(0, 23)
+   const name = detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name'
 
    // We want to find the track that the comment is applied to and scroll to it.
    const setSelectedTrack = useSetAtom(selectedTrackAtom)
@@ -126,32 +126,36 @@ export default function DetailedComment({ review, comment: detailedComment }: De
             )}
          >
             <div>
-               <div className='flex space-x-3'>
-                  <div className='flex-shrink-0'>
-                     <img className='h-10 w-10 rounded-full' src={avatar} alt='' />
-                  </div>
-                  <div className='min-w-0 flex-1'>
-                     <p className='space-x-1 text-sm font-medium text-base-content'>
-                        <a className=''>{commenterName}</a>
-                        <a className='hidden text-xs text-base-content/50 md:inline'>
-                           <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
-                        </a>
-                     </p>
-                     <p className='text-sm text-base-content/50'>
-                        <a className='text-xs text-base-content/50 hover:underline'>@{commenterId}</a>
-                     </p>
-                  </div>
-
-                  <div className='avatar ml-1 hidden sm:flex'>
-                     <div className='h-10 w-10 rounded'>
-                        <img src={image} />
+               <div className='grid grid-cols-2'>
+                  <div className='flex items-center space-x-1 '>
+                     <div className='flex-shrink-0'>
+                        <img className='h-10 w-10 rounded-full' src={avatar} alt='' />
+                     </div>
+                     <div className='min-w-0 flex-1'>
+                        <p className='space-x-1 text-sm font-medium text-base-content'>
+                           <a className=''>{commenterName}</a>
+                           <a className='hidden text-xs text-base-content/50 md:inline'>
+                              <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
+                           </a>
+                        </p>
+                        <p className='text-sm text-base-content/50'>
+                           <a className='text-xs text-base-content/50 hover:underline'>@{commenterId}</a>
+                        </p>
                      </div>
                   </div>
-                  <div className='min-w-0 flex-1'>
-                     <p className='select-none truncate p-0.5 text-base'> {name} </p>
-                  </div>
-                  <div className='flex flex-shrink-0 self-center'>
-                     <CommentMenu reviewId={reviewId} comment={detailedComment} />
+
+                  <div className='flex items-center space-x-1'>
+                     <div className='avatar ml-1 hidden sm:flex'>
+                        <div className='h-10 w-10 rounded'>
+                           <img src={image} />
+                        </div>
+                     </div>
+                     <div className='min-w-0 flex-1 overflow-hidden'>
+                        <p className='select-none truncate p-0.5 text-sm'> {name} </p>
+                     </div>
+                     <div className='flex flex-shrink-0 self-center'>
+                        <CommentMenu reviewId={reviewId} comment={detailedComment} />
+                     </div>
                   </div>
                </div>
             </div>

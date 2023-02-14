@@ -85,17 +85,16 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    })
 
    const currentUserId = useCurrentUserId()
-
+   type TrackDndEvent = { trackId: string; playlistId?: string; index?: number }
    // Drop to add to playlist.
    const [{ canDrop, isAbove }, drop] = useDrop(
       () => ({
          accept: 'Track',
-         canDrop: (item: { trackId: string; playlistId?: string; index: number }) =>
-            currentUserId === playlistOwner && item.trackId !== trackId,
-         drop: (item: { trackId: string; playlistId?: string; index: number }) => {
+         canDrop: (item: TrackDndEvent) => currentUserId === playlistOwner && item.trackId !== trackId,
+         drop: (item: TrackDndEvent) => {
             const lastIsAbove = lastIsAboveRef.current
             const insertIndex = lastIsAbove ? index : index + 1
-            if (item.playlistId === playlistId) {
+            if (item.playlistId === playlistId && item.index !== undefined) {
                reorder({ playlistId, insertBefore: insertIndex, rangeStart: item.index, rangeLength: 1 })
             } else {
                addTracksToPlaylist({ trackIds: [item.trackId], playlistId, position: insertIndex })
@@ -164,18 +163,18 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                drop(el)
                trackDivRef.current = el
             }}
-            className={cn('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
+            className={cn('grid grow grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6')}
          >
             <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
-               <div className='avatar ml-1 hidden flex-none sm:flex'>
+               <div className='avatar ml-1 flex-none'>
                   <div className='h-8 w-8 rounded md:h-12 md:w-12'>
                      <img src={albumImage} />
                   </div>
                </div>
 
                <div className='flex min-w-0 flex-col pl-1'>
-                  <div className='select-none truncate p-0.5 text-base'> {track.name} </div>
-                  <div className='select-none truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+                  <div className='select-none truncate p-0.5 text-sm md:text-base'> {track.name} </div>
+                  <div className='select-none truncate p-0.5 text-xs font-light md:text-sm'> {artistNames ?? ''} </div>
                </div>
             </div>
 
@@ -194,10 +193,10 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                   options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
                />
             </div>
-         </div>
 
-         <div className='flex flex-none items-center space-x-2'>
-            <CommentAndOptions trackId={track.id} reviewId={reviewId} playlistId={playlistId} />
+            <div className='flex flex-none items-center justify-center space-x-2'>
+               <CommentAndOptions trackId={track.id} reviewId={reviewId} playlistId={playlistId} />
+            </div>
          </div>
       </div>
    )

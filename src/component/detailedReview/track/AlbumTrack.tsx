@@ -7,6 +7,7 @@ import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 import { cn, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
 import { CommentAndOptions } from './CommentAndOptions'
+import { useDrag } from 'react-dnd'
 
 export interface AlbumTrackProps {
    track: DetailedTrackFragment
@@ -39,21 +40,38 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
 
    const { minutes, seconds } = msToTimeStr(track.durationMs)
 
+   const trackId = track.id
+   const [{ isDragging }, drag] = useDrag(
+      () => ({
+         type: 'Track',
+         item: { trackId },
+         canDrag: true,
+         collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+         }),
+      }),
+      [trackId]
+   )
+
    return (
       <div
+         ref={drag}
          className={cn(
             'group flex items-center justify-between',
             'm-0 select-none border-2 border-transparent p-0.5',
-            styles
+            styles,
+            isDragging ?? 'opacity-50'
          )}
       >
          <div
             ref={playOnDoubleClickRef}
-            className={cn('grid grow grid-cols-3 items-center justify-center md:grid-cols-4 lg:grid-cols-5')}
+            className={cn(
+               'grid grow select-none grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6'
+            )}
          >
             <div className='col-span-2 flex min-w-0 flex-col pl-1'>
-               <div className='truncate p-0.5 text-base'> {track.name} </div>
-               <div className='truncate p-0.5 text-sm font-light'> {artistNames ?? ''} </div>
+               <div className='truncate p-0.5 text-sm md:text-base'> {track.name} </div>
+               <div className='truncate p-0.5 text-xs font-light md:text-sm'> {artistNames ?? ''} </div>
             </div>
 
             <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
@@ -69,8 +87,11 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                   options={{ staleTime: 1000 * 60, refetchOnMount: false, refetchOnWindowFocus: false }}
                />
             </div>
+
+            <div className='flex flex-none items-center justify-center space-x-2'>
+               <CommentAndOptions trackId={track.id} reviewId={reviewId} />
+            </div>
          </div>
-         <CommentAndOptions reviewId={reviewId} trackId={track.id} />
       </div>
    )
 }
