@@ -4,7 +4,7 @@ fragment ReviewEntityOverview on ReviewEntity {
    name
    ... on Album {
       images
-      artists {
+      albumArtists: artists {
          name
          id
       }
@@ -28,7 +28,7 @@ fragment ReviewEntityOverview on ReviewEntity {
       album {
          images
       }
-      artists {
+      trackArtists: artists {
          name
          id
       }

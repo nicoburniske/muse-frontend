@@ -17,6 +17,7 @@ import { Prettify } from 'util/Types'
 import { useEffect, useRef, useState } from 'react'
 
 const persister = createIDBPersister()
+export const clearPersister = () => persister.removeClient()
 
 export default function MuseQueryClientProvider({
    useCache,

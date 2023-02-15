@@ -3,7 +3,7 @@ import { useAtom, WritableAtom } from 'jotai'
 import { useThemeValue } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
 
-export const TogglePreferences = ({ atom }: { atom: WritableAtom<boolean, [boolean], boolean> }) => {
+export const TogglePreferences = ({ atom }: { atom: WritableAtom<boolean, [boolean], void> }) => {
    const [shouldTransfer, setShouldTransfer] = useAtom(atom)
 
    const toggle = () => setShouldTransfer(!shouldTransfer)

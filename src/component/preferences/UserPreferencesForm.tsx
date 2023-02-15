@@ -9,6 +9,8 @@ import Portal from 'platform/component/Portal'
 import { useQueryClient } from '@tanstack/react-query'
 import { AppConfig } from 'util/AppConfig'
 import { CogIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { clear } from 'idb-keyval'
+import { clearPersister } from 'MuseQueryClientProvider'
 
 const modalOpenAtom = atom(false)
 
@@ -54,13 +56,17 @@ export const UserPreferencesForm = () => {
             <ThemeSetter />
             <TogglePreferences atom={transferPlaybackOnMountAtom} />
             <SeekIntervalSetter />
-            {AppConfig.DEV && (
-               <button className='btn btn-primary btn-md m-auto' onClick={() => queryClient.clear()}>
-                  Clear Cache
-               </button>
-            )}
+            <button
+               className='btn btn-primary btn-md m-auto'
+               onClick={() => {
+                  clearPersister()
+                  queryClient.clear()
+               }}
+            >
+               Clear Cache
+            </button>
          </div>
-         <button className='btn btn-error btn-square btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
+         <button className='btn btn-square btn-error btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
             <XMarkIcon className='h-6 w-6' />
          </button>
       </div>

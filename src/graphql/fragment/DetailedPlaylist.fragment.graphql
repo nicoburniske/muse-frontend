@@ -16,7 +16,5 @@ fragment PlaylistDetails on Playlist {
    owner {
       ...UserWithSpotifyOverview
    }
-   primaryColor
    numberOfTracks
-   numberOfFollowers
 }
