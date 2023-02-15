@@ -17,6 +17,7 @@ import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } fr
 import useSyncAtoms from 'platform/hook/useSyncAtoms'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 import { usePrefetchLikes } from 'state/useTrackLikeQuery'
+import useEffectDeepEqual from 'platform/hook/useEffectDeepEqual'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -39,10 +40,12 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
 
    // useAtom is intentional so we trigger a re-render when the rootReviewId changes.
    const [, setRootReviewId] = useAtom(rootReviewIdAtom)
-   useEffect(() => setRootReviewId(rootReview), [rootReview, setRootReviewId])
+   useEffect(() => {
+      setRootReviewId(rootReview)
+   }, [rootReview, setRootReviewId])
 
    const setResults = useSetAtom(setResultsAtom)
-   useEffect(() => {
+   useEffectDeepEqual(() => {
       setResults(results)
       return () => setResults([])
    }, [results, setResults])

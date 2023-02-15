@@ -40,11 +40,14 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
 export const useKeepMountedRangeExtractor = () => {
    const mounted = useRef(new Set<number>())
 
-   const rangeExtractor = useCallback((range: Range) => {
-      const newRange = [...mounted.current, ...defaultRangeExtractor(range)]
-      mounted.current = new Set(newRange)
-      return newRange
-   }, [])
+   const rangeExtractor = useCallback(
+      (range: Range) => {
+         const newRange = [...mounted.current, ...defaultRangeExtractor(range)]
+         mounted.current = new Set(newRange)
+         return newRange
+      },
+      [mounted]
+   )
 
    return [mounted, rangeExtractor] as [MutableRefObject<Set<number>>, (range: Range) => number[]]
 }
