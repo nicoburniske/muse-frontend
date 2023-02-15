@@ -77,7 +77,6 @@ const useSubscribeToReviews = (reviewIds: string[]) => {
             switch (event.__typename) {
                case 'CreatedComment': {
                   const commenterId = event.comment.commenter.id
-                  newCommentToast(event.comment)
                   if (commenterId !== currentUserId) {
                      newCommentToast(event.comment)
                   }
