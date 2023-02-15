@@ -7,7 +7,10 @@ export const useCommentModalTrack = (reviewId: string, trackId: string, invalida
    // On successful comment creation, clear the comment box
    const { openCommentModal, closeCommentModal } = useCommentModal()
    const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
-      onSuccess: () => closeCommentModal(),
+      onSuccess: () => {
+         toast.success('Comment created.', { duration: 2000 })
+         closeCommentModal()
+      },
       onError: () => toast.error('Failed to create comment.'),
    })
    const queryClient = useQueryClient()

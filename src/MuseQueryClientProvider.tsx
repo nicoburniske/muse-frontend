@@ -34,7 +34,7 @@ export default function MuseQueryClientProvider({
                cacheTime: 24 * 60 * 60 * 1000,
                // 10 seconds.
                // TODO: Figure out if this is a bug. If staleTime is not set then individual query settings are ignored.
-               staleTime: 10 * 60 * 1000,
+               staleTime: 10 * 1000,
                // default: true
                refetchOnWindowFocus: false,
             },

@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import MuseRoutes from './MuseRoutes'
-import toast, { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { AppConfig } from 'util/AppConfig'
 import { createClient, subscriptionExchange, Provider } from 'urql'
 import { createClient as createWSClient } from 'graphql-ws'
@@ -10,6 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { MuseToaster } from 'MuseToaster'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -47,21 +48,7 @@ const Main = () => {
                      <ReactQueryDevtools initialIsOpen={false} />
                      {/* <DebugAtomsReduxDevTools /> */}
                      <MuseRoutes />
-                     <Toaster
-                        position='bottom-right'
-                        reverseOrder={false}
-                        gutter={8}
-                        toastOptions={{
-                           duration: 3000,
-                           position: 'top-right',
-                           success: {
-                              className: 'bg-success text-success-content',
-                           },
-                           error: {
-                              className: 'bg-error text-error-content',
-                           },
-                        }}
-                     />
+                     <MuseToaster />
                   </>
                </MuseQueryClientProvider>
             </Provider>
