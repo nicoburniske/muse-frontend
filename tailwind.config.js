@@ -5,6 +5,7 @@ module.exports = {
       require('@tailwindcss/typography'),
       require('@tailwindcss/line-clamp'),
       require('tailwindcss-animate'),
+      require('tailwind-scrollbar'),
       require('daisyui'),
    ],
    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],

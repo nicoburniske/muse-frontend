@@ -1,4 +1,4 @@
-import { CSSProperties, useMemo, useRef, useCallback, useEffect } from 'react'
+import { CSSProperties, useMemo, useRef, useCallback, useEffect, Fragment } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
@@ -18,6 +18,7 @@ import useSyncAtoms from 'platform/hook/useSyncAtoms'
 import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 import { usePrefetchLikes } from 'state/useTrackLikeQuery'
 import useEffectDeepEqual from 'platform/hook/useEffectDeepEqual'
+import { MuseTransition } from 'platform/component/MuseTransition'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -152,24 +153,29 @@ export const GroupedTrackTable = () => {
    const [getRows] = useTransientAtom(indexToJsxAtom)
    const rows = getRows()
    return (
-      <div ref={parentRef} className='no-scrollbar w-full overflow-y-auto'>
+      <MuseTransition option={'Simple'} as={Fragment} duration='duration-300'>
          <div
-            className='relative w-full'
-            style={{
-               height: `${rowVirtualizer.getTotalSize()}px`,
-            }}
+            ref={parentRef}
+            className='w-full overflow-y-auto transition-all scrollbar-thin scrollbar-track-transparent scrollbar-thumb-base-300 hover:scrollbar-thumb-primary'
          >
-            {rowVirtualizer
-               .getVirtualItems()
-               .filter(Boolean)
-               .map(virtualRow => {
-                  return (
-                     <div key={virtualRow.index} style={indexToStyle(virtualRow) as CSSProperties}>
-                        {rows[virtualRow.index]}
-                     </div>
-                  )
-               })}
+            <div
+               className='relative w-full'
+               style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+               }}
+            >
+               {rowVirtualizer
+                  .getVirtualItems()
+                  .filter(Boolean)
+                  .map(virtualRow => {
+                     return (
+                        <div key={virtualRow.index} style={indexToStyle(virtualRow) as CSSProperties}>
+                           {rows[virtualRow.index]}
+                        </div>
+                     )
+                  })}
+            </div>
          </div>
-      </div>
+      </MuseTransition>
    )
 }

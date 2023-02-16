@@ -2,22 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-    https://github.com/tailwindlabs/tailwindcss/discussions/2394
-    https://github.com/tailwindlabs/tailwindcss/pull/5732
-*/
-@layer utilities {
-   /* Chrome, Safari and Opera */
-   .no-scrollbar::-webkit-scrollbar {
-      display: none;
-   }
-
-   .no-scrollbar {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-   }
-}
-
 .gutter {
    @apply bg-base-200;
    background-repeat: no-repeat;
