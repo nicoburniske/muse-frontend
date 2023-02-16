@@ -6,18 +6,18 @@ import { useEffect } from 'react'
 
 type CurrentUser = CurrentUserQuery['user']
 const maybeCurrentUserAtom = atom<CurrentUser | undefined>(undefined)
-const currentUserIdAtom = atomValueOrSuspend(atom(get => get(maybeCurrentUserAtom)?.id))
-const currentDisplayName = atomValueOrSuspend(
-   atom(get => {
-      return get(maybeCurrentUserAtom)?.spotifyProfile?.displayName ?? get(maybeCurrentUserAtom)?.id
-   })
-)
+const currentUserAtom = atomValueOrSuspend(atom(get => get(maybeCurrentUserAtom)))
+const currentUserIdAtom = atom(get => get(currentUserAtom).then(u => u.id))
+const currentDisplayName = atom(async get => {
+   const currentUser = await get(currentUserAtom)
+   return currentUser.spotifyProfile?.displayName ?? currentUser.id
+})
 
 export const useCurrentUserId = () => useAtomValue(currentUserIdAtom)
 export const useCurrentDisplayName = () => useAtomValue(currentDisplayName)
 
 export const SyncCurrentUser = () => {
-   useAtom(loadable(currentUserIdAtom))
+   useAtom(loadable(currentUserAtom))
 
    const { data } = useCurrentUserQuery(
       {},
@@ -30,7 +30,7 @@ export const SyncCurrentUser = () => {
 
    useEffect(() => {
       setCurrentUser(data?.user)
-   }, [data])
+   }, [setCurrentUser, data])
 
    return null
 }
