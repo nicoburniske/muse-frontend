@@ -1,9 +1,10 @@
 import { defaultRangeExtractor, elementScroll, Virtualizer, VirtualizerOptions, Range } from '@tanstack/virtual-core'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { MutableRefObject, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import { atom, useSetAtom } from 'jotai'
+import { MutableRefObject, RefObject, useCallback, useEffect, useRef } from 'react'
 import { getTrack } from './Helpers'
 import { groupWithTracksAtom, expandedGroupsAtom } from './TableAtoms'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
+import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
 
 const easeInOutQuint = (t: number) => {
    return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
@@ -11,28 +12,31 @@ const easeInOutQuint = (t: number) => {
 
 export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
    const scrollingRef = useRef<number>()
-   const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] = useCallback((offset, canSmooth, instance) => {
-      const duration = 1000
-      const start = parentRef!.current!.scrollTop
-      const startTime = (scrollingRef.current = Date.now())
+   const scrollToFn: VirtualizerOptions<any, any>['scrollToFn'] = useCallback(
+      (offset, canSmooth, instance) => {
+         const duration = 1000
+         const start = parentRef!.current!.scrollTop
+         const startTime = (scrollingRef.current = Date.now())
 
-      const run = () => {
-         if (scrollingRef.current !== startTime) return
-         const now = Date.now()
-         const elapsed = now - startTime
-         const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
-         const interpolated = start + (offset - start) * progress
+         const run = () => {
+            if (scrollingRef.current !== startTime) return
+            const now = Date.now()
+            const elapsed = now - startTime
+            const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
+            const interpolated = start + (offset - start) * progress
 
-         if (elapsed < duration) {
-            elementScroll(interpolated, canSmooth, instance)
-            requestAnimationFrame(run)
-         } else {
-            elementScroll(interpolated, canSmooth, instance)
+            if (elapsed < duration) {
+               elementScroll(interpolated, canSmooth, instance)
+               requestAnimationFrame(run)
+            } else {
+               elementScroll(interpolated, canSmooth, instance)
+            }
          }
-      }
 
-      requestAnimationFrame(run)
-   }, [])
+         requestAnimationFrame(run)
+      },
+      [parentRef, scrollingRef]
+   )
    return scrollToFn
 }
 
@@ -81,19 +85,14 @@ export const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
    /**
     * Open group header if not already open.
     */
-   const groupToExpandAtom = useMemo(
-      () =>
-         atom(get => {
-            const selectedTrack = get(selectedTrackAtom)
+   const groupToExpand = useDerivedAtomValue(get => {
+      const selectedTrack = get(selectedTrackAtom)
 
-            if (selectedTrack !== undefined && !get(expandedGroupsAtom).includes(selectedTrack.reviewId)) {
-               return selectedTrack.reviewId
-            }
-         }),
-      []
-   )
+      if (selectedTrack !== undefined && !get(expandedGroupsAtom).includes(selectedTrack.reviewId)) {
+         return selectedTrack.reviewId
+      }
+   }, [])
 
-   const groupToExpand = useAtomValue(groupToExpandAtom)
    const setExpandedGroups = useSetAtom(expandedGroupsAtom)
    useEffect(() => {
       if (groupToExpand !== undefined) {
@@ -104,22 +103,17 @@ export const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
    /**
     * Scroll to selected.
     */
-   const selectedIndexAtom = useMemo(
-      () =>
-         atom(get => {
-            const selectedTrack = get(selectedTrackAtom)
-            if (selectedTrack === undefined) {
-               return undefined
-            }
+   const selectedIndex = useDerivedAtomValue(get => {
+      const selectedTrack = get(selectedTrackAtom)
+      if (selectedTrack === undefined) {
+         return undefined
+      }
 
-            const trackIndex = get(trackIndexAtom)
+      const trackIndex = get(trackIndexAtom)
 
-            return trackIndex.get(selectedTrack.reviewId)?.get(selectedTrack.trackId)
-         }),
-      []
-   )
+      return trackIndex.get(selectedTrack.reviewId)?.get(selectedTrack.trackId)
+   }, [])
 
-   const selectedIndex = useAtomValue(selectedIndexAtom)
    useEffect(() => {
       if (selectedIndex !== undefined) {
          virtualizer.scrollToIndex(selectedIndex, { align: 'center' })

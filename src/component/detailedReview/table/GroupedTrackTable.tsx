@@ -19,6 +19,7 @@ import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom
 import { usePrefetchLikes } from 'state/useTrackLikeQuery'
 import useEffectDeepEqual from 'platform/hook/useEffectDeepEqual'
 import { MuseTransition } from 'platform/component/MuseTransition'
+import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -70,7 +71,7 @@ export const GroupedTrackTable = () => {
    const [mountedRef, keepMounted] = useKeepMountedRangeExtractor()
 
    // Reset mounted indices to avoid expensive mount.
-   const expandedGroups = useAtomValue(useMemo(() => atom(get => get(expandedGroupsAtom).join(',')), []))
+   const expandedGroups = useDerivedAtomValue(get => get(expandedGroupsAtom).join(','), [])
    useEffect(() => {
       mountedRef.current = new Set()
       return () => {
@@ -108,23 +109,19 @@ export const GroupedTrackTable = () => {
 
    // Ensure new sizes are measured on re-order.
    // Derived atom ensures that values must be different for re-render.
-   const order = useAtomValue(useMemo(() => atom(get => get(reviewOrderAtom).join(',')), []))
+   const order = useDerivedAtomValue(get => get(reviewOrderAtom).join(','), [])
 
    useEffect(() => {
       rowVirtualizer.measure()
    }, [order, rowVirtualizer])
 
    // To account for tracks being added, removed, or re-ordered.
-   useAtomValue(
-      useMemo(
-         () =>
-            atom(get =>
-               get(tracksAtom)
-                  .map(t => t.id)
-                  .join('')
-            ),
-         []
-      )
+   useDerivedAtomValue(
+      get =>
+         get(tracksAtom)
+            .map(t => t.id)
+            .join(''),
+      []
    )
 
    useScrollToSelected(rowVirtualizer)
