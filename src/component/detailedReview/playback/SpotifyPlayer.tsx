@@ -11,7 +11,7 @@ import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { useCurrentReview } from 'state/CurrentReviewAtom'
 import { useDrag } from 'react-dnd'
-import { usePlayerActions } from 'component/sdk/PlayerActions'
+import { usePlayerActions } from 'component/sdk/usePlayerActions'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import {
@@ -28,6 +28,8 @@ import {
    ArrowPathRoundedSquareIcon,
 } from '@heroicons/react/24/outline'
 import { ListenOnSpotifyTooltip } from 'component/ListenOnSpotify'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { usePlayerState } from 'component/sdk/usePlayerState'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -136,7 +138,8 @@ const LikeNowPlaying = () => {
 
 const PlaybackProgress = () => {
    // Convert to percentage.
-   const { durationMs, seekTo, seekDisabled } = usePlayerActions()
+   const { seekTo } = usePlayerActions()
+   const { durationMs, seekDisabled } = usePlayerState()
    const positionMs = useCurrentPosition(100)
    const progress = Math.min((positionMs / durationMs) * 1000, 1000)
    const [progressState, setProgressState] = useState<[number]>([progress])
@@ -195,24 +198,18 @@ const PlaybackProgress = () => {
 
 const iconClass = 'h-5 w-5 lg:h-6 lg:w-6'
 const PlayerButtons = () => {
+   const { setShuffle, setRepeatMode, seekBackward, seekForward, previousTrack, nextTrack } = usePlayerActions()
+
    const {
       isShuffled,
       toggleShuffleDisabled,
-      setShuffle,
-
       repeatMode,
       repeatModeDisabled,
-      setRepeatMode,
-
       seekDisabled,
-      seekBackward,
-      seekForward,
-
       prevTrackDisabled,
-      previousTrack,
       nextTrackDisabled,
-      nextTrack,
-   } = usePlayerActions()
+   } = usePlayerState()
+
    const { id: trackId } = useCurrentTrack()
 
    const nowPlayingEnabled = useAtomValue(nowPlayingEnabledAtom)
@@ -286,12 +283,8 @@ const TransferPlaybackButton = () => {
    } = useTransferPlayback({
       onError: () => toast.error('Failed to transfer playback'),
    })
-   const className = cn(
-      commonBtnClass,
-      needsReconnect ? 'btn-success tooltip tooltip-accent' : undefined,
-      isLoading ? 'loading' : undefined,
-      'grid place-items-center'
-   )
+
+   const className = cn(commonBtnClass, needsReconnect ? 'btn-success' : '')
 
    // Buffer time for playback sdk to be setup.
    const [isReady, setIsReady] = useState(false)
@@ -302,14 +295,24 @@ const TransferPlaybackButton = () => {
    const disabled = !isReady || isLoading
 
    return (
-      <button className={className} disabled={disabled} onClick={() => mutate()} data-tip='start playback'>
-         <PowerIcon className={iconClass} />
-      </button>
+      <TooltipProvider delayDuration={300}>
+         <Tooltip>
+            <TooltipTrigger asChild>
+               <button className={className} disabled={disabled} onClick={() => mutate()}>
+                  <PowerIcon className={iconClass} />
+               </button>
+            </TooltipTrigger>
+            <TooltipContent className='bg-primary text-primary-content'>
+               <p> Start Playback </p>
+            </TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
    )
 }
 
 const PlayOrTransferButton = () => {
-   const { isPlaying, togglePlayDisabled, togglePlay } = usePlayerActions()
+   const { isPlaying, togglePlayDisabled } = usePlayerState()
+   const { togglePlay } = usePlayerActions()
    const { needsReconnect } = useTransferPlayback()
 
    return needsReconnect ? (
