@@ -124,18 +124,7 @@ export default function AboutPage() {
                   <div className='flex flex-col items-center text-center'>
                      <h1 className='text-4xl font-bold tracking-tight sm:text-6xl'>Muse</h1>
                      <p className='mt-6 leading-8 sm:text-lg'>A free and open-source music review platform</p>
-                     <p className='inline-flex items-center pt-3 leading-8 sm:text-lg lg:pt-5'>
-                        Powered by
-                        <a
-                           className={cn('inline-block px-3 lg:px-5')}
-                           href={'https://www.spotify.com/'}
-                           rel='noreferrer'
-                           target='_blank'
-                        >
-                           <img src={spotifyLogo} className='w-20 lg:w-28' />
-                        </a>
-                     </p>
-                     <div className='mt-10 flex items-center justify-center gap-x-6'>
+                     <div className='mt-4 flex items-center justify-center space-x-6'>
                         <a
                            href='#'
                            className='rounded-md bg-primary px-3.5 py-1.5 text-base font-semibold leading-7 text-primary-content shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:bg-primary-focus'
@@ -146,6 +135,18 @@ export default function AboutPage() {
                            Learn more <span aria-hidden='true'>→</span>
                         </a>
                      </div>
+
+                     <p className='mt-20 inline-flex items-center leading-8 sm:text-lg'>
+                        Powered by
+                        <a
+                           className={cn('inline-block px-3 lg:px-5')}
+                           href={'https://www.spotify.com/'}
+                           rel='noreferrer'
+                           target='_blank'
+                        >
+                           <img src={spotifyLogo} className='w-20 lg:w-28' />
+                        </a>
+                     </p>
                   </div>
                </div>
             </div>
