@@ -2,6 +2,7 @@ import { Portal } from '@headlessui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
    CreateReviewMutationVariables,
+   EntityType,
    useCreateReviewMutation,
    useProfileAndReviewsQuery,
 } from 'graphql/generated/schema'

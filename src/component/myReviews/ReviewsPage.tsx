@@ -1,7 +1,6 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
-import { useMemo } from 'react'
 import { SelectedReview, useSelectReview } from './SelectedReview'
-import { EntityType, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import toast from 'react-hot-toast'
@@ -46,7 +45,6 @@ const SortTabs = ({ className }: { className?: string }) => {
 
 export default function ReviewsPage() {
    const reviews = useProfileAndReviews()
-   const parentAtom = useMemo(() => atom(undefined), [])
 
    const { setSelectedReview } = useSelectReview()
 
@@ -142,7 +140,7 @@ const SearchBar = () => {
             screenReaderLabel='Search Reviews'
             placeholder={'Search Reviews'}
             search={search}
-            setSearch={setSearch}
+            setSearch={setSearch as (s: string) => void}
          />
       </div>
    )
@@ -167,7 +165,7 @@ const useProfileAndReviews = () => {
             r.creator?.id.toLowerCase().includes(search) ||
             r.entity?.name.toLowerCase().includes(search) ||
             // playlist owner.
-            (r.entity?.__typename === EntityType.Playlist &&
+            (r.entity?.__typename === 'Playlist' &&
                (r.entity?.owner?.id.toLowerCase().includes(search) ||
                   r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
             // review owner.

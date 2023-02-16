@@ -21,7 +21,7 @@ export interface ShareReviewProps {
 }
 
 export function ShareReview({ reviewId, onChange, collaborators: collabProp, children }: ShareReviewProps) {
-   const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset(AccessLevel.Viewer)
+   const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset<AccessLevel>('Viewer')
    const [username, setUsername, resetUsername] = useStateWithReset('')
    const [isModalOpen, setModalOpen, resetModalOpen] = useStateWithReset(false)
    const [collaborators, setCollaborators, resetCollaborators] = useStateWithReset(collabProp)
@@ -134,7 +134,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                         onChange={e => setAccessLevel(e.target.value as AccessLevel)}
                         className='select select-bordered w-full'
                      >
-                        {Object.values(AccessLevel).map(a => (
+                        {(['Viewer', 'Collaborator'] as AccessLevel[]).map(a => (
                            <option key={a} value={a}>
                               {a}
                            </option>

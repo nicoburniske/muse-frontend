@@ -18,13 +18,14 @@ import {
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
-import { chunkArrayInGroups, cn, nonNullable, uniqueByProperty } from 'util/Utils'
+import { EntityTypeValues, chunkArrayInGroups, cn, nonNullable, uniqueByProperty } from 'util/Utils'
 import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import SelectMany from 'platform/component/SelectMany'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import { useWindowSizeAtom } from 'platform/hook/useWindowSize'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { CreateReviewModal, useCreateReviewModal } from 'component/createReview/CreateReviewModal'
+import toast from 'react-hot-toast'
 
 const SearchPage = () => {
    return (
@@ -62,13 +63,9 @@ const filterNewAtom = atom(false)
 // TODO: Handle URI getting pasted in?
 const { currentValueAtom: queryStringAtom, debouncedValueAtom: debouncedQueryString } = atomWithDebounce('')
 
-const allTypes = new Set(
-   Object.values(EntityType)
-      .flatMap(t => [t, t.toLocaleLowerCase()])
-      .map(t => '/' + t)
-)
+const allTypes = new Set(EntityTypeValues.flatMap(t => [t, t.toLocaleLowerCase()]).map(t => '/' + t))
 const asMap = new Map(
-   Object.values(EntityType).flatMap(t => [
+   EntityTypeValues.flatMap(t => [
       ['/' + t, t],
       ['/' + t.toLocaleLowerCase(), t],
    ])
@@ -116,7 +113,7 @@ const SelectNewFilter = () => {
 
    const onChange = (value: boolean) => {
       setNewOnly(value)
-      setEntityTypes(current => (value ? [EntityType.Album] : current))
+      setEntityTypes(current => (value ? ['Album'] : current))
    }
 
    return (
@@ -150,7 +147,7 @@ const SelectEntityTypes = () => {
             <SelectMany
                label={'Search Types'}
                selected={selected}
-               allOptions={Object.values(EntityType)}
+               allOptions={EntityTypeValues}
                onChange={setSelectedEntityTypes}
                createKey={(e: EntityType) => e}
                renderOption={(e: EntityType) => e}
@@ -222,6 +219,12 @@ const ScrollSearchResults = () => {
       20,
       { enabled: !isDisabled, retry: false, staleTime: 1 * 60 * 1000 }
    )
+
+   useEffect(() => {
+      if (error) {
+         toast.error('Search Error.')
+      }
+   }, [error])
 
    const response = data?.pages ?? []
 

@@ -48,7 +48,9 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    // Get track styles.
    const styles = useTrackColor(track.id)
 
-   const { playPlaylistOffset, isLoading } = usePlayMutation()
+   const { playPlaylistOffset, isLoading } = usePlayMutation({
+      onError: () => toast.error('Failed to play track.'),
+   })
 
    const onPlayTrack = () => {
       if (!isLoading) {

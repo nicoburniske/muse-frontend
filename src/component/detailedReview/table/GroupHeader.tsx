@@ -118,7 +118,7 @@ export const ReviewGroupHeader = ({
             </div>
             {isChild ? (
                <div className='flex flex-row justify-self-center md:space-x-5'>
-                  <button className='btn btn-secondary btn-square btn-sm' onClick={() => linkToReviewPage()}>
+                  <button className='btn btn-square btn-secondary btn-sm' onClick={() => linkToReviewPage()}>
                      <ArrowTopRightIcon />
                   </button>
                   {isDeleting ? (
@@ -135,7 +135,7 @@ export const ReviewGroupHeader = ({
                         </button>
                      </div>
                   ) : (
-                     <button className='btn btn-secondary btn-square btn-sm' onClick={e => setIsDeleting(e)(true)}>
+                     <button className='btn btn-square btn-secondary btn-sm' onClick={e => setIsDeleting(e)(true)}>
                         <TrashIcon />
                      </button>
                   )}

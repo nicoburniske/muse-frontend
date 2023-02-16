@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { EntityType, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
+import { useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
 
@@ -18,7 +18,7 @@ export const useCommentModalTrack = (reviewId: string, trackId: string, invalida
       if (!isLoadingComment) {
          // TODO: insert into cache?
          await createComment({
-            input: { comment, entities: [{ entityId: trackId, entityType: EntityType.Track }], reviewId },
+            input: { comment, entities: [{ entityId: trackId, entityType: 'Track' }], reviewId },
          })
          if (invalidate) {
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })

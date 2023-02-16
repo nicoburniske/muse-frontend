@@ -2,6 +2,7 @@ module.exports = {
    env: {
       browser: true,
       es2021: true,
+      node: true,
    },
    extends: [
       'eslint:recommended',
@@ -24,5 +25,6 @@ module.exports = {
       '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
       '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
    },
 }

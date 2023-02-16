@@ -1,4 +1,4 @@
-import { EntityType, MyPlaylistsQuery, PlaylistDetailsFragment, useMyPlaylistsQuery } from 'graphql/generated/schema'
+import { MyPlaylistsQuery, PlaylistDetailsFragment, useMyPlaylistsQuery } from 'graphql/generated/schema'
 import { useCallback, useEffect, useMemo } from 'react'
 import { OpenMobileMenuButton } from './nav/OpenMobileMenuButton'
 import { ArrowPathIcon, Bars3BottomLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
@@ -10,6 +10,7 @@ import RightSidePane from 'platform/component/RightSidePane'
 import { cn, nonNullable, userDisplayNameOrId } from 'util/Utils'
 import { useCurrentDisplayName, useCurrentUserId } from 'state/CurrentUser'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
+import { ListenOnSpotifyButton } from './ListenOnSpotify'
 
 export const MyPlaylistsPage = () => {
    const data = useMyPlaylists()
@@ -101,7 +102,7 @@ const SearchBar = () => {
             screenReaderLabel='Search Playlists'
             placeholder={'Search Playlists'}
             search={search}
-            setSearch={setSearch}
+            setSearch={setSearch as (s: string) => void}
          />
       </div>
    )
@@ -217,7 +218,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
       entityId: playlist.id,
       entityImage: playlist.images.at(0) ?? '',
       entityName: playlist.name,
-      entityType: EntityType.Playlist,
+      entityType: 'Playlist',
    })
 
    const info = Object.fromEntries(
@@ -225,7 +226,6 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
          'Playlist Owner': userDisplayNameOrId(playlist?.owner),
          Public: playlist?.public ? 'True' : 'False',
          'Number of Tracks': playlist.numberOfTracks.toString(),
-         Followers: playlist.numberOfFollowers?.toString(),
          Description: playlist.description,
       }).filter(([, value]) => nonNullable(value) && value.length > 0)
    )
@@ -233,7 +233,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
    const image = playlist.images.at(0)
 
    return (
-      <div className='flex flex-col items-center space-y-2'>
+      <div className='flex h-full grow flex-col items-center space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
             <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedPlaylist()}>
                <span className='sr-only'>Close panel</span>
@@ -251,10 +251,10 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
          <div>
             <img src={image} alt='Playlist Cover Image' className='h-full w-full object-cover' />
          </div>
-         <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
-            <div>
-               <h3 className='font-medium'>Information</h3>
-               <dl className='mt-2 divide-y divide-secondary-content/50'>
+         <div className='flex w-full flex-1 flex-col items-center justify-between'>
+            <div className='flex w-full flex-col items-center space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
+               <h3 className='self-start font-medium'>Information</h3>
+               <dl className='mt-2 w-full divide-y divide-secondary-content/50'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
                         <dt className={cn(textColorSecondary)}>{key}</dt>
@@ -262,11 +262,14 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                      </div>
                   ))}
                </dl>
+               <button type='button' className=' btn btn-primary' onClick={open}>
+                  Create Review
+               </button>
+            </div>
+            <div className='mb-5 grid place-items-center'>
+               <ListenOnSpotifyButton entityId={playlist.id} entityType={'Playlist'} />
             </div>
          </div>
-         <button type='button' className=' btn btn-primary' onClick={open}>
-            Create Review
-         </button>
       </div>
    )
 }

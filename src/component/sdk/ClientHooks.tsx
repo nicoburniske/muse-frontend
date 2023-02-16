@@ -122,13 +122,6 @@ export const useTracksLikeQuery = (
    return useQuery(['AreTracksSaved', trackIds], () => client.library.areTracksSaved(trackIds), options)
 }
 
-const useTrackLikeQueryKey = (trackId: string) => ['AreTracksSaved', trackId]
-export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boolean, unknown, boolean, string[]>) => {
-   const client = useSpotifyClient()
-   return useQuery(useTrackLikeQueryKey(trackId), () => client.library.isTrackSaved(trackId), options)
-}
-useTrackLikeQuery.getKey = useTrackLikeQueryKey
-
 export const useCurrentUser = <T,>(options?: UseQueryOptions<PrivateUser, unknown, T, string[]>) => {
    const client = useSpotifyClient()
    return useQuery(['CurrentUser'], () => client.users.getMe(), options)

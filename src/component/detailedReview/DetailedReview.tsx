@@ -9,6 +9,8 @@ import {
    useProfileAndReviewsQuery,
    ProfileAndReviewsQuery,
    DetailedReviewQuery,
+   GetAlbumQuery,
+   GetPlaylistQuery,
 } from 'graphql/generated/schema'
 import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
@@ -152,7 +154,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             />
             <OpenMobileMenuButton>
                {onClick => (
-                  <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
+                  <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
                      <span className='sr-only'>Open sidebar</span>
                      <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                   </button>
@@ -223,7 +225,7 @@ const SearchTracks = () => {
          screenReaderLabel={'Search Tracks'}
          placeholder={'Search Tracks'}
          search={search}
-         setSearch={setSearch}
+         setSearch={setSearch as (search: string) => void}
       />
    )
 }
@@ -303,8 +305,8 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[]; rootRe
       r => r.entityType,
       r => r.entityId
    )
-   const playlistIds = allIds.get(EntityType.Playlist) ?? []
-   const albumIds = allIds.get(EntityType.Album) ?? []
+   const playlistIds = allIds.get('Playlist') ?? []
+   const albumIds = allIds.get('Album') ?? []
    const playlistResults = useQueries({
       queries: playlistIds.map(id => ({
          queryKey: useGetPlaylistQuery.getKey({ id }),
@@ -323,10 +325,10 @@ const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[]; rootRe
 
    // Ensure that indicies line up.
    const matchedReviews = (() => {
-      const allReviews = all.filter(r => r.entityType === EntityType.Album || r.entityType === EntityType.Playlist)
+      const allReviews = all.filter(r => r.entityType === 'Album' || r.entityType === 'Playlist')
       // get all reviews that are not nullable
       const results: (DetailedAlbumFragment | DetailedPlaylistFragment)[] = [...albumResults, ...playlistResults]
-         .map(r => r.data?.getAlbum ?? r.data?.getPlaylist)
+         .map(r => (r.data as GetAlbumQuery)?.getAlbum ?? (r.data as GetPlaylistQuery)?.getPlaylist)
          .filter(nonNullable)
       return allReviews.reduce((acc, { entityId, reviewName, reviewId }) => {
          const data = results.find(r => r.id === entityId)

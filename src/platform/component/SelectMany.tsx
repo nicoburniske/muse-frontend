@@ -6,7 +6,7 @@ import { cn } from 'util/Utils'
 type SelectManyProps<T> = {
    label: string
    selected: T[]
-   allOptions: T[]
+   allOptions: readonly T[]
    onChange: (s: T[]) => void
    createKey: (t: T) => string
    renderOption: (t: T) => ReactNode

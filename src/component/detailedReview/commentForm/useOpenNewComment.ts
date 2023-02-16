@@ -34,7 +34,7 @@ export const useOpenNewComment = (options: OpenNewCommentParams) => {
          await createComment({
             input: {
                comment,
-               entities: [{ entityId: trackId, entityType: EntityType.Track }],
+               entities: [{ entityId: trackId, entityType: 'Track' }],
                reviewId,
                parentCommentId,
             },

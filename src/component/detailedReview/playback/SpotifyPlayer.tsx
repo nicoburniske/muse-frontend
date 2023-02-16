@@ -27,6 +27,7 @@ import {
    MagnifyingGlassIcon,
    ArrowPathRoundedSquareIcon,
 } from '@heroicons/react/24/outline'
+import { ListenOnSpotifyTooltip } from 'component/ListenOnSpotify'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -86,8 +87,6 @@ const NowPlayingItem = () => {
       [trackId]
    )
 
-   const spotifyLink = `https://open.spotify.com/track/${trackId}`
-
    return (
       <div className={cn('col-span-1 flex select-none items-center justify-start lg:max-w-lg ')}>
          <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : 'bg-neutral')}>
@@ -104,9 +103,7 @@ const NowPlayingItem = () => {
             </div>
          </div>
 
-         <a className='ml-2 flex-none' href={spotifyLink} rel='noreferrer' target='_blank'>
-            <img src='/spotifyIcon.png' className='h-8 w-8' />
-         </a>
+         <ListenOnSpotifyTooltip entityType='Track' entityId={trackId ?? undefined} className='ml-2 flex-none' />
       </div>
    )
 }
@@ -170,6 +167,7 @@ const PlaybackProgress = () => {
    return (
       <div className='flex w-full flex-row items-center justify-center space-x-1 p-1 text-neutral-content'>
          <span className='countdown font-mono text-sm lg:text-lg'>
+            {/* @ts-ignore */}
             <span style={{ '--value': minProgress }}></span>:<span style={{ '--value': secProgress }}></span>
          </span>
          <Slider.Root
@@ -188,6 +186,7 @@ const PlaybackProgress = () => {
             </Slider.Track>
          </Slider.Root>
          <span className='countdown font-mono text-sm lg:text-lg'>
+            {/* @ts-ignore */}
             <span style={{ '--value': minDuration }}></span>:<span style={{ '--value': secDuration }}></span>
          </span>
       </div>

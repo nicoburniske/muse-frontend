@@ -1,5 +1,6 @@
 import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
+import { ListenOnSpotifyButton } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/detailedReview/ShareReview'
 import {
    ProfileAndReviewsQuery,
@@ -84,6 +85,8 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    const image = findFirstImage(allEntities)
    const entityType = review?.entity?.__typename
+   const entityId = review?.entity?.id
+
    const info = (() => ({
       'Review Owner': review?.creator?.id,
       Created: new Date(review?.createdAt).toLocaleDateString(),
@@ -106,7 +109,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -133,12 +136,16 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                      </div>
                   ))}
                </dl>
+               <div className='grid place-items-center'>
+                  <ListenOnSpotifyButton entityId={entityId} entityType={entityType} />
+               </div>
             </div>
+
             <div>
                <h3 className='font-medium'>Shared with</h3>
                <ul
                   role='list'
-                  className='mt-2 divide-y  divide-secondary-content/50 border-t border-b border-secondary-content/50'
+                  className='mt-2 divide-y divide-secondary-content/50 border-t border-b border-secondary-content/50'
                >
                   {collaborators.map(({ userId, accessLevel, image }) => (
                      <li
@@ -161,7 +168,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                         <div className='col-span-1 place-self-end'>
                            <button
                               type='button'
-                              className='btn btn-square btn-error btn-xs'
+                              className='btn btn-error btn-square btn-xs'
                               onClick={() => unShareReview(review.id, userId)}
                            >
                               <XMarkIcon className='h-4 w-4' />

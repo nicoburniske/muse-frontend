@@ -7,9 +7,9 @@
       "build": "vite build",
       "preview": "vite preview",
       "start": "npx http-server ./dist -a 0.0.0.0 -p",
-      "generate": "graphql-codegen && graphql-codegen -c codegenSubscription.ts && npm run lint",
-      "generateQuery": "graphql-codegen -c codegen.ts && npm run lint",
-      "generateSub": "graphql-codegen -c codegenSubscription.ts && npm run lint",
+      "generate": "graphql-codegen && graphql-codegen -c codegenSubscription.ts",
+      "generateQuery": "graphql-codegen -c codegen.ts",
+      "generateSub": "graphql-codegen -c codegenSubscription.ts",
       "lint": "eslint --fix --ext .ts,.tsx .",
       "format": "prettier --write ."
    },
