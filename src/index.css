@@ -13,8 +13,8 @@
    cursor: col-resize;
 }
 
-.scrollbar {
-   @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-base-300 hover:scrollbar-track-base-300 hover:scrollbar-thumb-primary;
+.muse-scrollbar {
+   @apply scrollbar scrollbar-track-transparent scrollbar-thumb-base-300 hover:scrollbar-track-base-300 hover:scrollbar-thumb-primary;
 }
 
 html {

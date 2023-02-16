@@ -151,7 +151,7 @@ export const GroupedTrackTable = () => {
    const rows = getRows()
    return (
       <MuseTransition option={'Simple'} as={Fragment} duration='duration-300'>
-         <div ref={parentRef} className='w-full overflow-y-auto scrollbar'>
+         <div ref={parentRef} className='muse-scrollbar w-full overflow-y-auto'>
             <div
                className='relative w-full'
                style={{

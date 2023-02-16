@@ -55,7 +55,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
    return (
       <>
-         <div className='flex flex-1 flex-col space-y-1 overflow-y-auto overflow-x-hidden scrollbar' ref={ref}>
+         <div className='muse-scrollbar flex flex-1 flex-col space-y-1 overflow-y-auto overflow-x-hidden' ref={ref}>
             {rootComments.map((c: DetailedCommentFragment) => (
                <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
             ))}
