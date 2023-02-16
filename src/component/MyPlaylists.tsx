@@ -10,7 +10,7 @@ import RightSidePane from 'platform/component/RightSidePane'
 import { cn, nonNullable, userDisplayNameOrId } from 'util/Utils'
 import { useCurrentDisplayName, useCurrentUserId } from 'state/CurrentUser'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
-import { ListenOnSpotifyButton } from './ListenOnSpotify'
+import { ListenOnSpotifyLogo } from './ListenOnSpotify'
 
 export const MyPlaylistsPage = () => {
    const data = useMyPlaylists()
@@ -266,8 +266,8 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                   Create Review
                </button>
             </div>
-            <div className='mb-5 grid place-items-center'>
-               <ListenOnSpotifyButton entityId={playlist.id} entityType={'Playlist'} />
+            <div className='grid place-items-center'>
+               <ListenOnSpotifyLogo entityId={playlist.id} entityType={'Playlist'} />
             </div>
          </div>
       </div>

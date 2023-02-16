@@ -1,6 +1,6 @@
 import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
-import { ListenOnSpotifyButton } from 'component/ListenOnSpotify'
+import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/detailedReview/ShareReview'
 import {
    ProfileAndReviewsQuery,
@@ -137,7 +137,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   ))}
                </dl>
                <div className='grid place-items-center'>
-                  <ListenOnSpotifyButton entityId={entityId} entityType={entityType} />
+                  <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
                </div>
             </div>
 

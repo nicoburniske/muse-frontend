@@ -145,7 +145,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                   </div>
 
                   <div className='flex items-center space-x-1'>
-                     <div className='avatar ml-1 hidden sm:flex'>
+                     <div className='avatar ml-1'>
                         <div className='h-10 w-10 rounded'>
                            <img src={image} />
                         </div>

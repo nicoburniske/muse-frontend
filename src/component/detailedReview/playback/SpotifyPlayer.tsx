@@ -27,7 +27,7 @@ import {
    MagnifyingGlassIcon,
    ArrowPathRoundedSquareIcon,
 } from '@heroicons/react/24/outline'
-import { ListenOnSpotifyTooltip } from 'component/ListenOnSpotify'
+import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { usePlayerState } from 'component/sdk/usePlayerState'
 
@@ -105,7 +105,7 @@ const NowPlayingItem = () => {
             </div>
          </div>
 
-         <ListenOnSpotifyTooltip entityType='Track' entityId={trackId ?? undefined} className='ml-2 flex-none' />
+         <ListenOnSpotifyIcon entityType='Track' entityId={trackId ?? undefined} className='flex-none' />
       </div>
    )
 }

@@ -45,7 +45,7 @@ const Main = () => {
                            playbackError: e => toast.error(`Playback Error`, { duration: 1000 }),
                         }}
                      />
-                     <ReactQueryDevtools initialIsOpen={false} />
+                     {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                      {/* <DebugAtomsReduxDevTools /> */}
                      <MuseRoutes />
                      <MuseToaster />

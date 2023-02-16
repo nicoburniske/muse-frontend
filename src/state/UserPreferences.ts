@@ -9,35 +9,53 @@ export interface UserPreferences {
 }
 
 export enum Theme {
-   Light = 'light',
-   Dark = 'dark',
-   Cupcake = 'cupcake',
-   Bumblebee = 'bumblebee',
-   Emerald = 'emerald',
-   Corporate = 'corporate',
-   Synthwave = 'synthwave',
-   Retro = 'retro',
-   Cyberpunk = 'cyberpunk',
-   Valentine = 'valentine',
-   Halloween = 'halloween',
-   Garden = 'garden',
-   Forest = 'forest',
-   Aqua = 'aqua',
-   Lofi = 'lofi',
-   Pastel = 'pastel',
-   Fantasy = 'fantasy',
-   Wireframe = 'wireframe',
-   Black = 'black',
-   Luxury = 'luxury',
-   Darcula = 'dracula',
-   Cymk = 'cmyk',
-   Autumn = 'autumn',
-   Business = 'business',
    Acid = 'acid',
-   Lemonaid = 'lemonade',
-   Night = 'night',
+   Aqua = 'aqua',
+   Autumn = 'autumn',
+   Black = 'black',
+   Bumblebee = 'bumblebee',
+   Business = 'business',
+   Cymk = 'cmyk',
    Coffee = 'coffee',
+   Corporate = 'corporate',
+   Cupcake = 'cupcake',
+   Cyberpunk = 'cyberpunk',
+   Dark = 'dark',
+   Dracula = 'dracula',
+   Emerald = 'emerald',
+   Fantasy = 'fantasy',
+   Forest = 'forest',
+   Garden = 'garden',
+   Halloween = 'halloween',
+   Lemonade = 'lemonade',
+   Light = 'light',
+   Lofi = 'lofi',
+   Luxury = 'luxury',
+   Night = 'night',
+   Pastel = 'pastel',
+   Retro = 'retro',
+   Synthwave = 'synthwave',
+   Valentine = 'valentine',
    Winter = 'winter',
+   Wireframe = 'wireframe',
+}
+
+const isDark = (theme: Theme) => {
+   switch (theme) {
+      case Theme.Black:
+      case Theme.Business:
+      case Theme.Coffee:
+      case Theme.Dark:
+      case Theme.Dracula:
+      case Theme.Forest:
+      case Theme.Halloween:
+      case Theme.Luxury:
+      case Theme.Night:
+      case Theme.Synthwave:
+         return true
+      default:
+         return false
+   }
 }
 
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', {
@@ -47,9 +65,11 @@ const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreference
 })
 
 export const themeAtom = focusAtom(userPreferencesAtom, optic => optic.prop('theme'))
+const isDarkThemeAtom = atom(get => isDark(get(themeAtom)))
 export const useTheme = () => useAtom(themeAtom)
 export const useThemeValue = () => useAtomValue(themeAtom)
 export const useSetTheme = () => useSetAtom(themeAtom)
+export const useIsDarkTheme = () => useAtomValue(isDarkThemeAtom)
 
 export const transferPlaybackOnMountAtom = focusAtom(userPreferencesAtom, optic =>
    optic.prop('shouldTransferPlaybackOnMount')

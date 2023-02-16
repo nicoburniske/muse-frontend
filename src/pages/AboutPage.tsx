@@ -5,6 +5,8 @@ import { AppConfig } from 'util/AppConfig'
 import { useThemeValue } from 'state/UserPreferences'
 import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { Link } from 'react-router-dom'
+import { cn } from 'util/Utils'
+import { useSpotifyLogo } from 'component/ListenOnSpotify'
 
 type NavigationItem = {
    name: string
@@ -30,6 +32,7 @@ export default function AboutPage() {
    const theme = useThemeValue()
    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
    const isLoggedIn = useCurrentUsername() !== undefined
+   const spotifyLogo = useSpotifyLogo()
 
    return (
       <div className='isolate h-screen bg-base-100 text-base-content' data-theme={theme}>
@@ -37,7 +40,7 @@ export default function AboutPage() {
             <nav className='flex items-center justify-between' aria-label='Global'>
                <div className='flex lg:flex-1'>
                   <a href='#' className='-m-1.5 p-1.5'>
-                     <span className='sr-only'>Your Company</span>
+                     <span className='sr-only'>Muse</span>
                      <img className='h-8' src='/logo.png' alt='' />
                   </a>
                </div>
@@ -120,11 +123,21 @@ export default function AboutPage() {
                <div className='mx-auto max-w-2xl py-32 sm:py-48 lg:py-56'>
                   <div className='text-center'>
                      <h1 className='text-4xl font-bold tracking-tight sm:text-6xl'>Muse</h1>
-                     <p className='mt-6 text-lg leading-8'>A free and open-source music review platform for Spotify.</p>
+                     <p className='mt-6 inline-flex items-center text-lg leading-8'>
+                        A free and open-source music review platform for
+                        <a
+                           className={cn('inline-flex p-3')}
+                           href={'https://www.spotify.com/'}
+                           rel='noreferrer'
+                           target='_blank'
+                        >
+                           <img src={spotifyLogo} className='w-20' />
+                        </a>
+                     </p>
                      <div className='mt-10 flex items-center justify-center gap-x-6'>
                         <a
                            href='#'
-                           className='rounded-md bg-primary px-3.5 py-1.5 text-base font-semibold leading-7 text-primary-content shadow-sm hover:bg-primary-focus focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                           className='rounded-md bg-primary px-3.5 py-1.5 text-base font-semibold leading-7 text-primary-content shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:bg-primary-focus'
                         >
                            Get started
                         </a>

@@ -33,7 +33,9 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
          <div className='flex grow flex-row overflow-hidden'>
             <SideNavBar />
             <Suspense fallback={<HeroLoading />}>
-               <StrictMode>{children}</StrictMode>
+               {/* <StrictMode> */}
+               {children}
+               {/* </StrictMode> */}
             </Suspense>
          </div>
          <div className='w-full'>
