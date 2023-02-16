@@ -18,7 +18,7 @@ export const ListenOnSpotifyButton = (props: ListenOnSpotifyProps) => {
          <a href={spotifyLink} rel='noreferrer' target='_blank'>
             Listen on Spotify
          </a>
-         <img src='/spotifyIcon.png' className='h-8 w-8 rounded-full bg-base-100' />
+         <img src='/spotifyIcon.png' className='h-8 w-8 rounded-full bg-black' />
       </div>
    )
 }
@@ -32,7 +32,7 @@ export const ListenOnSpotifyTooltip = (props: ListenOnSpotifyProps) => {
          <Tooltip>
             <TooltipTrigger asChild>
                <a className='ml-2 flex-none' href={spotifyLink} rel='noreferrer' target='_blank'>
-                  <img src='/spotifyIcon.png' className={cn('h-8 w-8 rounded-full bg-base-100', className)} />
+                  <img src='/spotifyIcon.png' className={cn('h-8 w-8 rounded-full bg-black', className)} />
                </a>
             </TooltipTrigger>
             <TooltipContent className='bg-primary text-primary-content'>

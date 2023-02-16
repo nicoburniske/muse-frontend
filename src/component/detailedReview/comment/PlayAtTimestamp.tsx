@@ -48,7 +48,7 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
    const onClick = () => playTrackOffset(trackId, timestamp)
 
    // Only want to include tooltip if there is a comment.
-   const text = comment !== undefined ? comment : timestamp ? `@${formattedTime}` : formattedTime
+   const text = comment !== undefined ? comment : timestamp !== undefined ? `@${formattedTime}` : formattedTime
    const className = `link link-base-content link-hover ${comment !== undefined ? 'tooltip tooltip-bottom' : ''}`
 
    return (
