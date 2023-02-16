@@ -139,7 +139,7 @@ export default function AboutPage() {
                      <p className='mt-20 inline-flex items-center leading-8 sm:text-lg'>
                         Powered by
                         <a
-                           className={cn('inline-block px-3 lg:px-5')}
+                           className={cn('inline-block pl-3 lg:pl-5')}
                            href={'https://www.spotify.com/'}
                            rel='noreferrer'
                            target='_blank'
