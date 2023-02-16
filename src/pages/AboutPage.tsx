@@ -121,17 +121,18 @@ export default function AboutPage() {
          <main>
             <div className='relative px-6 lg:px-8'>
                <div className='mx-auto max-w-2xl py-32 sm:py-48 lg:py-56'>
-                  <div className='text-center'>
+                  <div className='flex flex-col items-center text-center'>
                      <h1 className='text-4xl font-bold tracking-tight sm:text-6xl'>Muse</h1>
-                     <p className='mt-6 inline-flex items-center text-lg leading-8'>
-                        A free and open-source music review platform for
+                     <p className='mt-6 leading-8 sm:text-lg'>A free and open-source music review platform</p>
+                     <p className='inline-flex items-center pt-3 leading-8 sm:text-lg lg:pt-5'>
+                        Powered by
                         <a
-                           className={cn('inline-flex p-3')}
+                           className={cn('inline-block px-3 lg:px-5')}
                            href={'https://www.spotify.com/'}
                            rel='noreferrer'
                            target='_blank'
                         >
-                           <img src={spotifyLogo} className='w-20' />
+                           <img src={spotifyLogo} className='w-20 lg:w-28' />
                         </a>
                      </p>
                      <div className='mt-10 flex items-center justify-center gap-x-6'>
