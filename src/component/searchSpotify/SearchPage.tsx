@@ -285,7 +285,7 @@ const ScrollSearchResults = () => {
       )
    } else {
       return (
-         <div ref={parentRef} className='h-full w-full overflow-y-auto overflow-x-hidden'>
+         <div ref={parentRef} className='h-full w-full overflow-y-auto overflow-x-hidden scrollbar'>
             <div
                className='relative w-full'
                style={{

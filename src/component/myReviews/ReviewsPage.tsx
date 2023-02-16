@@ -68,7 +68,7 @@ export default function ReviewsPage() {
 
          {/* Main content */}
          <div className='flex flex-1 items-stretch overflow-hidden'>
-            <main className='flex-1 overflow-y-auto'>
+            <main className='flex-1 overflow-y-auto scrollbar'>
                <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
                   <div className='flex'>
                      <h1 className='flex-1 text-2xl font-bold text-base-content'>Reviews</h1>
