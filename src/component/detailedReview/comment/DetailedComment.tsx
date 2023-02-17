@@ -160,7 +160,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                </div>
             </div>
 
-            <article className='prose  p-0.5 text-sm md:text-base lg:p-2'>
+            <article className='prose p-1 py-2 text-sm md:text-base lg:p-2'>
                <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
             </article>
             <div className='mt-6 flex justify-between space-x-8'>

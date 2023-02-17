@@ -18,7 +18,7 @@ interface UserAvatarProps {
    user: UserWithSpotifyOverviewFragment
 }
 
-export default function UserAvatar({ dateAdded, user }: UserAvatarProps) {
+export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarProps) {
    const images = user?.spotifyProfile?.images
    const image = images?.at(1) ?? images?.at(0)
 
@@ -27,30 +27,12 @@ export default function UserAvatar({ dateAdded, user }: UserAvatarProps) {
 
    const name = displayName ?? userId
 
-   const content = useMemo(() => {
-      if (nonNullable(image) && image.length > 0) {
-         return (
-            <div className={'avatar'}>
-               <div className={cn('rounded-full ', size)}>
-                  <img src={image} />
-               </div>
-            </div>
-         )
-      } else {
-         return (
-            <div className={'avatar placeholder'}>
-               <div className={cn('w-12 rounded-full bg-neutral-focus text-neutral-content', size)}>
-                  <span>{name.slice(0, 1)}</span>
-               </div>
-            </div>
-         )
-      }
-   }, [name, image])
-
    return (
       <TooltipProvider delayDuration={300}>
          <Tooltip>
-            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipTrigger asChild>
+               <UserAvatar name={name} image={image} className={size} />
+            </TooltipTrigger>
             <TooltipContent side='right' align='start' className='bg-primary text-primary-content'>
                <p>
                   {name} on {dateAdded}
@@ -59,4 +41,24 @@ export default function UserAvatar({ dateAdded, user }: UserAvatarProps) {
          </Tooltip>
       </TooltipProvider>
    )
+}
+
+export const UserAvatar = ({ name, image, className }: { name: string; image?: string; className?: string }) => {
+   if (nonNullable(image) && image.length > 0) {
+      return (
+         <div className={'avatar'}>
+            <div className={cn('rounded-full ', className)}>
+               <img src={image} />
+            </div>
+         </div>
+      )
+   } else {
+      return (
+         <div className={'avatar placeholder'}>
+            <div className={cn('w-12 rounded-full bg-neutral-focus text-neutral-content', className)}>
+               <span>{name.slice(0, 1)}</span>
+            </div>
+         </div>
+      )
+   }
 }

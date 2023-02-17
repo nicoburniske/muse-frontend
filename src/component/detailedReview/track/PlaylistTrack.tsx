@@ -1,6 +1,6 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { RefObject, useCallback, useEffect, useRef } from 'react'
-import UserAvatar from 'component/UserAvatar'
+import UserAvatarTooltip from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -181,7 +181,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             </div>
 
             <div className='hidden place-items-center lg:grid'>
-               <UserAvatar dateAdded={dateAdded} user={addedBy} />
+               <UserAvatarTooltip dateAdded={dateAdded} user={addedBy} />
             </div>
 
             <div className='hidden select-none place-items-center truncate p-0.5 text-center text-sm md:grid lg:text-base'>
