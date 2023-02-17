@@ -17,8 +17,8 @@ export const CommentFormModal = ({ open, onSubmit, onCancel, trackId, initialVal
    return (
       <ThemeModal open={open} className='max-w-4xl grow'>
          <div className='flex items-start justify-between p-3'>
-            <div className='flex-shrink-0'>
-               <UserAvatar name={userDisplayName} image={userImage} className='h-12 w-12' />
+            <div className='hidden flex-shrink-0 sm:inline-block'>
+               <UserAvatar name={userDisplayName} image={userImage} className='h-10 w-10 lg:h-12 lg:w-12' />
             </div>
 
             <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} trackId={trackId} />
