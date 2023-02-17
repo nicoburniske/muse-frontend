@@ -26,6 +26,7 @@ import { useWindowSizeAtom } from 'platform/hook/useWindowSize'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { CreateReviewModal, useCreateReviewModal } from 'component/createReview/CreateReviewModal'
 import toast from 'react-hot-toast'
+import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
 
 const SearchPage = () => {
    return (
@@ -36,6 +37,7 @@ const SearchPage = () => {
                <SelectGenreSeeds />
                <SelectHipsterFilter />
                <SelectNewFilter />
+               <SelectPlayOnHover />
             </div>
             <div className='flex grow flex-col items-center justify-between bg-base-100'>
                <div className='w-full max-w-3xl'>
@@ -55,6 +57,8 @@ const SearchPage = () => {
    )
 }
 export default SearchPage
+
+const playOnHoverAtom = atom(false)
 
 const selectedEntityTypesAtom = atom(new Array<EntityType>())
 const selectedGenreSeedsAtom = atom(new Array<string>())
@@ -126,6 +130,23 @@ const SelectNewFilter = () => {
    )
 }
 
+const SelectPlayOnHover = () => {
+   const [playOnHove, setPlayOnHover] = useAtom(playOnHoverAtom)
+
+   const onChange = (value: boolean) => {
+      setPlayOnHover(value)
+   }
+
+   return (
+      <ToggleWithDescription
+         label={'Play on Hover'}
+         description={'Hover over an item to play it'}
+         enabled={playOnHove}
+         setEnabled={onChange}
+      />
+   )
+}
+
 const SearchInputBar = () => {
    const search = useAtomValue(queryStringAtom)
    const setSearch = useSetAtom(setQueryStringAtom)
@@ -147,7 +168,8 @@ const SelectEntityTypes = () => {
             <SelectMany
                label={'Search Types'}
                selected={selected}
-               allOptions={EntityTypeValues}
+               // Can't currently handle track reviews.
+               allOptions={['Album', 'Playlist', 'Artist'] as EntityType[]}
                onChange={setSelectedEntityTypes}
                createKey={(e: EntityType) => e}
                renderOption={(e: EntityType) => e}
@@ -340,6 +362,8 @@ const findImage = (searchRow: SearchRow, index: number) => {
          .at(-1) ?? ''
    )
 }
+
+const nowPlayingAtom = atom<string | undefined>(undefined)
 const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
    const tileImage = findImage(searchRow, 1)
    const bigImage = findImage(searchRow, 0)
@@ -352,26 +376,66 @@ const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
       entityType: capitalizeFirst(type) as EntityType,
    })
 
-   const { playAlbumIndexOffset, playTracks, playArtist, playPlaylistIndexOffset } = usePlayMutation()
+   const delayHandler = useRef<NodeJS.Timeout | undefined>(undefined)
+   const isPlaying = useDerivedAtomValue(get => get(nowPlayingAtom) === searchRow.id, [searchRow.id])
+   const setIsPlaying = useSetAtom(nowPlayingAtom)
 
-   const play = () => {
-      if (type === 'track') {
-         playTracks([searchRow.id])
-      } else if (type === 'artist') {
-         playArtist(searchRow.id)
-      } else if (type === 'playlist') {
-         playPlaylistIndexOffset(searchRow.id, 0)
-      } else if (type === 'album') {
-         playAlbumIndexOffset(searchRow.id, 0)
+   const { isLoading, playAlbumIndexOffset, playTrackOffset, playArtist, playPlaylistIndexOffset } = usePlayMutation({
+      onSuccess: () => setIsPlaying(searchRow.id),
+      onError: () => {
+         toast.error('Error playing track.', { id: 'play-error', duration: 2000 })
+      },
+      retry: 2,
+   })
+
+   const playDoubleClick = () => {
+      if (!isPlaying) {
+         if (type === 'track') {
+            playTrackOffset(searchRow.id, 0)
+         } else if (type === 'artist') {
+            playArtist(searchRow.id)
+         } else if (type === 'playlist') {
+            playPlaylistIndexOffset(searchRow.id, 0)
+         } else if (type === 'album') {
+            playAlbumIndexOffset(searchRow.id, 0)
+         }
+      }
+   }
+
+   const shouldPlayHover = useAtomValue(playOnHoverAtom)
+
+   const playHover = () => {
+      delayHandler.current = setTimeout(() => {
+         if (shouldPlayHover && !isPlaying && !isLoading) {
+            if (type === 'track') {
+               const offset = searchRow.duration_ms / 2
+               playTrackOffset(searchRow.id, offset)
+            } else if (type === 'artist') {
+               playArtist(searchRow.id, 15 * 1000)
+            } else if (type === 'playlist') {
+               playPlaylistIndexOffset(searchRow.id, 0, 15 * 1000)
+            } else if (type === 'album') {
+               playAlbumIndexOffset(searchRow.id, 0, 15 * 1000)
+            }
+         }
+      }, 100)
+   }
+
+   const mouseLeave = () => {
+      const timeout = delayHandler.current
+      if (timeout !== undefined) {
+         clearTimeout(timeout)
       }
    }
 
    const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
-   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: play })
+   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: playDoubleClick })
 
    return (
       <div
          className='flex w-32 flex-col bg-base-200 text-base-content shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl md:w-48'
+         onMouseEnter={playHover}
+         onMouseLeave={mouseLeave}
          ref={playOnDoubleClickRef}
       >
          <img src={tileImage} className='h-32 w-32 object-center md:h-48 md:w-48' alt='SearchResult' />

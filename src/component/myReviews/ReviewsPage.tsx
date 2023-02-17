@@ -160,7 +160,8 @@ const SearchBar = () => {
 }
 
 const useNeedsReviews = () => {
-   const { data, isLoading } = useProfileAndReviewsQuery(
+   // Don't need to account for loading bc suspense.
+   const { data } = useProfileAndReviewsQuery(
       {},
       {
          suspense: true,
@@ -168,7 +169,7 @@ const useNeedsReviews = () => {
          select: (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0,
       }
    )
-   return !isLoading && data
+   return data
 }
 const items = [
    {

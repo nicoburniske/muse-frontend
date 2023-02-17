@@ -39,10 +39,23 @@ const Main = () => {
                   <>
                      <SpotifyPlaybackSdk
                         errorHandler={{
-                           initializationError: e => toast.error(`SDK initialization error: ${e.message}`),
-                           authenticationError: e => toast.error(`SDK authentication error: ${e.message}`),
-                           accountError: e => toast.error(`SDK account error: ${e.message}`),
-                           playbackError: e => toast.error(`Playback Error`, { duration: 1000 }),
+                           initializationError: e =>
+                              toast.error(`SDK initialization error: ${e.message}`, {
+                                 duration: 1000,
+                                 id: 'sdk-init-error',
+                              }),
+                           authenticationError: e =>
+                              toast.error(`SDK authentication error: ${e.message}`, {
+                                 duration: 1000,
+                                 id: 'sdk-auth-error',
+                              }),
+                           accountError: e =>
+                              toast.error(`SDK account error: ${e.message}`, {
+                                 duration: 1000,
+                                 id: 'sdk-account-error',
+                              }),
+                           playbackError: e =>
+                              toast.error(`Playback Error`, { duration: 1000, id: 'sdk-playback-error' }),
                         }}
                      />
                      {/* <ReactQueryDevtools initialIsOpen={false} /> */}

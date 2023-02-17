@@ -10,10 +10,12 @@ const toUri = (entityType: EntityType, id: string) => {
    return `spotify:${entityType.toLowerCase()}:${id}`
 }
 
-export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, PlayOptions, unknown>) => {
+export type PlayWithPositon = { position_ms?: number } & PlayOptions
+
+export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, PlayWithPositon, unknown>) => {
    const client = useSpotifyClient()
 
-   const mutation = useMutation(['Play'], async (input: PlayOptions) => client.player.play(input), options)
+   const mutation = useMutation(['Play'], async (input: PlayWithPositon) => client.player.play(input), options)
 
    const playTrackOffset = (trackId: string, positionMs?: number) => {
       const trackUri = toUri('Track', trackId)
@@ -21,34 +23,34 @@ export const usePlayMutation = (options?: UseMutationOptions<unknown, unknown, P
       mutation.mutate(input)
    }
 
-   const playArtist = (artistId: string) => {
+   const playArtist = (artistId: string, positionMs = 0) => {
       const artistUri = toUri('Artist', artistId)
-      mutation.mutate({ context_uri: artistUri })
+      mutation.mutate({ context_uri: artistUri, position_ms: positionMs })
    }
 
-   const playPlaylistOffset = (playlistId: string, trackId: string) => {
+   const playPlaylistOffset = (playlistId: string, trackId: string, positionMs = 0) => {
       const trackUri = toUri('Track', trackId)
       const context_uri = toUri('Playlist', playlistId)
-      const input = { context_uri, offset: { uri: trackUri } }
+      const input = { context_uri, offset: { uri: trackUri }, position_ms: positionMs }
       mutation.mutate(input)
    }
 
-   const playPlaylistIndexOffset = (playlistId: string, position: number) => {
+   const playPlaylistIndexOffset = (playlistId: string, position: number, positionMs = 0) => {
       const context_uri = toUri('Playlist', playlistId)
-      const input = { context_uri, offset: { position } }
+      const input = { context_uri, offset: { position }, position_ms: positionMs }
       mutation.mutate(input)
    }
 
-   const playAlbumOffset = (albumId: string, trackId: string) => {
+   const playAlbumOffset = (albumId: string, trackId: string, positionMs = 0) => {
       const trackUri = toUri('Track', trackId)
       const context_uri = toUri('Album', albumId)
-      const input = { context_uri, offset: { uri: trackUri } }
+      const input = { context_uri, offset: { uri: trackUri }, position_ms: positionMs }
       mutation.mutate(input)
    }
 
-   const playAlbumIndexOffset = (playlistId: string, position: number) => {
+   const playAlbumIndexOffset = (playlistId: string, position: number, positionMs = 0) => {
       const context_uri = toUri('Album', playlistId)
-      const input = { context_uri, offset: { position } }
+      const input = { context_uri, offset: { position }, position_ms: positionMs }
       mutation.mutate(input)
    }
 
