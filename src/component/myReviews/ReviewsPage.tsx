@@ -110,7 +110,7 @@ export default function ReviewsPage() {
                      <MuseTransition option={'Simple'} duration='duration-300'>
                         <ul
                            role='list'
-                           className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-8'
+                           className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
                         >
                            {reviews.map(review => (
                               <BrowseCard
@@ -157,49 +157,55 @@ const useProfileAndReviews = () => {
    )
 
    const search = useAtomValue(searchLoweredAtom)
-   const searchedReviews =
-      data?.user?.reviews?.filter(
-         r =>
-            // Titles.
-            r.reviewName.toLowerCase().includes(search) ||
-            r.creator?.id.toLowerCase().includes(search) ||
-            r.entity?.name.toLowerCase().includes(search) ||
-            // playlist owner.
-            (r.entity?.__typename === 'Playlist' &&
-               (r.entity?.owner?.id.toLowerCase().includes(search) ||
-                  r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
-            // review owner.
-            r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
-      ) ?? []
+   const reviews = data?.user.reviews ?? []
+   const searchedReviews = searchReviews(reviews, search)
 
    const sortOrder = useAtomValue(sortOrderAtom)
    const currentUserId = useCurrentUserId()
    const reviewIdHistory = useViewHistory()
 
-   const transformFunction = (() => {
-      if (sortOrder === 'shared') {
-         return (reviews: ReviewDetailsFragment[]) =>
-            reviews
-               .filter(r => r?.collaborators?.some(c => c.user.id === currentUserId) || false)
-               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      } else if (sortOrder === 'owned') {
-         return (reviews: ReviewDetailsFragment[]) =>
-            reviews
-               .filter(r => r.creator.id === currentUserId)
-               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      } else if (sortOrder === 'recently viewed') {
-         return (reviews: ReviewDetailsFragment[]) =>
-            reviews
-               .filter(r => reviewIdHistory.includes(r.id))
-               .sort((a, b) => {
-                  const aView = reviewIdHistory.indexOf(a.id)
-                  const bView = reviewIdHistory.indexOf(b.id)
-                  return aView - bView
-               })
-      }
-      // Typescript is dumb.
-      return (reviews: ReviewDetailsFragment[]) => reviews
-   })()
+   return transformFunction(searchedReviews, sortOrder, currentUserId, reviewIdHistory)
+}
 
-   return transformFunction(searchedReviews)
+const searchReviews = (reviews: ReviewDetailsFragment[], search: string) => {
+   return reviews.filter(
+      r =>
+         // Titles.
+         r.reviewName.toLowerCase().includes(search) ||
+         r.creator?.id.toLowerCase().includes(search) ||
+         r.entity?.name.toLowerCase().includes(search) ||
+         // playlist owner.
+         (r.entity?.__typename === 'Playlist' &&
+            (r.entity?.owner?.id.toLowerCase().includes(search) ||
+               r.entity.owner?.spotifyProfile?.displayName?.toLowerCase().includes(search))) ||
+         // review owner.
+         r.creator?.spotifyProfile?.displayName?.toLowerCase().includes(search)
+   )
+}
+
+const transformFunction = (
+   reviews: ReviewDetailsFragment[],
+   sortOrder: ReviewSort,
+   currentUserId: string,
+   reviewIdHistory: string[]
+): ReviewDetailsFragment[] => {
+   if (sortOrder === 'shared') {
+      return reviews
+         .filter(r => r?.collaborators?.some(c => c.user.id === currentUserId) || false)
+         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+   } else if (sortOrder === 'owned') {
+      return reviews
+         .filter(r => r.creator.id === currentUserId)
+         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+   } else if (sortOrder === 'recently viewed') {
+      return reviews
+         .filter(r => reviewIdHistory.includes(r.id))
+         .sort((a, b) => {
+            const aView = reviewIdHistory.indexOf(a.id)
+            const bView = reviewIdHistory.indexOf(b.id)
+            return aView - bView
+         })
+   }
+   // Typescript is dumb.
+   return reviews
 }
