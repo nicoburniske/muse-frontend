@@ -32,7 +32,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
 
    return (
       <>
-         <form className='w-full p-5'>
+         <form className='flex-1 p-5'>
             <Tab.Group>
                {({ selectedIndex }) => (
                   <>
@@ -92,7 +92,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                            </div>
                         </Tab.Panel>
                         <Tab.Panel className='-m-0.5 rounded-lg p-0.5'>
-                           <div className='h-36 border-b border-primary'>
+                           <div className='border-b border-primary'>
                               <div className='mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5'>
                                  <CommentMarkdown trackId={trackId} comment={comment} />
                               </div>
