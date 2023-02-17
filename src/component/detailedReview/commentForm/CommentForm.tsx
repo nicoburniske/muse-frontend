@@ -32,7 +32,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
 
    return (
       <>
-         <form className='flex-1 p-5'>
+         <form className='flex-1 p-5 pb-0'>
             <Tab.Group>
                {({ selectedIndex }) => (
                   <>
