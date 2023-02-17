@@ -1,17 +1,25 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { SelectedReview, useSelectReview } from './SelectedReview'
-import { ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import toast from 'react-hot-toast'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import IconToggle from 'platform/component/IconToggle'
-import { Bars3BottomLeftIcon, Bars4Icon, Squares2X2Icon as Squares2X2IconMini } from '@heroicons/react/20/solid'
+import {
+   Bars3BottomLeftIcon,
+   Bars4Icon,
+   ChevronRightIcon,
+   MagnifyingGlassCircleIcon,
+   MusicalNoteIcon,
+   Squares2X2Icon as Squares2X2IconMini,
+} from '@heroicons/react/20/solid'
 import { cn } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
+import { useNavigate } from 'react-router-dom'
 
 const viewToggleAtom = atom(false)
 
@@ -44,6 +52,7 @@ const SortTabs = ({ className }: { className?: string }) => {
 }
 
 export default function ReviewsPage() {
+   const needsReviews = useNeedsReviews()
    const reviews = useProfileAndReviews()
 
    const { setSelectedReview } = useSelectReview()
@@ -68,62 +77,66 @@ export default function ReviewsPage() {
 
          {/* Main content */}
          <div className='flex flex-1 items-stretch overflow-hidden'>
-            <main className='muse-scrollbar flex-1 overflow-y-auto'>
-               <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
-                  <div className='flex'>
-                     <h1 className='flex-1 text-2xl font-bold text-base-content'>Reviews</h1>
-                     <IconToggle
-                        toggleAtom={viewToggleAtom}
-                        iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
-                        iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
-                        className='sm:hidden'
-                     />
-                  </div>
-
-                  {/* Tabs */}
-                  <div className='mt-3 sm:mt-2'>
-                     <div className='sm:hidden'>
-                        <label htmlFor='tabs' className='sr-only'>
-                           Select a tab
-                        </label>
-                        <SortTabs />
+            {needsReviews ? (
+               <NoReviewsState />
+            ) : (
+               <main className='muse-scrollbar flex-1 overflow-y-auto'>
+                  <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
+                     <div className='flex'>
+                        <h1 className='flex-1 text-2xl font-bold text-base-content'>Reviews</h1>
+                        <IconToggle
+                           toggleAtom={viewToggleAtom}
+                           iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
+                           iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
+                           className='sm:hidden'
+                        />
                      </div>
-                     <div className='hidden sm:block'>
-                        <div className='flex items-center border-b border-gray-200'>
-                           <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
 
-                           <IconToggle
-                              toggleAtom={viewToggleAtom}
-                              iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
-                              iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
-                              className='sm:flex'
-                           />
+                     {/* Tabs */}
+                     <div className='mt-3 sm:mt-2'>
+                        <div className='sm:hidden'>
+                           <label htmlFor='tabs' className='sr-only'>
+                              Select a tab
+                           </label>
+                           <SortTabs />
+                        </div>
+                        <div className='hidden sm:block'>
+                           <div className='flex items-center border-b border-gray-200'>
+                              <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
+
+                              <IconToggle
+                                 toggleAtom={viewToggleAtom}
+                                 iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
+                                 iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
+                                 className='sm:flex'
+                              />
+                           </div>
                         </div>
                      </div>
-                  </div>
 
-                  {/* Gallery */}
-                  <section className='mt-8 pb-16' aria-labelledby='gallery-heading'>
-                     <h2 id='gallery-heading' className='sr-only'>
-                        Recently viewed
-                     </h2>
-                     <MuseTransition option={'Simple'} duration='duration-300'>
-                        <ul
-                           role='list'
-                           className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
-                        >
-                           {reviews.map(review => (
-                              <BrowseCard
-                                 key={review.id}
-                                 review={review}
-                                 onClick={() => setSelectedReview(review.id)}
-                              />
-                           ))}
-                        </ul>
-                     </MuseTransition>
-                  </section>
-               </div>
-            </main>
+                     {/* Gallery */}
+                     <section className='mt-8 pb-16' aria-labelledby='gallery-heading'>
+                        <h2 id='gallery-heading' className='sr-only'>
+                           Recently viewed
+                        </h2>
+                        <MuseTransition option={'Simple'} duration='duration-300'>
+                           <ul
+                              role='list'
+                              className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                           >
+                              {reviews.map(review => (
+                                 <BrowseCard
+                                    key={review.id}
+                                    review={review}
+                                    onClick={() => setSelectedReview(review.id)}
+                                 />
+                              ))}
+                           </ul>
+                        </MuseTransition>
+                     </section>
+                  </div>
+               </main>
+            )}
          </div>
          <SelectedReview />
       </div>
@@ -146,11 +159,82 @@ const SearchBar = () => {
    )
 }
 
+const useNeedsReviews = () => {
+   const { data, isLoading } = useProfileAndReviewsQuery(
+      {},
+      {
+         suspense: true,
+         staleTime: Infinity,
+         select: (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0,
+      }
+   )
+   return !isLoading && data
+}
+const items = [
+   {
+      name: 'From a Playlist',
+      description: "Well curated tunes don't review themselves.",
+      href: '/app/playlists',
+      iconColor: 'bg-primary text-primary-content',
+      icon: MusicalNoteIcon,
+   },
+   {
+      name: 'Browse Spotify',
+      description: 'Always more music to explore.',
+      href: '/app/search',
+      iconColor: 'bg-secondary text-secondary-content',
+      icon: MagnifyingGlassCircleIcon,
+   },
+]
+const NoReviewsState = () => {
+   const nav = useNavigate()
+   return (
+      <div className='mx-auto max-w-lg pt-10'>
+         <h2 className='text-lg font-medium text-base-content'>Create your first review </h2>
+         {/* <p className='mt-1 text-sm text-gray-500'>Share some</p> */}
+         <ul role='list' className='mt-6 divide-y divide-base-content/10 border-t border-b border-base-content/10'>
+            {items.map((item, itemIdx) => (
+               <li key={itemIdx}>
+                  <div className='group relative flex items-start space-x-3 py-4'>
+                     <div className='flex-shrink-0'>
+                        <span
+                           className={cn(
+                              item.iconColor,
+                              'inline-flex h-10 w-10 items-center justify-center rounded-lg'
+                           )}
+                        >
+                           <item.icon className='h-6 w-6' aria-hidden='true' />
+                        </span>
+                     </div>
+                     <div className='min-w-0 flex-1'>
+                        <div className='text-sm font-medium text-base-content'>
+                           <button onClick={() => nav(item.href)}>
+                              <span className='absolute inset-0' aria-hidden='true' />
+                              {item.name}
+                           </button>
+                        </div>
+                        <p className='text-sm text-base-content/50'>{item.description}</p>
+                     </div>
+                     <div className='flex-shrink-0 self-center'>
+                        <ChevronRightIcon
+                           className='h-5 w-5 text-base-content/50 group-hover:text-base-content'
+                           aria-hidden='true'
+                        />
+                     </div>
+                  </div>
+               </li>
+            ))}
+         </ul>
+      </div>
+   )
+}
+
 const useProfileAndReviews = () => {
    // TODO: Have to account for viewed reviews.
    const { data } = useProfileAndReviewsQuery(
       {},
       {
+         suspense: true,
          onError: () => toast.error('Failed to load profile.'),
          staleTime: 30 * 1000,
       }

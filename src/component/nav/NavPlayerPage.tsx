@@ -13,6 +13,9 @@ import { useThemeValue } from 'state/UserPreferences'
 import { useSetAccessToken } from 'component/sdk/ClientAtoms'
 import { SyncCurrentUser } from 'state/CurrentUser'
 import { HeroLoading } from 'platform/component/HeroLoading'
+import { ErrorBoundary } from 'react-error-boundary'
+import Hero from 'platform/component/Hero'
+import { Alert, AlertSeverity } from 'platform/component/Alert'
 
 export const NavPlayerPageOutlet = () => {
    return (
@@ -32,11 +35,21 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
          <SyncCurrentUser />
          <div className='flex grow flex-row overflow-hidden'>
             <SideNavBar />
-            <Suspense fallback={<HeroLoading />}>
-               {/* <StrictMode> */}
-               {children}
-               {/* </StrictMode> */}
-            </Suspense>
+            <ErrorBoundary
+               fallback={
+                  <Hero>
+                     <div className='h-10 w-full'>
+                        <Alert severity={AlertSeverity.Error}>
+                           <span> Something went wrong. </span>
+                        </Alert>
+                     </div>
+                  </Hero>
+               }
+            >
+               <Suspense fallback={<HeroLoading />}>
+                  <StrictMode>{children}</StrictMode>
+               </Suspense>
+            </ErrorBoundary>
          </div>
          <div className='w-full'>
             <SpotifyPlayerWrapper />
