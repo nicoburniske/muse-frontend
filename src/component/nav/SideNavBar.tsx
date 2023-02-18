@@ -41,20 +41,20 @@ const NavBarLinks = () => {
 }
 
 const NavBarLink = ({ item }: { item: NavItem }) => {
-   const nav = useNavigate()
    const location = useLocation()
    const path = location.pathname
+   const action = item.action()
    return (
       <TooltipProvider delayDuration={500}>
          <Tooltip>
             <TooltipTrigger asChild>
                <a
-                  onClick={() => nav(item.href)}
+                  onClick={action}
                   className={cn(
-                     'flex flex-col items-center p-3 transition-all duration-100 hover:bg-primary-focus hover:text-primary-content',
+                     'flex flex-col items-center p-3 transition-all duration-100 hover:bg-secondary-focus hover:text-secondary-content',
                      path.includes(item.href)
-                        ? 'bg-primary-focus text-primary-content'
-                        : 'bg-secondary text-secondary-content',
+                        ? 'w-3/4 bg-secondary text-secondary-content'
+                        : 'bg-base-100 text-base-content',
                      'rounded-3xl hover:w-full hover:rounded-xl'
                   )}
                >

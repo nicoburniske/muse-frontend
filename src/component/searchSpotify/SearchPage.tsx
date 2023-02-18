@@ -60,7 +60,7 @@ export default SearchPage
 
 const playOnHoverAtom = atom(false)
 
-const selectedEntityTypesAtom = atom(new Array<EntityType>())
+const selectedEntityTypesAtom = atom(['Album', 'Playlist', 'Artist'] as EntityType[])
 const selectedGenreSeedsAtom = atom(new Array<string>())
 const filterHipsterAtom = atom(false)
 const filterNewAtom = atom(false)

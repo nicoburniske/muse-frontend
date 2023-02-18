@@ -101,7 +101,7 @@ export default function ReviewsPage() {
                            <SortTabs />
                         </div>
                         <div className='hidden sm:block'>
-                           <div className='flex items-center border-b border-gray-200'>
+                           <div className='flex items-center border-b border-base-content/20'>
                               <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
 
                               <IconToggle

@@ -284,7 +284,7 @@ const TransferPlaybackButton = () => {
       onError: () => toast.error('Failed to transfer playback'),
    })
 
-   const className = cn(commonBtnClass, needsReconnect ? 'btn-success' : '')
+   const className = cn(commonBtnClass, needsReconnect ? 'btn-success animate-pulse' : '')
 
    // Buffer time for playback sdk to be setup.
    const [isReady, setIsReady] = useState(false)

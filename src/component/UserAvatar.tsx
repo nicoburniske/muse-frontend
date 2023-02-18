@@ -1,28 +1,19 @@
 import { UserWithSpotifyOverviewFragment } from 'graphql/generated/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
-import { useMemo } from 'react'
 import { cn, nonNullable } from 'util/Utils'
-
-export enum TooltipPos {
-   None = '',
-   Left = 'md:tooltip-left',
-   Right = 'md:tooltip-right',
-   Up = 'md:tooltip-up',
-   Down = 'md:tooltip-bottom',
-}
 
 const size = 'w-6 md:w-8 lg:w-8'
 
-interface UserAvatarProps {
+type UserAvatarTooltipProps = {
    dateAdded?: string
    user: UserWithSpotifyOverviewFragment
 }
 
-export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarProps) {
+export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarTooltipProps) {
    const images = user?.spotifyProfile?.images
    const image = images?.at(1) ?? images?.at(0)
 
-   const displayName = user.spotifyProfile?.displayName ?? undefined
+   const displayName = user.spotifyProfile?.displayName
    const userId = user.id
 
    const name = displayName ?? userId
@@ -30,7 +21,7 @@ export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarProps) 
    return (
       <TooltipProvider delayDuration={300}>
          <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
                <UserAvatar name={name} image={image} className={size} />
             </TooltipTrigger>
             <TooltipContent side='right' align='start' className='bg-primary text-primary-content'>
@@ -43,12 +34,17 @@ export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarProps) 
    )
 }
 
-export const UserAvatar = ({ name, image, className }: { name: string; image?: string; className?: string }) => {
+export type UserAvatarProps = {
+   name: string
+   image?: string
+   className?: string
+}
+export const UserAvatar = ({ name, image, className }: UserAvatarProps) => {
    if (nonNullable(image) && image.length > 0) {
       return (
          <div className={'avatar'}>
             <div className={cn('rounded-full ', className)}>
-               <img src={image} />
+               <img src={image} alt='UserProfilePicture' />
             </div>
          </div>
       )

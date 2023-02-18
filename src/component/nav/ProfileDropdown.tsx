@@ -9,6 +9,7 @@ import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { useThemeValue } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
 import { ErrorBoundary } from 'react-error-boundary'
+import { UserAvatar } from 'component/UserAvatar'
 
 type ProfileDropdownProps = {
    onModalOpen?: () => void
@@ -41,6 +42,7 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
    })
 
    const { image, id, displayName } = data ?? {}
+   const name = displayName ?? id ?? ''
 
    const { x, y, strategy, refs } = useFloating({
       placement: 'top-start',
@@ -62,12 +64,12 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
    return (
       <Menu as='div'>
          <Menu.Button className='w-full transition-all hover:scale-110' ref={refs.setReference}>
-            <div className='flex flex-col items-center'>
-               <div className='avatar'>
-                  <div className='h-10 w-10 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100'>
-                     <img src={image ?? ''} />
-                  </div>
-               </div>
+            <div className='grid place-items-center'>
+               <UserAvatar
+                  name={name}
+                  className={'h-10 w-10 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100'}
+                  image={image}
+               />
                <span className='sr-only'>Open user menu</span>
             </div>
          </Menu.Button>

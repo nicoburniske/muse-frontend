@@ -2,9 +2,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { atom, useAtom } from 'jotai'
 import { Fragment } from 'react'
 import { cn } from 'util/Utils'
-import { NAVIGATION } from './NavConstants'
+import { NAVIGATION, NavItem } from './NavConstants'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
 import { useThemeValue } from 'state/UserPreferences'
 
@@ -13,9 +13,6 @@ export const mobileMenuOpenAtom = atom(false)
 export function MobileMenu() {
    const [mobileMenuOpen, setMobileMenuOpen] = useAtom(mobileMenuOpenAtom)
    const theme = useThemeValue()
-   const nav = useNavigate()
-   const location = useLocation()
-   const path = location.pathname
    return (
       <Transition.Root show={mobileMenuOpen} as={Fragment}>
          <Dialog as='div' className='relative z-40 md:hidden' onClose={setMobileMenuOpen} data-theme={theme}>
@@ -69,24 +66,7 @@ export function MobileMenu() {
                         <nav className='flex h-full flex-col'>
                            <div className='space-y-1'>
                               {NAVIGATION.map(item => (
-                                 <a
-                                    key={item.name}
-                                    onClick={() => nav(item.href)}
-                                    className={cn(
-                                       path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
-                                       'group flex items-center rounded-md py-2 px-3 text-sm font-medium'
-                                    )}
-                                    aria-current={path.includes(item.href) ? 'page' : undefined}
-                                 >
-                                    <item.icon
-                                       className={cn(
-                                          path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
-                                          'mr-3 h-6 w-6'
-                                       )}
-                                       aria-hidden='true'
-                                    />
-                                    <span>{item.name}</span>
-                                 </a>
+                                 <NavOption key={item.name} item={item} onSelect={() => setMobileMenuOpen(false)} />
                               ))}
                            </div>
                         </nav>
@@ -102,5 +82,31 @@ export function MobileMenu() {
             </div>
          </Dialog>
       </Transition.Root>
+   )
+}
+
+const NavOption = ({ item, onSelect }: { item: NavItem; onSelect: () => void }) => {
+   const path = useLocation().pathname
+   const action = item.action()
+   const onClick = () => {
+      action()
+      onSelect()
+   }
+   return (
+      <a
+         key={item.name}
+         onClick={onClick}
+         className={cn(
+            path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
+            'group flex items-center rounded-md py-2 px-3 text-sm font-medium'
+         )}
+         aria-current={path.includes(item.href) ? 'page' : undefined}
+      >
+         <item.icon
+            className={cn(path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '', 'mr-3 h-6 w-6')}
+            aria-hidden='true'
+         />
+         <span>{item.name}</span>
+      </a>
    )
 }

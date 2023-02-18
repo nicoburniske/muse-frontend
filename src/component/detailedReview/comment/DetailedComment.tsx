@@ -25,6 +25,7 @@ import { useOpenUpdateComment } from '../commentForm/useOpenUpdateComment'
 import { useDrag, useDrop } from 'react-dnd'
 import { toast } from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
+import { UserAvatar } from 'component/UserAvatar'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
@@ -129,7 +130,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                <div className='grid grid-cols-2'>
                   <div className='flex items-center space-x-1 '>
                      <div className='flex-shrink-0'>
-                        <img className='h-10 w-10 rounded-full' src={avatar} alt='' />
+                        <UserAvatar name={commenterName ?? commenterId} image={avatar} className='h-10 w-10' />
                      </div>
                      <div className='min-w-0 flex-1'>
                         <p className='space-x-1 text-sm font-medium text-base-content'>

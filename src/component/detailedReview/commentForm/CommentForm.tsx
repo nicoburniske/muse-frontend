@@ -93,7 +93,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                         </Tab.Panel>
                         <Tab.Panel className='-m-0.5 rounded-lg p-0.5'>
                            <div className='border-b border-primary'>
-                              <div className='mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5'>
+                              <div className='prose mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5'>
                                  <CommentMarkdown trackId={trackId} comment={comment} />
                               </div>
                            </div>
