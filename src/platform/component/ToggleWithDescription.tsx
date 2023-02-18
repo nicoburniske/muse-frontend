@@ -6,11 +6,12 @@ export type ToggleProps = {
    description: string
    enabled: boolean
    setEnabled: (enabled: boolean) => void
+   className?: string
 }
 
-export const ToggleWithDescription = ({ label, description, enabled, setEnabled }: ToggleProps) => {
+export const ToggleWithDescription = ({ label, description, enabled, setEnabled, className }: ToggleProps) => {
    return (
-      <Switch.Group as='div' className='flex items-center justify-between'>
+      <Switch.Group as='div' className={cn('flex items-center justify-between', className)}>
          <span className='flex flex-grow flex-col text-base-content'>
             <Switch.Label as='span' className='text-base font-bold' passive>
                {label}

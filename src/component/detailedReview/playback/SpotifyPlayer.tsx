@@ -41,7 +41,7 @@ export function SpotifyPlayerFallback() {
       )
    } else {
       return (
-         <div className='grid w-full place-items-center rounded border border-accent bg-neutral'>
+         <div className='hidden w-full place-items-center rounded border border-accent bg-neutral sm:grid'>
             <div className='py-2'>
                <TransferPlaybackButton />
             </div>
@@ -124,7 +124,7 @@ const LikeNowPlaying = () => {
             trackId={getNowPlayingId()!}
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
-            className={'transition-all duration-500 hover:scale-125'}
+            className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
          />
       )
    } else {

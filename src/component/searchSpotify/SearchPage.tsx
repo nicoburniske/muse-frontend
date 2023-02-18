@@ -43,20 +43,22 @@ const SearchPage = () => {
                </div>
             )}
             <div className='flex grow flex-col items-center justify-between bg-base-100'>
-               <div className='relative grid w-full place-items-center'>
+               <div className='flex w-full items-center justify-between'>
                   <button
-                     className='btn btn-ghost btn-sm absolute left-4 flex-none sm:btn-md'
+                     className='btn btn-ghost btn-sm h-3/4 flex-none justify-self-start'
                      onClick={() => setExpandFilter(!expandFilter)}
                   >
                      {expandFilter ? <ChevronLeftIcon className='h-6 w-6' /> : <ChevronRightIcon className='h-6 w-6' />}
                   </button>
 
-                  <div className='w-3/4 max-w-3xl justify-self-center'>
+                  <div className='max-w-3xl flex-1 justify-self-center'>
                      <SearchInputBar />
                   </div>
+                  {/* Empty div ftw */}
+                  <div />
                </div>
                <div className='flex h-full w-full px-3'>
-                  <div className='max-h-full grow rounded-md border-2 border-base-200 shadow-2xl'>
+                  <div className='grow rounded-md border-2 border-base-200 shadow-2xl'>
                      <ScrollSearchResults />
                   </div>
                </div>
