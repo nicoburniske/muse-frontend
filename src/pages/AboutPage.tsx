@@ -74,7 +74,7 @@ export default function AboutPage() {
                   )}
                </div>
             </nav>
-            <Dialog as='div' open={mobileMenuOpen} onClose={setMobileMenuOpen}>
+            <Dialog as='div' open={mobileMenuOpen} onClose={setMobileMenuOpen} data-theme={theme}>
                <Dialog.Panel className='fixed inset-0 z-10 overflow-y-auto bg-primary px-6 py-6 text-primary-content lg:hidden'>
                   <div className='flex items-center justify-between'>
                      <a href='#' className='-m-1.5 p-1.5'>
