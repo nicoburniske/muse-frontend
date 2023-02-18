@@ -1,4 +1,4 @@
-import { BackspaceIcon } from '@heroicons/react/20/solid'
+import { BackspaceIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSpotifyClient } from 'component/sdk/ClientAtoms'
@@ -7,7 +7,7 @@ import { EntityType } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import atomWithDebounce from 'platform/atom/atomWithDebounce'
 import { HeroLoading } from 'platform/component/HeroLoading'
-import { useEffect, useMemo, useRef, memo, ReactNode, RefObject, useCallback } from 'react'
+import { useEffect, useMemo, useRef, memo, ReactNode, RefObject, useCallback, useState } from 'react'
 import {
    Artist,
    SearchType,
@@ -29,21 +29,32 @@ import toast from 'react-hot-toast'
 import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
 
 const SearchPage = () => {
+   const [expandFilter, setExpandFilter] = useState(true)
    return (
       <>
          <div className='flex h-full w-full'>
-            <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
-               <SelectEntityTypes />
-               <SelectGenreSeeds />
-               <SelectHipsterFilter />
-               <SelectNewFilter />
-               <SelectPlayOnHover />
-            </div>
-            <div className='flex grow flex-col items-center justify-between bg-base-100'>
-               <div className='w-full max-w-3xl'>
-                  <SearchInputBar />
+            {expandFilter && (
+               <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
+                  <SelectEntityTypes />
+                  <SelectGenreSeeds />
+                  <SelectHipsterFilter />
+                  <SelectNewFilter />
+                  <SelectPlayOnHover />
                </div>
+            )}
+            <div className='flex grow flex-col items-center justify-between bg-base-100'>
+               <div className='relative grid w-full place-items-center'>
+                  <button
+                     className='btn btn-ghost btn-sm absolute left-4 flex-none sm:btn-md'
+                     onClick={() => setExpandFilter(!expandFilter)}
+                  >
+                     {expandFilter ? <ChevronLeftIcon className='h-6 w-6' /> : <ChevronRightIcon className='h-6 w-6' />}
+                  </button>
 
+                  <div className='w-3/4 max-w-3xl justify-self-center'>
+                     <SearchInputBar />
+                  </div>
+               </div>
                <div className='flex h-full w-full px-3'>
                   <div className='max-h-full grow rounded-md border-2 border-base-200 shadow-2xl'>
                      <ScrollSearchResults />
@@ -143,6 +154,7 @@ const SelectPlayOnHover = () => {
          description={'Hover over an item to play it'}
          enabled={playOnHove}
          setEnabled={onChange}
+         className='hidden sm:flex'
       />
    )
 }
