@@ -40,6 +40,8 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
             onChange()
          }
          resetReviewOverviews()
+         reset()
+         toast.success('Updated review sharing.', { id: 'share-review-toast' })
       },
    })
 
@@ -65,12 +67,15 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
          toast.error('Failed to update review sharing.')
       }
    }
-
-   const onCancel = () => {
+   const reset = () => {
       resetAccessLevel()
       resetUsername()
-      resetModalOpen()
       resetCollaborators()
+   }
+
+   const onCancel = () => {
+      reset()
+      resetModalOpen()
    }
 
    const disabledUndo = useMemo(() => collaborators.length === collabProp.length, [collaborators, collabProp])
@@ -94,11 +99,11 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                            <ul className='menu h-32 flex-nowrap divide-y divide-base-200 overflow-y-scroll bg-base-200'>
                               {collaborators.map(c => (
                                  <li key={c.user.id}>
-                                    <div className='group flex flex-row'>
-                                       <p className='basis-full'>{c.user.id}</p>
-                                       <p className='basis-full'>{c.accessLevel}</p>
+                                    <div className='group grid grid-cols-7'>
+                                       <p className='col-span-3 truncate'>{c.user.id}</p>
+                                       <p className='col-span-3 basis-full'>{c.accessLevel}</p>
                                        <button
-                                          className='btn btn-error btn-xs opacity-0 group-hover:opacity-100'
+                                          className='btn btn-error btn-xs col-span-1 justify-self-end opacity-0 group-hover:opacity-100'
                                           onClick={() =>
                                              setCollaborators(collaborators.filter(c2 => c2.user.id !== c.user.id))
                                           }
