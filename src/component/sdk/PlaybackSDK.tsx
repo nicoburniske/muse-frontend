@@ -35,14 +35,14 @@ export function SpotifyPlaybackSdk({ errorHandler }: { errorHandler: SpotifyErro
             const success = await player.connect()
 
             if (success) {
-               setPlayer(player)
                player.addListener('player_state_changed', state => setPlaybackState(state))
-
                const { initializationError, authenticationError, accountError, playbackError } = errorHandler
                player.addListener('initialization_error', error => initializationError(error))
                player.addListener('authentication_error', error => authenticationError(error))
                player.addListener('account_error', error => accountError(error))
                player.addListener('playback_error', error => playbackError(error))
+
+               setPlayer(player)
             } else {
                throw new Error('Failed to connect to Spotify Player.')
             }

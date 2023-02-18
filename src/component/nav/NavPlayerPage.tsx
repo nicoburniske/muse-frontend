@@ -79,7 +79,7 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
 }
 
 const onboardingStyles = {
-   badge: base => ({ ...base, background: 'hsl(var(--p))' }),
+   badge: base => ({ ...base, background: 'hsl(var(--p))', color: 'hsl(var(--pc))' }),
    controls: base => ({ ...base, color: 'hsl(var(--p))' }),
    navigation: base => ({ ...base, color: 'hsl(var(--p))' }),
    // @ts-ignore. These type definitions are horrendous.

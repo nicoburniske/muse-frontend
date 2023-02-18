@@ -164,6 +164,7 @@ const SearchBar = () => {
    )
 }
 
+const selectNeedsReviews = (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0
 const useNeedsReviews = () => {
    // Don't need to account for loading bc suspense.
    const { data } = useProfileAndReviewsQuery(
@@ -171,7 +172,7 @@ const useNeedsReviews = () => {
       {
          suspense: true,
          staleTime: Infinity,
-         select: (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0,
+         select: selectNeedsReviews,
       }
    )
    return data

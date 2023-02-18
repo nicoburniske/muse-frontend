@@ -1,10 +1,10 @@
-import { atom } from 'jotai'
+import { Atom, atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { useOnFirstMountAtom } from 'platform/hook/useOnFirstMount'
 import { useOpenTour } from 'platform/hook/useOpenTour'
 import { useMemo } from 'react'
 
-const needToGiveTourAtom = atomWithStorage('MuseNeedToGiveDetailedReviewTour', true)
+const needToGiveTourAtom = atomWithStorage('MuseNeedToGiveReviewsTour', true)
 
 export const useOpenReviewsTour = () => useOpenTour(steps)
 export const useOpenReviewsTourFirstTime = (ready: boolean) =>
