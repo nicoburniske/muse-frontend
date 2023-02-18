@@ -38,7 +38,7 @@ export function MobileMenu() {
                   leaveFrom='translate-x-0'
                   leaveTo='-translate-x-full'
                >
-                  <Dialog.Panel className='relative flex w-full max-w-xs flex-1 flex-col bg-base-100 pt-5 pb-4'>
+                  <Dialog.Panel className='relative flex flex-col bg-base-100 pt-5 pb-4'>
                      <Transition.Child
                         as={Fragment}
                         enter='ease-in-out duration-300'

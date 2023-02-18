@@ -43,7 +43,7 @@ const SearchPage = () => {
                </div>
             )}
             <div className='flex grow flex-col items-center justify-between bg-base-100'>
-               <div className='flex w-full items-center justify-between'>
+               <div className='flex w-full flex-none items-center justify-between'>
                   <button
                      className='btn btn-ghost btn-sm h-3/4 flex-none justify-self-start'
                      onClick={() => setExpandFilter(!expandFilter)}
@@ -57,10 +57,9 @@ const SearchPage = () => {
                   {/* Empty div ftw */}
                   <div />
                </div>
-               <div className='flex h-full w-full px-3'>
-                  <div className='grow rounded-md border-2 border-base-200 shadow-2xl'>
-                     <ScrollSearchResults />
-                  </div>
+               {/* Again no idea why I need min-h */}
+               <div className='min-h-0 w-full grow rounded-md border-2 border-base-200 px-3 shadow-2xl'>
+                  <ScrollSearchResults />
                </div>
             </div>
          </div>

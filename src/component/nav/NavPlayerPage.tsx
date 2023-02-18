@@ -33,7 +33,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
          {/* Effects lower in component tree to avoid re-render */}
          <SyncAccessToken />
          <SyncCurrentUser />
-         <div className='flex grow flex-row overflow-hidden'>
+         <div className='flex flex-1 flex-row overflow-hidden'>
             <SideNavBar />
             <ErrorBoundary
                fallback={
@@ -51,7 +51,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
                </Suspense>
             </ErrorBoundary>
          </div>
-         <div className='w-full'>
+         <div className='hidden w-full sm:inline'>
             <SpotifyPlayerWrapper />
          </div>
          <Portal>
