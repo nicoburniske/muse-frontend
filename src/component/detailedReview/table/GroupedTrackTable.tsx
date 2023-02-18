@@ -153,7 +153,7 @@ export const GroupedTrackTable = () => {
       <MuseTransition option={'Simple'} as={Fragment} duration='duration-300'>
          <div ref={parentRef} className='muse-scrollbar w-full overflow-y-auto'>
             <div
-               className='relative w-full'
+               className='muse-tracks relative w-full'
                style={{
                   height: `${rowVirtualizer.getTotalSize()}px`,
                }}

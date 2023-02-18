@@ -16,10 +16,12 @@ import { HeroLoading } from 'platform/component/HeroLoading'
 import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
 import { Alert, AlertSeverity } from 'platform/component/Alert'
+import { StylesObj, TourProvider } from '@reactour/tour'
 
 export const NavPlayerPageOutlet = () => {
+   const theme = useThemeValue()
    return (
-      <NavPlayerPage>
+      <NavPlayerPage data-theme={theme}>
          <Outlet />
       </NavPlayerPage>
    )
@@ -29,40 +31,71 @@ export const NavPlayerPageOutlet = () => {
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
    const theme = useThemeValue()
    return (
-      <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
-         {/* Effects lower in component tree to avoid re-render */}
-         <SyncAccessToken />
-         <SyncCurrentUser />
-         <div className='flex flex-1 flex-row overflow-hidden'>
-            <SideNavBar />
-            <ErrorBoundary
-               fallback={
-                  <Hero>
-                     <div className='h-10 w-full'>
-                        <Alert severity={AlertSeverity.Error}>
-                           <span> Something went wrong. </span>
-                        </Alert>
-                     </div>
-                  </Hero>
-               }
-            >
-               <Suspense fallback={<HeroLoading />}>
-                  <StrictMode>{children}</StrictMode>
-               </Suspense>
-            </ErrorBoundary>
+      <TourProvider
+         data-theme={theme}
+         // @ts-ignore
+         Wrapper={ThemeWrapper}
+         styles={onboardingStyles}
+      >
+         <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
+            {/* Effects lower in component tree to avoid re-render */}
+            <SyncAccessToken />
+            <SyncCurrentUser />
+            <div className='flex flex-1 flex-row overflow-hidden'>
+               <SideNavBar />
+               <ErrorBoundary
+                  fallback={
+                     <Hero>
+                        <div className='h-10 w-full'>
+                           <Alert severity={AlertSeverity.Error}>
+                              <span> Something went wrong. </span>
+                           </Alert>
+                        </div>
+                     </Hero>
+                  }
+               >
+                  <Suspense fallback={<HeroLoading />}>
+                     <StrictMode>{children}</StrictMode>
+                  </Suspense>
+               </ErrorBoundary>
+            </div>
+            <div className='muse-player hidden w-full sm:inline'>
+               <SpotifyPlayerWrapper />
+            </div>
+            <Portal>
+               <MobileMenu />
+            </Portal>
+            <Portal>
+               <UserPreferencesModal />
+            </Portal>
          </div>
-         <div className='hidden w-full sm:inline'>
-            <SpotifyPlayerWrapper />
-         </div>
-         <Portal>
-            <MobileMenu />
-         </Portal>
-         <Portal>
-            <UserPreferencesModal />
-         </Portal>
-      </div>
+      </TourProvider>
    )
 }
+
+const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
+   const theme = useThemeValue()
+   return <div data-theme={theme}>{children}</div>
+}
+
+const onboardingStyles = {
+   badge: base => ({ ...base, background: 'hsl(var(--p))' }),
+   controls: base => ({ ...base, color: 'hsl(var(--p))' }),
+   navigation: base => ({ ...base, color: 'hsl(var(--p))' }),
+   // @ts-ignore. These type definitions are horrendous.
+   dot: (base, { current }) => ({
+      ...base,
+      color: 'hsl(var(--p))',
+      background: current ? 'hsl(var(--p))' : 'hsl(var(--b1))',
+   }),
+   arrow: base => ({ ...base, color: 'hsl(var(--bc))' }),
+   // @ts-ignore.
+   popover: base => ({
+      ...base,
+      color: 'hsl(var(--bc))',
+      backgroundColor: 'hsl(var(--b1))',
+   }),
+} as StylesObj
 
 const SyncAccessToken = () => {
    /**

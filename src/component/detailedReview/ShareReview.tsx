@@ -168,7 +168,7 @@ export function ShareReview({ reviewId, onChange, collaborators: collabProp, chi
                </div>
             </ThemeModal>
          </Portal>
-         <button className='btn btn-primary btn-sm lg:btn-md' onClick={() => setModalOpen(true)}>
+         <button className='muse-share btn btn-primary btn-sm lg:btn-md' onClick={() => setModalOpen(true)}>
             {children}
          </button>
       </>

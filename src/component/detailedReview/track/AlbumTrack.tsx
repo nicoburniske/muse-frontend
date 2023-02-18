@@ -57,7 +57,7 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       <div
          ref={drag}
          className={cn(
-            'group flex items-center justify-between',
+            'muse-track group flex items-center justify-between',
             'm-0 select-none border-2 border-transparent p-0.5',
             styles,
             isDragging ?? 'opacity-50'

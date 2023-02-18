@@ -55,7 +55,8 @@ const NavBarLink = ({ item }: { item: NavItem }) => {
                      path.includes(item.href)
                         ? 'w-3/4 bg-secondary text-secondary-content'
                         : 'bg-base-100 text-base-content',
-                     'rounded-3xl hover:w-full hover:rounded-xl'
+                     'rounded-3xl hover:w-full hover:rounded-xl',
+                     item.className
                   )}
                >
                   <item.icon className='h-6 w-6' aria-hidden='true' />

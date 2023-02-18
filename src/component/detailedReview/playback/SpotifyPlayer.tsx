@@ -73,10 +73,6 @@ const NowPlayingItem = () => {
    const nowPlayingImage = album.images.slice().reverse()[0].url
    const nowPlayingArtist = artists.map(a => a.name).join(', ')
 
-   // const nowPlayingEnabled = useAtomValue(
-   //    useMemo(() => atom(get => get(nowPlayingEnabledAtom) && get(currentReviewAtom) !== undefined), [])
-   // )
-
    const [{ isDragging }, drag] = useDrag(
       () => ({
          type: 'Track',
@@ -90,7 +86,7 @@ const NowPlayingItem = () => {
    )
 
    return (
-      <div className={cn('col-span-1 flex select-none items-center justify-start lg:max-w-lg ')}>
+      <div className={cn(' col-span-1 flex select-none items-center justify-start lg:max-w-lg')}>
          <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : 'bg-neutral')}>
             <div className='avatar p-1'>
                <div className='w-16'>
@@ -124,7 +120,12 @@ const LikeNowPlaying = () => {
             trackId={getNowPlayingId()!}
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
-            className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
+            className={cn(
+               commonBtnClass,
+               // We want the same padding as btn but no border/background.
+               'border-0 bg-transparent hover:bg-transparent',
+               'transition-all duration-500 hover:scale-125'
+            )}
          />
       )
    } else {
@@ -238,7 +239,7 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <button className={cn(commonBtnClass)} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+         <button className={cn(commonBtnClass, 'muse-finder')} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
             <MagnifyingGlassIcon className={iconClass} />
          </button>
          <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
@@ -298,12 +299,12 @@ const TransferPlaybackButton = () => {
       <TooltipProvider delayDuration={300}>
          <Tooltip>
             <TooltipTrigger asChild>
-               <button className={className} disabled={disabled} onClick={() => mutate()}>
+               <button className={cn('muse-power-on-button', className)} disabled={disabled} onClick={() => mutate()}>
                   <PowerIcon className={iconClass} />
                </button>
             </TooltipTrigger>
             <TooltipContent className='bg-primary text-primary-content'>
-               <p> Start Playback </p>
+               <p> Start Player </p>
             </TooltipContent>
          </Tooltip>
       </TooltipProvider>
@@ -318,7 +319,7 @@ const PlayOrTransferButton = () => {
    return needsReconnect ? (
       <TransferPlaybackButton />
    ) : (
-      <button className={commonBtnClass} onClick={togglePlay} disabled={togglePlayDisabled}>
+      <button className={cn(commonBtnClass, 'muse-play-button')} onClick={togglePlay} disabled={togglePlayDisabled}>
          {isPlaying ? <PauseIcon className={iconClass} /> : <PlayIcon className={iconClass} />}
       </button>
    )

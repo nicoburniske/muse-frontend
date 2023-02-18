@@ -32,7 +32,7 @@ const SearchPage = () => {
    const [expandFilter, setExpandFilter] = useState(true)
    return (
       <>
-         <div className='flex h-full w-full'>
+         <div className='flex grow'>
             {expandFilter && (
                <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
                   <SelectEntityTypes />

@@ -6,20 +6,19 @@ import { OpenMobileMenuButton } from 'component/nav/OpenMobileMenuButton'
 import toast from 'react-hot-toast'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
-import IconToggle from 'platform/component/IconToggle'
 import {
    Bars3BottomLeftIcon,
-   Bars4Icon,
    ChevronRightIcon,
    MagnifyingGlassCircleIcon,
    MusicalNoteIcon,
-   Squares2X2Icon as Squares2X2IconMini,
+   QuestionMarkCircleIcon,
 } from '@heroicons/react/20/solid'
 import { cn } from 'util/Utils'
 import { useViewHistory } from 'state/ViewHistory'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { useNavigate } from 'react-router-dom'
+import { useOpenReviewsTour, useOpenReviewsTourFirstTime } from './ReviewsTour'
 
 const viewToggleAtom = atom(false)
 
@@ -57,6 +56,9 @@ export default function ReviewsPage() {
 
    const { setSelectedReview } = useSelectReview()
 
+   useOpenReviewsTourFirstTime(!needsReviews)
+   const openTour = useOpenReviewsTour()
+
    return (
       <div className='flex flex-1 flex-col bg-base-100'>
          <header className='w-full'>
@@ -84,12 +86,12 @@ export default function ReviewsPage() {
                   <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
                      <div className='flex'>
                         <h1 className='flex-1 text-2xl font-bold text-base-content'>Reviews</h1>
-                        <IconToggle
+                        {/* <IconToggle
                            toggleAtom={viewToggleAtom}
                            iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
                            iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
                            className='sm:hidden'
-                        />
+                        /> */}
                      </div>
 
                      {/* Tabs */}
@@ -104,12 +106,15 @@ export default function ReviewsPage() {
                            <div className='flex items-center border-b border-base-content/20'>
                               <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
 
-                              <IconToggle
+                              <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
+                                 <QuestionMarkCircleIcon className='h-6 w-6' />
+                              </button>
+                              {/* <IconToggle
                                  toggleAtom={viewToggleAtom}
                                  iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
                                  iconRight={<Squares2X2IconMini className='h-5 w-5' aria-hidden='true' />}
                                  className='sm:flex'
-                              />
+                              /> */}
                            </div>
                         </div>
                      </div>

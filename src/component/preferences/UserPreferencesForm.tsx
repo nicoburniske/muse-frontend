@@ -7,9 +7,7 @@ import { ThemeSetter } from './ThemeSetter'
 import { TogglePreferences } from './TogglePreferences'
 import Portal from 'platform/component/Portal'
 import { useQueryClient } from '@tanstack/react-query'
-import { AppConfig } from 'util/AppConfig'
 import { CogIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { clear } from 'idb-keyval'
 import { clearPersister } from 'MuseQueryClientProvider'
 
 const modalOpenAtom = atom(false)
@@ -65,8 +63,16 @@ export const UserPreferencesForm = () => {
             >
                Clear Cache
             </button>
+            <a
+               className='btn btn-error btn-md m-auto'
+               rel='noreferrer'
+               target='_blank'
+               href={'https://www.spotify.com/us/account/apps/'}
+            >
+               Revoke Spotify Access
+            </a>
          </div>
-         <button className='btn btn-square btn-error btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
+         <button className='btn btn-error btn-square btn-sm absolute top-5 right-5' onClick={() => setModalOpen(false)}>
             <XMarkIcon className='h-6 w-6' />
          </button>
       </div>

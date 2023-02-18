@@ -123,7 +123,7 @@ export default function AboutPage() {
                <div className='mx-auto max-w-2xl py-32 sm:py-48 lg:py-56'>
                   <div className='flex flex-col items-center text-center'>
                      <h1 className='text-4xl font-bold tracking-tight sm:text-6xl'>Muse</h1>
-                     <p className='mt-6 leading-8 sm:text-lg'>A free and open-source music review platform</p>
+                     <p className='mt-6 leading-8 sm:text-lg'>An open-source music review platform</p>
                      <div className='mt-4 flex items-center justify-center space-x-6'>
                         <a
                            href='#'

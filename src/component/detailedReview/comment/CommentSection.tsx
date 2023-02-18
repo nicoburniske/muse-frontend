@@ -6,17 +6,17 @@ import {
 } from 'graphql/generated/schema'
 import { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
 import { groupBy, nonNullable } from 'util/Utils'
-import DetailedComment from './comment/DetailedComment'
 import { useQueries, useQueryClient } from '@tanstack/react-query'
-import { ReviewOverview } from './table/Helpers'
 import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
-import { DeleteCommentConfirmation } from './comment/DeleteCommentConfirmation'
 import { useDndScrolling } from 'react-dnd-scrolling'
 import toast, { Toast } from 'react-hot-toast'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { Transition } from '@headlessui/react'
 import { useThemeValue } from 'state/UserPreferences'
-import { useOpenNewComment } from './commentForm/useOpenNewComment'
+import { ReviewOverview } from '../table/Helpers'
+import DetailedComment from './DetailedComment'
+import { DeleteCommentConfirmation } from './DeleteCommentConfirmation'
+import { useOpenNewComment } from '../commentForm/useOpenNewComment'
 
 const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
 
@@ -55,7 +55,10 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
    return (
       <>
-         <div className='muse-scrollbar flex flex-1 flex-col space-y-1 overflow-y-auto overflow-x-hidden' ref={ref}>
+         <div
+            className='muse-comments muse-scrollbar flex flex-1 flex-col space-y-1 overflow-y-auto overflow-x-hidden'
+            ref={ref}
+         >
             {rootComments.map((c: DetailedCommentFragment) => (
                <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
             ))}

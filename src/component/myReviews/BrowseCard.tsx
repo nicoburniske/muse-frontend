@@ -21,13 +21,13 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
          key={review.id}
       >
          {/* This ensures that we have square aspect ratio */}
-         <div className='aspect-w-4 aspect-h-4' onClick={onClick}>
+         <div className='muse-review-card-image aspect-w-4 aspect-h-4' onClick={onClick}>
             {/* No image distortion and crop the image into center */}
             <img src={image} alt='ReviewImage' className='object-cover object-center' />
          </div>
 
          <div
-            className='mt-auto flex cursor-pointer flex-col items-center justify-center text-center'
+            className='muse-review-card-title mt-auto flex cursor-pointer flex-col items-center justify-center text-center'
             onClick={linkToReviewPage}
          >
             <div className='stat-title w-full truncate text-xs md:text-base'>{entityName}</div>

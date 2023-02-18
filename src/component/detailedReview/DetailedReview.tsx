@@ -21,11 +21,10 @@ import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
 import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
-import ReviewCommentSection from './CommentSection'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { Bars3BottomLeftIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { Bars3BottomLeftIcon, PencilIcon, QuestionMarkCircleIcon, ShareIcon } from '@heroicons/react/20/solid'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { EditReviewButton } from './editReview/EditReview'
@@ -36,6 +35,8 @@ import { useSearchAtom } from 'state/Atoms'
 import { LinkReviewButton } from './LinkReview'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { Icon } from 'component/nav/NavConstants'
+import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
+import ReviewCommentSection from './comment/CommentSection'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -46,6 +47,7 @@ export type RenderOption = (typeof RenderOptionValues)[number]
 const renderOptionAtom = atom<RenderOption>('both')
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
+   useOpenReviewTourFirstTime()
    const queryClient = useQueryClient()
    const { data, isLoading } = useDetailedReviewQuery(
       { reviewId },
@@ -123,6 +125,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
 const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const queryClient = useQueryClient()
    const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
+   const openTour = useOpenReviewTour()
 
    const reviewId = review.id
    const currentUserId = useCurrentUserId()
@@ -189,6 +192,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             <SearchTracks />
          </div>
          <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-y-0 md:space-x-1'>
+            <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
+               <QuestionMarkCircleIcon className='h-6 w-6' />
+            </button>
             {isReviewOwner ? (
                <>
                   <EditReviewButton

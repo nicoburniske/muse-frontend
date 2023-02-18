@@ -12,6 +12,7 @@ export type NavItem = {
    href: string
    icon: Icon
    action: () => () => void
+   className?: string
 }
 
 export type Icon = (props: React.ComponentProps<'svg'> & { title?: string; titleId?: string }) => JSX.Element
@@ -35,5 +36,11 @@ export const NAVIGATION: NavItem[] = [
    },
    { name: 'Playlists', href: '/app/playlists', icon: MusicalNoteIcon, action: () => useNavAction('/app/playlists') },
    { name: 'Search', href: '/app/search', icon: MagnifyingGlassIcon, action: () => useNavAction('/app/search') },
-   { name: 'Settings', href: '/app/settings', icon: CogIcon, action: () => useOpenPreferences() },
+   {
+      name: 'Settings',
+      href: '/app/settings',
+      icon: CogIcon,
+      action: () => useOpenPreferences(),
+      className: 'muse-preferences',
+   },
 ]
