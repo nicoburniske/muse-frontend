@@ -6,7 +6,7 @@ const needToGiveTourAtom = atomWithStorage('MuseNeedToGiveDetailedReviewTour', t
 
 export const useOpenReviewTourFirstTime = () =>
    useOnFirstMountAtom(needToGiveTourAtom, needToGiveTourAtom, useOpenReviewTour())
-export const useOpenReviewTour = () => useOpenTour(detailedReviewSteps)
+export const useOpenReviewTour = () => useOpenTour(detailedReviewSteps, 0)
 
 const detailedReviewSteps = [
    {
