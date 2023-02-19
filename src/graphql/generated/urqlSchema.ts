@@ -89,25 +89,28 @@ export type AudioFeatures = {
 
 export type AudioSection = {
    __typename?: 'AudioSection'
-   confidence: Confidence
+   confidence: Scalars['Float']
    duration: Scalars['Float']
    key: Scalars['Float']
-   keyConfidence: Confidence
+   keyConfidence: Scalars['Float']
    loudness: Scalars['Float']
    mode: Modality
-   modeConfidence: Confidence
+   modeConfidence: Scalars['Float']
    start: Scalars['Float']
    tempo: Scalars['Int']
-   tempoConfidence: Confidence
+   tempoConfidence: Scalars['Float']
    timeSignature: Scalars['Float']
-   timeSignatureConfidence: Confidence
+   timeSignatureConfidence: Scalars['Float']
 }
 
 export type AudioSegment = {
    __typename?: 'AudioSegment'
-   confidence: Confidence
+   confidence: Scalars['Float']
    duration: Scalars['Float']
-   loudness: Loudness
+   loudnessEnd?: Maybe<Scalars['Float']>
+   loudnessMax: Scalars['Float']
+   loudnessMaxTime: Scalars['Float']
+   loudnessStart: Scalars['Float']
    pitches: Array<Scalars['Float']>
    start: Scalars['Float']
    timbre: Array<Scalars['Float']>
@@ -133,11 +136,6 @@ export type Comment = {
    parentCommentId?: Maybe<Scalars['Long']>
    reviewId: Scalars['ID']
    updatedAt: Scalars['Instant']
-}
-
-export type Confidence = {
-   __typename?: 'Confidence'
-   value: Scalars['Float']
 }
 
 export type Copyright = {
@@ -217,14 +215,6 @@ export type LinkReviewsInput = {
    childReviewId: Scalars['ID']
    linkIndex?: InputMaybe<Scalars['Int']>
    parentReviewId: Scalars['ID']
-}
-
-export type Loudness = {
-   __typename?: 'Loudness'
-   end?: Maybe<Scalars['Float']>
-   max: Scalars['Float']
-   maxTime: Scalars['Float']
-   start: Scalars['Float']
 }
 
 export type Modality = 'Major' | 'Minor' | 'NoResult'
@@ -404,6 +394,7 @@ export type Queries = {
    review?: Maybe<Review>
    reviews?: Maybe<Array<Review>>
    search?: Maybe<SearchResult>
+   searchUser?: Maybe<Array<User>>
    user: User
    userMaybe?: Maybe<User>
 }
@@ -432,6 +423,10 @@ export type QueriesSearchArgs = {
    pagination?: InputMaybe<PaginationInput>
    query: Scalars['String']
    types: Array<EntityType>
+}
+
+export type QueriesSearchUserArgs = {
+   displayName: Scalars['String']
 }
 
 export type QueriesUserArgs = {
@@ -524,7 +519,7 @@ export type SubscriptionsReviewUpdatesArgs = {
 
 export type TimeInterval = {
    __typename?: 'TimeInterval'
-   confidence: Confidence
+   confidence: Scalars['Float']
    duration: Scalars['Float']
    start: Scalars['Float']
 }

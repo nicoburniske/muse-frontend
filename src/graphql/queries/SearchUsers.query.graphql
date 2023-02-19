@@ -1,0 +1,8 @@
+query SearchUsers($search: String!) {
+   searchUser(displayName: $search) {
+      spotifyProfile {
+         id
+         displayName
+      }
+   }
+}
