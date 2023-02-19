@@ -10,6 +10,6 @@ export default function useSyncAtoms<Value>(atomToSet: PrimitiveAtom<Value>, ato
          store.set(atomToSet, newValue)
       }
       sync()
-      store.sub(atomToGet, sync)
+      return store.sub(atomToGet, sync)
    }, [store, atomToSet, atomToGet])
 }

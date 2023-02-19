@@ -4,16 +4,20 @@ import { useEffect } from 'react'
 // TODO: Implement with store subscribe.
 export const useOnFirstMountAtom = (
    needToExecuteAtom: Atom<boolean>,
-   updateExecutedAtom: WritableAtom<boolean, boolean[], void>,
+   updateNeedToExecute: WritableAtom<boolean, boolean[], void>,
    execute: () => void
 ) => {
    const needToExecute = useAtomValue(needToExecuteAtom)
-   const setExecuted = useSetAtom(updateExecutedAtom)
+   const setNeedToExecute = useSetAtom(updateNeedToExecute)
 
    useEffect(() => {
-      if (needToExecute) {
-         execute()
-         setExecuted(false)
-      }
-   }, [needToExecute, setExecuted, execute])
+      const timeout = setTimeout(() => {
+         if (needToExecute) {
+            execute()
+            setNeedToExecute(false)
+         }
+         // Wait for atoms to load from local storage.
+      }, 2000)
+      return () => clearTimeout(timeout)
+   }, [needToExecute, setNeedToExecute, execute])
 }
