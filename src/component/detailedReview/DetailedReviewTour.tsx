@@ -1,12 +1,20 @@
-import { atomWithStorage } from 'jotai/utils'
-import { useOnFirstMountAtom } from 'platform/hook/useOnFirstMount'
 import { useOpenTour } from 'platform/hook/useOpenTour'
+import { useEffect } from 'react'
 
-const needToGiveTourAtom = atomWithStorage('MuseNeedToGiveDetailedReviewTour', true)
-
-export const useOpenReviewTourFirstTime = () =>
-   useOnFirstMountAtom(needToGiveTourAtom, needToGiveTourAtom, useOpenReviewTour())
 export const useOpenReviewTour = () => useOpenTour(detailedReviewSteps, 0)
+
+const localStorageKey = 'MuseNeedToGiveDetailedReviewTour'
+export const useOpenReviewTourFirstTime = () => {
+   const openTour = useOpenReviewTour()
+   useEffect(() => {
+      if (localStorage.getItem(localStorageKey) === null) {
+         setTimeout(() => {
+            openTour()
+            localStorage.setItem(localStorageKey, '')
+         }, 500)
+      }
+   }, [])
+}
 
 const detailedReviewSteps = [
    {
