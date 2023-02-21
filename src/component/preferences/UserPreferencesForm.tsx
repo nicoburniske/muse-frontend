@@ -32,11 +32,12 @@ export const UserPreferencesButton = () => {
 }
 
 export const UserPreferencesModal = () => {
+   const { closePreferencesModal } = usePreferencesModal()
    const isModalOpen = useAtomValue(modalOpenAtom)
 
    return (
       <Portal>
-         <ThemeModal open={isModalOpen} className='max-w-xl text-base-content'>
+         <ThemeModal open={isModalOpen} className='max-w-xl text-base-content' onClose={closePreferencesModal}>
             <UserPreferencesForm />
          </ThemeModal>
       </Portal>

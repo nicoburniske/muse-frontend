@@ -56,7 +56,7 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
    return (
       <>
          <Portal>
-            <ThemeModal open={isModalOpen} className='min-h-96 h-fit w-96 '>
+            <ThemeModal open={isModalOpen} className='min-h-96 h-fit w-96 ' onClose={onCancel}>
                <div className='relative flex flex-col items-center justify-between space-y-2 p-3'>
                   <Dialog.Title className='text-lg font-bold'>Share Review</Dialog.Title>
 
