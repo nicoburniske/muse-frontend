@@ -70,7 +70,7 @@ export default function TrackOptions({ trackId, playlistId }: TrackOptionsProps)
                   ref={refs.setReference}
                   className={cn(
                      'btn btn-ghost btn-square btn-sm place-items-center',
-                     open ? 'opacity-100' : 'opacity-100 hover:opacity-100 group-hover:opacity-100 sm:opacity-0'
+                     open ? 'opacity-100' : 'opacity-100 group-hover:opacity-100 hover:opacity-100 sm:opacity-0'
                   )}
                >
                   <EllipsisHorizontalIcon className='h-5 w-5' aria-hidden='true' />

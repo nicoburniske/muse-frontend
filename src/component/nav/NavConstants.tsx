@@ -37,7 +37,7 @@ export const NAVIGATION: NavItem[] = [
    { name: 'Playlists', href: '/app/playlists', icon: MusicalNoteIcon, action: () => useNavAction('/app/playlists') },
    { name: 'Search', href: '/app/search', icon: MagnifyingGlassIcon, action: () => useNavAction('/app/search') },
    {
-      name: 'Settings',
+      name: 'Preferences',
       href: '/app/settings',
       icon: CogIcon,
       action: () => useOpenPreferences(),
