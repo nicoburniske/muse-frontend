@@ -6,15 +6,12 @@ import {
    useGetAlbumQuery,
    DetailedPlaylistFragment,
    DetailedAlbumFragment,
-   useProfileAndReviewsQuery,
-   ProfileAndReviewsQuery,
-   DetailedReviewQuery,
    GetAlbumQuery,
    GetPlaylistQuery,
 } from 'graphql/generated/schema'
 import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
-import { ShareReview } from './ShareReview'
+import { ShareReview } from '../shareReview/ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
 import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
@@ -37,6 +34,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platfo
 import { Icon } from 'component/nav/NavConstants'
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 import ReviewCommentSection from './comment/CommentSection'
+import { useDetailedReviewCacheQuery } from 'component/useDetailedReviewCacheQuery'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -48,22 +46,10 @@ const renderOptionAtom = atom<RenderOption>('both')
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
    useOpenReviewTourFirstTime()
-   const queryClient = useQueryClient()
-   const { data, isLoading } = useDetailedReviewQuery(
-      { reviewId },
-      {
-         suspense: true,
-         staleTime: 5 * 60 * 1000,
-         // For user owned reviews, we can use the data from the profile query.
-         initialData: () => {
-            const data = queryClient
-               .getQueryData<ProfileAndReviewsQuery>(useProfileAndReviewsQuery.getKey({}))
-               ?.user?.reviews?.find(r => r.id === reviewId)
-            return data ? ({ review: data } as DetailedReviewQuery) : undefined
-         },
-         initialDataUpdatedAt: () => queryClient.getQueryState(useProfileAndReviewsQuery.getKey({}))?.dataUpdatedAt,
-      }
-   )
+   const { data, isLoading } = useDetailedReviewCacheQuery(reviewId, t => t, {
+      suspense: true,
+      staleTime: 5 * 60 * 1000,
+   })
 
    if (data?.review) {
       return <DetailedReviewContent reviewId={reviewId} review={data.review} />

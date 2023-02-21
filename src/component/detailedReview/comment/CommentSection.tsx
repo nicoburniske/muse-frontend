@@ -155,7 +155,7 @@ const useSubscribeToReviews = (reviewIds: string[]) => {
    )
    useEffect(() => {
       if (error) {
-         toast.error('Error subscribing to review updates', { duration: 2000 })
+         toast.error('Error subscribing to review updates', { duration: 2000, id: 'review-updates-error' })
       }
    }, [error])
 }

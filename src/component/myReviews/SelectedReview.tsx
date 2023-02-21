@@ -1,19 +1,15 @@
-import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon } from '@heroicons/react/20/solid'
 import { useQueryClient } from '@tanstack/react-query'
 import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
-import { ShareReview } from 'component/detailedReview/ShareReview'
-import {
-   ProfileAndReviewsQuery,
-   ReviewDetailsFragment,
-   useDeleteReviewMutation,
-   useProfileAndReviewsQuery,
-   useShareReviewMutation,
-} from 'graphql/generated/schema'
+import { ShareReview } from 'component/shareReview/ShareReview'
+import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
+import { useCollaboratorsQuery, useDetailedReviewCacheQuery } from 'component/useDetailedReviewCacheQuery'
+import { ReviewDetailsFragment, useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Portal from 'platform/component/Portal'
 import RightSidePane from 'platform/component/RightSidePane'
 import { ThemeModal } from 'platform/component/ThemeModal'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
@@ -40,16 +36,7 @@ export const useSelectReview = () => {
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = () => {
    const reviewId = useAtomValue(selectedReviewIdAtom)
-   const { data } = useProfileAndReviewsQuery(
-      {},
-      {
-         select: useCallback(
-            (data: ProfileAndReviewsQuery) => data?.user?.reviews?.find(r => r.id === reviewId),
-            [reviewId]
-         ),
-         staleTime: Infinity,
-      }
-   )
+   const { data } = useDetailedReviewCacheQuery(reviewId!, d => d.review, { enabled: !!reviewId, staleTime: Infinity })
    return data
 }
 
@@ -70,17 +57,6 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const nav = useNavigate()
    const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
 
-   const queryClient = useQueryClient()
-   const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
-   const { mutate: shareReview } = useShareReviewMutation({
-      onError: () => toast.error('Failed to update review sharing.'),
-      onSuccess: () => {
-         toast.success('Updated review sharing.')
-         resetReviewOverviews()
-      },
-   })
-   const unShareReview = (reviewId: string, userId: string) => shareReview({ input: { reviewId, userId } })
-
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    const image = findFirstImage(allEntities)
@@ -97,14 +73,8 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
       [`${entityType} Name`]: review?.entity?.name,
    }))()
 
-   const collaborators =
-      review?.collaborators
-         ?.map(collaborator => ({
-            userId: collaborator?.user?.id,
-            accessLevel: collaborator?.accessLevel,
-            image: collaborator?.user?.spotifyProfile?.images?.at(-1),
-         }))
-         .filter(nonNullable) ?? []
+   const { data: collabData } = useCollaboratorsQuery(review.id)
+   const collaborators = collabData ?? []
 
    return (
       <div className='space-y-2'>
@@ -147,35 +117,10 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   role='list'
                   className='mt-2 divide-y divide-secondary-content/50 border-t border-b border-secondary-content/50'
                >
-                  {collaborators.map(({ userId, accessLevel, image }) => (
-                     <li
-                        key={userId}
-                        className='grid h-full w-full grid-cols-3 place-content-between place-items-center py-3 md:grid-cols-5'
-                     >
-                        <div className='col-span-2 flex items-center place-self-start'>
-                           {image ? (
-                              <img src={image} alt='' className='hidden h-8 w-8 rounded-lg md:block' />
-                           ) : (
-                              <div className='avatar placeholder'>
-                                 <div className='w-8 rounded-lg bg-neutral-focus text-neutral-content'>
-                                    <span className='text-xl'>{userId.charAt(0) ?? '?'}</span>
-                                 </div>
-                              </div>
-                           )}
-                           <p className='ml-2 truncate text-sm font-medium'>{userId}</p>
-                        </div>
-                        <div className='badge badge-primary col-span-2 hidden md:flex'>{accessLevel}</div>
-                        <div className='col-span-1 place-self-end'>
-                           <button
-                              type='button'
-                              className='btn btn-error btn-square btn-xs'
-                              onClick={() => unShareReview(review.id, userId)}
-                           >
-                              <XMarkIcon className='h-4 w-4' />
-                              <span className='sr-only'> {userId}</span>
-                           </button>
-                        </div>
-                     </li>
+                  {collaborators.map(user => (
+                     <div className='p-2' key={user.user.id}>
+                        <UserWithAccessLevel reviewId={review.id} user={user} />
+                     </div>
                   ))}
                   <li className='m-auto flex items-center justify-center py-2'>
                      <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
