@@ -1,5 +1,5 @@
-query ProfileAndReviews {
-   user {
+query ProfileAndReviews($userId: String) {
+   user(id: $userId) {
       id
       spotifyProfile {
          id

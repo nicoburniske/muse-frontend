@@ -3,7 +3,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
-import { useCollaboratorsQuery, useDetailedReviewCacheQuery } from 'component/useDetailedReviewCacheQuery'
+import {
+   useCollaboratorsQuery,
+   useDetailedReviewCacheQuery,
+   useIsReviewEditableQuery,
+} from 'component/useDetailedReviewCacheQuery'
 import { ReviewDetailsFragment, useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Portal from 'platform/component/Portal'
@@ -12,6 +16,7 @@ import { ThemeModal } from 'platform/component/ThemeModal'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { useCurrentUserId } from 'state/CurrentUser'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
 
 const selectedReviewOpenAtom = atom(false)
@@ -76,6 +81,9 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const { data: collabData } = useCollaboratorsQuery(review.id)
    const collaborators = collabData ?? []
 
+   const currentUserId = useCurrentUserId()
+   const isEditable = useIsReviewEditableQuery(review.id, currentUserId)
+
    return (
       <div className='space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
@@ -122,14 +130,16 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                         <UserWithAccessLevel reviewId={review.id} user={user} />
                      </div>
                   ))}
-                  <li className='m-auto flex items-center justify-center py-2'>
-                     <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
-                        <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
-                           <PlusIconMini className='h-5 w-5' aria-hidden='true' />
-                        </span>
-                        <span className='ml-4'>Share</span>
-                     </ShareReview>
-                  </li>
+                  {isEditable && (
+                     <li className='m-auto flex items-center justify-center py-2'>
+                        <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
+                           <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
+                              <PlusIconMini className='h-5 w-5' aria-hidden='true' />
+                           </span>
+                           <span className='ml-4'>Share</span>
+                        </ShareReview>
+                     </li>
+                  )}
                </ul>
             </div>
             <div className='flex justify-center'>

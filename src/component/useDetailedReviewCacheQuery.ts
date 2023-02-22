@@ -12,7 +12,8 @@ import { userDisplayNameOrId } from 'util/Utils'
 export const useDetailedReviewCacheQuery = <T>(
    reviewId: string,
    select: (data: DetailedReviewQuery) => T,
-   options?: Omit<UseQueryOptions<DetailedReviewQuery, unknown, DetailedReviewQuery>, 'select'>
+   options?: Omit<UseQueryOptions<DetailedReviewQuery, unknown, DetailedReviewQuery>, 'select'>,
+   userId?: string
 ): UseQueryResult<T, unknown> => {
    const queryClient = useQueryClient()
    const result = useDetailedReviewQuery(
@@ -21,7 +22,7 @@ export const useDetailedReviewCacheQuery = <T>(
          // For user owned reviews, we can use the data from the profile query.
          initialData: () => {
             const data = queryClient
-               .getQueryData<ProfileAndReviewsQuery>(useProfileAndReviewsQuery.getKey({}))
+               .getQueryData<ProfileAndReviewsQuery>(useProfileAndReviewsQuery.getKey({ userId }))
                ?.user?.reviews?.find(r => r.id === reviewId)
             return data ? ({ review: data } as DetailedReviewQuery) : undefined
          },
@@ -53,6 +54,23 @@ export const useCollaboratorsQuery = (
 const selectCollaborators = (data: DetailedReviewQuery) =>
    [...(data?.review?.collaborators ?? [])].sort((a, b) =>
       userDisplayNameOrId(a.user).localeCompare(userDisplayNameOrId(b.user))
+   )
+
+// TODO: Should collaborators be able to edit?
+export const useIsReviewEditableQuery = (reviewId: string, userId: string) =>
+   useDetailedReviewCacheQuery(
+      reviewId,
+      useCallback(
+         data => data?.review?.creator?.id === userId,
+         // ||
+         //    data?.review?.collaborators
+         //       ?.filter(c => c.accessLevel === 'Collaborator')
+         //       .some(c => c.user.id === userId)
+         [userId]
+      ),
+      {
+         staleTime: Infinity,
+      }
    )
 
 export const useInvalidateDetailedReviewCache = (reviewId: string) => {

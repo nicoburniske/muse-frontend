@@ -1,10 +1,11 @@
 import { flip, useFloating } from '@floating-ui/react'
 import { Listbox, Portal, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
-import { useInvalidateDetailedReviewCache } from 'component/useDetailedReviewCacheQuery'
+import { useInvalidateDetailedReviewCache, useIsReviewEditableQuery } from 'component/useDetailedReviewCacheQuery'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import { Fragment } from 'react'
 import toast from 'react-hot-toast'
+import { useCurrentUserId } from 'state/CurrentUser'
 import { useThemeValue } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
 
@@ -48,6 +49,9 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
       middleware: [flip()],
    })
 
+   const currentUserId = useCurrentUserId()
+   const isEditable = useIsReviewEditableQuery(reviewId, currentUserId)
+
    return (
       <Listbox value={accessLevel} onChange={setAccessLevel}>
          {({ open }) => (
@@ -59,7 +63,10 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                         <p className='ml-1 text-sm font-medium'>{displayName} </p>
                         <span className='badge badge-secondary'>{accessLevel}</span>
                      </div>
-                     <Listbox.Button className='inline-flex flex-none items-center rounded-l-none rounded-r-md p-2 text-sm font-medium text-primary-content focus:outline-none hover:bg-primary-focus'>
+                     <Listbox.Button
+                        disabled={!isEditable}
+                        className='inline-flex flex-none items-center rounded-l-none rounded-r-md p-2 text-sm font-medium text-primary-content focus:outline-none hover:bg-primary-focus'
+                     >
                         <span className='sr-only'>Change shared status</span>
                         <ChevronDownIcon
                            className='h-5 w-5 text-primary-content'
