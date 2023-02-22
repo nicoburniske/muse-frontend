@@ -34,7 +34,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platfo
 import { Icon } from 'component/nav/NavConstants'
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 import ReviewCommentSection from './comment/CommentSection'
-import { useDetailedReviewCacheQuery } from 'component/useDetailedReviewCacheQuery'
+import { useDetailedReviewCacheQuery } from 'state/useDetailedReviewCacheQuery'
 import { Link } from 'react-router-dom'
 
 export interface DetailedReviewProps {

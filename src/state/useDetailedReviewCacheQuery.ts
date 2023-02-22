@@ -6,6 +6,7 @@ import {
    useProfileAndReviewsQuery,
 } from 'graphql/generated/schema'
 import { useCallback } from 'react'
+import { useCurrentUserId } from 'state/CurrentUser'
 import { userDisplayNameOrId } from 'util/Utils'
 
 // We need to seperate select so that can update cache after a response comes through.
@@ -57,21 +58,33 @@ const selectCollaborators = (data: DetailedReviewQuery) =>
    )
 
 // TODO: Should collaborators be able to edit?
-export const useIsReviewEditableQuery = (reviewId: string, userId: string) =>
+export const useIsReviewOwner = (reviewId: string, userId: string) =>
+   useDetailedReviewCacheQuery(
+      reviewId,
+      useCallback(data => data?.review?.creator?.id === userId, [userId]),
+      {
+         staleTime: Infinity,
+      }
+   ).data ?? false
+
+export const useIsUserCollaborator = (reviewId: string, userId: string) =>
    useDetailedReviewCacheQuery(
       reviewId,
       useCallback(
-         data => data?.review?.creator?.id === userId,
-         // ||
-         //    data?.review?.collaborators
-         //       ?.filter(c => c.accessLevel === 'Collaborator')
-         //       .some(c => c.user.id === userId)
-         [userId]
+         data =>
+            data?.review?.creator?.id === userId ||
+            data?.review?.collaborators?.filter(c => c.accessLevel === 'Collaborator').some(c => c.user.id === userId),
+         []
       ),
       {
          staleTime: Infinity,
       }
-   )
+   ).data ?? false
+
+export const useIsCurrentUserCollaborator = (reviewId: string) => {
+   const userId = useCurrentUserId()
+   return useIsUserCollaborator(reviewId, userId)
+}
 
 export const useInvalidateDetailedReviewCache = (reviewId: string) => {
    const queryClient = useQueryClient()

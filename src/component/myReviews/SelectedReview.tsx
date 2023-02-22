@@ -3,11 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
-import {
-   useCollaboratorsQuery,
-   useDetailedReviewCacheQuery,
-   useIsReviewEditableQuery,
-} from 'component/useDetailedReviewCacheQuery'
+import { useCollaboratorsQuery, useDetailedReviewCacheQuery, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
 import { ReviewDetailsFragment, useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import Portal from 'platform/component/Portal'
@@ -87,7 +83,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const collaborators = collabData ?? []
 
    const currentUserId = useCurrentUserId()
-   const isEditable = useIsReviewEditableQuery(review.id, currentUserId)
+   const isEditable = useIsReviewOwner(review.id, currentUserId)
 
    return (
       <div className='space-y-2'>

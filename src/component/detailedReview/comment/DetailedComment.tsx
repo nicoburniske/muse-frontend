@@ -27,6 +27,7 @@ import { toast } from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserAvatar } from 'component/UserAvatar'
 import { Link } from 'react-router-dom'
+import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
@@ -46,7 +47,6 @@ export default function DetailedComment({ review, comment: detailedComment }: De
    })()
 
    const image = findFirstImage(detailedComment.entities ?? [])
-   // We only need to accomodate first 23 characters of name.
    const name = detailedComment.entities?.at(0)?.name ?? 'Failed to retrieve name'
 
    // We want to find the track that the comment is applied to and scroll to it.
@@ -113,6 +113,8 @@ export default function DetailedComment({ review, comment: detailedComment }: De
    )
 
    const childComments = useChildCommentsQuery(reviewId, detailedComment.id)
+
+   const isCollaborator = useIsCurrentUserCollaborator(reviewId)
 
    return (
       <>
@@ -197,18 +199,20 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                      </button>
                   </span>
                </div>
-               <div className='flex text-sm'>
-                  <span className='inline-flex items-center text-sm'>
-                     <button
-                        type='button'
-                        className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
-                        onClick={replyComment}
-                     >
-                        <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='hidden font-medium text-base-content/50 md:inline'>Reply</span>
-                     </button>
-                  </span>
-               </div>
+               {isCollaborator && (
+                  <div className='flex text-sm'>
+                     <span className='inline-flex items-center text-sm'>
+                        <button
+                           type='button'
+                           className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
+                           onClick={replyComment}
+                        >
+                           <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                           <span className='hidden font-medium text-base-content/50 md:inline'>Reply</span>
+                        </button>
+                     </span>
+                  </div>
+               )}
             </div>
          </div>
 

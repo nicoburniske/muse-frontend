@@ -1,7 +1,7 @@
 import { flip, useFloating } from '@floating-ui/react'
 import { Listbox, Portal, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
-import { useInvalidateDetailedReviewCache, useIsReviewEditableQuery } from 'component/useDetailedReviewCacheQuery'
+import { useInvalidateDetailedReviewCache, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import { Fragment } from 'react'
 import toast from 'react-hot-toast'
@@ -51,7 +51,7 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
    })
 
    const currentUserId = useCurrentUserId()
-   const isEditable = useIsReviewEditableQuery(reviewId, currentUserId)
+   const isEditable = useIsReviewOwner(reviewId, currentUserId)
 
    return (
       <Listbox value={accessLevel} onChange={setAccessLevel}>

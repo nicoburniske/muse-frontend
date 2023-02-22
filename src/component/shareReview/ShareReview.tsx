@@ -8,7 +8,7 @@ import Portal from 'platform/component/Portal'
 import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { SearchUsersComboBox } from 'component/shareReview/SearchUsersCombobox'
-import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from 'component/useDetailedReviewCacheQuery'
+import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
 
 export interface ShareReviewProps {
    reviewId: string

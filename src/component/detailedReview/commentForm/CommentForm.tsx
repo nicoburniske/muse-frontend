@@ -21,8 +21,13 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
    const submitAndReset = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       event.preventDefault()
       setIsSubmitting(true)
-      await onSubmit(comment)
-      setIsSubmitting(false)
+      try {
+         await onSubmit(comment)
+      } catch (e) {
+         /* empty */
+      } finally {
+         setIsSubmitting(false)
+      }
    }
 
    const cancel = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
