@@ -15,7 +15,7 @@ import RightSidePane from 'platform/component/RightSidePane'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
 
@@ -39,28 +39,31 @@ export const useSelectReview = () => {
 }
 
 // We need to subscribe to the review overview in react query cache.
-const useSelectedReview = () => {
+const useSelectedReview = (userId?: string) => {
    const reviewId = useAtomValue(selectedReviewIdAtom)
-   const { data } = useDetailedReviewCacheQuery(reviewId!, d => d.review, { enabled: !!reviewId, staleTime: Infinity })
+   const { data } = useDetailedReviewCacheQuery(
+      reviewId!,
+      d => d.review,
+      { enabled: !!reviewId, staleTime: Infinity },
+      userId
+   )
    return data
 }
 
 const textColorSecondary = 'text-secondary-content/50'
 
-export const SelectedReview = () => {
+export const SelectedReview = ({ userId }: { userId?: string }) => {
    const { closeSelectedReview } = useSelectReview()
    // Close review details after going to new page.
    useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
    const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
-   const review = useSelectedReview()
+   const review = useSelectedReview(userId)
 
    return <RightSidePane isOpen={selectedReviewOpen}>{review && <SidebarContent review={review} />}</RightSidePane>
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const { closeSelectedReview } = useSelectReview()
-   const nav = useNavigate()
-   const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
 
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
@@ -68,9 +71,11 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const entityType = review?.entity?.__typename
    const entityId = review?.entity?.id
 
+   const nameToShow = review.creator.spotifyProfile?.displayName ?? review.creator.id
+
    const info = (() => ({
-      'Review Owner': review?.creator?.id,
-      Created: new Date(review?.createdAt).toLocaleDateString(),
+      'Review Owner': <Link to={`/app/user/${review.creator.id}`}>{nameToShow}</Link>,
+      Created: new Date(review.createdAt).toLocaleDateString(),
       Public: review?.isPublic ? 'True' : 'False',
       Links: childEntities?.length ?? 0,
 
@@ -100,9 +105,9 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                <p className={cn('text-sm font-medium', textColorSecondary)}>{entityType}</p>
             </div>
          </div>
-         <div className='relative cursor-pointer' onClick={linkToReviewPage}>
+         <Link to={`/app/reviews/${review.id}`}>
             <img src={image} alt='' className='h-full w-full object-cover' />
-         </div>
+         </Link>
          <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
                <h3 className='font-medium'>Information</h3>

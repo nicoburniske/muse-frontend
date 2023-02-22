@@ -1439,7 +1439,9 @@ export type MyPlaylistsQuery = {
    }
 }
 
-export type ProfileAndReviewsQueryVariables = Exact<{ [key: string]: never }>
+export type ProfileAndReviewsQueryVariables = Exact<{
+   userId?: InputMaybe<Scalars['String']>
+}>
 
 export type ProfileAndReviewsQuery = {
    __typename?: 'Queries'
@@ -2418,8 +2420,8 @@ useMyPlaylistsQuery.getKey = (variables?: MyPlaylistsQueryVariables) =>
 useMyPlaylistsQuery.fetcher = (variables?: MyPlaylistsQueryVariables, options?: RequestInit['headers']) =>
    fetcher<MyPlaylistsQuery, MyPlaylistsQueryVariables>(MyPlaylistsDocument, variables, options)
 export const ProfileAndReviewsDocument = `
-    query ProfileAndReviews {
-  user {
+    query ProfileAndReviews($userId: String) {
+  user(id: $userId) {
     id
     spotifyProfile {
       id

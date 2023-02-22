@@ -26,6 +26,7 @@ import { useDrag, useDrop } from 'react-dnd'
 import { toast } from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
 import { UserAvatar } from 'component/UserAvatar'
+import { Link } from 'react-router-dom'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
@@ -140,7 +141,12 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                            </a>
                         </p>
                         <p className='text-sm text-base-content/50'>
-                           <a className='text-xs text-base-content/50 hover:underline'>@{commenterId}</a>
+                           <Link
+                              to={`/app/user/${commenterId}`}
+                              className='text-xs text-base-content/50 hover:underline'
+                           >
+                              @{commenterId}
+                           </Link>
                         </p>
                      </div>
                   </div>

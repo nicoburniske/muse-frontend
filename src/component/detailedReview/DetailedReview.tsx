@@ -35,6 +35,7 @@ import { Icon } from 'component/nav/NavConstants'
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 import ReviewCommentSection from './comment/CommentSection'
 import { useDetailedReviewCacheQuery } from 'component/useDetailedReviewCacheQuery'
+import { Link } from 'react-router-dom'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -160,17 +161,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                </dd>
                <dt className='sr-only'>Creator name</dt>
                <div className='flex flex-1 space-x-1'>
-                  <p className=' text-sm font-medium text-base-content'>
-                     <a className=''>{creatorDisplayName}</a>
-                  </p>
-                  {
-                     // Only show @ if it's not the same as the display name.
-                     creatorId && (
-                        <p className='text-sm text-base-content/50'>
-                           <a className='text-xs text-base-content/50 hover:underline'>@{creatorId}</a>
-                        </p>
-                     )
-                  }
+                  <Link to={`/app/user/${creatorId}`} className='text-sm font-medium text-base-content'>
+                     {creatorDisplayName ?? creatorId}
+                  </Link>
                </div>
             </dl>
          </div>

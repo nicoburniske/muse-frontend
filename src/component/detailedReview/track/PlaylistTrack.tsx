@@ -1,6 +1,5 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { RefObject, useCallback, useEffect, useRef } from 'react'
-import UserAvatarTooltip from 'component/UserAvatar'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -16,6 +15,7 @@ import toast from 'react-hot-toast'
 
 import { useCurrentUserId } from 'state/CurrentUser'
 import { CommentAndOptions } from './CommentAndOptions'
+import { UserAvatarTooltip } from 'component/UserAvatar'
 
 export interface PlaylistTrackProps {
    index: number

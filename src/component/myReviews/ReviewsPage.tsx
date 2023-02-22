@@ -120,10 +120,7 @@ export default function ReviewsPage() {
                      </div>
 
                      {/* Gallery */}
-                     <section className='mt-8 pb-16' aria-labelledby='gallery-heading'>
-                        <h2 id='gallery-heading' className='sr-only'>
-                           Recently viewed
-                        </h2>
+                     <section className='mt-8 pb-16' aria-labelledby='review-gallery'>
                         <MuseTransition option={'Simple'} duration='duration-300'>
                            <ul
                               role='list'

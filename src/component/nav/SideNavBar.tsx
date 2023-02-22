@@ -45,7 +45,7 @@ const NavBarLink = ({ item }: { item: NavItem }) => {
    const path = location.pathname
    const action = item.action()
    return (
-      <TooltipProvider delayDuration={500}>
+      <TooltipProvider delayDuration={300}>
          <Tooltip>
             <TooltipTrigger asChild>
                <a

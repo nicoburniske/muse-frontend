@@ -9,7 +9,7 @@ type UserAvatarTooltipProps = {
    user: UserWithSpotifyOverviewFragment
 }
 
-export default function UserAvatarTooltip({ dateAdded, user }: UserAvatarTooltipProps) {
+export function UserAvatarTooltip({ dateAdded, user }: UserAvatarTooltipProps) {
    const images = user?.spotifyProfile?.images
    const image = images?.at(1) ?? images?.at(0)
 

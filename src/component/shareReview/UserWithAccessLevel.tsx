@@ -5,6 +5,7 @@ import { useInvalidateDetailedReviewCache, useIsReviewEditableQuery } from 'comp
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import { Fragment } from 'react'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { useThemeValue } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
@@ -60,7 +61,9 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                <div className='relative'>
                   <div className='inline-flex w-full justify-between divide-x divide-primary-content/50 rounded-md bg-primary shadow-sm '>
                      <div className='inline-flex flex-1 items-center justify-between rounded-l-md border border-transparent py-2 pl-3 pr-4 text-primary-content shadow-sm'>
-                        <p className='ml-1 text-sm font-medium'>{displayName} </p>
+                        <Link to={`/app/user/${user.user.id}`}>
+                           <p className='ml-1 text-sm font-medium'>{displayName} </p>
+                        </Link>
                         <span className='badge badge-secondary'>{accessLevel}</span>
                      </div>
                      <Listbox.Button

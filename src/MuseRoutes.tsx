@@ -7,6 +7,7 @@ import ReviewsPage from 'component/myReviews/ReviewsPage'
 import AboutPage from 'pages/AboutPage'
 import SearchPage from 'component/searchSpotify/SearchPage'
 import { MyPlaylistsPage } from 'component/MyPlaylists'
+import { ProfilePage } from 'component/profile/ProfilePage'
 
 export default function MuseRoutes() {
    return (
@@ -17,6 +18,7 @@ export default function MuseRoutes() {
             <Route path='reviews' element={<ReviewsPage />} />
             <Route path='playlists' element={<MyPlaylistsPage />} />
             <Route path='reviews/:reviewId' element={<DetailedReviewPage />} />
+            <Route path='user/:userId' element={<ProfilePage />} />
             <Route path='*' element={<NotFound label='Back' redirect='/app' />} />
          </Route>
          <Route path='/' element={<AboutPage />} />
