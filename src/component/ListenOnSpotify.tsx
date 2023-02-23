@@ -65,7 +65,7 @@ const ListenOnSpotifyTooltip = ({ children }: { children: React.ReactNode }) => 
    </TooltipProvider>
 )
 
-const getLink = (entityId?: string, entityType?: EntityType) => {
+export const getLink = (entityId?: string, entityType?: EntityType) => {
    switch (entityType) {
       case 'Track':
          return `https://open.spotify.com/track/${entityId}`

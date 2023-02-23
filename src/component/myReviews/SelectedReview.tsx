@@ -87,7 +87,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
    return (
       <div className='space-y-2'>
-         <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
+         <div className='flex w-full items-center justify-start space-x-5 p-2 pl-1'>
             <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />

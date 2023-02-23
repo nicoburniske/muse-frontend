@@ -396,7 +396,7 @@ const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
    const { isLoading, playAlbumIndexOffset, playTrackOffset, playArtist, playPlaylistIndexOffset } = usePlayMutation({
       onSuccess: () => setIsPlaying(searchRow.id),
       onError: () => {
-         toast.error('Error playing track.', { id: 'play-error', duration: 2000 })
+         toast.error(`Error playing ${type}.`, { id: 'play-error', duration: 2000 })
       },
       retry: 2,
    })

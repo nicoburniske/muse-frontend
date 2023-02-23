@@ -1,9 +1,10 @@
 import {
    DetailedCommentFragment,
+   EntityType,
    useDetailedReviewCommentsQuery,
    useUpdateCommentIndexMutation,
 } from 'graphql/generated/schema'
-import { Fragment, useCallback, useState } from 'react'
+import { Fragment, RefObject, useCallback, useRef, useState } from 'react'
 import CommentMarkdown from './CommentMarkdown'
 import { findFirstImage, cn } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
@@ -28,6 +29,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { UserAvatar } from 'component/UserAvatar'
 import { Link } from 'react-router-dom'
 import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
+import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
+import { usePlayMutation } from 'component/sdk/ClientHooks'
+import useDoubleClick from 'platform/hook/useDoubleClick'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
@@ -51,11 +55,12 @@ export default function DetailedComment({ review, comment: detailedComment }: De
 
    // We want to find the track that the comment is applied to and scroll to it.
    const setSelectedTrack = useSetAtom(selectedTrackAtom)
+   const entityId = detailedComment?.entities?.at(0)?.id
+   const entityType = detailedComment.entities?.at(0)?.__typename as EntityType | undefined
    const selectTrack = () => {
-      const trackId = detailedComment.entities?.at(0)?.id
-      if (trackId) {
+      if (entityId && entityType === 'Track') {
          setSelectedTrack(undefined)
-         setTimeout(() => setSelectedTrack({ trackId, reviewId }), 1)
+         setTimeout(() => setSelectedTrack({ trackId: entityId!, reviewId }), 1)
       }
    }
    const replyComment = useOpenNewComment({
@@ -116,6 +121,26 @@ export default function DetailedComment({ review, comment: detailedComment }: De
 
    const isCollaborator = useIsCurrentUserCollaborator(reviewId)
 
+   const { playTrackOffset, playArtist, playPlaylistIndexOffset, playAlbumIndexOffset } = usePlayMutation({
+      onError: () => toast.error(`Failed to play ${name}.`),
+   })
+
+   const playDoubleClick = () => {
+      if (!entityId || !entityType) return
+      if (entityType === 'Track') {
+         playTrackOffset(entityId, 0)
+      } else if (entityType === 'Artist') {
+         playArtist(entityId)
+      } else if (entityType === 'Playlist') {
+         playPlaylistIndexOffset(entityId, 0)
+      } else if (entityType === 'Album') {
+         playAlbumIndexOffset(entityId, 0)
+      }
+   }
+
+   const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
+   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: playDoubleClick })
+
    return (
       <>
          <div
@@ -153,14 +178,16 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                      </div>
                   </div>
 
-                  <div className='flex items-center space-x-1'>
-                     <div className='avatar ml-1'>
-                        <div className='h-10 w-10 rounded'>
-                           <img src={image} />
+                  <div className='flex items-center justify-between space-x-1'>
+                     <div className='flex items-center space-x-1' ref={playOnDoubleClickRef}>
+                        <div className='avatar ml-1'>
+                           <div className='h-10 w-10 rounded'>
+                              <img src={image} />
+                           </div>
                         </div>
-                     </div>
-                     <div className='min-w-0 flex-1 overflow-hidden'>
-                        <p className='select-none truncate p-0.5 text-sm'> {name} </p>
+                        <div className='min-w-0 flex-1 overflow-hidden'>
+                           <p className='select-none truncate p-0.5 text-sm'> {name} </p>
+                        </div>
                      </div>
                      <div className='flex flex-shrink-0 self-center'>
                         <CommentMenu reviewId={reviewId} comment={detailedComment} />
@@ -245,12 +272,20 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
    const isEditable = comment.commenter?.id === currentUserId
 
    const openDelete = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
+
+   const entityId = comment.entities?.at(0)?.id
+   const entityType = comment.entities?.at(0)?.__typename as EntityType | undefined
+
    const openEdit = useOpenUpdateComment({
       reviewId,
       commentId: comment.id,
       comment: comment.comment ?? '',
-      trackId: comment.entities?.at(0)?.id || '',
+      trackId: entityId ?? '',
    })
+
+   const spotifyLink = getLink(entityId, entityType)
+   const spotifyIcon = useSpotifyIcon()
+
    return (
       <Menu as='div' className='relative inline-block text-left'>
          <div>
@@ -271,6 +306,19 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
          >
             <Menu.Items className='absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-neutral text-neutral-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'>
                <div className='py-1'>
+                  <Menu.Item>
+                     {({ active }) => (
+                        <a
+                           href={spotifyLink}
+                           rel='noreferrer'
+                           target='_blank'
+                           className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
+                        >
+                           <img src={spotifyIcon} className={'mr-3 h-5 w-5'} />
+                           <span>Listen on Spotify </span>
+                        </a>
+                     )}
+                  </Menu.Item>
                   {isEditable && (
                      <>
                         <Menu.Item>
@@ -290,7 +338,7 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
                                  className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
                                  onClick={openDelete}
                               >
-                                 <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                                 <TrashIcon className='mr-3 h-5 w-5' aria-hidden='true' />
                                  <span>Delete comment</span>
                               </div>
                            )}
