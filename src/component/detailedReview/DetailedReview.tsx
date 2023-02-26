@@ -95,17 +95,19 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
    const allReviews = [parent, ...children].filter(nonNullable)
 
    return (
-      <div className='relative flex grow flex-col'>
-         <ReviewHeader review={review} />
-         <div className='flex h-8 flex-none justify-evenly'>
-            <RenderOptionTabs />
-         </div>
-         {/* For some reason I need a min-height? When doing flex-col in page. */}
-         <div className='mx-1 min-h-0 grow'>
-            <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
+      <>
+         <div className='relative flex grow flex-col'>
+            <ReviewHeader review={review} />
+            <div className='flex h-8 flex-none justify-evenly'>
+               <RenderOptionTabs />
+            </div>
+            {/* For some reason I need a min-height? When doing flex-col in page. */}
+            <div className='mx-1 min-h-0 grow'>
+               <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
+            </div>
          </div>
          <CommentFormModalWrapper />
-      </div>
+      </>
    )
 }
 

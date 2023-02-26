@@ -17,6 +17,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
 import { Alert, AlertSeverity } from 'platform/component/Alert'
 import { StylesObj, TourProvider } from '@reactour/tour'
+import { SubscribeReviews } from 'component/reviewUpdates/SubscribeReviews'
 
 export const NavPlayerPageOutlet = () => {
    const theme = useThemeValue()
@@ -55,6 +56,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
                   }
                >
                   <Suspense fallback={<HeroLoading />}>
+                     <SubscribeReviews />
                      <StrictMode>{children}</StrictMode>
                   </Suspense>
                </ErrorBoundary>
