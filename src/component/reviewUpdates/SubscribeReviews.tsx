@@ -5,9 +5,14 @@ import { useDeepCompareMemoize } from 'platform/hook/useDeepCompareMemoize'
 
 export const SubscribeReviews = () => {
    const currentUserId = useCurrentUserId()
-   const reviewIds =
-      useProfileAndReviewsQuery({ userId: currentUserId }, { staleTime: Infinity, select: selectReviewIds }).data ?? []
-   const reviewIdsMemo = useDeepCompareMemoize(reviewIds)
+   const reviewIds = useProfileAndReviewsQuery(
+      { userId: currentUserId },
+      {
+         staleTime: Infinity,
+         select: selectReviewIds,
+      }
+   )
+   const reviewIdsMemo = useDeepCompareMemoize(reviewIds.data ?? [])
 
    useSubscribeToReviews(reviewIdsMemo)
    return null

@@ -237,8 +237,9 @@ const NoReviewsState = () => {
 
 const useProfileAndReviews = () => {
    // TODO: Have to account for viewed reviews.
+   const currentUserId = useCurrentUserId()
    const { data } = useProfileAndReviewsQuery(
-      {},
+      { userId: currentUserId },
       {
          suspense: true,
          onError: () => toast.error('Failed to load profile.'),
@@ -251,7 +252,6 @@ const useProfileAndReviews = () => {
    const searchedReviews = searchReviews(reviews, search)
 
    const sortOrder = useAtomValue(sortOrderAtom)
-   const currentUserId = useCurrentUserId()
    const reviewIdHistory = useViewHistory()
 
    return transformFunction(searchedReviews, sortOrder, currentUserId, reviewIdHistory)
