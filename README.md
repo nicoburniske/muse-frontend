@@ -30,7 +30,7 @@ Muse was made to fill the gap between peoples thoughts, their friends, and the m
 - [Tanstack Query](https://github.com/tanstack/query) + [Jotai](https://github.com/pmndrs/jotai) for state management.
    - This combo has quickly become a personal favorite.
 - [Tailwind](https://github.com/tailwindlabs/tailwindcss) for Styling.
-- [Daisy UI](https://github.com/saadeghi/daisyui) for a vareity of Themes.
+- [Daisy UI](https://github.com/saadeghi/daisyui) for a variety of Themes.
 - [Headless UI](https://github.com/tailwindlabs/headlessui) and [RadixUI](https://github.com/radix-ui/primitives) for accessible components.
 - [Tanstack Virtual](https://github.com/tanstack/virtual) for performant virtualized lists.
 - [React DnD](https://github.com/react-dnd/react-dnd) for Drag and Drop capabilities.
