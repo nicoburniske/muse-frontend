@@ -99,7 +99,7 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
                      <CheckIcon className='h-5 w-5' />
                   </button>
 
-                  <button className='btn btn-error btn-square btn-sm absolute top-5 right-5' onClick={onCancel}>
+                  <button className='btn btn-error btn-square btn-sm absolute top-0 right-0' onClick={onCancel}>
                      <XMarkIcon className='h-6 w-6' />
                   </button>
                </div>
