@@ -1,7 +1,9 @@
-# Muse
-> A place for music lovers to create interactive and collaborative reviews for music on Spotify.
+# Muse 
+<img src="public/logo.png" width="350" title="Muse Logo">
 
-Currently in Closed Beta. Waiting to be granted Spotify Quota Extension. Look [here](https://developer.spotify.com/documentation/web-api/guides/development-extended-quota-modes/) for more information
+A place for music lovers to create interactive and collaborative reviews for music on Spotify.
+
+> Currently in Closed Beta. Waiting to be granted Spotify Quota Extension. Look [here](https://developer.spotify.com/documentation/web-api/guides/development-extended-quota-modes/) for more information
 
 ## Intro
 Have you ever made someone, or collaborated with someone on, a playlist? Have you every wanted to share your thoughts on a new album with your friends? 
