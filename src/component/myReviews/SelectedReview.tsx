@@ -1,19 +1,16 @@
-import { ChevronRightIcon, PlusIcon as PlusIconMini, TrashIcon } from '@heroicons/react/20/solid'
-import { useQueryClient } from '@tanstack/react-query'
+import { ChevronRightIcon, PlusIcon as PlusIconMini } from '@heroicons/react/20/solid'
 import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { useCollaboratorsQuery, useDetailedReviewCacheQuery, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
-import { ReviewDetailsFragment, useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
+import { ReviewDetailsFragment } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import Portal from 'platform/component/Portal'
 import RightSidePane from 'platform/component/RightSidePane'
-import { ThemeModal } from 'platform/component/ThemeModal'
-import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
+import { DeleteReviewButton } from 'component/DeleteReviewButton'
 
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)
@@ -88,7 +85,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='flex w-full items-center justify-start space-x-5 p-2 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -144,74 +141,9 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                </ul>
             </div>
             <div className='flex justify-center'>
-               <DeleteReviewButton reviewId={review.id} />
+               <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
             </div>
          </div>
       </div>
-   )
-}
-
-const DeleteReviewButton = ({ reviewId }: { reviewId: string }) => {
-   const [isModalOpen, setIsModalOpen] = useState(false)
-
-   const queryClient = useQueryClient()
-   const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
-   const { closeSelectedReview } = useSelectReview()
-
-   const { mutate, isLoading } = useDeleteReviewMutation({
-      onError: () => toast.error('Failed to delete review.'),
-      onSuccess: () => {
-         toast.success('Successfully deleted review.')
-         resetReviewOverviews()
-      },
-      onSettled: () => {
-         setIsModalOpen(false)
-         closeSelectedReview()
-      },
-   })
-
-   const deleteReview = () => {
-      mutate({ input: { id: reviewId } })
-   }
-
-   return (
-      <>
-         <Portal>
-            <ThemeModal open={isModalOpen} className='max-w-md'>
-               <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
-                  <div className='px-4 py-5 sm:p-6'>
-                     <h3 className='text-lg font-medium leading-6 '>Delete Review</h3>
-                     <div className='mt-2 max-w-xl text-sm'>
-                        <p>Once you delete your review, you won't be able to recover it.</p>
-                     </div>
-                     <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                        <button
-                           type='button'
-                           disabled={isLoading}
-                           onClick={() => setIsModalOpen(false)}
-                           className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
-                        >
-                           Cancel
-                        </button>
-
-                        <button
-                           type='button'
-                           disabled={isLoading}
-                           onClick={deleteReview}
-                           className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
-                        >
-                           Delete
-                        </button>
-                     </div>
-                  </div>
-               </div>
-            </ThemeModal>
-         </Portal>
-
-         <button type='button' className='btn btn-error' onClick={() => setIsModalOpen(true)}>
-            <TrashIcon className='h-5 w-5' aria-hidden='true' />
-            <span className='ml-4'>Delete Review</span>
-         </button>
-      </>
    )
 }

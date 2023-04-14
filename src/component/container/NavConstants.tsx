@@ -27,7 +27,7 @@ const useOpenPreferences = () => {
    return () => openPreferencesModal()
 }
 
-export const NAVIGATION: NavItem[] = [
+export const NAVIGATION: readonly NavItem[] = [
    {
       name: 'Reviews',
       href: '/app/reviews',
@@ -43,4 +43,4 @@ export const NAVIGATION: NavItem[] = [
       action: () => useOpenPreferences(),
       className: 'muse-preferences',
    },
-]
+] as const

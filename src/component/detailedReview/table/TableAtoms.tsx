@@ -102,10 +102,9 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
    const allGroups = get(groupWithTracksAtom)
 
    return allGroups.map(({ tracks, headerData, overview }) => {
-      const isPlaylist = headerData.__typename === 'Playlist'
       const header = {
          element: <MemoHeader {...overview} entity={headerData} parentReviewId={rootReviewId} />,
-         size: isPlaylist ? 42 : 58,
+         size: 58,
       }
       const { reviewId } = overview
       const children = tracks.map((t, i) => {

@@ -22,9 +22,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
       {},
       {
          onError: () => toast.error('Failed to load user reviews.'),
-         select: (data: ProfileAndReviewsQuery) =>
-            // We don't want to include any unlinkable reviews.
-            (data.user.reviews ?? []).filter(r => !alreadyLinkedIds.includes(r.id)).filter(r => r.id !== reviewId),
+         select: selectReviews([...alreadyLinkedIds, reviewId]),
       }
    )
    const reviews = data ?? []
@@ -108,4 +106,10 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
          </Portal>
       </>
    )
+}
+
+const selectReviews = (alreadyLinkedReviewIds: string[]) => (data: ProfileAndReviewsQuery) => {
+   return (data.user.reviews ?? [])
+      .filter(r => !alreadyLinkedReviewIds.includes(r.id))
+      .filter(r => r.entity?.__typename === 'Album' || r.entity?.__typename === 'Playlist')
 }

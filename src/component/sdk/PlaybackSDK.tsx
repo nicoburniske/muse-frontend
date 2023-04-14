@@ -28,9 +28,10 @@ export function SpotifyPlaybackSdk({ errorHandler }: { errorHandler: SpotifyErro
       () => isReady && load.state === 'hasData',
       () => {
          ;(async () => {
+            const getOAuthToken = (load as HasData<GetTokenObject>).data.getOAuthToken
             const player = new Spotify.Player({
                name: 'Muse',
-               getOAuthToken: (load as HasData<GetTokenObject>).data.getOAuthToken,
+               getOAuthToken,
             })
             const success = await player.connect()
 
@@ -82,9 +83,8 @@ sdkReadyAtom.onMount = setAtom => {
    }
 }
 
-type GetTokenFunction = Spotify.PlayerInit['getOAuthToken']
 type GetTokenObject = {
-   getOAuthToken: GetTokenFunction
+   getOAuthToken: Spotify.PlayerInit['getOAuthToken']
 }
 
 const getTokenAtom = atomWithSuspend<GetTokenObject>()

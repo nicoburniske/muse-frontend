@@ -9,6 +9,8 @@ import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { SearchUsersComboBox } from 'component/shareReview/SearchUsersCombobox'
 import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { cn } from 'util/Utils'
 
 export interface ShareReviewProps {
    reviewId: string
@@ -56,7 +58,7 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
    return (
       <>
          <Portal>
-            <ThemeModal open={isModalOpen} className='min-h-96 h-fit w-96 ' onClose={onCancel}>
+            <ThemeModal open={isModalOpen} className='min-h-96 h-fit w-96' onClose={onCancel}>
                <div className='relative flex flex-col items-center justify-between space-y-2 p-3'>
                   <Dialog.Title className='text-lg font-bold'>Share Review</Dialog.Title>
 
@@ -95,11 +97,17 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
                      </select>
                   </div>
                   <button className='btn btn-success disabled:btn-outline' onClick={onSubmit} disabled={disabled}>
-                     <span className='hidden md:block'>Confirm</span>
-                     <CheckIcon className='h-5 w-5' />
+                     {isLoading ? (
+                        <ArrowPathIcon className={cn('h-6 w-6 animate-spin')} aria-hidden='true' />
+                     ) : (
+                        <>
+                           <span className='hidden md:block'>Confirm</span>
+                           <CheckIcon className='h-6 w-6' aria-hidden='true' />
+                        </>
+                     )}
                   </button>
 
-                  <button className='btn btn-error btn-square btn-sm absolute top-0 right-0' onClick={onCancel}>
+                  <button className='btn btn-square btn-error btn-sm absolute top-0 right-2' onClick={onCancel}>
                      <XMarkIcon className='h-6 w-6' />
                   </button>
                </div>

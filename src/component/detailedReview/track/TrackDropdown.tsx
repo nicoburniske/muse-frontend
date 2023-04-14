@@ -69,7 +69,7 @@ export default function TrackOptions({ trackId, playlistId }: TrackOptionsProps)
                <Menu.Button
                   ref={refs.setReference}
                   className={cn(
-                     'btn btn-ghost btn-square btn-sm place-items-center',
+                     'btn btn-square btn-ghost btn-sm place-items-center',
                      open ? 'opacity-100' : 'opacity-100 group-hover:opacity-100 hover:opacity-100 sm:opacity-0'
                   )}
                >

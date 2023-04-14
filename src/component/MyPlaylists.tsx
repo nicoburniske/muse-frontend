@@ -1,6 +1,6 @@
 import { MyPlaylistsQuery, PlaylistDetailsFragment, useMyPlaylistsQuery } from 'graphql/generated/schema'
 import { useCallback, useEffect, useMemo } from 'react'
-import { OpenMobileMenuButton } from './nav/OpenMobileMenuButton'
+import { OpenMobileMenuButton } from './container/OpenMobileMenuButton'
 import { ArrowPathIcon, Bars3BottomLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
@@ -235,7 +235,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
    return (
       <div className='flex h-full grow flex-col items-center space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedPlaylist()}>
+            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedPlaylist()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>

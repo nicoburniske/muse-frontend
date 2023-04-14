@@ -18,7 +18,7 @@ export const CommentAndOptions = ({
    return (
       <>
          {canComment && (
-            <button className='btn btn-ghost btn-square btn-sm' onClick={showCommentModal}>
+            <button className='btn btn-square btn-ghost btn-sm' onClick={showCommentModal}>
                <ChatBubbleLeftIcon className='h-5 w-5' />
             </button>
          )}
