@@ -2,7 +2,7 @@
 
 > A place for music lovers to create interactive and collaborative reviews for music on Spotify.
 
-Currently in Closed Beta. Waiting to be granted Spotify Quota Extension. Look [here](https://developer.spotify.com/documentation/web-api/guides/development-extended-quota-modes/) for more information
+> Currently in Closed Beta. Waiting to be granted Spotify Quota Extension. Look [here](https://developer.spotify.com/documentation/web-api/guides/development-extended-quota-modes/) for more information
 
 ## Intro
 
@@ -49,4 +49,4 @@ Muse was made to fill the gap between peoples thoughts, their friends, and the m
 
 ###
 
-Backend Code is available here https://github.com/nicoburniske/muse
+https://user-images.githubusercontent.com/46934294/229528295-50dc2a05-6210-487e-a0a1-a2f51456c963.mov
