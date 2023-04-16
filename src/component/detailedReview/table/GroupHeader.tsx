@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowTopRightIcon, HazardIcon, ReplyIcon, TrashIcon } from 'component/Icons'
 import {
    useDeleteReviewLinkMutation,
    useDetailedReviewQuery,
@@ -91,7 +90,7 @@ export const ReviewGroupHeader = ({
                         </div>
                      </div>
                   }
-                  <div className='flex flex-col'>
+                  <div className='ml-1 flex flex-col space-y-0.5'>
                      <div className='badge badge-primary truncate text-center text-primary-content'>{entityName}</div>
                      <div className='badge badge-accent text-center text-accent-content'>{entityType}</div>
                   </div>
