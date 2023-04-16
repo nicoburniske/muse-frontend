@@ -4,8 +4,8 @@ import { ThemeModal } from 'platform/component/ThemeModal'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { cn } from 'util/Utils'
-import { TrashIcon } from './Icons'
 import Portal from 'platform/component/Portal'
+import { TrashIcon } from '@heroicons/react/24/outline'
 
 type DeleteReviewButtonProps = {
    reviewId: string

@@ -18,6 +18,7 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { useThemeValue } from 'state/UserPreferences'
 import { flip, useFloating } from '@floating-ui/react'
 import Portal from 'platform/component/Portal'
+import { ThemeModal } from 'platform/component/ThemeModal'
 
 /**
  * REVIEW HEADER
@@ -37,35 +38,7 @@ export const ReviewGroupHeader = ({
 }: ReviewGroupHeaderProps) => {
    const { name: entityName, __typename: entityType } = entity
 
-   const [isDeleting, setIsDeletingRaw] = useState(false)
-
-   const nav = useNavigate()
-   const queryClient = useQueryClient()
-   const linkToReviewPage = () => nav(`/app/reviews/${reviewId}`)
-   const { mutateAsync: deleteReviewLink } = useDeleteReviewLinkMutation({
-      onSuccess: () => {
-         setIsDeletingRaw(false)
-         queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
-         toast.success('Deleted review link.')
-      },
-      onError: () => toast.error('Failed to delete review link'),
-   })
-
-   const handleDeleteReviewLink = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.stopPropagation()
-      deleteReviewLink({ input: { childReviewId: reviewId, parentReviewId } })
-   }
-
-   const setIsDeleting = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => (isDeleting: boolean) => {
-      e.stopPropagation()
-      setIsDeletingRaw(isDeleting)
-   }
-
-   const isPlaylist = entityType === 'Playlist'
-
    const isChild = reviewId !== parentReviewId
-   const gridStyle = 'grid-cols-5'
-   const nameStyle = isChild ? 'col-span-2' : 'col-span-1'
 
    const [{ isDragging }, drag] = useDrag(
       () => ({
@@ -124,31 +97,7 @@ export const ReviewGroupHeader = ({
                   </div>
                </div>
             </div>
-            {isChild ? (
-               <div className='flex flex-row justify-self-center md:space-x-5'>
-                  <button className='btn btn-square btn-secondary btn-sm' onClick={() => linkToReviewPage()}>
-                     <ArrowTopRightIcon />
-                  </button>
-                  {isDeleting ? (
-                     <div className='btn-group justify-center'>
-                        <button
-                           className='btn tooltip tooltip-left btn-error tooltip-error btn-sm'
-                           data-tip='remove review link'
-                           onClick={e => handleDeleteReviewLink(e)}
-                        >
-                           <HazardIcon />
-                        </button>
-                        <button className='btn btn-info btn-sm' onClick={e => setIsDeleting(e)(false)}>
-                           <ReplyIcon />
-                        </button>
-                     </div>
-                  ) : (
-                     <button className='btn btn-square btn-secondary btn-sm' onClick={e => setIsDeleting(e)(true)}>
-                        <TrashIcon />
-                     </button>
-                  )}
-               </div>
-            ) : null}
+            <HeaderMenu reviewId={reviewId} parentReviewId={parentReviewId} />
          </div>
       </div>
    )
@@ -172,7 +121,7 @@ const useSwapReviews = (parentReviewId: string, dropReviewId: string) => {
    }
 }
 
-const HeaderMenu = () => {
+const HeaderMenu = ({ reviewId, parentReviewId }: { reviewId: string; parentReviewId: string }) => {
    const theme = useThemeValue()
    const { x, y, strategy, refs } = useFloating({
       placement: 'right-start',
@@ -180,83 +129,142 @@ const HeaderMenu = () => {
       middleware: [flip()],
    })
 
+   const nav = useNavigate()
+
+   const [modalOpen, setModalOpen] = useState(false)
+
    return (
-      <Menu>
-         {({ open }) => (
-            <>
-               <Menu.Button
-                  ref={refs.setReference}
-                  className={cn(
-                     'btn btn-square btn-ghost btn-sm place-items-center',
-                     open ? 'opacity-100' : 'opacity-100 group-hover:opacity-100 hover:opacity-100 sm:opacity-0'
-                  )}
-               >
-                  <EllipsisHorizontalIcon className='h-5 w-5' aria-hidden='true' />
-               </Menu.Button>
-               <Portal>
-                  <Transition
-                     data-theme={theme}
-                     as={Fragment}
-                     show={open}
-                     enter='transition ease-out duration-100'
-                     enterFrom='transform opacity-0 scale-95'
-                     enterTo='transform opacity-100 scale-100'
-                     leave='transition ease-in duration-75'
-                     leaveFrom='transform opacity-100 scale-100'
-                     leaveTo='transform opacity-0 scale-95'
+      <>
+         <Menu>
+            {({ open }) => (
+               <>
+                  <Menu.Button
+                     ref={refs.setReference}
+                     // Stop handler on header from collapsing/opening.
+                     onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation()}
+                     className={cn('btn btn-square btn-ghost btn-sm place-items-center')}
                   >
-                     <Menu.Items
-                        ref={refs.setFloating}
-                        style={{
-                           position: strategy,
-                           top: y ?? 0,
-                           left: x ?? 0,
-                           zIndex: 100,
-                           width: 'max-content',
-                        }}
-                        className='menu rounded-md bg-neutral text-neutral-content shadow-lg '
+                     <EllipsisHorizontalIcon className='h-5 w-5' aria-hidden='true' />
+                  </Menu.Button>
+                  <Portal>
+                     <Transition
+                        data-theme={theme}
+                        as={Fragment}
+                        show={open}
+                        enter='transition ease-out duration-100'
+                        enterFrom='transform opacity-0 scale-95'
+                        enterTo='transform opacity-100 scale-100'
+                        leave='transition ease-in duration-75'
+                        leaveFrom='transform opacity-100 scale-100'
+                        leaveTo='transform opacity-0 scale-95'
                      >
-                        <Menu.Item>
-                           {({ active }) => (
-                              <li>
-                                 <a
-                                    className={cn(active ? 'active' : '', 'text-sm')}
-                                    rel='noreferrer'
-                                    target='_blank'
-                                    href={spotifyUrl}
-                                 >
-                                    Listen on Spotify
-                                 </a>
-                              </li>
-                           )}
-                        </Menu.Item>
-
-                        <Menu.Item>
-                           {({ active }) => (
-                              <li>
-                                 <a className={cn(active ? 'active' : '', 'text-sm')} onClick={addToQueue}>
-                                    Add To Queue
-                                 </a>
-                              </li>
-                           )}
-                        </Menu.Item>
-
-                        {isUserOwnedPlaylist && (
+                        <Menu.Items
+                           ref={refs.setFloating}
+                           style={{
+                              position: strategy,
+                              top: y ?? 0,
+                              left: x ?? 0,
+                              zIndex: 100,
+                              width: 'max-content',
+                           }}
+                           className='menu rounded-md bg-neutral text-neutral-content shadow-lg '
+                        >
                            <Menu.Item>
                               {({ active }) => (
                                  <li>
-                                    <a className={cn(active ? 'active' : '', 'text-sm')} onClick={removeFromPlaylist}>
-                                       Remove From Playlist
+                                    <a
+                                       className={cn(active ? 'active' : '', 'text-sm')}
+                                       onClick={() => nav(`/app/reviews/${reviewId}`)}
+                                    >
+                                       Open Review
                                     </a>
                                  </li>
                               )}
                            </Menu.Item>
-                        )}
-                     </Menu.Items>
-                  </Transition>
-               </Portal>
-            </>
-         )}
-      </Menu>
+
+                           <Menu.Item>
+                              {({ active }) => (
+                                 <li>
+                                    <a
+                                       className={cn(active ? 'active' : '', 'text-sm')}
+                                       onClick={() => setModalOpen(true)}
+                                    >
+                                       Delete Review Link
+                                    </a>
+                                 </li>
+                              )}
+                           </Menu.Item>
+                        </Menu.Items>
+                     </Transition>
+                  </Portal>
+               </>
+            )}
+         </Menu>
+
+         <DeleteReviewLinkModal
+            reviewId={reviewId}
+            parentReviewId={parentReviewId}
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+         />
+      </>
+   )
+}
+
+const DeleteReviewLinkModal = ({
+   reviewId,
+   parentReviewId,
+   modalOpen,
+   setModalOpen,
+}: {
+   reviewId: string
+   parentReviewId: string
+   modalOpen: boolean
+   setModalOpen: (open: boolean) => void
+}) => {
+   const queryClient = useQueryClient()
+   const { mutate, isLoading } = useDeleteReviewLinkMutation({
+      onSuccess: () => {
+         queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId: parentReviewId }))
+         toast.success('Deleted review link.')
+      },
+      onError: () => toast.error('Failed to delete review link'),
+   })
+
+   const deleteReviewLink = () => {
+      mutate({ input: { childReviewId: reviewId, parentReviewId } })
+   }
+   return (
+      <Portal>
+         <ThemeModal open={modalOpen} className='max-w-md'>
+            <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
+               <div className='px-4 py-5 sm:p-6'>
+                  <h3 className='text-lg font-medium leading-6 '>Delete Review Link</h3>
+                  <div className='mt-2 max-w-xl text-sm'>
+                     <p> Your reviews will still exist, they'll just be disconnected.</p>
+                  </div>
+                  <div className='mt-5 flex w-full flex-row items-center justify-around'>
+                     <button
+                        type='button'
+                        disabled={isLoading}
+                        onClick={() => setModalOpen(false)}
+                        className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
+                     >
+                        Cancel
+                     </button>
+
+                     <button
+                        type='button'
+                        disabled={isLoading}
+                        onClick={deleteReviewLink}
+                        className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
+                     >
+                        Delete
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </ThemeModal>
+      </Portal>
    )
 }

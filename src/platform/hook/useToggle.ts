@@ -4,7 +4,7 @@ import useStateWithReset from './useStateWithReset'
 type ToggleFunc<T> = (value: T) => T
 type StateSupplier<S> = (defaultState: S) => [S, Dispatch<SetStateAction<S>>]
 
-export default function useToggle<T>(toggleFunc: ToggleFunc<T>) {
+export function useToggle<T>(toggleFunc: ToggleFunc<T>) {
    return function withState(s: StateSupplier<T>) {
       return function createToggle(initial: T): [T, Dispatch<SetStateAction<T>>, () => void] {
          const [state, setState] = s(initial)

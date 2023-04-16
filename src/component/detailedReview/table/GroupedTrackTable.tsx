@@ -1,6 +1,6 @@
-import { CSSProperties, useMemo, useRef, useCallback, useEffect, Fragment } from 'react'
+import { CSSProperties, useRef, useCallback, useEffect, Fragment } from 'react'
 import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useSetAtom } from 'jotai'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { Group } from './Helpers'
 import {
