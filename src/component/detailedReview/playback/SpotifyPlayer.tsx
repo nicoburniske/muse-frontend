@@ -1,4 +1,3 @@
-import { MutedSpeakerIcon, SpeakerIcon } from 'component/Icons'
 import LikeButton from 'component/LikeButton'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, useEffect, useState } from 'react'
@@ -26,6 +25,8 @@ import {
    ArrowsUpDownIcon,
    MagnifyingGlassIcon,
    ArrowPathRoundedSquareIcon,
+   SpeakerWaveIcon,
+   SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
 import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
@@ -340,7 +341,7 @@ const VolumeSlider = () => {
    return (
       <div className='flex w-full grow flex-row items-center'>
          <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
-            {isMuted ? <MutedSpeakerIcon /> : <SpeakerIcon />}
+            {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
          </button>
 
          <input

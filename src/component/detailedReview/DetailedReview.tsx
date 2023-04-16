@@ -13,7 +13,6 @@ import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { ShareReview } from '../shareReview/ShareReview'
 import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
-import { ArrowRightLeftIcon, CommentIcon, MusicIcon } from 'component/Icons'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
 import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
@@ -36,6 +35,7 @@ import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewT
 import ReviewCommentSection from './comment/CommentSection'
 import { useDetailedReviewCacheQuery } from 'state/useDetailedReviewCacheQuery'
 import { Link } from 'react-router-dom'
+import { ArrowsRightLeftIcon, ChatBubbleBottomCenterIcon, MusicalNoteIcon } from '@heroicons/react/24/outline'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -146,7 +146,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             />
             <OpenMobileMenuButton>
                {onClick => (
-                  <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
+                  <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
                      <span className='sr-only'>Open sidebar</span>
                      <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                   </button>
@@ -221,9 +221,9 @@ const tabStyle = 'tab tab-xs md:tab-md tab-bordered h-8'
 const RenderOptionTabs = () => {
    return (
       <>
-         <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicIcon} />
-         <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowRightLeftIcon} />
-         <RenderOptionTooltip renderOption='comments' label='Comments' icon={CommentIcon} />
+         <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+         <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
+         <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
       </>
    )
 }

@@ -5,13 +5,13 @@ import {
    useProfileAndReviewsQuery,
 } from 'graphql/generated/schema'
 import { useState } from 'react'
-import { CheckIcon, CrossIcon, LinkIcon } from 'component/Icons'
 import { cn, getReviewOverviewImage } from 'util/Utils'
 import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Dialog } from '@headlessui/react'
 import { ThemeModal } from 'platform/component/ThemeModal'
 import Portal from 'platform/component/Portal'
+import { CheckIcon, LinkIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5'
 
@@ -53,7 +53,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
    return (
       <>
          <button className='btn btn-secondary btn-sm lg:btn-md' onClick={() => setIsModalOpen(true)}>
-            <LinkIcon />
+            <LinkIcon className='h-6 w-6' />
          </button>
          <Portal>
             <ThemeModal open={isModalOpen} className='max-w-2xl grow'>
@@ -95,10 +95,10 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
                         disabled={!canSubmit}
                         onClick={handleLinkReview}
                      >
-                        <CheckIcon />
+                        <CheckIcon className='h-6 w-6' />
                      </button>
                      <button className='btn btn-info' onClick={onCancel}>
-                        <CrossIcon />
+                        <XMarkIcon className='h-6 w-6' />
                      </button>
                   </div>
                </div>
