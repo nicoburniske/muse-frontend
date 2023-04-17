@@ -1,5 +1,5 @@
 import { useCurrentUserId } from 'state/CurrentUser'
-import { useSubscribeToReviews } from './useSubscribeToRevies'
+import { useSubscribeToReviews } from './useSubscribeToReviews'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { useDeepCompareMemoize } from 'platform/hook/useDeepCompareMemoize'
 import { CommentFormModalWrapper } from 'component/detailedReview/commentForm/CommentFormModalWrapper'
