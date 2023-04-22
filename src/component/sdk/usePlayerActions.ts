@@ -73,6 +73,13 @@ export const usePlayerActions = (): PlayerActions => {
       seekTo: (positionMs: number) => player.seek(positionMs),
 
       nextTrack: () => player.nextTrack(),
-      previousTrack: () => player.previousTrack(),
+      previousTrack: async () => {
+         const current = await getCurrentPositionMs()
+         if (current > 3000) {
+            return player.seek(0)
+         } else {
+            return player.previousTrack()
+         }
+      },
    }
 }
