@@ -265,12 +265,20 @@ const ScrollSearchResults = () => {
 
    const [numCols, colsStyle, height]: [number, string, number] = useWindowSizeAtom(
       useCallback(s => {
-         if (s.isLg) {
-            return [5, 'grid-cols-5', 300]
-         } else if (s.isMd) {
-            return [3, 'grid-cols-3', 300]
+         const itemWidth = s.isMd ? 192 : 128
+         const sidebarWidth = s.isMd ? 224 : 128
+         const height = s.isMd ? 300 : 200
+         // this one is aribitrary.
+         const padding = s.isMd ? 100 : 50
+         const width = s.width - sidebarWidth
+         if (width > itemWidth * 5 + padding) {
+            return [5, 'grid-cols-5', height]
+         } else if (width > itemWidth * 4 + padding) {
+            return [4, 'grid-cols-4', height]
+         } else if (width > itemWidth * 3 + padding) {
+            return [3, 'grid-cols-3', height]
          } else {
-            return [2, 'grid-cols-2', 200]
+            return [2, 'grid-cols-2', height]
          }
       }, [])
    )
@@ -377,7 +385,7 @@ const findImage = (searchRow: SearchRow, index: number) => {
 }
 
 const nowPlayingAtom = atom<string | undefined>(undefined)
-const SearchResultRow = ({ searchRow }: { searchRow: SearchRow }) => {
+const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
    const tileImage = findImage(searchRow, 1)
    const bigImage = findImage(searchRow, 0)
    const type = searchRow.type
@@ -476,7 +484,7 @@ const secondaryData = (searchRow: SearchRow): ReactNode => {
 }
 
 const MemoResultRow = memo(
-   SearchResultRow,
+   SearchResultTile,
    (prevProps, nextProps) => prevProps.searchRow.href === nextProps.searchRow.href
 )
 

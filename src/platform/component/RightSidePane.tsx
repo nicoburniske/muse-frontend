@@ -14,7 +14,7 @@ export default function RightSidePane({ isOpen, children }: { isOpen: boolean; c
          leaveTo='translate-x-full'
       >
          <div className='fixed right-0 z-10 flex h-full flex-col bg-secondary text-secondary-content'>
-            <aside className='h-full w-52 overflow-y-auto md:w-96'>{children}</aside>
+            <aside className='h-full w-64 overflow-y-auto md:w-96'>{children}</aside>
          </div>
       </Transition>
    )
