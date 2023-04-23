@@ -1,9 +1,7 @@
 import { MutableRefObject, useRef, useState } from 'react'
 import CommentMarkdown from '../comment/CommentMarkdown'
 import { Tab } from '@headlessui/react'
-import { AtSymbolIcon, CommandLineIcon } from '@heroicons/react/24/outline'
 import { cn } from 'util/Utils'
-import { SearchUsersComboBox } from 'component/shareReview/SearchUsersCombobox'
 
 export interface CommentFormProps {
    initialValue?: string
@@ -144,7 +142,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                                  ref={commentInputRef}
                                  rows={6}
                                  placeholder='Add your comment...'
-                                 className='textarea textarea-bordered w-full grow'
+                                 className='textarea textarea-bordered w-full grow placeholder-base-content/50'
                                  onChange={e => setComment(e.target.value as string)}
                                  value={comment}
                               />
