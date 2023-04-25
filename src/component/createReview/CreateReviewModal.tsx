@@ -1,5 +1,6 @@
 import { Portal } from '@headlessui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import {
    CreateReviewMutationVariables,
    EntityType,
@@ -87,6 +88,9 @@ export const CreateReviewModal = () => {
                      {entityName}
                      <div className='badge badge-secondary'>{entityType}</div>
                   </h2>
+                  <div className='self-center'>
+                     <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
+                  </div>
                   <div>
                      <label className='block text-base font-bold text-base-content'>Review Name</label>
                      <div className='mt-1'>

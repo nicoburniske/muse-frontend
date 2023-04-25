@@ -2,6 +2,7 @@ import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline'
 import { useCommentModalTrack } from './useCommentModalTrack'
 import TrackOptions from './TrackDropdown'
 import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
+import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 
 export const CommentAndOptions = ({
    trackId,
@@ -16,13 +17,14 @@ export const CommentAndOptions = ({
    const canComment = useIsCurrentUserCollaborator(reviewId)
 
    return (
-      <>
+      <div className='mr-3 flex w-full items-center justify-evenly'>
+         <ListenOnSpotifyIcon entityId={trackId} entityType={'Track'} className='flex-none p-0' />
          {canComment && (
-            <button className='btn btn-square btn-ghost btn-sm' onClick={showCommentModal}>
+            <button className='btn btn-ghost btn-square btn-sm' onClick={showCommentModal}>
                <ChatBubbleLeftIcon className='h-5 w-5' />
             </button>
          )}
-         <TrackOptions trackId={trackId} playlistId={playlistId} />
-      </>
+         {/* <TrackOptions trackId={trackId} playlistId={playlistId} /> */}
+      </div>
    )
 }

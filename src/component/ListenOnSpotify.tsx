@@ -10,27 +10,17 @@ export type ListenOnSpotifyProps = {
    entityId?: string
    entityType?: EntityType
    className?: string
+   logoClassName?: string
 }
 
-export const ListenOnSpotifyLogo = (props: ListenOnSpotifyProps) => {
+export const ListenOnSpotifyLogoTooltip = (props: ListenOnSpotifyProps) => {
    const { entityId, entityType, className } = props
-
-   const spotifyLink = getLink(entityId, entityType)
-
-   const spotifyLogo = useSpotifyLogo()
 
    return (
       <>
          <div className={cn('p-3', className)}>
             <ListenOnSpotifyTooltip>
-               <a
-                  className={cn('hidden md:flex', entityId && entityType ? '' : 'pointer-events-none')}
-                  href={spotifyLink}
-                  rel='noreferrer'
-                  target='_blank'
-               >
-                  <img src={spotifyLogo} className='w-20' />
-               </a>
+               <ListenOnSpotifyLogo {...props} />
             </ListenOnSpotifyTooltip>
          </div>
          <ListenOnSpotifyIcon entityId={entityId} entityType={entityType} className={'md:hidden'} />
@@ -38,8 +28,24 @@ export const ListenOnSpotifyLogo = (props: ListenOnSpotifyProps) => {
    )
 }
 
+export const ListenOnSpotifyLogo = (props: Omit<ListenOnSpotifyProps, 'className'>) => {
+   const { entityId, entityType, logoClassName } = props
+   const spotifyLink = getLink(entityId, entityType)
+   const spotifyLogo = useSpotifyLogo()
+   return (
+      <a
+         className={cn('hidden md:flex', entityId && entityType ? '' : 'pointer-events-none')}
+         href={spotifyLink}
+         rel='noreferrer'
+         target='_blank'
+      >
+         <img src={spotifyLogo} className={cn('w-20', logoClassName)} />
+      </a>
+   )
+}
+
 export const ListenOnSpotifyIcon = (props: ListenOnSpotifyProps) => {
-   const { entityId, entityType, className } = props
+   const { entityId, entityType, className, logoClassName } = props
 
    const spotifyLink = getLink(entityId, entityType)
    const spotifyIcon = useSpotifyIcon()
@@ -47,7 +53,7 @@ export const ListenOnSpotifyIcon = (props: ListenOnSpotifyProps) => {
       <div className={cn('p-4', className)}>
          <ListenOnSpotifyTooltip>
             <a href={spotifyLink} rel='noreferrer' target='_blank'>
-               <img src={spotifyIcon} className={cn('h-8 w-8')} />
+               <img src={spotifyIcon} className={cn('h-8 w-8', logoClassName)} />
             </a>
          </ListenOnSpotifyTooltip>
       </div>

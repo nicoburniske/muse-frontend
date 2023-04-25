@@ -1,5 +1,5 @@
 import { ChevronRightIcon, PlusIcon as PlusIconMini } from '@heroicons/react/20/solid'
-import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
+import { ListenOnSpotifyLogoTooltip } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { useCollaboratorsQuery, useDetailedReviewCacheQuery, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
@@ -85,7 +85,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='space-y-2'>
          <div className='flex w-full items-center justify-start space-x-5 p-2 pl-1'>
-            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedReview()}>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -113,7 +113,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                   ))}
                </dl>
                <div className='grid place-items-center'>
-                  <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
+                  <ListenOnSpotifyLogoTooltip entityId={entityId} entityType={entityType} />
                </div>
             </div>
 

@@ -36,6 +36,7 @@ import ReviewCommentSection from './comment/CommentSection'
 import { useDetailedReviewCacheQuery } from 'state/useDetailedReviewCacheQuery'
 import { Link } from 'react-router-dom'
 import { ArrowsRightLeftIcon, ChatBubbleBottomCenterIcon, MusicalNoteIcon } from '@heroicons/react/24/outline'
+import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -47,14 +48,14 @@ const renderOptionAtom = atom<RenderOption>('both')
 
 export function DetailedReview({ reviewId }: DetailedReviewProps) {
    useOpenReviewTourFirstTime()
-   const { data, isLoading } = useDetailedReviewCacheQuery(reviewId, t => t, {
+   const { data } = useDetailedReviewCacheQuery(reviewId, t => t, {
       suspense: true,
       staleTime: 5 * 60 * 1000,
    })
 
    if (data?.review) {
       return <DetailedReviewContent reviewId={reviewId} review={data.review} />
-   } else if (!isLoading) {
+   } else {
       return <NotFound label='Home' redirect='/app' />
    }
 }
@@ -146,7 +147,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             />
             <OpenMobileMenuButton>
                {onClick => (
-                  <button type='button' className='btn btn-square btn-primary mr-1 md:hidden' onClick={onClick}>
+                  <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
                      <span className='sr-only'>Open sidebar</span>
                      <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                   </button>
@@ -168,6 +169,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   </Link>
                </div>
             </dl>
+            <ListenOnSpotifyIcon entityId={entity?.id} entityType={entity?.__typename} />
          </div>
          <div className='m-auto hidden w-full max-w-xl lg:inline'>
             <SearchTracks />
@@ -193,7 +195,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      )}
                   </EditReviewButton>
 
-                  <ShareReview reviewId={reviewId} collaborators={collaborators} onChange={() => reload()}>
+                  <ShareReview reviewId={reviewId} collaborators={collaborators}>
                      <ShareIcon className='h-6 w-6' />
                   </ShareReview>
                   {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}

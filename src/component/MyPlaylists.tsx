@@ -10,7 +10,7 @@ import RightSidePane from 'platform/component/RightSidePane'
 import { cn, nonNullable, userDisplayNameOrId } from 'util/Utils'
 import { useCurrentDisplayName, useCurrentUserId } from 'state/CurrentUser'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
-import { ListenOnSpotifyLogo } from './ListenOnSpotify'
+import { ListenOnSpotifyLogoTooltip } from './ListenOnSpotify'
 
 export const MyPlaylistsPage = () => {
    const data = useMyPlaylists()
@@ -235,7 +235,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
    return (
       <div className='flex h-full grow flex-col items-center space-y-2'>
          <div className='mt-4 flex w-full items-start justify-start space-x-5 pl-1'>
-            <button type='button' className='btn btn-square btn-ghost' onClick={() => closeSelectedPlaylist()}>
+            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedPlaylist()}>
                <span className='sr-only'>Close panel</span>
                <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
             </button>
@@ -267,7 +267,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                </button>
             </div>
             <div className='grid place-items-center'>
-               <ListenOnSpotifyLogo entityId={playlist.id} entityType={'Playlist'} />
+               <ListenOnSpotifyLogoTooltip entityId={playlist.id} entityType={'Playlist'} />
             </div>
          </div>
       </div>
