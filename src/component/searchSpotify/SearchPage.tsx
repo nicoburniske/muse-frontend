@@ -72,25 +72,28 @@ export default SearchPage
 
 const playOnHoverAtom = atom(false)
 
-const selectedEntityTypesAtom = atom(['Album', 'Playlist', 'Artist'] as EntityType[])
+type NoTrack = Exclude<EntityType, 'Track'>
+const NoTrackValues = EntityTypeValues.filter(t => t !== 'Track') as NoTrack[]
+const allTypes = new Set(NoTrackValues.flatMap(t => [t, t.toLocaleLowerCase()]).map(t => '/' + t))
+const asMap = new Map(
+   NoTrackValues.flatMap(t => [
+      ['/' + t, t],
+      ['/' + t.toLocaleLowerCase(), t],
+   ])
+)
+
+const selectedEntityTypesAtom = atom(['Album', 'Playlist', 'Artist'] as NoTrack[])
 const selectedGenreSeedsAtom = atom(new Array<string>())
 const filterHipsterAtom = atom(false)
 const filterNewAtom = atom(false)
 // TODO: Handle URI getting pasted in?
 const { currentValueAtom: queryStringAtom, debouncedValueAtom: debouncedQueryString } = atomWithDebounce('')
 
-const allTypes = new Set(EntityTypeValues.flatMap(t => [t, t.toLocaleLowerCase()]).map(t => '/' + t))
-const asMap = new Map(
-   EntityTypeValues.flatMap(t => [
-      ['/' + t, t],
-      ['/' + t.toLocaleLowerCase(), t],
-   ])
-)
 const setQueryStringAtom = atom(null, (get, set, value: string) => {
    const containedTypes = value
       .split(' ')
       .filter(t => allTypes.has(t))
-      .map(t => asMap.get(t as EntityType)! as EntityType)
+      .map(t => asMap.get(t)!)
 
    if (containedTypes.length > 0) {
       set(selectedEntityTypesAtom, containedTypes)
