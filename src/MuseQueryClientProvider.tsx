@@ -38,6 +38,8 @@ export default function MuseQueryClientProvider({
                staleTime: 10 * 1000,
                // default: true
                refetchOnWindowFocus: false,
+               retry: 4,
+               retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
             },
          },
       })
