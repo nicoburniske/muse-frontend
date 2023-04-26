@@ -169,7 +169,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
          >
             <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
                <div className='avatar ml-1 flex-none'>
-                  <div className='h-8 w-8 rounded md:h-12 md:w-12'>
+                  <div className='h-8 w-8 md:h-12 md:w-12'>
                      <img src={albumImage} />
                   </div>
                </div>

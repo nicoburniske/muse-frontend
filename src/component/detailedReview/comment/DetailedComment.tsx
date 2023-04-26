@@ -181,7 +181,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                   <div className='flex items-center justify-between space-x-1'>
                      <div className='flex items-center space-x-1' ref={playOnDoubleClickRef}>
                         <div className='avatar ml-1'>
-                           <div className='h-10 w-10 rounded'>
+                           <div className='h-10 w-10'>
                               <img src={image} />
                            </div>
                         </div>
