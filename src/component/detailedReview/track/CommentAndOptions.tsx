@@ -17,7 +17,7 @@ export const CommentAndOptions = ({
    const canComment = useIsCurrentUserCollaborator(reviewId)
 
    return (
-      <div className='mr-3 flex w-full items-center justify-evenly'>
+      <div className='mx-1 flex w-full items-center justify-between md:mx-3 lg:mx-4'>
          <ListenOnSpotifyIcon entityId={trackId} entityType={'Track'} className='flex-none p-0' />
          {canComment && (
             <button className='btn btn-ghost btn-square btn-sm' onClick={showCommentModal}>
