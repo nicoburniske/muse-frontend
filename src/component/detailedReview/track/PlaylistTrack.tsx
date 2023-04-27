@@ -149,7 +149,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
       <div
          className={cn(
             'muse-track group flex items-center justify-between',
-            'm-0 select-none border-2 border-transparent p-0.5',
+            'm-0 select-none rounded-md p-0',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
@@ -169,8 +169,8 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
          >
             <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
                <div className='avatar ml-1 flex-none'>
-                  <div className='h-8 w-8 md:h-12 md:w-12'>
-                     <img src={albumImage} />
+                  <div className='h-12 w-12'>
+                     <img src={albumImage} alt='AlbumImage' />
                   </div>
                </div>
 

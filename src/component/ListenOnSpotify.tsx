@@ -50,7 +50,7 @@ export const ListenOnSpotifyIcon = (props: ListenOnSpotifyProps) => {
    const spotifyLink = getLink(entityId, entityType)
    const spotifyIcon = useSpotifyIcon()
    return (
-      <div className={cn('p-4', className)}>
+      <div className={cn('flex-none p-4', className)}>
          <ListenOnSpotifyTooltip>
             <a href={spotifyLink} rel='noreferrer' target='_blank'>
                <img src={spotifyIcon} className={cn('h-8 w-8', logoClassName)} />
@@ -64,7 +64,7 @@ const ListenOnSpotifyTooltip = ({ children }: { children: React.ReactNode }) => 
    <TooltipProvider delayDuration={300}>
       <Tooltip>
          <TooltipTrigger asChild>{children}</TooltipTrigger>
-         <TooltipContent className='bg-primary text-primary-content'>
+         <TooltipContent className='text-primary-content bg-primary'>
             <p> Listen on Spotify </p>
          </TooltipContent>
       </Tooltip>

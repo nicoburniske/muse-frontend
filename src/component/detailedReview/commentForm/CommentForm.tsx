@@ -64,14 +64,14 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
             <Tab.Group>
                {({ selectedIndex }) => (
                   <>
-                     <Tab.List className='flex items-center text-base-content'>
+                     <Tab.List className='flex items-center text-foreground'>
                         <div className='space-x-1'>
                            <Tab
                               className={({ selected }) =>
                                  cn(
                                     selected
                                        ? 'bg-base-200 font-bold'
-                                       : 'bg-base-100  text-base-content/50 hover:bg-base-200',
+                                       : 'hover:bg-base-200  bg-background text-foreground/50',
                                     'rounded-md border border-transparent px-3 py-1.5 text-sm font-medium'
                                  )
                               }
@@ -83,7 +83,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                                  cn(
                                     selected
                                        ? 'bg-base-200 font-bold'
-                                       : 'bg-base-100  text-base-content/50 hover:bg-base-200 hover:text-base-content',
+                                       : 'hover:bg-base-200  bg-background text-foreground/50 hover:text-foreground',
                                     'rounded-md border border-transparent px-3 py-1.5 text-sm font-medium'
                                  )
                               }
@@ -97,7 +97,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                               <div className='flex items-center'>
                                  <button
                                     type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
+                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
                                     onClick={blockQuoteSelected}
                                  >
                                     <span className='sr-only'>Block comment selected text</span>
@@ -108,7 +108,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                               <div className='flex items-center'>
                                  <button
                                     type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
+                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
                                     onClick={boldSelected}
                                  >
                                     <span className='sr-only'>Bold selected text</span>
@@ -121,7 +121,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                               <div className='flex items-center'>
                                  <button
                                     type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
+                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
                                     onClick={italicSelected}
                                  >
                                     <span className='sr-only'>Italicize selected text</span>
@@ -142,7 +142,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                                  ref={commentInputRef}
                                  rows={6}
                                  placeholder='Add your comment...'
-                                 className='textarea textarea-bordered w-full grow placeholder-base-content/50'
+                                 className='textarea textarea-bordered w-full grow placeholder-foreground/50'
                                  onChange={e => setComment(e.target.value as string)}
                                  value={comment}
                               />
@@ -150,7 +150,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                         </Tab.Panel>
                         <Tab.Panel className='-m-0.5 rounded-lg p-0.5'>
                            <div className='border-b border-primary'>
-                              <div className='prose mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5'>
+                              <div className='prose mx-px mt-px px-3 pb-12 pt-2 text-sm leading-5'>
                                  <CommentMarkdown trackId={trackId} comment={comment} />
                               </div>
                            </div>

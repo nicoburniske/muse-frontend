@@ -59,8 +59,8 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
             <>
                <Listbox.Label className='sr-only'> Change published status </Listbox.Label>
                <div className='relative'>
-                  <div className='inline-flex w-full justify-between divide-x divide-primary-content/50 rounded-md bg-primary shadow-sm '>
-                     <div className='inline-flex flex-1 items-center justify-between rounded-l-md border border-transparent py-2 pl-3 pr-4 text-primary-content shadow-sm'>
+                  <div className='divide-primary-content/50 inline-flex w-full justify-between divide-x rounded-md bg-primary shadow-sm '>
+                     <div className='text-primary-content inline-flex flex-1 items-center justify-between rounded-l-md border border-transparent py-2 pl-3 pr-4 shadow-sm'>
                         <Link to={`/app/user/${user.user.id}`}>
                            <p className='ml-1 text-sm font-medium'>{displayName} </p>
                         </Link>
@@ -68,11 +68,11 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                      </div>
                      <Listbox.Button
                         disabled={!isEditable}
-                        className='inline-flex flex-none items-center rounded-l-none rounded-r-md p-2 text-sm font-medium text-primary-content focus:outline-none hover:bg-primary-focus'
+                        className='text-primary-content hover:bg-primary-focus inline-flex flex-none items-center rounded-l-none rounded-r-md p-2 text-sm font-medium focus:outline-none'
                      >
                         <span className='sr-only'>Change shared status</span>
                         <ChevronDownIcon
-                           className='h-5 w-5 text-primary-content'
+                           className='text-primary-content h-5 w-5'
                            aria-hidden='true'
                            ref={refs.setReference}
                         />
@@ -96,7 +96,7 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                               zIndex: 100,
                               width: 'max-content',
                            }}
-                           className='-opacity-5 flex w-72 origin-top-right flex-col items-start divide-y divide-base-content/50 overflow-hidden rounded-md bg-base-100 shadow-lg ring-1 ring-base-300 focus:outline-none '
+                           className='-opacity-5 ring-base-300 flex w-72 origin-top-right flex-col items-start divide-y divide-foreground/50 overflow-hidden rounded-md bg-background shadow-lg ring-1 focus:outline-none '
                         >
                            <>
                               {ShareOptions.map(option => (
@@ -104,7 +104,7 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                                     key={option.value}
                                     className={({ active }) =>
                                        cn(
-                                          active ? 'bg-primary text-primary-content' : 'text-base-content',
+                                          active ? 'text-primary-content bg-primary' : 'text-foreground',
                                           'w-full cursor-default select-none p-4 text-sm'
                                        )
                                     }
@@ -117,7 +117,7 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                                              {selected ? (
                                                 <span
                                                    className={
-                                                      active ? 'bg-primary text-primary-content' : 'text-base-content'
+                                                      active ? 'text-primary-content bg-primary' : 'text-foreground'
                                                    }
                                                 >
                                                    <CheckIcon className='h-5 w-5' aria-hidden='true' />
@@ -126,7 +126,7 @@ export const UserWithAccessLevel = ({ user, reviewId }: { user: CollaboratorFrag
                                           </div>
                                           <p
                                              className={cn(
-                                                active ? 'bg-primary text-primary-content' : 'text-base-content'
+                                                active ? 'text-primary-content bg-primary' : 'text-foreground'
                                              )}
                                           >
                                              {option.description}

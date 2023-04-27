@@ -26,7 +26,7 @@ export function ProfilePage() {
                </Hero>
             }
          >
-            <div className='flex grow bg-base-100'>
+            <div className='flex grow bg-background'>
                <Suspense fallback={<HeroLoading />}>
                   <UserProfile userId={userId} />
                </Suspense>
@@ -66,7 +66,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
    return (
       <>
          <div className='muse-scrollbar flex flex-1 flex-col items-center overflow-y-auto px-2 pt-16'>
-            <div className='mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg bg-base-200 text-base-content shadow-2xl'>
+            <div className='bg-base-200 mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg text-foreground shadow-2xl'>
                <div className='px-6'>
                   <div className='flex flex-wrap justify-center'>
                      <div className='flex w-full justify-center px-4'>
@@ -79,7 +79,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
                      <div className='mt-20 w-full px-4 text-center'>
                         <div className='text-center'>
                            <h3 className='mb-2 text-xl font-semibold leading-normal'>{displayName ?? userId}</h3>
-                           <div className='mt-0 mb-2 text-sm font-bold leading-normal'>@{userId}</div>
+                           <div className='mb-2 mt-0 text-sm font-bold leading-normal'>@{userId}</div>
                         </div>
                         <div className='flex justify-center py-4 pt-8 lg:pt-4'>
                            <div className='mr-4 p-3 text-center'>

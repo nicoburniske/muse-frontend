@@ -15,10 +15,10 @@ export const ThemeSetter = () => {
             <div>
                <Listbox.Label className='block text-sm font-bold'>Theme</Listbox.Label>
                <div className='relative'>
-                  <Listbox.Button className='relative w-full cursor-default rounded-md border-2 border-base-content/20 bg-base-100 py-3 pl-3 pr-10 text-left shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm'>
+                  <Listbox.Button className='relative w-full cursor-default rounded-md border-2 border-foreground/20 bg-background py-3 pl-3 pr-10 text-left shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm'>
                      <span className='block truncate'>{currentTheme}</span>
                      <span className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2'>
-                        <ChevronUpDownIcon className='h-5 w-5 text-base-content' aria-hidden='true' />
+                        <ChevronUpDownIcon className='h-5 w-5 text-foreground' aria-hidden='true' />
                      </span>
                   </Listbox.Button>
 
@@ -36,8 +36,8 @@ export const ThemeSetter = () => {
                               data-theme={theme}
                               className={({ active, selected }) =>
                                  cn(
-                                    active ? 'bg-base-300' : selected ? 'bg-base-200 ' : 'bg-base-100 ',
-                                    'cursor-default select-none py-2 px-2 text-base-content'
+                                    active ? 'bg-base-300' : selected ? 'bg-base-200 ' : 'bg-background ',
+                                    'cursor-default select-none px-2 py-2 text-foreground'
                                  )
                               }
                               value={theme}
@@ -56,12 +56,12 @@ export const ThemeSetter = () => {
                                        <span className='w-2 bg-primary' />
                                        <span className='w-2 bg-secondary' />
                                        <span className='w-2 bg-accent' />
-                                       <span className='w-2 bg-neutral' />
+                                       <span className='bg-neutral w-2' />
                                     </span>
 
                                     {selected ? (
                                        <span
-                                          className={cn('text-base-content', 'flex items-center justify-self-end pr-4')}
+                                          className={cn('text-foreground', 'flex items-center justify-self-end pr-4')}
                                        >
                                           <CheckIcon className='h-5 w-5' aria-hidden='true' />
                                        </span>

@@ -38,7 +38,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
          Wrapper={ThemeWrapper}
          styles={onboardingStyles}
       >
-         <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
+         <div className='flex h-screen flex-col bg-background' data-theme={theme}>
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />

@@ -36,7 +36,7 @@ const RefreshButton = () => {
 const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) => {
    return (
       <>
-         <div className='flex flex-1 flex-col bg-base-100'>
+         <div className='flex flex-1 flex-col bg-background'>
             <header className='w-full'>
                <div className='relative z-10 flex h-16 flex-shrink-0 shadow-sm'>
                   <OpenMobileMenuButton>
@@ -51,7 +51,7 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                         </button>
                      )}
                   </OpenMobileMenuButton>
-                  <div className='align-center flex flex-1 justify-center py-2 px-4'>
+                  <div className='align-center flex flex-1 justify-center px-4 py-2'>
                      <SearchBar />
                   </div>
                </div>
@@ -62,7 +62,7 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                <main className='muse-scrollbar flex-1 overflow-y-auto'>
                   <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
                      <div className='flex'>
-                        <h1 className='flex-1 text-2xl font-bold text-base-content'>Playlists</h1>
+                        <h1 className='flex-1 text-2xl font-bold text-foreground'>Playlists</h1>
                         <RefreshButton />
                      </div>
                      <FilterTabs />
@@ -139,11 +139,11 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
 
    return (
       <div
-         className='cursor-pointer bg-base-200 shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl'
+         className='bg-base-200 hover:bg-base-300 cursor-pointer shadow transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl'
          onClick={onClick}
       >
          {/* This ensures that we have square aspect ratio */}
-         <div className='aspect-w-4 aspect-h-4'>
+         <div className='aspect-h-4 aspect-w-4'>
             {/* No image distortion and crop the image into center */}
             <img src={image} alt='ReviewImage' className='object-cover object-center' />
          </div>
@@ -151,7 +151,7 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
          <div className='mt-auto flex flex-col items-center justify-center text-center'>
             <div className='w-full truncate text-xs font-extrabold md:text-base'>{playlist.name}</div>
             {diffUserName && <div className='cw-full truncate text-xs md:text-base'>{creatorName}</div>}
-            <a className='w-full truncate text-xs text-base-content/50 hover:underline'>@{playlist.owner.id}</a>
+            <a className='w-full truncate text-xs text-foreground/50 hover:underline'>@{playlist.owner.id}</a>
          </div>
       </div>
    )
@@ -254,7 +254,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
          <div className='flex w-full flex-1 flex-col items-center justify-between'>
             <div className='flex w-full flex-col items-center space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
                <h3 className='self-start font-medium'>Information</h3>
-               <dl className='mt-2 w-full divide-y divide-secondary-content/50'>
+               <dl className='divide-secondary-content/50 mt-2 w-full divide-y'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
                         <dt className={cn(textColorSecondary)}>{key}</dt>

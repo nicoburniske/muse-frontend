@@ -6,7 +6,7 @@ export const NotFound = ({ redirect, label }: { redirect?: string; label: string
    const goBack = () => (nonNullable(redirect) ? nav(redirect) : nav(-1))
 
    return (
-      <div className='hero min-h-screen bg-base-100'>
+      <div className='hero min-h-screen bg-background'>
          <div className='hero-content text-center'>
             <div className='max-w-md'>
                <h1 className='text-5xl font-bold'>Not Found!</h1>

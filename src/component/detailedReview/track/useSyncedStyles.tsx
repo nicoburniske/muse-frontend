@@ -12,14 +12,16 @@ export const useTrackColor = (trackId: string) =>
          const isPlaying = get(nowPlayingTrackIdAtom) === trackId
          const isSelected = get(selectedTrackAtom)?.trackId === trackId
 
-         return isPlaying
-            ? cn(trackAnimation, 'bg-success text-success-content')
-            : isSelected
-            ? cn(trackAnimation, 'bg-info text-info-content')
-            : cn(
-                 trackAnimation,
-                 'bg-base-200 text-base-content active:bg-accent active:text-accent-content hover:bg-base-300'
-              )
+         if (isPlaying) {
+            return cn(trackAnimation, 'bg-primary text-primary-foreground')
+         } else if (isSelected) {
+            return cn(trackAnimation, 'bg-secondary text-secondary-foreground')
+         } else {
+            return cn(
+               trackAnimation,
+               'bg-background text-foreground active:text-accent-foreground active:bg-accent hover:bg-muted hover:text-muted-foreground'
+            )
+         }
       },
       [trackId]
    )
@@ -31,13 +33,13 @@ export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefine
          if (isLiked !== undefined) {
             const isPlaying = get(nowPlayingTrackIdAtom) === trackId
             if (isLiked && isPlaying) {
-               return cn('fill-success-content', animation)
+               return cn('fill-primary-foreground', animation)
             } else if (isLiked) {
-               return cn('fill-success', animation)
+               return cn('fill-primary', animation)
             } else if (isPlaying) {
                return cn('stroke-success-content', animation)
             } else {
-               return cn('stroke-base-content', animation)
+               return cn('stroke-foreground', animation)
             }
          }
          return ''

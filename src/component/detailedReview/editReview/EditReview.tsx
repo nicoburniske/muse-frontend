@@ -1,23 +1,30 @@
-import { Dialog } from '@headlessui/react'
-import { ThemeModal } from 'platform/component/ThemeModal'
 import { useUpdateReviewMutation } from 'graphql/generated/schema'
 import { useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { ArrowPathIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { cn } from 'util/Utils'
 import { DeleteReviewButton } from 'component/DeleteReviewButton'
 import { useNavigate } from 'react-router-dom'
+import { Input } from 'platform/component/Input'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from 'platform/component/Select'
+import { Button } from 'platform/component/Button'
+import { Label } from 'platform/component/Label'
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogFooter,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+} from 'platform/component/Dialog'
+import { useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
 
 export type EditReviewProps = {
-   isOpen: boolean
    reviewId: string
    reviewName: string
    isPublic: boolean
-   onSuccess: () => void
-   onCancel: () => void
 }
 
 const EditReviewSchema = z.object({
@@ -27,7 +34,7 @@ const EditReviewSchema = z.object({
 
 type EditReviewInputType = z.infer<typeof EditReviewSchema>
 
-export const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, onCancel }: EditReviewProps) => {
+export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) => {
    const defaultValues: EditReviewInputType = { reviewName, isPublic: isPublic ? 'public' : 'private' }
 
    const {
@@ -45,11 +52,13 @@ export const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, 
       reset(defaultValues)
    }, [reviewName, isPublic])
 
+   const invalidate = useInvalidateDetailedReviewCache(reviewId)
+
    const { mutate, isLoading } = useUpdateReviewMutation({
       onError: () => toast.error('Failed to update review.'),
       onSuccess: () => {
          toast.success('Updated review.')
-         onSuccess()
+         invalidate()
       },
    })
 
@@ -64,16 +73,21 @@ export const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, 
    const onDeleted = () => nav('/app/reviews')
 
    return (
-      <ThemeModal open={isOpen} className='max-w-md grow'>
-         <div className='relative flex flex-col items-center justify-between space-y-5 p-3'>
-            <Dialog.Title className='text-lg font-bold'>Edit Review</Dialog.Title>
+      <Dialog>
+         <DialogTrigger>
+            <Button variant='outline'>Edit</Button>
+         </DialogTrigger>
+
+         <DialogContent>
+            <DialogHeader>
+               <DialogTitle>Edit Review</DialogTitle>
+               <DialogDescription>Update properties of this review.</DialogDescription>
+            </DialogHeader>
 
             <form className='flex w-full flex-col items-center space-y-2 px-2' onSubmit={handleSubmit(onSubmit)}>
                <div className='w-full'>
-                  <label className='label' htmlFor='review-name'>
-                     <span className='label-text'>Review Name</span>
-                  </label>
-                  <input
+                  <Label htmlFor='review-name'>Review Name</Label>
+                  <Input
                      id='review-name'
                      type='text'
                      className='input input-bordered w-full'
@@ -84,28 +98,25 @@ export const EditReview = ({ isOpen, reviewId, reviewName, isPublic, onSuccess, 
                   <label className='label'>
                      <span className='label-text'>Public</span>
                   </label>
-                  <select {...register('isPublic')} className='select select-bordered w-full'>
-                     <option value={'private'}>Private</option>
-                     <option value={'public'}>Public</option>
-                  </select>
+                  <Select {...register('isPublic')}>
+                     <SelectTrigger>
+                        <SelectValue />
+                     </SelectTrigger>
+                     <SelectContent>
+                        <SelectGroup>
+                           <SelectItem value={'public'}>Public</SelectItem>
+                           <SelectItem value={'private'}>Private</SelectItem>
+                        </SelectGroup>
+                     </SelectContent>
+                  </Select>
                </div>
 
-               <button className={cn('btn btn-success w-32')} disabled={submitDisabled}>
-                  {isLoading ? (
-                     <ArrowPathIcon className={cn('h-6 w-6 animate-spin')} aria-hidden='true' />
-                  ) : (
-                     <>
-                        Confirm
-                        <CheckIcon className='h-6 w-6' aria-hidden='true' />
-                     </>
-                  )}
-               </button>
+               <Button disabled={submitDisabled || isLoading}>Confirm</Button>
             </form>
-            <button className='btn btn-error btn-square btn-sm absolute top-0 right-2' onClick={onCancel}>
-               <XMarkIcon className='h-6 w-6' />
-            </button>
-            <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
-         </div>
-      </ThemeModal>
+            <DialogFooter>
+               <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
+            </DialogFooter>
+         </DialogContent>
+      </Dialog>
    )
 }

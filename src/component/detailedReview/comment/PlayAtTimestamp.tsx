@@ -51,7 +51,7 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
    const text = comment !== undefined ? comment : timestamp !== undefined ? `@${formattedTime}` : formattedTime
 
    return (
-      <button type='button' className={'link-base-content link link-hover'} onClick={onClick}>
+      <button type='button' className={'link-foreground link link-hover'} onClick={onClick}>
          {text}
       </button>
    )

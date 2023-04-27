@@ -23,7 +23,7 @@ export default function DetailedReviewPage() {
                </Hero>
             }
          >
-            <div className='flex grow bg-base-100'>
+            <div className='flex grow bg-background'>
                <Suspense fallback={<HeroLoading />}>
                   <DetailedReview reviewId={reviewId} />
                </Suspense>

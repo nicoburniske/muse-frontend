@@ -17,10 +17,10 @@ export function MuseToaster() {
             duration: 2000,
             position: 'top-right',
             success: {
-               icon: <CheckCircleIcon className='h-6 w-6 text-success' aria-hidden='true' />,
+               icon: <CheckCircleIcon className='text-success h-6 w-6' aria-hidden='true' />,
             },
             error: {
-               icon: <ExclamationTriangleIcon className='h-6 w-6 text-error' aria-hidden='true' />,
+               icon: <ExclamationTriangleIcon className='text-error h-6 w-6' aria-hidden='true' />,
             },
          }}
       >
@@ -41,7 +41,7 @@ export function MuseToaster() {
                   <div
                      className={cn(
                         'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-opacity-5',
-                        'bg-base-300 text-base-content ring-primary',
+                        'bg-base-300 text-foreground ring-primary',
                         t.className
                      )}
                   >

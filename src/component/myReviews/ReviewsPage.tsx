@@ -19,6 +19,8 @@ import { useCurrentUserId } from 'state/CurrentUser'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { useNavigate } from 'react-router-dom'
 import { useOpenReviewsTour, useOpenReviewsTourFirstTime } from './ReviewsTour'
+import { Button } from 'platform/component/Button'
+import { Tabs, TabsList, TabsTrigger } from 'platform/component/Tabs'
 
 const viewToggleAtom = atom(false)
 
@@ -36,17 +38,15 @@ const SortTabs = ({ className }: { className?: string }) => {
    const [sortOrder, setSortOrder] = useAtom(sortOrderAtom)
 
    return (
-      <div id='tabs' className={cn('tabs', className)}>
-         {Object.entries(ReviewSorts).map(([key, value]) => (
-            <a
-               key={key}
-               className={cn('tab tab-bordered', sortOrder === key ? 'tab-active' : '')}
-               onClick={() => setSortOrder(key as ReviewSort)}
-            >
-               {value}
-            </a>
-         ))}
-      </div>
+      <Tabs value={sortOrder} className={className} onValueChange={v => setSortOrder(v)}>
+         <TabsList>
+            {Object.entries(ReviewSorts).map(([key, value]) => (
+               <TabsTrigger key={key} value={key as ReviewSort}>
+                  {value}
+               </TabsTrigger>
+            ))}
+         </TabsList>
+      </Tabs>
    )
 }
 
@@ -60,18 +60,19 @@ export default function ReviewsPage() {
    const openTour = useOpenReviewsTour()
 
    return (
-      <div className='flex flex-1 flex-col bg-base-100'>
+      <div className='flex flex-1 flex-col bg-background'>
          <header className='w-full'>
-            <div className='relative z-10 flex h-16 flex-shrink-0 shadow-sm'>
+            <div className='relative z-10 flex h-16 flex-shrink-0 items-center shadow-sm'>
                <OpenMobileMenuButton>
                   {onClick => (
-                     <button type='button' className='btn btn-primary m-auto h-full px-4 md:hidden' onClick={onClick}>
+                     <Button className='ml-1 inline md:hidden' onClick={onClick}>
+                        {/* <button type='button' className='btn btn-primary m-auto h-full px-4 ' onClick={onClick}> */}
                         <span className='sr-only'>Open sidebar</span>
                         <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                     </button>
+                     </Button>
                   )}
                </OpenMobileMenuButton>
-               <div className='align-center flex flex-1 justify-center py-2 px-4'>
+               <div className='align-center flex flex-1 justify-center px-4 py-2'>
                   <SearchBar />
                </div>
             </div>
@@ -85,7 +86,7 @@ export default function ReviewsPage() {
                <main className='muse-scrollbar flex-1 overflow-y-auto'>
                   <div className='mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8'>
                      <div className='flex'>
-                        <h1 className='flex-1 text-2xl font-bold text-base-content'>Reviews</h1>
+                        <h1 className='flex-1 text-2xl font-bold text-foreground'>Reviews</h1>
                         {/* <IconToggle
                            toggleAtom={viewToggleAtom}
                            iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}
@@ -103,7 +104,7 @@ export default function ReviewsPage() {
                            <SortTabs />
                         </div>
                         <div className='hidden sm:block'>
-                           <div className='flex items-center border-b border-base-content/20'>
+                           <div className='flex items-center'>
                               <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
 
                               <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
@@ -196,9 +197,9 @@ const NoReviewsState = () => {
    const nav = useNavigate()
    return (
       <div className='mx-auto max-w-lg pt-10'>
-         <h2 className='text-lg font-medium text-base-content'>Create your first review </h2>
+         <h2 className='text-lg font-medium text-foreground'>Create your first review </h2>
          {/* <p className='mt-1 text-sm text-gray-500'>Share some</p> */}
-         <ul role='list' className='mt-6 divide-y divide-base-content/10 border-t border-b border-base-content/10'>
+         <ul role='list' className='mt-6 divide-y divide-foreground/10 border-b border-t border-foreground/10'>
             {items.map((item, itemIdx) => (
                <li key={itemIdx}>
                   <div className='group relative flex items-start space-x-3 py-4'>
@@ -213,17 +214,17 @@ const NoReviewsState = () => {
                         </span>
                      </div>
                      <div className='min-w-0 flex-1'>
-                        <div className='text-sm font-medium text-base-content'>
+                        <div className='text-sm font-medium text-foreground'>
                            <button onClick={() => nav(item.href)}>
                               <span className='absolute inset-0' aria-hidden='true' />
                               {item.name}
                            </button>
                         </div>
-                        <p className='text-sm text-base-content/50'>{item.description}</p>
+                        <p className='text-sm text-foreground/50'>{item.description}</p>
                      </div>
                      <div className='flex-shrink-0 self-center'>
                         <ChevronRightIcon
-                           className='h-5 w-5 text-base-content/50 group-hover:text-base-content'
+                           className='h-5 w-5 text-foreground/50 group-hover:text-foreground'
                            aria-hidden='true'
                         />
                      </div>

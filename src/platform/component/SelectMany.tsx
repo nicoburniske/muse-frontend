@@ -26,10 +26,10 @@ const SelectMany = <T,>({
       <Listbox value={selected} multiple onChange={onChange}>
          {({ open }) => (
             <>
-               <Listbox.Label className='block text-base font-bold text-base-content'>{label}</Listbox.Label>
+               <Listbox.Label className='block text-base font-bold text-foreground'>{label}</Listbox.Label>
                <div className='relative mt-1'>
-                  <Listbox.Button className='focus:primary relative w-full cursor-default rounded-md border border-base-300 bg-base-100 py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-primary focus:border-primary focus:outline-none focus:ring-1 md:text-base'>
-                     <span className='block truncate text-base-content'>{renderSelected(selected)}</span>
+                  <Listbox.Button className='focus:primary border-base-300 relative w-full cursor-default rounded-md border bg-background py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-primary focus:border-primary focus:outline-none focus:ring-1 md:text-base'>
+                     <span className='block truncate text-foreground'>{renderSelected(selected)}</span>
                      <span className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2'>
                         <ChevronUpDownIcon className='h-5 w-5 text-primary' aria-hidden='true' />
                      </span>
@@ -42,13 +42,13 @@ const SelectMany = <T,>({
                      leaveFrom='opacity-100'
                      leaveTo='opacity-0'
                   >
-                     <Listbox.Options className='absolute z-10 mt-1 max-h-80 w-full overflow-auto rounded-md bg-base-100 py-1 text-base shadow-lg ring-1 ring-neutral ring-opacity-5 focus:outline-none sm:text-sm'>
+                     <Listbox.Options className='ring-neutral absolute z-10 mt-1 max-h-80 w-full overflow-auto rounded-md bg-background py-1 text-base shadow-lg ring-1 ring-opacity-5 focus:outline-none sm:text-sm'>
                         {allOptions.map(option => (
                            <Listbox.Option
                               key={createKey(option)}
                               className={({ active }) =>
                                  cn(
-                                    active ? 'bg-primary text-primary-content' : 'text-base-content',
+                                    active ? 'text-primary-content bg-primary' : 'text-foreground',
                                     'relative cursor-default select-none py-2 pl-3 pr-9'
                                  )
                               }
@@ -68,7 +68,7 @@ const SelectMany = <T,>({
                                     {selected ? (
                                        <span
                                           className={cn(
-                                             active ? 'text-primary-content' : 'text-base-content',
+                                             active ? 'text-primary-content' : 'text-foreground',
                                              'absolute inset-y-0 right-0 flex items-center pr-4'
                                           )}
                                        >

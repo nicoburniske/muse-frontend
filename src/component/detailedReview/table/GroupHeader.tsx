@@ -81,7 +81,7 @@ export const ReviewGroupHeader = ({
       >
          <div className={cn('flex w-full items-center p-1')}>
             <div className='grid grow grid-cols-2 items-center'>
-               <h2 className={'text-md truncate text-secondary-content md:text-xl'}>{reviewName}</h2>
+               <h2 className={'text-md text-secondary-content truncate md:text-xl'}>{reviewName}</h2>
                <div className={'flex flex-row items-center justify-start'}>
                   {
                      <div className='avatar hidden md:inline-flex'>
@@ -91,8 +91,8 @@ export const ReviewGroupHeader = ({
                      </div>
                   }
                   <div className='ml-1 flex flex-col space-y-0.5'>
-                     <div className='badge badge-primary truncate text-center text-primary-content'>{entityName}</div>
-                     <div className='badge badge-accent text-center text-accent-content'>{entityType}</div>
+                     <div className='badge badge-primary text-primary-content truncate text-center'>{entityName}</div>
+                     <div className='badge badge-accent text-accent-content text-center'>{entityType}</div>
                   </div>
                </div>
             </div>
@@ -166,7 +166,7 @@ const HeaderMenu = ({ reviewId, parentReviewId }: { reviewId: string; parentRevi
                               zIndex: 100,
                               width: 'max-content',
                            }}
-                           className='menu rounded-md bg-neutral text-neutral-content shadow-lg '
+                           className='menu bg-neutral text-neutral-content rounded-md shadow-lg '
                         >
                            <Menu.Item>
                               {({ active }) => (
@@ -236,7 +236,7 @@ const DeleteReviewLinkModal = ({
    return (
       <Portal>
          <ThemeModal open={modalOpen} className='max-w-md'>
-            <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
+            <div className='bg-background text-foreground shadow sm:rounded-lg'>
                <div className='px-4 py-5 sm:p-6'>
                   <h3 className='text-lg font-medium leading-6 '>Delete Review Link</h3>
                   <div className='mt-2 max-w-xl text-sm'>

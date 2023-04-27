@@ -35,24 +35,24 @@ const NewCommentToast = ({ comment, t }: { comment: DetailedCommentFragment; t: 
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
          >
-            <div className='pointer-events-auto flex w-full max-w-md rounded-lg bg-base-300 shadow-lg ring-1 ring-primary ring-opacity-5'>
+            <div className='bg-base-300 pointer-events-auto flex w-full max-w-md rounded-lg shadow-lg ring-1 ring-primary ring-opacity-5'>
                <div className='w-0 flex-1 p-4'>
                   <div className='flex items-start'>
                      <div className='flex-shrink-0 pt-0.5'>
                         <img className='h-10 w-10 rounded-full' src={image} alt='Commenter Profile Picture' />
                      </div>
                      <div className='ml-3 w-0 flex-1'>
-                        <p className='text-sm font-medium text-base-content'>{displayName}</p>
-                        <p className='mt-1 text-sm text-base-content/50'>{comment.comment}</p>
+                        <p className='text-sm font-medium text-foreground'>{displayName}</p>
+                        <p className='mt-1 text-sm text-foreground/50'>{comment.comment}</p>
                      </div>
                   </div>
                </div>
-               <div className='flex border-l border-base-content/50'>
-                  <div className='mr-2 flex flex-col divide-y divide-base-content/50 px-1'>
+               <div className='flex border-l border-foreground/50'>
+                  <div className='mr-2 flex flex-col divide-y divide-foreground/50 px-1'>
                      <div className='flex h-0 flex-1'>
                         <button
                            type='button'
-                           className='w-full text-base-content/50 hover:text-base-content'
+                           className='w-full text-foreground/50 hover:text-foreground'
                            onClick={() => {
                               toast.dismiss(t.id)
                               replyComment()
@@ -64,7 +64,7 @@ const NewCommentToast = ({ comment, t }: { comment: DetailedCommentFragment; t: 
                      <div className='flex h-0 flex-1'>
                         <button
                            type='button'
-                           className='w-full text-base-content/50 hover:text-base-content'
+                           className='w-full text-foreground/50 hover:text-foreground'
                            onClick={() => {
                               toast.dismiss(t.id)
                            }}

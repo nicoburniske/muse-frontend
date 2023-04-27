@@ -59,7 +59,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
             <ThemeModal open={isModalOpen} className='max-w-2xl grow'>
                <div className='flex h-full w-full flex-col items-center justify-between space-y-5 p-3 '>
                   <Dialog.Title>
-                     <h3 className='flex-1 text-lg font-bold text-base-content'> Link Review </h3>
+                     <h3 className='flex-1 text-lg font-bold text-foreground'> Link Review </h3>
                   </Dialog.Title>
 
                   <div className='h-96 w-full space-y-1 overflow-y-auto'>
@@ -68,7 +68,7 @@ export const LinkReviewButton = ({ reviewId, alreadyLinkedIds }: { reviewId: str
                         const style =
                            r.id === selectedReview
                               ? 'bg-success text-success-content'
-                              : 'bg-base-200 text-base-content hover:bg-base-focus'
+                              : 'bg-base-200 text-foreground hover:bg-base-focus'
                         return (
                            <div
                               className={cn('card card-body flex h-20 flex-row items-center justify-around p-1', style)}

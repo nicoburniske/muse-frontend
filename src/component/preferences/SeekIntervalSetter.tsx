@@ -36,7 +36,7 @@ export const SeekIntervalSetter = () => {
    return (
       <div>
          <div className='relative'>
-            <label htmlFor='seekInterval' className='block text-sm font-bold text-base-content'>
+            <label htmlFor='seekInterval' className='block text-sm font-bold text-foreground'>
                Seek interval (seconds)
             </label>
             <input
@@ -50,7 +50,7 @@ export const SeekIntervalSetter = () => {
                aria-describedby='number-error'
             />
          </div>
-         <p className='mt-2 h-6 text-sm text-error'>{errors.join(',')}</p>
+         <p className='text-error mt-2 h-6 text-sm'>{errors.join(',')}</p>
       </div>
    )
 }

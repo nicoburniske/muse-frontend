@@ -11,7 +11,7 @@ export const SideNavBar = () => {
       <>
          <div className='hidden md:flex md:flex-shrink-0'>
             <div className='flex w-20 flex-col'>
-               <div className='flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-primary to-neutral'>
+               <div className='to-neutral flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-primary'>
                   <div className='flex-1'>
                      <div className='flex items-center justify-center py-4' onClick={() => nav('/')}>
                         <img className='h-8 w-auto' src={LogoImage} alt='Muse' />
@@ -51,10 +51,10 @@ const NavBarLink = ({ item }: { item: NavItem }) => {
                <a
                   onClick={action}
                   className={cn(
-                     'flex flex-col items-center p-3 transition-all duration-100 hover:bg-secondary-focus hover:text-secondary-content',
+                     'hover:bg-secondary-focus hover:text-secondary-content flex flex-col items-center p-3 transition-all duration-100',
                      path.includes(item.href)
-                        ? 'w-3/4 bg-secondary text-secondary-content'
-                        : 'bg-base-100 text-base-content',
+                        ? 'text-secondary-content w-3/4 bg-secondary'
+                        : 'bg-background text-foreground',
                      'rounded-3xl hover:w-full hover:rounded-xl',
                      item.className
                   )}
@@ -63,7 +63,7 @@ const NavBarLink = ({ item }: { item: NavItem }) => {
                   <span className='sr-only'>{item.name}</span>
                </a>
             </TooltipTrigger>
-            <TooltipContent side='right' align='start' alignOffset={-4} className='bg-primary text-primary-content'>
+            <TooltipContent side='right' align='start' alignOffset={-4} className='bg-primary text-primary-foreground'>
                <p>{item.name}</p>
             </TooltipContent>
          </Tooltip>

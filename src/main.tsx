@@ -11,6 +11,7 @@ import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { MuseToaster } from 'MuseToaster'
+import './index.css'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,

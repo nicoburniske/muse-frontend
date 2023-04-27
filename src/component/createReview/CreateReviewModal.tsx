@@ -75,7 +75,7 @@ export const CreateReviewModal = () => {
    return (
       <Portal>
          <ThemeModal open={isModalOpen} className='max-w-md border-0 bg-transparent lg:max-w-2xl'>
-            <div className='card max-h-full bg-base-100 shadow-xl lg:card-side'>
+            <div className='card lg:card-side max-h-full bg-background shadow-xl'>
                <figure>
                   <img
                      src={entityImage}
@@ -92,7 +92,7 @@ export const CreateReviewModal = () => {
                      <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
                   </div>
                   <div>
-                     <label className='block text-base font-bold text-base-content'>Review Name</label>
+                     <label className='block text-base font-bold text-foreground'>Review Name</label>
                      <div className='mt-1'>
                         <input
                            type='text'

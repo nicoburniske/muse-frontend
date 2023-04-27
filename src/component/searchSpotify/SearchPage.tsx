@@ -34,7 +34,7 @@ const SearchPage = () => {
       <>
          <div className='flex grow'>
             {expandFilter && (
-               <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
+               <div className='bg-base-200 flex w-32 flex-col space-y-5 p-2 md:w-56 md:p-4'>
                   <SelectEntityTypes />
                   <SelectGenreSeeds />
                   <SelectHipsterFilter />
@@ -42,7 +42,7 @@ const SearchPage = () => {
                   <SelectPlayOnHover />
                </div>
             )}
-            <div className='flex grow flex-col items-center justify-between bg-base-100'>
+            <div className='flex grow flex-col items-center justify-between bg-background'>
                <div className='flex w-full flex-none items-center justify-between'>
                   <button
                      className='btn btn-ghost btn-sm h-3/4 flex-none justify-self-start'
@@ -58,7 +58,7 @@ const SearchPage = () => {
                   <div />
                </div>
                {/* Again no idea why I need min-h */}
-               <div className='min-h-0 w-full grow rounded-md border-2 border-base-200 px-3 shadow-2xl'>
+               <div className='border-base-200 min-h-0 w-full grow rounded-md border-2 px-3 shadow-2xl'>
                   <ScrollSearchResults />
                </div>
             </div>
@@ -457,16 +457,16 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
 
    return (
       <div
-         className='flex w-32 flex-col bg-base-200 text-base-content shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl md:w-48'
+         className='bg-base-200 hover:bg-base-300 flex w-32 flex-col text-foreground shadow transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl md:w-48'
          onMouseEnter={playHover}
          onMouseLeave={mouseLeave}
          ref={playOnDoubleClickRef}
       >
          <img src={tileImage} className='h-32 w-32 object-center md:h-48 md:w-48' alt='SearchResult' />
          <div className='flex cursor-pointer flex-col items-center justify-evenly text-center' onClick={open}>
-            <div className='w-full text-xs font-extrabold line-clamp-1 md:text-base'>{searchRow.name}</div>
+            <div className='line-clamp-1 w-full text-xs font-extrabold md:text-base'>{searchRow.name}</div>
             <div className='badge badge-primary truncate text-xs md:text-sm'>{capitalizeFirst(searchRow.type)}</div>
-            <p className='text-clip text-sm line-clamp-1'>{secondaryData(searchRow)}</p>
+            <p className='line-clamp-1 text-clip text-sm'>{secondaryData(searchRow)}</p>
          </div>
       </div>
    )

@@ -34,7 +34,7 @@ export default function AboutPage() {
    const spotifyLogo = useSpotifyLogo()
 
    return (
-      <div className='isolate h-screen bg-base-100 text-base-content' data-theme={theme}>
+      <div className='isolate h-screen bg-background text-foreground' data-theme={theme}>
          <div className='px-6 pt-6 lg:px-8'>
             <nav className='flex items-center justify-between' aria-label='Global'>
                <div className='flex lg:flex-1'>
@@ -66,7 +66,7 @@ export default function AboutPage() {
                         Enter App
                      </Link>
                   ) : (
-                     <a href={AppConfig.loginRedirect} className='text-sm font-semibold leading-6 text-base-content'>
+                     <a href={AppConfig.loginRedirect} className='text-sm font-semibold leading-6 text-foreground'>
                         Log in with Spotify
                         <span aria-hidden='true'>&rarr;</span>
                      </a>
@@ -74,7 +74,7 @@ export default function AboutPage() {
                </div>
             </nav>
             <Dialog as='div' open={mobileMenuOpen} onClose={setMobileMenuOpen} data-theme={theme}>
-               <Dialog.Panel className='fixed inset-0 z-10 overflow-y-auto bg-primary px-6 py-6 text-primary-content lg:hidden'>
+               <Dialog.Panel className='text-primary-content fixed inset-0 z-10 overflow-y-auto bg-primary px-6 py-6 lg:hidden'>
                   <div className='flex items-center justify-between'>
                      <a href='#' className='-m-1.5 p-1.5'>
                         <span className='sr-only'>Muse</span>
@@ -86,13 +86,13 @@ export default function AboutPage() {
                      </button>
                   </div>
                   <div className='mt-6 flow-root'>
-                     <div className='-my-6 divide-y divide-primary-content/50'>
+                     <div className='divide-primary-content/50 -my-6 divide-y'>
                         <div className='space-y-2 py-6'>
                            {navigation.map(item => (
                               <a
                                  key={item.name}
                                  href={item.href}
-                                 className='-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 hover:bg-primary-focus'
+                                 className='hover:bg-primary-focus -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7'
                               >
                                  {item.name}
                               </a>
@@ -106,7 +106,7 @@ export default function AboutPage() {
                            ) : (
                               <a
                                  href={AppConfig.loginRedirect}
-                                 className='-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 hover:bg-primary-focus'
+                                 className='hover:bg-primary-focus -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-6'
                               >
                                  Log in with Spotify
                               </a>
@@ -126,7 +126,7 @@ export default function AboutPage() {
                      <div className='mt-4 flex items-center justify-center space-x-6'>
                         <a
                            href='#'
-                           className='rounded-md bg-primary px-3.5 py-1.5 text-base font-semibold leading-7 text-primary-content shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:bg-primary-focus'
+                           className='text-primary-content hover:bg-primary-focus rounded-md bg-primary px-3.5 py-1.5 text-base font-semibold leading-7 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                         >
                            Get started
                         </a>

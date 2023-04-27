@@ -1,4 +1,3 @@
-import './index.css'
 import DetailedReviewPage from 'component/detailedReview/DetailedReviewPage'
 import { NotFound } from 'pages/NotFound'
 import { Routes, Route } from 'react-router-dom'

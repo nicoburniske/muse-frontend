@@ -44,7 +44,7 @@ export const DeleteCommentConfirmation = () => {
    return (
       <Portal>
          <ThemeModal open={isModalOpen} className='max-w-md grow'>
-            <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
+            <div className='bg-background text-foreground shadow sm:rounded-lg'>
                <div className='px-4 py-5 sm:p-6'>
                   <h3 className='text-lg font-medium leading-6 '>Confirm comment deletion</h3>
                   <div className='mt-2 max-w-xl text-sm'>
