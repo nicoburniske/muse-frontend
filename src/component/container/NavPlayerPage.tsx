@@ -20,7 +20,6 @@ import { StylesObj, TourProvider } from '@reactour/tour'
 import { SubscribeReviews } from 'component/reviewUpdates/SubscribeReviews'
 
 export const NavPlayerPageOutlet = () => {
-   const theme = useThemeValue()
    return (
       <NavPlayerPage>
          <Outlet />
@@ -31,6 +30,10 @@ export const NavPlayerPageOutlet = () => {
 // Add navbar and player to the page.
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
    const theme = useThemeValue()
+
+   useEffect(() => {
+      document.documentElement.setAttribute('data-theme', theme)
+   }, [theme])
 
    return (
       <TourProvider

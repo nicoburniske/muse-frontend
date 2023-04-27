@@ -8,19 +8,15 @@ export interface UserPreferences {
    seekInterval: number
 }
 
-export enum Theme {
-   Light = 'light',
-   Dark = 'dark',
-   Emerald = 'emerald',
-   EmeraldDark = 'emerald-dark',
-}
+export const Themes = ['light', 'dark', 'emerald', 'emerald-dark'] as const
+export type Theme = (typeof Themes)[number]
 
 const isDark = (theme: Theme) => {
-   return theme === Theme.Dark || theme === Theme.EmeraldDark
+   return theme.includes('dark')
 }
 
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', {
-   theme: Theme.Dark,
+   theme: 'dark',
    shouldTransferPlaybackOnMount: false,
    seekInterval: 10000,
 })

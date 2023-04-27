@@ -7,18 +7,12 @@ import {
    SelectItem,
    SelectItemText,
 } from 'platform/component/Select'
-import { useEffect } from 'react'
-import { Theme, useTheme } from 'state/UserPreferences'
-import { cn } from 'util/Utils'
+import { Theme, Themes, useTheme } from 'state/UserPreferences'
 
-const ThemeOptions = Object.values(Theme).sort((a, b) => a.localeCompare(b))
+const ThemeOptions = [...Themes].sort((a, b) => a.localeCompare(b)) as Theme[]
 
 export const ThemeSetter = () => {
    const [currentTheme, setTheme] = useTheme()
-
-   useEffect(() => {
-      document.documentElement.setAttribute('data-theme', currentTheme)
-   }, [currentTheme])
 
    return (
       <Select
