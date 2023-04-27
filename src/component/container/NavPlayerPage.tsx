@@ -22,7 +22,7 @@ import { SubscribeReviews } from 'component/reviewUpdates/SubscribeReviews'
 export const NavPlayerPageOutlet = () => {
    const theme = useThemeValue()
    return (
-      <NavPlayerPage data-theme={theme}>
+      <NavPlayerPage>
          <Outlet />
       </NavPlayerPage>
    )
@@ -31,14 +31,14 @@ export const NavPlayerPageOutlet = () => {
 // Add navbar and player to the page.
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
    const theme = useThemeValue()
+
    return (
       <TourProvider
-         data-theme={theme}
          // @ts-ignore
          Wrapper={ThemeWrapper}
          styles={onboardingStyles}
       >
-         <div className='flex h-screen flex-col bg-background' data-theme={theme}>
+         <div className='flex h-screen flex-col bg-background'>
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />

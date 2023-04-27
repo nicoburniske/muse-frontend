@@ -19,7 +19,15 @@ import {
    DialogTrigger,
 } from 'platform/component/Dialog'
 import { Switch } from 'platform/component/Switch'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from 'platform/component/Select'
+import {
+   Select,
+   SelectContent,
+   SelectGroup,
+   SelectItem,
+   SelectItemText,
+   SelectTrigger,
+   SelectValue,
+} from 'platform/component/Select'
 import { Button } from 'platform/component/Button'
 import { Separator } from 'platform/component/Seperator'
 
@@ -89,8 +97,8 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
                )}
                <SearchUsersComboBox onSelect={(userId: string) => setUsername(userId)} />
                <div className='w-full'>
-                  <label className='label'>
-                     <span className='label-text font-bold'>Access Level</span>
+                  <label className=''>
+                     <span className='block text-sm font-medium'>Access Level</span>
                   </label>
                   <Select onValueChange={v => setAccessLevel(v as AccessLevel)} defaultValue={accessLevel}>
                      <SelectTrigger>
@@ -98,8 +106,12 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
                      </SelectTrigger>
                      <SelectContent>
                         <SelectGroup>
-                           <SelectItem value='Collaborator'>Editor</SelectItem>
-                           <SelectItem value='Viewer'>Viewer</SelectItem>
+                           <SelectItem value='Collaborator'>
+                              <SelectItemText>Editor</SelectItemText>
+                           </SelectItem>
+                           <SelectItem value='Viewer'>
+                              <SelectItemText>Viewer</SelectItemText>
+                           </SelectItem>
                         </SelectGroup>
                      </SelectContent>
                   </Select>

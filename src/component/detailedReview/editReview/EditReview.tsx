@@ -7,14 +7,21 @@ import { useForm, Controller } from 'react-hook-form'
 import { DeleteReviewButton } from 'component/DeleteReviewButton'
 import { useNavigate } from 'react-router-dom'
 import { Input } from 'platform/component/Input'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from 'platform/component/Select'
+import {
+   Select,
+   SelectContent,
+   SelectGroup,
+   SelectItem,
+   SelectItemText,
+   SelectTrigger,
+   SelectValue,
+} from 'platform/component/Select'
 import { Button } from 'platform/component/Button'
 import { Label } from 'platform/component/Label'
 import {
    Dialog,
    DialogContent,
    DialogDescription,
-   DialogFooter,
    DialogHeader,
    DialogTitle,
    DialogTrigger,
@@ -109,20 +116,24 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
                            </SelectTrigger>
                            <SelectContent>
                               <SelectGroup>
-                                 <SelectItem value={'public'}>Public</SelectItem>
-                                 <SelectItem value={'private'}>Private</SelectItem>
+                                 <SelectItem value={'public'}>
+                                    <SelectItemText>Public</SelectItemText>
+                                 </SelectItem>
+                                 <SelectItem value={'private'}>
+                                    <SelectItemText>Private</SelectItemText>
+                                 </SelectItem>
                               </SelectGroup>
                            </SelectContent>
                         </Select>
                      )}
                   />
                </div>
-
-               <Button disabled={submitDisabled || isLoading}>Confirm</Button>
             </form>
-            <DialogFooter>
+
+            <div className='flex w-full justify-between'>
                <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
-            </DialogFooter>
+               <Button disabled={submitDisabled || isLoading}>Confirm</Button>
+            </div>
          </DialogContent>
       </Dialog>
    )

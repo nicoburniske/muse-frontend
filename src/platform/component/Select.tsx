@@ -11,6 +11,8 @@ const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
 
+const SelectItemText = SelectPrimitive.ItemText
+
 const SelectTrigger = React.forwardRef<
    React.ElementRef<typeof SelectPrimitive.Trigger>,
    React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
@@ -86,7 +88,10 @@ const SelectItem = React.forwardRef<
          </SelectPrimitive.ItemIndicator>
       </span>
 
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      {/* TODO: figure out how to abstract this. */}
+      {/* <SelectPrimitive.ItemText> */}
+      {children}
+      {/* </SelectPrimitive.ItemText> */}
    </SelectPrimitive.Item>
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
@@ -99,4 +104,14 @@ const SelectSeparator = React.forwardRef<
 ))
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
-export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator }
+export {
+   Select,
+   SelectGroup,
+   SelectValue,
+   SelectTrigger,
+   SelectContent,
+   SelectLabel,
+   SelectItem,
+   SelectItemText,
+   SelectSeparator,
+}

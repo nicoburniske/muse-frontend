@@ -9,57 +9,18 @@ export interface UserPreferences {
 }
 
 export enum Theme {
-   Acid = 'acid',
-   Aqua = 'aqua',
-   Autumn = 'autumn',
-   Black = 'black',
-   Bumblebee = 'bumblebee',
-   Business = 'business',
-   Cymk = 'cmyk',
-   Coffee = 'coffee',
-   Corporate = 'corporate',
-   Cupcake = 'cupcake',
-   Cyberpunk = 'cyberpunk',
-   Dark = 'dark',
-   Dracula = 'dracula',
-   Emerald = 'emerald',
-   Fantasy = 'fantasy',
-   Forest = 'forest',
-   Garden = 'garden',
-   Halloween = 'halloween',
-   Lemonade = 'lemonade',
    Light = 'light',
-   Lofi = 'lofi',
-   Luxury = 'luxury',
-   Night = 'night',
-   Pastel = 'pastel',
-   Retro = 'retro',
-   Synthwave = 'synthwave',
-   Valentine = 'valentine',
-   Winter = 'winter',
-   Wireframe = 'wireframe',
+   Dark = 'dark',
+   Emerald = 'emerald',
+   EmeraldDark = 'emerald-dark',
 }
 
 const isDark = (theme: Theme) => {
-   switch (theme) {
-      case Theme.Black:
-      case Theme.Business:
-      case Theme.Coffee:
-      case Theme.Dark:
-      case Theme.Dracula:
-      case Theme.Forest:
-      case Theme.Halloween:
-      case Theme.Luxury:
-      case Theme.Night:
-      case Theme.Synthwave:
-         return true
-      default:
-         return false
-   }
+   return theme === Theme.Dark || theme === Theme.EmeraldDark
 }
 
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', {
-   theme: Theme.Black,
+   theme: Theme.Dark,
    shouldTransferPlaybackOnMount: false,
    seekInterval: 10000,
 })

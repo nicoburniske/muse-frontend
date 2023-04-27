@@ -19,7 +19,7 @@ export const useTrackColor = (trackId: string) =>
          } else {
             return cn(
                trackAnimation,
-               'bg-background text-foreground active:text-accent-foreground active:bg-accent hover:bg-muted hover:text-muted-foreground'
+               'bg-background text-foreground active:text-accent-foreground active:bg-accent hover:bg-accent hover:text-accent-foreground'
             )
          }
       },

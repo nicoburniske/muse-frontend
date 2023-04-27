@@ -1,6 +1,6 @@
 import LikeButton from 'component/LikeButton'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { cn, msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
@@ -44,7 +44,7 @@ export function SpotifyPlayerFallback() {
       )
    } else {
       return (
-         <div className='bg-neutral grid w-full place-items-center rounded border border-accent'>
+         <div className='grid w-full place-items-center rounded border border-accent bg-card text-card-foreground'>
             <div className='py-2'>
                <TransferPlaybackButton />
             </div>
@@ -55,7 +55,7 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='bg-neutral grid h-20 w-full grid-cols-3 justify-between md:grid-cols-5'>
+      <div className='grid h-20 w-full grid-cols-3 justify-between border-t bg-card text-card-foreground md:grid-cols-5'>
          <NowPlayingItem />
          <div className='col-span-2 flex w-full min-w-0 max-w-md grow flex-col items-end justify-center justify-self-center md:col-span-3 lg:max-w-3xl'>
             <div className='flex w-full flex-row items-center justify-evenly'>
@@ -90,17 +90,15 @@ const NowPlayingItem = () => {
 
    return (
       <div className={cn(' col-span-1 flex select-none items-center justify-start lg:max-w-lg')}>
-         <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : 'bg-neutral')}>
+         <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : '')}>
             <div className='avatar p-1'>
                <div className='w-16'>
                   <img src={nowPlayingImage} />
                </div>
             </div>
             <div className={'flex min-w-0 flex-col justify-center'}>
-               <div className='text-neutral-content truncate text-left text-xs md:p-0.5 lg:text-base'>{trackName}</div>
-               <div className='lg:text-md text-neutral-content prose truncate text-left text-xs md:p-0.5'>
-                  {nowPlayingArtist}
-               </div>
+               <div className='truncate text-left text-xs md:p-0.5 lg:text-base'>{trackName}</div>
+               <div className='lg:text-md truncate text-left text-xs md:p-0.5'>{nowPlayingArtist}</div>
             </div>
          </div>
 
@@ -111,7 +109,7 @@ const NowPlayingItem = () => {
 
 const commonBtnClass = ''
 
-const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-success text-success' : '', iconClass)
+const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-primary text-primary' : '', iconClass)
 
 const LikeNowPlaying = () => {
    const nowPlaying = useAtomValue(isPlayingAtom)
@@ -172,7 +170,7 @@ const PlaybackProgress = () => {
    const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
 
    return (
-      <div className='text-neutral-content mt-3 flex w-full flex-row items-center justify-center space-x-1'>
+      <div className='mt-3 flex w-full flex-row items-center justify-center space-x-1'>
          <span className='countdown font-mono text-sm lg:text-lg'>
             {/* @ts-ignore */}
             <span style={{ '--value': minProgress }}></span>:<span style={{ '--value': secProgress }}></span>
@@ -188,7 +186,7 @@ const PlaybackProgress = () => {
             aria-label='value'
             className='relative flex h-5 w-5/6 touch-none items-center'
          >
-            <Slider.Track className='bg-neutral-focus relative h-3 grow rounded-full'>
+            <Slider.Track className='relative h-3 grow rounded-full bg-secondary'>
                <Slider.Range className='absolute h-full rounded-full bg-primary' />
             </Slider.Track>
          </Slider.Root>
@@ -380,10 +378,10 @@ const VolumeSlider = () => {
             {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
          </Button>
          <LibSlider
+            disabled={disabled}
             defaultValue={[asInt]}
             max={100}
             step={1}
-            className={cn('')}
             onValueChange={e => convertAndSetVolume(e)}
          />
       </div>

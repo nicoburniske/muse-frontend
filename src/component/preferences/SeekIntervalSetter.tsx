@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
+import { Input } from 'platform/component/Input'
 import { cn } from 'util/Utils'
 import { z } from 'zod'
 
@@ -36,10 +37,10 @@ export const SeekIntervalSetter = () => {
    return (
       <div>
          <div className='relative'>
-            <label htmlFor='seekInterval' className='block text-sm font-bold text-foreground'>
+            <label htmlFor='seekInterval' className='block text-sm font-medium text-foreground'>
                Seek interval (seconds)
             </label>
-            <input
+            <Input
                type='number'
                name='number'
                id='seekInterval'

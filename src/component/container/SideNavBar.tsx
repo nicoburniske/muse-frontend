@@ -51,9 +51,9 @@ const NavBarLink = ({ item }: { item: NavItem }) => {
                <a
                   onClick={action}
                   className={cn(
-                     'hover:bg-secondary-focus hover:text-secondary-content flex flex-col items-center p-3 transition-all duration-100',
+                     'flex flex-col items-center p-3 transition-all duration-100 hover:bg-secondary/50 hover:text-secondary-foreground',
                      path.includes(item.href)
-                        ? 'text-secondary-content w-3/4 bg-secondary'
+                        ? 'w-3/4 bg-secondary text-secondary-foreground'
                         : 'bg-background text-foreground',
                      'rounded-3xl hover:w-full hover:rounded-xl',
                      item.className

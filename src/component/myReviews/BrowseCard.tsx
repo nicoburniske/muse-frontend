@@ -59,7 +59,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
                      e.stopPropagation()
                   }}
                >
-                  <EllipsisVerticalIcon className='h-4 w-4' aria-hidden='true' />
+                  <EllipsisVerticalIcon className='h-6 w-6' aria-hidden='true' />
                </Button>
             </div>
          </CardFooter>
