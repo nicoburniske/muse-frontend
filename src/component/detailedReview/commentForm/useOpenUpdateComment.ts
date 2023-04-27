@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { UpdateCommentInput, useDetailedReviewCommentsQuery, useUpdateCommentMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { useCommentModal } from './CommentFormModalWrapper'
+import { useCommentModal } from './CommentFormModal'
 import { Prettify } from 'util/Types'
 import { useCallback } from 'react'
 
@@ -30,7 +30,9 @@ export const useOpenUpdateComment = (options: UpdateCommentParams) => {
    const { openCommentModal, closeCommentModal } = useCommentModal()
 
    const { mutate, isLoading } = useUpdateCommentMutation({
-      onSuccess: () => closeCommentModal(),
+      onSuccess: () => {
+         closeCommentModal()
+      },
       onError: () => useCallback(() => toast.error(errorToastMessage), [errorToastMessage]),
       onSettled: () => {
          // Review comment subscription should take care of this.

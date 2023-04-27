@@ -1,4 +1,5 @@
 import { usePlayMutation } from 'component/sdk/ClientHooks'
+import { Button } from 'platform/component/Button'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { padTime } from 'util/Utils'
@@ -51,8 +52,8 @@ export function PlayAtTimestamp({ trackId, time, comment }: PlayAtTimestampProps
    const text = comment !== undefined ? comment : timestamp !== undefined ? `@${formattedTime}` : formattedTime
 
    return (
-      <button type='button' className={'link-foreground link link-hover'} onClick={onClick}>
+      <Button type='button' variant='link' size='empty' className='text-foreground' onClick={onClick}>
          {text}
-      </button>
+      </Button>
    )
 }

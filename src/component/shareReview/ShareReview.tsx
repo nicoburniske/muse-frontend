@@ -21,6 +21,7 @@ import {
 import { Switch } from 'platform/component/Switch'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from 'platform/component/Select'
 import { Button } from 'platform/component/Button'
+import { Separator } from 'platform/component/Seperator'
 
 export interface ShareReviewProps {
    reviewId: string
@@ -70,21 +71,24 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
             </DialogHeader>
             <div className='flex flex-col items-center space-y-3'>
                {collaborators?.length > 0 && (
-                  <div className='form-control w-full'>
-                     <label className='label'>
-                        <span className='label-text font-bold'> Shared With </span>
-                     </label>
-                     <ul className='h-32 flex-nowrap space-y-2 overflow-y-scroll'>
-                        {collaborators.map(c => (
-                           <li key={c.user.id}>
-                              <UserWithAccessLevel user={c} reviewId={reviewId} />
-                           </li>
-                        ))}
-                     </ul>
-                  </div>
+                  <>
+                     <div className='w-full'>
+                        <label className=''>
+                           <span className='block text-sm font-medium'> Collaborators </span>
+                        </label>
+                        <ul className='h-32 flex-nowrap space-y-2 overflow-y-scroll'>
+                           {collaborators.map(c => (
+                              <li key={c.user.id}>
+                                 <UserWithAccessLevel user={c} reviewId={reviewId} />
+                              </li>
+                           ))}
+                        </ul>
+                     </div>
+                     <Separator />
+                  </>
                )}
                <SearchUsersComboBox onSelect={(userId: string) => setUsername(userId)} />
-               <div className='form-control w-full'>
+               <div className='w-full'>
                   <label className='label'>
                      <span className='label-text font-bold'>Access Level</span>
                   </label>

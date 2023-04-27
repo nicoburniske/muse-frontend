@@ -9,7 +9,6 @@ import CommentMarkdown from './CommentMarkdown'
 import { findFirstImage, cn } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 import { useCurrentUserId } from 'state/CurrentUser'
-import { Menu, Transition } from '@headlessui/react'
 import {
    ChatBubbleLeftEllipsisIcon,
    ChatBubbleOvalLeftEllipsisIcon,
@@ -257,10 +256,11 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
    const currentUserId = useCurrentUserId()
    const isEditable = comment.commenter?.id === currentUserId
 
-   const openDelete = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
-
    const entityId = comment.entities?.at(0)?.id
    const entityType = comment.entities?.at(0)?.__typename as EntityType | undefined
+
+   const spotifyLink = getLink(entityId, entityType)
+   const spotifyIcon = useSpotifyIcon()
 
    const openEdit = useOpenUpdateComment({
       reviewId,
@@ -269,11 +269,21 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
       trackId: entityId ?? '',
    })
 
-   const spotifyLink = getLink(entityId, entityType)
-   const spotifyIcon = useSpotifyIcon()
+   const [open, setOpen] = useState(false)
+   const editComment = () => {
+      setOpen(false)
+      openEdit()
+   }
+
+   const openDeleteComment = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
+
+   const deleteComment = () => {
+      setOpen(false)
+      openDeleteComment()
+   }
 
    return (
-      <DropdownMenu>
+      <DropdownMenu open={open} onOpenChange={open => setOpen(open)}>
          <DropdownMenuTrigger>
             <Button size='square' variant='svg' className='p-1'>
                <span className='sr-only'>Open comment menu</span>
@@ -290,17 +300,17 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
             {isEditable && (
                <>
                   <DropdownMenuItem>
-                     <div className={cn('flex px-4 py-2 text-sm')} onClick={openEdit}>
+                     <Button variant='ghost' onClick={editComment}>
                         <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
                         <span>Edit comment</span>
-                     </div>
+                     </Button>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem>
-                     <div className={cn('flex px-4 py-2 text-sm')} onClick={openDelete}>
+                     <Button variant='ghost' onClick={deleteComment}>
                         <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
                         <span>Delete comment</span>
-                     </div>
+                     </Button>
                   </DropdownMenuItem>
                </>
             )}

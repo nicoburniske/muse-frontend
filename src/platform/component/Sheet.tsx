@@ -18,6 +18,7 @@ const portalVariants = cva('fixed inset-0 z-50 flex', {
          bottom: 'items-end',
          left: 'justify-start',
          right: 'justify-end',
+         center: 'justify-center items-center',
       },
    },
    defaultVariants: { position: 'right' },
@@ -54,6 +55,7 @@ const sheetVariants = cva('fixed z-50 scale-100 gap-4 bg-background p-6 opacity-
          bottom: 'animate-in slide-in-from-bottom w-full duration-300',
          left: 'animate-in slide-in-from-left h-full duration-300',
          right: 'animate-in slide-in-from-right h-full duration-300',
+         center: 'animate-in slide-in-from-bottom h-full w-full duration-300',
       },
       size: {
          content: '',
@@ -124,6 +126,36 @@ const sheetVariants = cva('fixed z-50 scale-100 gap-4 bg-background p-6 opacity-
          position: ['right', 'left'],
          size: 'full',
          class: 'w-screen',
+      },
+      {
+         position: 'center',
+         size: 'content',
+         class: 'max-w-screen max-h-screen',
+      },
+      {
+         position: 'center',
+         size: 'default',
+         class: 'w-1/3 h-1/3',
+      },
+      {
+         position: 'center',
+         size: 'sm',
+         class: 'w-1/4 h-1/4',
+      },
+      {
+         position: 'center',
+         size: 'lg',
+         class: 'w-1/2 h-1/2',
+      },
+      {
+         position: 'center',
+         size: 'xl',
+         class: 'w-5/6 h-5/6',
+      },
+      {
+         position: 'center',
+         size: 'full',
+         class: 'w-screen h-screen',
       },
    ],
    defaultVariants: {

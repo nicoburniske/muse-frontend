@@ -90,7 +90,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
       // Include playlist owner, popularity / num followers, num tracks.
       // [`${entityType} Name`]: review?.entity?.name,
-   }))()
+   }))() as Record<string, React.ReactNode>
 
    const { data: collabData } = useCollaboratorsQuery(review.id)
    const collaborators = collabData ?? []
@@ -116,7 +116,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          <Link to={`/app/reviews/${review.id}`}>
             <img src={image} alt='Review Entity Image' className='h-96 w-96 object-cover py-2' />
          </Link>
-         <div className='w-full space-y-6 overflow-hidden px-2 py-2 md:px-4 lg:px-8'>
+         <div className='w-full overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
                <h3 className='font-medium'>Information</h3>
                <dl className='divide-secondary-content/50 mt-2 divide-y'>
@@ -135,10 +135,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
             {collaborators.length > 0 && (
                <div>
                   <h3 className='font-medium'>Shared with</h3>
-                  <ul
-                     role='list'
-                     className='divide-secondary-content/50 border-secondary-content/50 mt-2 divide-y border-b border-t'
-                  >
+                  <ul role='list' className='my-2 h-40 overflow-y-auto border-b border-t'>
                      {collaborators.map(user => (
                         <div className='p-2' key={user.user.id}>
                            <UserWithAccessLevel reviewId={review.id} user={user} />

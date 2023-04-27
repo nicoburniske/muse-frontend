@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { DeleteReviewButton } from 'component/DeleteReviewButton'
 import { useNavigate } from 'react-router-dom'
 import { Input } from 'platform/component/Input'
@@ -38,6 +38,7 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
    const defaultValues: EditReviewInputType = { reviewName, isPublic: isPublic ? 'public' : 'private' }
 
    const {
+      control,
       register,
       reset,
       handleSubmit,
@@ -98,17 +99,23 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
                   <label className='label'>
                      <span className='label-text'>Public</span>
                   </label>
-                  <Select {...register('isPublic')}>
-                     <SelectTrigger>
-                        <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                        <SelectGroup>
-                           <SelectItem value={'public'}>Public</SelectItem>
-                           <SelectItem value={'private'}>Private</SelectItem>
-                        </SelectGroup>
-                     </SelectContent>
-                  </Select>
+                  <Controller
+                     control={control}
+                     name='isPublic'
+                     render={({ field: { onChange, value } }) => (
+                        <Select onValueChange={onChange} value={value}>
+                           <SelectTrigger>
+                              <SelectValue defaultValue={defaultValues.isPublic} />
+                           </SelectTrigger>
+                           <SelectContent>
+                              <SelectGroup>
+                                 <SelectItem value={'public'}>Public</SelectItem>
+                                 <SelectItem value={'private'}>Private</SelectItem>
+                              </SelectGroup>
+                           </SelectContent>
+                        </Select>
+                     )}
+                  />
                </div>
 
                <Button disabled={submitDisabled || isLoading}>Confirm</Button>

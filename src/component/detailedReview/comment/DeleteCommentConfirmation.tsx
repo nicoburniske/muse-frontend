@@ -1,17 +1,25 @@
-import { Portal } from '@headlessui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useSetAtom, useAtom, useAtomValue } from 'jotai'
 import { atomWithReset, useResetAtom } from 'jotai/utils'
-import { ThemeModal } from 'platform/component/ThemeModal'
+import { Button } from 'platform/component/Button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from 'platform/component/Dialog'
 import { useCallback } from 'react'
 import { toast } from 'react-hot-toast'
-import { cn } from 'util/Utils'
 
-type DeleteModalValues = { reviewId: string; commentId: number; invalidate?: boolean }
+type DeleteModalValues = {
+   reviewId: string
+   commentId: number
+   invalidate?: boolean
+}
 
 const deleteModalOpenAtom = atom(false)
-const deleteModalValues = atomWithReset<DeleteModalValues>({ reviewId: '', commentId: -1, invalidate: false })
+const deleteModalValues = atomWithReset<DeleteModalValues>({
+   reviewId: '',
+   commentId: -1,
+   invalidate: false,
+})
+
 const setModalValuesAtom = atom(null, (_get, set, values: DeleteModalValues) => {
    set(deleteModalOpenAtom, true)
    set(deleteModalValues, values)
@@ -24,8 +32,8 @@ export const useOpenDeleteConfirmation = (values: DeleteModalValues) => {
 
 export const DeleteCommentConfirmation = () => {
    const [isModalOpen, setIsModalOpen] = useAtom(deleteModalOpenAtom)
-   const resetModalValues = useResetAtom(deleteModalValues)
    const { reviewId, commentId, invalidate = false } = useAtomValue(deleteModalValues)
+   const resetModalValues = useResetAtom(deleteModalValues)
 
    const queryClient = useQueryClient()
 
@@ -41,37 +49,23 @@ export const DeleteCommentConfirmation = () => {
    })
    const deleteComment = () => deleteCommentMutation({ input: { reviewId, commentId } })
 
-   return (
-      <Portal>
-         <ThemeModal open={isModalOpen} className='max-w-md grow'>
-            <div className='bg-background text-foreground shadow sm:rounded-lg'>
-               <div className='px-4 py-5 sm:p-6'>
-                  <h3 className='text-lg font-medium leading-6 '>Confirm comment deletion</h3>
-                  <div className='mt-2 max-w-xl text-sm'>
-                     <p>This can't be undone</p>
-                  </div>
-                  <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                     <button
-                        type='button'
-                        disabled={isLoading}
-                        onClick={() => setIsModalOpen(false)}
-                        className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
-                     >
-                        Cancel
-                     </button>
+   console.log('rendering delete comment confirmation', isModalOpen)
 
-                     <button
-                        type='button'
-                        disabled={isLoading}
-                        onClick={deleteComment}
-                        className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
-                     >
-                        Delete
-                     </button>
-                  </div>
-               </div>
-            </div>
-         </ThemeModal>
-      </Portal>
+   return (
+      <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
+         <DialogContent>
+            <DialogTitle>Delete Comment </DialogTitle>
+            <DialogDescription>Once you delete your comment, you won't be able to recover it.</DialogDescription>
+            <DialogFooter>
+               <Button disabled={isLoading} onClick={() => setIsModalOpen(false)}>
+                  Cancel
+               </Button>
+
+               <Button disabled={isLoading} onClick={deleteComment} variant={'destructive'}>
+                  Delete Comment
+               </Button>
+            </DialogFooter>
+         </DialogContent>
+      </Dialog>
    )
 }

@@ -81,21 +81,21 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
 }
 
 const onboardingStyles = {
-   badge: base => ({ ...base, background: 'hsl(var(--p))', color: 'hsl(var(--pc))' }),
-   controls: base => ({ ...base, color: 'hsl(var(--p))' }),
-   navigation: base => ({ ...base, color: 'hsl(var(--p))' }),
+   badge: base => ({ ...base, background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }),
+   controls: base => ({ ...base, color: 'hsl(var(--primary))' }),
+   navigation: base => ({ ...base, color: 'hsl(var(--primary))' }),
    // @ts-ignore. These type definitions are horrendous.
    dot: (base, { current }) => ({
       ...base,
       color: 'hsl(var(--p))',
-      background: current ? 'hsl(var(--p))' : 'hsl(var(--b1))',
+      background: current ? 'hsl(var(--primary))' : 'hsl(var(--background))',
    }),
-   arrow: base => ({ ...base, color: 'hsl(var(--bc))' }),
+   arrow: base => ({ ...base, color: 'hsl(var(--foreground))' }),
    // @ts-ignore.
    popover: base => ({
       ...base,
-      color: 'hsl(var(--bc))',
-      backgroundColor: 'hsl(var(--b1))',
+      color: 'hsl(var(--foreground))',
+      backgroundColor: 'hsl(var(--background))',
    }),
 } as StylesObj
 

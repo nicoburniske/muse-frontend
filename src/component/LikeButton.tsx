@@ -5,6 +5,7 @@ import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
 import { UseQueryOptions } from '@tanstack/react-query'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/20/solid'
+import { Button } from 'platform/component/Button'
 
 interface LikeButtonProps {
    trackId: string
@@ -45,12 +46,12 @@ export default function LikeButton({ trackId, className = '', svgStyle, options 
    const disabled = isLiked === undefined
 
    return (
-      <button className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
+      <Button variant='svg' size='empty' className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
          {isLiked ? (
             <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
          ) : (
             <HeartIcon className={cn('h-6 w-6', svgClassName)} />
          )}
-      </button>
+      </Button>
    )
 }

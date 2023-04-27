@@ -37,9 +37,7 @@ export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonPr
       },
    })
 
-   const deleteReview = () => {
-      mutate({ input: { id: reviewId } })
-   }
+   const deleteReview = () => mutate({ input: { id: reviewId } })
 
    return (
       <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>

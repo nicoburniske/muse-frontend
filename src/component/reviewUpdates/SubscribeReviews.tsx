@@ -2,7 +2,7 @@ import { useCurrentUserId } from 'state/CurrentUser'
 import { useSubscribeToReviews } from './useSubscribeToReviews'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { useDeepCompareMemoize } from 'platform/hook/useDeepCompareMemoize'
-import { CommentFormModalWrapper } from 'component/detailedReview/commentForm/CommentFormModalWrapper'
+import { CommentFormModal } from 'component/detailedReview/commentForm/CommentFormModal'
 
 export const SubscribeReviews = () => {
    const currentUserId = useCurrentUserId()
@@ -18,7 +18,7 @@ export const SubscribeReviews = () => {
    useSubscribeToReviews(reviewIdsMemo)
 
    // We want to enable comment replies globally.
-   return <CommentFormModalWrapper />
+   return <CommentFormModal />
 }
 
 const selectReviewIds = (data: ProfileAndReviewsQuery) => data.user.reviews?.map(r => r.id) ?? []

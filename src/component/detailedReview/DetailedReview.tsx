@@ -12,7 +12,7 @@ import {
 import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { ShareReview } from '../shareReview/ShareReview'
-import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
+import { CommentFormModal } from './commentForm/CommentFormModal'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
 import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
@@ -40,7 +40,6 @@ import { EditReview } from './editReview/EditReview'
 import { Button } from 'platform/component/Button'
 import { Badge } from 'platform/component/Badge'
 import { Separator } from 'platform/component/Seperator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from 'platform/component/Tabs'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -114,7 +113,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
             </div>
          </div>
-         <CommentFormModalWrapper />
+         <CommentFormModal />
       </>
    )
 }

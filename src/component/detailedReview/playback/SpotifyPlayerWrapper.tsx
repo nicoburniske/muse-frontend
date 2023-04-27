@@ -12,7 +12,7 @@ export const SpotifyPlayerWrapper = () => {
    return (
       <ErrorBoundary
          fallback={
-            <div className='h-full w-full bg-neutral'>
+            <div className='bg-neutral h-full w-full'>
                <Alert severity={AlertSeverity.Error} className='m-auto w-52'>
                   <span> Error Starting Playback </span>
                </Alert>
@@ -21,7 +21,7 @@ export const SpotifyPlayerWrapper = () => {
       >
          <Suspense
             fallback={
-               <div className='h-full w-full bg-neutral'>
+               <div className='bg-neutral h-full w-full'>
                   <progress className='progress progress-primary bg-neutral' />
                </div>
             }
