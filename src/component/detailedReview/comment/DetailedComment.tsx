@@ -189,7 +189,6 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                         <div className='min-w-0 flex-1 overflow-hidden'>
                            <p className='select-none truncate p-0.5 text-sm'> {name} </p>
                         </div>
-                        <ListenOnSpotifyIcon entityId={entityId} entityType={entityType} />
                      </div>
                      <div className='flex flex-shrink-0 self-center'>
                         <CommentMenu reviewId={reviewId} comment={detailedComment} />
