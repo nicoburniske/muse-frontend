@@ -1,7 +1,6 @@
 import {
    EntityType,
    ReviewDetailsFragment,
-   useDetailedReviewQuery,
    useGetPlaylistQuery,
    useGetAlbumQuery,
    DetailedPlaylistFragment,
@@ -15,12 +14,12 @@ import { ShareReview } from '../shareReview/ShareReview'
 import { CommentFormModal } from './commentForm/CommentFormModal'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
-import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
+import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { Bars3BottomLeftIcon, PencilIcon, QuestionMarkCircleIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { Bars3BottomLeftIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
@@ -102,11 +101,6 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
       <>
          <div className='relative flex grow flex-col'>
             <ReviewHeader review={review} />
-            <div className='inline-flex h-10 items-center justify-center space-x-10 rounded-md bg-muted p-1 text-muted-foreground'>
-               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
-               <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
-               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
-            </div>
             <Separator />
             {/* For some reason I need a min-height? When doing flex-col in page. */}
             <div className='mx-1 min-h-0 grow'>
@@ -142,8 +136,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
 
    return (
-      <div className='shadow-l mb-1 flex items-center justify-between lg:grid lg:grid-cols-3'>
-         <div className='flex w-24 flex-1 items-center justify-start lg:w-full'>
+      <div className='shadow-l mb-1 grid grid-cols-3'>
+         <div className='flex w-24 items-center justify-start lg:w-full'>
             <img
                className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
                src={reviewEntityImage}
@@ -151,10 +145,10 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             />
             <OpenMobileMenuButton>
                {onClick => (
-                  <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
+                  <Button size='sm' className='md:hidden' onClick={onClick}>
                      <span className='sr-only'>Open sidebar</span>
                      <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                  </button>
+                  </Button>
                )}
             </OpenMobileMenuButton>
             <dl className='ml-1 grid grid-rows-3 items-start justify-evenly space-y-1 md:ml-3 '>
@@ -168,37 +162,53 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                </dd>
                <dt className='sr-only'>Creator name</dt>
                <dd>
-                  <Link to={`/app/user/${creatorId}`} className='text-sm font-medium text-foreground'>
-                     <Button variant='link' size='empty' className='m-0 p-0'>
-                        {creatorDisplayName ?? creatorId}
+                  <Link to={`/app/user/${creatorId}`}>
+                     <Button variant='link' size='empty' className='text-sm text-muted-foreground'>
+                        <span className='truncate'>{creatorDisplayName ?? creatorId}</span>
                      </Button>
                   </Link>
                </dd>
                <div className='flex flex-1 space-x-1'></div>
             </dl>
-            <ListenOnSpotifyIcon entityId={entity?.id} entityType={entity?.__typename} />
          </div>
-         <div className='m-auto hidden w-full max-w-xl lg:inline'>
-            <SearchTracks />
-         </div>
-         <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-x-1 md:space-y-0'>
-            <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
-               <QuestionMarkCircleIcon className='h-6 w-6' />
-            </button>
-            {isReviewOwner ? (
-               <>
-                  <EditReview
-                     reviewId={reviewId}
-                     reviewName={title!}
-                     isPublic={isPublic === undefined ? false : isPublic}
-                  />
 
-                  <ShareReview reviewId={reviewId} collaborators={collaborators}>
-                     <Button variant='outline'>Share</Button>
-                  </ShareReview>
-                  {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
-               </>
-            ) : null}
+         <div className='m-auto hidden w-full max-w-xl flex-col items-center lg:flex'>
+            <div className='w-full'>
+               <SearchTracks />
+            </div>
+            <div className='inline-flex h-10 w-16 items-center justify-center rounded-md p-1 lg:w-24 lg:space-x-10'>
+               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+               <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
+               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
+            </div>
+         </div>
+
+         <div className='inline-flex w-16 items-center justify-center justify-self-center rounded-md p-1 lg:hidden'>
+            <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+            <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
+         </div>
+
+         <div className='flex items-center justify-end'>
+            <ListenOnSpotifyIcon entityId={entity?.id} entityType={entity?.__typename} />
+            <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:gap-1'>
+               <button className='hidden text-primary md:inline' onClick={openTour}>
+                  <QuestionMarkCircleIcon className='h-6 w-6' />
+               </button>
+               {isReviewOwner ? (
+                  <>
+                     <EditReview
+                        reviewId={reviewId}
+                        reviewName={title!}
+                        isPublic={isPublic === undefined ? false : isPublic}
+                     />
+
+                     <ShareReview reviewId={reviewId} collaborators={collaborators}>
+                        <Button variant='outline'>Share</Button>
+                     </ShareReview>
+                     {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
+                  </>
+               ) : null}
+            </div>
          </div>
       </div>
    )
@@ -225,19 +235,20 @@ const RenderOptionTooltip = (props: { renderOption: RenderOption; label: string;
       <TooltipProvider delayDuration={500}>
          <Tooltip>
             <TooltipTrigger asChild>
-               <button
+               <Button
+                  variant='ghost'
+                  size='sm'
                   className={cn(
-                     'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-                     currentRenderOption === renderOption ? 'bg-background text-foreground shadow-sm' : '',
+                     currentRenderOption === renderOption ? 'bg-accent text-accent-foreground shadow-sm' : '',
                      className
                   )}
                   onClick={() => setRenderOption(renderOption)}
                >
                   <props.icon className='h-6 w-6' />
-               </button>
+               </Button>
             </TooltipTrigger>
 
-            <TooltipContent side='top' align='center' className='text-primary-content bg-primary'>
+            <TooltipContent side='top' align='start' className='text-primary-content bg-primary'>
                <p>{label}</p>
             </TooltipContent>
          </Tooltip>

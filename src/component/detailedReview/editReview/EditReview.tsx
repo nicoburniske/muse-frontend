@@ -128,12 +128,12 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
                      )}
                   />
                </div>
-            </form>
 
-            <div className='flex w-full justify-between'>
-               <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
-               <Button disabled={submitDisabled || isLoading}>Confirm</Button>
-            </div>
+               <div className='flex w-full justify-between'>
+                  <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
+                  <Button disabled={submitDisabled || isLoading}>Confirm</Button>
+               </div>
+            </form>
          </DialogContent>
       </Dialog>
    )

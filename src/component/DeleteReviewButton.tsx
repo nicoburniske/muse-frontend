@@ -42,7 +42,7 @@ export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonPr
    return (
       <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
          <DialogTrigger>
-            <Button onClick={() => setIsModalOpen(true)} variant={'destructive'}>
+            <Button type='button' onClick={() => setIsModalOpen(true)} variant={'destructive'}>
                <TrashIcon className='h-5 w-5' aria-hidden='true' />
                Delete Review
             </Button>

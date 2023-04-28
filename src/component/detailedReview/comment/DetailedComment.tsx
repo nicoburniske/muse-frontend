@@ -16,7 +16,7 @@ import {
    MagnifyingGlassCircleIcon,
    PencilIcon,
    TrashIcon,
-} from '@heroicons/react/20/solid'
+} from '@heroicons/react/24/outline'
 import { useSetAtom } from 'jotai'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { useOpenNewComment } from '../commentForm/useOpenNewComment'
@@ -290,27 +290,23 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
                <EllipsisVerticalIcon className='h-5 w-5' aria-hidden='true' />
             </Button>
          </DropdownMenuTrigger>
-         <DropdownMenuContent className='w-56'>
+         <DropdownMenuContent>
             <DropdownMenuItem>
-               <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('flex px-4 py-2 text-sm')}>
-                  <img src={spotifyIcon} className={'mr-3 h-5 w-5'} />
-                  <span>Listen on Spotify </span>
+               <img src={spotifyIcon} className={'mr-3 h-5 w-5'} />
+               <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('')}>
+                  Listen on Spotify
                </a>
             </DropdownMenuItem>
             {isEditable && (
                <>
-                  <DropdownMenuItem>
-                     <Button variant='ghost' onClick={editComment}>
-                        <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
-                        <span>Edit comment</span>
-                     </Button>
+                  <DropdownMenuItem onClick={editComment}>
+                     <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                     <span>Edit comment</span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem>
-                     <Button variant='ghost' onClick={deleteComment}>
-                        <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
-                        <span>Delete comment</span>
-                     </Button>
+                  <DropdownMenuItem onClick={deleteComment}>
+                     <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                     <span>Delete comment</span>
                   </DropdownMenuItem>
                </>
             )}

@@ -49,8 +49,6 @@ export const DeleteCommentConfirmation = () => {
    })
    const deleteComment = () => deleteCommentMutation({ input: { reviewId, commentId } })
 
-   console.log('rendering delete comment confirmation', isModalOpen)
-
    return (
       <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
          <DialogContent>

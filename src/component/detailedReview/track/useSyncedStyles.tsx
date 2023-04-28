@@ -5,7 +5,7 @@ import { cn } from 'util/Utils'
 
 // Only change styling if derived values are different.
 
-const trackAnimation = 'transition-all duration-100'
+const trackAnimation = ''
 export const useTrackColor = (trackId: string) =>
    useDerivedAtomValue(
       get => {
@@ -19,14 +19,14 @@ export const useTrackColor = (trackId: string) =>
          } else {
             return cn(
                trackAnimation,
-               'bg-background text-foreground active:text-accent-foreground active:bg-accent hover:bg-accent hover:text-accent-foreground'
+               'bg-background text-foreground active:text-accent-foreground active:bg-accent/80 hover:bg-accent hover:text-accent-foreground fill-red-500'
             )
          }
       },
       [trackId]
    )
 
-const animation = 'transition-all duration-500 hover:scale-125'
+const animation = 'transition-all duration-200 hover:scale-125'
 export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefined) =>
    useDerivedAtomValue(
       get => {
@@ -35,11 +35,14 @@ export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefine
             if (isLiked && isPlaying) {
                return cn('fill-primary-foreground', animation)
             } else if (isLiked) {
-               return cn('fill-primary', animation)
+               return cn('fill-foreground', animation)
             } else if (isPlaying) {
-               return cn('stroke-success-content', animation)
+               return cn('stroke-primary-foreground', animation)
             } else {
-               return cn('stroke-foreground', animation)
+               return cn(
+                  'stroke-foreground group-active:stroke-accent-foreground group-hover:stroke-accent-foreground ',
+                  animation
+               )
             }
          }
          return ''

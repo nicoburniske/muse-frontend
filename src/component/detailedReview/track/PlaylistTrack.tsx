@@ -148,7 +148,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    return (
       <div
          className={cn(
-            'muse-track group flex items-center justify-between',
+            'muse-track group',
             'm-0 select-none rounded-md p-0',
             styles,
             isDragging ? 'opacity-50' : '',

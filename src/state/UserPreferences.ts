@@ -8,7 +8,7 @@ export interface UserPreferences {
    seekInterval: number
 }
 
-export const Themes = ['light', 'dark', 'emerald', 'emerald-dark'] as const
+export const Themes = ['light', 'dark', 'emerald', 'emerald-dark', 'spotify-dark'] as const
 export type Theme = (typeof Themes)[number]
 
 const isDark = (theme: Theme) => {

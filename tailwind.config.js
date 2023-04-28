@@ -5,7 +5,7 @@ module.exports = {
       require('@tailwindcss/aspect-ratio'),
       require('@tailwindcss/typography'),
       require('tailwindcss-animate'),
-      require('tailwind-scrollbar'),
+      require('tailwind-scrollbar')({ nocompatible: true }),
       // require('daisyui'),
    ],
    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
