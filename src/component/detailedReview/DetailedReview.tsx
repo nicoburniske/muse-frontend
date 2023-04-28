@@ -102,6 +102,11 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
          <div className='relative flex grow flex-col'>
             <ReviewHeader review={review} />
             <Separator />
+            <div className='m-auto inline-flex w-16 items-center justify-center space-x-10 rounded-md p-1 lg:hidden'>
+               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
+            </div>
+            <Separator />
             {/* For some reason I need a min-height? When doing flex-col in page. */}
             <div className='mx-1 min-h-0 grow'>
                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
@@ -136,8 +141,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
 
    return (
-      <div className='shadow-l mb-1 grid grid-cols-3'>
-         <div className='flex w-24 items-center justify-start lg:w-full'>
+      <div className='shadow-l mb-1 grid grid-cols-2 lg:grid-cols-3'>
+         <div className='flex w-full items-center justify-start'>
             <img
                className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
                src={reviewEntityImage}
@@ -181,11 +186,6 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
                <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
             </div>
-         </div>
-
-         <div className='inline-flex w-16 items-center justify-center justify-self-center rounded-md p-1 lg:hidden'>
-            <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
-            <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
          </div>
 
          <div className='flex items-center justify-end'>
