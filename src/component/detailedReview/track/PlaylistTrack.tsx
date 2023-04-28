@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { CommentAndOptions } from './CommentAndOptions'
 import { UserAvatarTooltip } from 'component/UserAvatar'
+import { useSetTrackContextMenu } from './TrackContextMenu'
 
 export interface PlaylistTrackProps {
    index: number
@@ -145,6 +146,27 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
 
    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(trackId)(isLiked), [trackId])
 
+   const setContextMenu = useSetTrackContextMenu()
+   const showContextMenu = () => {
+      setContextMenu({ trackId, playlistId })
+   }
+
+   const optionsRef = useRef<HTMLDivElement>()
+   const onMenuClick = () => {
+      const current = trackDivRef.current
+      const optionsCurrent = optionsRef.current
+      if (current && optionsCurrent) {
+         const bound = optionsCurrent.getBoundingClientRect()
+         current.dispatchEvent(
+            new MouseEvent('contextmenu', {
+               bubbles: true,
+               clientX: bound.x,
+               clientY: bound.y + bound.height,
+            })
+         )
+      }
+   }
+
    return (
       <div
          className={cn(
@@ -158,6 +180,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                ? 'border-t-2 border-t-primary'
                : 'border-b-2 border-b-primary'
          )}
+         onContextMenu={showContextMenu}
       >
          <div
             ref={(el: HTMLDivElement) => {
@@ -191,8 +214,13 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                <LikeButton trackId={track.id} svgStyle={svgStyle} options={{ staleTime: 1000 * 60 }} />
             </div>
 
-            <div className='flex flex-none items-center justify-center space-x-2'>
-               <CommentAndOptions trackId={track.id} reviewId={reviewId} playlistId={playlistId} />
+            <div className='flex flex-none items-center justify-center space-x-2' ref={optionsRef}>
+               <CommentAndOptions
+                  trackId={track.id}
+                  reviewId={reviewId}
+                  playlistId={playlistOwner ?? playlistId}
+                  onMenuClick={onMenuClick}
+               />
             </div>
          </div>
       </div>

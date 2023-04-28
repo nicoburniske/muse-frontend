@@ -35,7 +35,7 @@ export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefine
             if (isLiked && isPlaying) {
                return cn('fill-primary-foreground', animation)
             } else if (isLiked) {
-               return cn('fill-foreground', animation)
+               return cn('fill-primary', animation)
             } else if (isPlaying) {
                return cn('stroke-primary-foreground', animation)
             } else {
