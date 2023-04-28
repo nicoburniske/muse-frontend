@@ -114,7 +114,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </SheetHeader>
          {/* </div> */}
          <Link to={`/app/reviews/${review.id}`}>
-            <img src={image} alt='Review Entity Image' className='h-96 w-96 object-cover py-2' />
+            <img src={image} alt='Review Entity Image' className='h-56 w-56 object-cover py-2 md:h-96 md:w-96' />
          </Link>
          <div className='w-full overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
@@ -146,7 +146,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
             )}
          </div>
 
-         <SheetFooter className='space-y-2 sm:flex-col'>
+         <div className='flex flex-col space-y-2'>
             <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
                <Button>
                   <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
@@ -157,7 +157,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
             </ShareReview>
 
             <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
-         </SheetFooter>
+         </div>
       </SheetContent>
    )
 }

@@ -28,7 +28,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
          onClick={linkToReviewPage}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
-            <CardTitle className='line-clamp-1'>{review.reviewName}</CardTitle>
+            <CardTitle className='line-clamp-1 text-base lg:text-lg'>{review.reviewName}</CardTitle>
             <Button
                variant='link'
                size='sm'
@@ -36,7 +36,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
                   linkToProfile()
                   e.stopPropagation()
                }}
-               className='justify-start px-0 py-0 text-muted-foreground'
+               className='inline-flex justify-start truncate px-0 py-0 text-sm text-muted-foreground md:text-base'
             >
                {creatorName}
             </Button>

@@ -8,6 +8,9 @@ module.exports = {
       require('tailwind-scrollbar')({ nocompatible: true }),
       // require('daisyui'),
    ],
+   future: {
+      hoverOnlyWhenSupported: true,
+   },
    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
    theme: {
       container: {
