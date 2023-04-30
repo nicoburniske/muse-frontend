@@ -138,35 +138,55 @@
    }
 
    [data-theme='emerald-dark'] {
-      --background: 224 71% 4%;
-      --foreground: 213 31% 91%;
+      /* zinc-950 #09090b */
+      --background: 240, 10%, 4%;
+      /* zinc-50 #f4f4f5 */
+      --foreground: 240, 5%, 96%;
 
-      --muted: 223 47% 11%;
-      --muted-foreground: 215.4 16.3% 56.9%;
+      /* zinc-900 #18181b */
+      --muted: 240, 6%, 10%;
+      /* zinc-500 #71717a */
+      --muted-foreground: 240, 4%, 46%;
 
-      --popover: 224 71% 4%;
-      --popover-foreground: 215 20.2% 65.1%;
+      /* zinc-900 #18181b */
+      /* --popover: 240, 6%, 10%; */
+      /* zinc-200  #e4e4e7 */
+      /* --popover-foreground: 240, 6%, 90%; */
+      /* emerald 950 */
+      --popover: 166, 91%, 9%;
+      /* emerald 200 */
+      --popover-foreground: 152, 76%, 80%;
 
-      --border: 216 34% 17%;
-      --input: 216 34% 17%;
+      /* zinc-700 #3f3f46 */
+      --border: 240, 5%, 26%;
+      /* zinc-800 #27272a */
+      --input: 240, 5%, 26%;
 
-      --card: 224 71% 4%;
-      --card-foreground: 213 31% 91%;
+      /* zinc-700 #3f3f46 */
+      /* zinc-800 #27272a */
+      --card: 240, 4%, 16%;
+      /* zinc-200  #e4e4e7 */
+      --card-foreground: 240, 6%, 90%;
 
-      --primary: 143 72% 29%;
-      --primary-foreground: 141 75% 97%;
+      /* emerald-500 #10b981 */
+      --primary: 163, 94%, 24%;
+      /* emerald-50 #ecfdf5 */
+      --primary-foreground: 152, 81%, 96%;
 
-      --secondary: 145 80% 10%;
-      --secondary-foreground: 141 75% 97%;
+      /* emerald-900 #064e3b */
+      --secondary: 164 86% 16%;
+      /* emerald-200 #a7f3d0*/
+      --secondary-foreground: 152, 76%, 80%;
 
-      --accent: 156, 72%, 67%;
-      --accent-foreground: 222.2 47.4% 11.2%;
+      /* zinc-700 - #3f3f46 */
+      --accent: 240, 5%, 26%;
+      /* zinc-200  #e4e4e7 */
+      --accent-foreground: 240, 6%, 90%;
 
       --destructive: 0 100% 50%;
       --destructive-foreground: 210 40% 98%;
 
       --ring: 158 64% 52%;
-
       --radius: 0rem;
    }
    [data-theme='spotify-dark'] {
@@ -224,6 +244,7 @@
       --input: 0 0% 14%;
 
       --radius: 0.25rem;
+      /* zinc-800 #27272a */
       --ring: 0 0% 14%;
    }
 }
