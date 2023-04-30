@@ -1,9 +1,10 @@
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { UserAvatar } from 'component/UserAvatar'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import { SelectedReview, useSelectReview } from 'component/myReviews/SelectedReview'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { NotFound } from 'pages/NotFound'
-import { Alert, AlertSeverity } from 'platform/component/Alert'
+import { Alert, AlertTitle } from 'platform/component/Alert'
 import Hero from 'platform/component/Hero'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { MuseTransition } from 'platform/component/MuseTransition'
@@ -19,8 +20,9 @@ export function ProfilePage() {
             fallback={
                <Hero>
                   <div className='h-10 w-full'>
-                     <Alert severity={AlertSeverity.Error}>
-                        <span> Error Loading User Profile</span>
+                     <Alert variant='destructive'>
+                        <ExclamationTriangleIcon className='h-4 w-4' />
+                        <AlertTitle>Something went wrong while loading user profile.</AlertTitle>
                      </Alert>
                   </div>
                </Hero>
@@ -34,11 +36,7 @@ export function ProfilePage() {
          </ErrorBoundary>
       )
    } else {
-      return (
-         <Alert severity={AlertSeverity.Error}>
-            <span> Missing User ID </span>
-         </Alert>
-      )
+      return <NotFound label={'Go Back Home'} />
    }
 }
 

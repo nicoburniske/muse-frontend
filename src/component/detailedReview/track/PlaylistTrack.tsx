@@ -1,5 +1,5 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { RefObject, useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -17,6 +17,7 @@ import { useCurrentUserId } from 'state/CurrentUser'
 import { CommentAndOptions } from './CommentAndOptions'
 import { UserAvatarTooltip } from 'component/UserAvatar'
 import { useSetTrackContextMenu } from './TrackContextMenu'
+import { useSimulateRightClick } from './useSimulateRightClick'
 
 export interface PlaylistTrackProps {
    index: number
@@ -60,8 +61,8 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    }
 
    // Play on div double click.
-   const trackDivRef = useRef<HTMLDivElement>()
-   useDoubleClick({ ref: trackDivRef as RefObject<HTMLDivElement>, onDoubleClick: onPlayTrack })
+   const trackDivRef = useRef<HTMLDivElement>(null)
+   useDoubleClick({ ref: trackDivRef, onDoubleClick: onPlayTrack })
 
    const { minutes, seconds } = msToTimeStr(track.durationMs)
 
@@ -147,25 +148,11 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(trackId)(isLiked), [trackId])
 
    const setContextMenu = useSetTrackContextMenu()
-   const showContextMenu = () => {
-      setContextMenu({ trackId, playlistId })
-   }
+   const showContextMenu = () => setContextMenu({ trackId, playlistId })
 
-   const optionsRef = useRef<HTMLDivElement>()
-   const onMenuClick = () => {
-      const current = trackDivRef.current
-      const optionsCurrent = optionsRef.current
-      if (current && optionsCurrent) {
-         const bound = optionsCurrent.getBoundingClientRect()
-         current.dispatchEvent(
-            new MouseEvent('contextmenu', {
-               bubbles: true,
-               clientX: bound.x,
-               clientY: bound.y + bound.height,
-            })
-         )
-      }
-   }
+   // Making context menu appear on options button regular click.
+   const optionsRef = useRef<HTMLDivElement>(null)
+   const onMenuClick = useSimulateRightClick(trackDivRef, optionsRef)
 
    return (
       <div
@@ -186,6 +173,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             ref={(el: HTMLDivElement) => {
                drag(el)
                drop(el)
+               // @ts-ignore - These types are garbage.
                trackDivRef.current = el
             }}
             className={cn('grid grow grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6')}

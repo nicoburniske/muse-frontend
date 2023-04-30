@@ -15,9 +15,10 @@ import { SyncCurrentUser } from 'state/CurrentUser'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
-import { Alert, AlertSeverity } from 'platform/component/Alert'
 import { StylesObj, TourProvider } from '@reactour/tour'
 import { SubscribeReviews } from 'component/reviewUpdates/SubscribeReviews'
+import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 export const NavPlayerPageOutlet = () => {
    return (
@@ -51,8 +52,10 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
                   fallback={
                      <Hero>
                         <div className='h-10 w-full'>
-                           <Alert severity={AlertSeverity.Error}>
-                              <span> Something went wrong. </span>
+                           <Alert variant='destructive'>
+                              <ExclamationTriangleIcon className='h-4 w-4' />
+                              <AlertTitle>Something went wrong.</AlertTitle>
+                              <AlertDescription> Refresh the page! </AlertDescription>
                            </Alert>
                         </div>
                      </Hero>

@@ -11,7 +11,7 @@ export const SideNavBar = () => {
       <>
          <div className='hidden md:flex md:flex-shrink-0'>
             <div className='flex w-20 flex-col'>
-               <div className='to-neutral flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-primary'>
+               <div className='flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-primary to-background'>
                   <div className='flex-1'>
                      <div className='flex items-center justify-center py-4' onClick={() => nav('/')}>
                         <img className='h-8 w-auto' src={LogoImage} alt='Muse' />

@@ -64,7 +64,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
 
    return (
       <>
-         <Card className='border-0'>
+         <div className={cn('rounded-lg border-0 shadow-sm')}>
             <Tabs defaultValue={'Write'}>
                <CardHeader>
                   <TabsList>
@@ -134,7 +134,7 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
                   Submit
                </Button>
             </CardFooter>
-         </Card>
+         </div>
       </>
    )
 }

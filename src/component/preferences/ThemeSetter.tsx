@@ -26,7 +26,12 @@ export const ThemeSetter = () => {
          <SelectContent>
             <SelectGroup>
                {ThemeOptions.map(theme => (
-                  <SelectItem key={theme} value={theme} data-theme={theme} className='justify-between'>
+                  <SelectItem
+                     key={theme}
+                     value={theme}
+                     data-theme={theme}
+                     className='justify-between bg-background text-foreground'
+                  >
                      <div className='flex w-full justify-between'>
                         <SelectItemText> {theme} </SelectItemText>
                         <span className='flex w-12 justify-evenly justify-self-center'>

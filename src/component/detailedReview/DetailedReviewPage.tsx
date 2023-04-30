@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom'
 import { DetailedReview } from 'component/detailedReview/DetailedReview'
-import { Alert, AlertSeverity } from 'platform/component/Alert'
+import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
 import { HeroLoading } from 'platform/component/HeroLoading'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { NotFound } from 'pages/NotFound'
 
 export default function DetailedReviewPage() {
    const { reviewId } = useParams()
@@ -16,8 +18,10 @@ export default function DetailedReviewPage() {
             fallback={
                <Hero>
                   <div className='h-10 w-full'>
-                     <Alert severity={AlertSeverity.Error}>
-                        <span> Error Loading Review </span>
+                     <Alert variant='destructive'>
+                        <ExclamationTriangleIcon className='h-4 w-4' />
+                        <AlertTitle>Error Loading Review</AlertTitle>
+                        <AlertDescription></AlertDescription>
                      </Alert>
                   </div>
                </Hero>
@@ -31,11 +35,6 @@ export default function DetailedReviewPage() {
          </ErrorBoundary>
       )
    } else {
-      return (
-         <Alert severity={AlertSeverity.Error}>
-            {' '}
-            <span> Missing Review ID </span>
-         </Alert>
-      )
+      return <NotFound label={'Go Back Home'} />
    }
 }

@@ -5,7 +5,7 @@ import { QueueListIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import toast from 'react-hot-toast'
 import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
-import { ContextMenuContent, ContextMenuItem, ContextMenuShortcut } from 'platform/component/ContextMenu'
+import { ContextMenuContent, ContextMenuItem } from 'platform/component/ContextMenu'
 import { cn } from 'util/Utils'
 
 type ContextMenuProps = {
@@ -13,7 +13,7 @@ type ContextMenuProps = {
    playlistId?: string
 }
 
-const contextMenuAtom = atom<ContextMenuProps>({ trackId: '', playlistId: undefined })
+const contextMenuAtom = atom<ContextMenuProps>({ trackId: '' })
 
 export const useSetTrackContextMenu = () => useSetAtom(contextMenuAtom)
 
@@ -51,18 +51,18 @@ export const TrackContextMenuContent = () => {
 
    return (
       <ContextMenuContent>
-         <ContextMenuItem inset>
+         <ContextMenuItem>
             <img src={spotifyIcon} className={'mr-2 h-4 w-4'} />
             <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('flex')}>
                Listen on Spotify
             </a>
          </ContextMenuItem>
-         <ContextMenuItem inset onClick={addToQueue}>
+         <ContextMenuItem onClick={addToQueue}>
             <QueueListIcon className={'mr-2 h-4 w-4'} />
             <span> Add to Queue </span>
          </ContextMenuItem>
 
-         <ContextMenuItem inset>
+         <ContextMenuItem>
             <XCircleIcon className={'mr-2 h-4 w-4'} onClick={removeFromPlaylist} />
             <span> Remove from Playlist </span>
          </ContextMenuItem>

@@ -226,7 +226,7 @@ const PlayerButtons = () => {
    }
 
    const toggleShuffle = () => setShuffle(!isShuffled)
-   const successButton = cn(commonBtnClass, 'btn-success')
+   const successButton = 'text-primary fill-primary stroke-2'
    const shuffleButtonClass = isShuffled ? successButton : ''
 
    const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
@@ -243,13 +243,19 @@ const PlayerButtons = () => {
          <Button
             variant='svg'
             size='empty'
-            className={cn('muse-finder')}
+            className={cn('muse-finder', commonBtnClass)}
             onClick={selectNowPlaying}
             disabled={!nowPlayingEnabled}
          >
             <MagnifyingGlassIcon className={iconClass} />
          </Button>
-         <Button variant='svg' size='empty' onClick={previousTrack} disabled={prevTrackDisabled}>
+         <Button
+            variant='svg'
+            size='empty'
+            onClick={previousTrack}
+            disabled={prevTrackDisabled}
+            className={cn(commonBtnClass)}
+         >
             <BackwardIcon className={iconClass} />
          </Button>
          <Button
