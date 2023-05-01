@@ -1,4 +1,3 @@
-import { Portal } from '@headlessui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
 import {
@@ -8,12 +7,16 @@ import {
    useProfileAndReviewsQuery,
 } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { ThemeModal } from 'platform/component/ThemeModal'
+import { Badge } from 'platform/component/Badge'
+import { Button } from 'platform/component/Button'
+import { Dialog, DialogContent } from 'platform/component/Dialog'
+import { Input } from 'platform/component/Input'
+import { Label } from 'platform/component/Label'
+import { Switch } from 'platform/component/Switch'
 import { ToggleWithDescription } from 'platform/component/ToggleWithDescription'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
-import { cn } from 'util/Utils'
 
 export type CreateReviewProps = {
    entityId: string
@@ -73,65 +76,49 @@ export const CreateReviewModal = () => {
    const createDisabled = name.length === 0 || isLoading
 
    return (
-      <Portal>
-         <ThemeModal open={isModalOpen} className='max-w-md border-0 bg-transparent lg:max-w-2xl'>
-            <div className='card lg:card-side max-h-full bg-background shadow-xl'>
-               <figure>
-                  <img
-                     src={entityImage}
-                     alt='ReviewEntityImage'
-                     className='h-36 w-36 md:h-64 md:w-64 lg:h-96 lg:w-96'
-                  />
-               </figure>
-               <div className='card-body justify-between'>
-                  <h2 className='card-title w-full text-center'>
-                     {entityName}
-                     <div className='badge badge-secondary'>{entityType}</div>
-                  </h2>
-                  <div className='self-center'>
-                     <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
+      <Dialog
+         open={isModalOpen}
+         onOpenChange={open => {
+            if (!open) close()
+         }}
+      >
+         <DialogContent className='flex justify-evenly rounded-md sm:max-w-3xl'>
+            <img src={entityImage} alt='ReviewEntityImage' className=' h-64 w-64 object-cover lg:h-96 lg:w-96' />
+            <div className='flex flex-col justify-between'>
+               <h2 className='text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
+               <div className='flex gap-2 self-center'>
+                  <Badge className='ml-2'>{entityType} </Badge>
+                  <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
+               </div>
+               <div>
+                  <div className='mt-1'>
+                     <Label htmlFor='review-name'>Review Name</Label>
+                     <Input
+                        id='review-name'
+                        type='text'
+                        placeholder='Type here'
+                        className='input w-full max-w-md'
+                        onChange={e => setName(e.target.value)}
+                     />
                   </div>
-                  <div>
-                     <label className='block text-base font-bold text-foreground'>Review Name</label>
-                     <div className='mt-1'>
-                        <input
-                           type='text'
-                           placeholder='Type here'
-                           className='input w-full max-w-md'
-                           onChange={e => setName(e.target.value)}
-                        />
-                     </div>
-                  </div>
-                  <ToggleWithDescription
-                     label='Public'
-                     description='If this review is public, it will be viewable by other users.'
-                     enabled={isPublic}
-                     setEnabled={setIsPublic}
-                  />
-                  <div className='card-actions justify-end'>
-                     <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                        <button
-                           type='button'
-                           disabled={isLoading}
-                           onClick={() => close()}
-                           className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
-                        >
-                           Cancel
-                        </button>
+               </div>
+               <div className='flex items-center gap-2'>
+                  <Label htmlFor='review-public'>Public</Label>
+                  <Switch id='review-public' checked={isPublic} onCheckedChange={setIsPublic} />
+               </div>
+               <div className='card-actions justify-end'>
+                  <div className='mt-5 flex w-full flex-row items-center justify-around'>
+                     <Button type='button' disabled={isLoading} variant='destructive' onClick={() => close()}>
+                        Cancel
+                     </Button>
 
-                        <button
-                           type='button'
-                           disabled={createDisabled}
-                           onClick={createReviewMutation}
-                           className={cn('btn btn-success btn-md', isLoading && 'btn-loading')}
-                        >
-                           Create
-                        </button>
-                     </div>
+                     <Button type='button' disabled={createDisabled || isLoading} onClick={createReviewMutation}>
+                        Create
+                     </Button>
                   </div>
                </div>
             </div>
-         </ThemeModal>
-      </Portal>
+         </DialogContent>
+      </Dialog>
    )
 }

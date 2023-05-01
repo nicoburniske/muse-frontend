@@ -66,7 +66,6 @@ export default function ReviewsPage() {
                <OpenMobileMenuButton>
                   {onClick => (
                      <Button className='ml-1 inline md:hidden' onClick={onClick}>
-                        {/* <button type='button' className='btn btn-primary m-auto h-full px-4 ' onClick={onClick}> */}
                         <span className='sr-only'>Open sidebar</span>
                         <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
                      </Button>

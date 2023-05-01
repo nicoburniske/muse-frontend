@@ -33,6 +33,7 @@ import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { usePlayerState } from 'component/sdk/usePlayerState'
 import { Button } from 'platform/component/Button'
+import { Toggle } from 'platform/component/Toggle'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -186,8 +187,8 @@ const PlaybackProgress = () => {
             aria-label='value'
             className='relative flex h-5 w-5/6 touch-none items-center'
          >
-            <Slider.Track className='relative h-3 grow rounded-full bg-secondary'>
-               <Slider.Range className='absolute h-full rounded-full bg-primary' />
+            <Slider.Track className='relative h-3 grow rounded-lg bg-secondary'>
+               <Slider.Range className='absolute h-full rounded-lg bg-primary' />
             </Slider.Track>
          </Slider.Root>
          <span className='countdown font-mono text-sm lg:text-lg'>
@@ -226,11 +227,7 @@ const PlayerButtons = () => {
    }
 
    const toggleShuffle = () => setShuffle(!isShuffled)
-   const successButton = 'text-primary fill-primary stroke-2'
-   const shuffleButtonClass = isShuffled ? successButton : ''
 
-   const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
-   // This isn't working as intended.
    // Spotify Playback SDK is not receiving the change, so I am going to disable it for now.
    // const repeatModeText = repeatMode === 0 ? '' : repeatMode === 1 ? '' : '1'
    // const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
@@ -280,24 +277,22 @@ const PlayerButtons = () => {
          <Button variant='svg' size='empty' onClick={nextTrack} disabled={nextTrackDisabled}>
             <ForwardIcon className={iconClass} />
          </Button>
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn(shuffleButtonClass, 'hidden sm:inline-flex ')}
-            onClick={toggleShuffle}
+         <Toggle
+            className={cn('hidden sm:inline-flex')}
+            onPressedChange={toggleShuffle}
+            pressed={isShuffled}
             disabled={toggleShuffleDisabled}
          >
             <ArrowsUpDownIcon className={iconClass} />
-         </Button>
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn(repeatModeClass, 'hidden sm:inline-flex ')}
-            onClick={cycleRepeatMode}
+         </Toggle>
+         <Toggle
+            className={cn('hidden sm:inline-flex')}
+            onPressedChange={cycleRepeatMode}
+            pressed={repeatMode !== 0}
             disabled={repeatModeDisabled}
          >
             <ArrowPathRoundedSquareIcon className={iconClass} />
-         </Button>
+         </Toggle>
       </>
    )
 }

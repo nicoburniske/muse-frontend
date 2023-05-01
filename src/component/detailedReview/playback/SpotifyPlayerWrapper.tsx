@@ -7,7 +7,6 @@ import { useTransferPlaybackOnMount } from './TransferPlayback'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
 import { nowPlayingTrackAtom } from 'state/NowPlayingAtom'
-import { Progress } from 'platform/component/progress'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 export const SpotifyPlayerWrapper = () => {

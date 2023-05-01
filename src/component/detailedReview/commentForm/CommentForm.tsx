@@ -1,21 +1,19 @@
 import { MutableRefObject, useRef, useState } from 'react'
 import CommentMarkdown from '../comment/CommentMarkdown'
-import { Tab } from '@headlessui/react'
 import { cn } from 'util/Utils'
 import { Textarea } from 'platform/component/TextArea'
 import { Button } from 'platform/component/Button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'platform/component/Tabs'
-import { Card, CardContent, CardFooter, CardHeader } from 'platform/component/Card'
+import { CardContent, CardFooter, CardHeader } from 'platform/component/Card'
 
 export interface CommentFormProps {
    initialValue?: string
    // This promise should not throw.
    onSubmit: (comment: string) => Promise<void>
-   onCancel: () => void
    trackId: string
 }
 
-export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: CommentFormProps) {
+export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFormProps) {
    const commentInputRef = useRef() as MutableRefObject<HTMLTextAreaElement>
    const [comment, setComment] = useState(initialValue)
    const [isSubmitting, setIsSubmitting] = useState(false)
@@ -30,12 +28,6 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
       } finally {
          setIsSubmitting(false)
       }
-   }
-
-   const cancel = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      event.preventDefault()
-      onCancel()
-      setComment(initialValue)
    }
 
    const applyToSelected = (apply: (substring: string) => string) => {

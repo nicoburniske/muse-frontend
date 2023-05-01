@@ -54,20 +54,18 @@ export const SelectedReview = ({ userId }: { userId?: string }) => {
    const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
    const review = useSelectedReview(userId)
 
-   return (
-      review && (
-         <Sheet
-            open={selectedReviewOpen}
-            onOpenChange={open => {
-               if (!open) {
-                  closeSelectedReview()
-               }
-            }}
-         >
-            <SidebarContent review={review} />
-         </Sheet>
-      )
-   )
+   return review ? (
+      <Sheet
+         open={selectedReviewOpen}
+         onOpenChange={open => {
+            if (!open) {
+               closeSelectedReview()
+            }
+         }}
+      >
+         <SidebarContent review={review} />
+      </Sheet>
+   ) : null
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
@@ -146,18 +144,20 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
             )}
          </div>
 
-         <div className='flex flex-col space-y-2'>
-            <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
-               <Button>
-                  <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
-                     <PlusIconMini className='h-5 w-5' aria-hidden='true' />
-                  </span>
-                  <span className='ml-4'>Share</span>
-               </Button>
-            </ShareReview>
+         {isEditable && (
+            <div className='flex flex-col space-y-2'>
+               <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
+                  <Button>
+                     <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
+                        <PlusIconMini className='h-5 w-5' aria-hidden='true' />
+                     </span>
+                     <span className='ml-4'>Share</span>
+                  </Button>
+               </ShareReview>
 
-            <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
-         </div>
+               <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
+            </div>
+         )}
       </SheetContent>
    )
 }
