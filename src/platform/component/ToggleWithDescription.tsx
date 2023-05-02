@@ -1,7 +1,11 @@
-import { Switch } from '@headlessui/react'
 import { cn } from 'util/Utils'
+import { Label } from './Label'
+import { Switch } from './Switch'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
 export type ToggleProps = {
+   id: string
    label: string
    description: string
    enabled: boolean
@@ -9,33 +13,21 @@ export type ToggleProps = {
    className?: string
 }
 
-export const ToggleWithDescription = ({ label, description, enabled, setEnabled, className }: ToggleProps) => {
+export const ToggleWithDescription = ({ id, label, description, enabled, setEnabled, className }: ToggleProps) => {
    return (
-      <Switch.Group as='div' className={cn('flex items-center justify-between', className)}>
-         <span className='flex flex-grow flex-col text-foreground'>
-            <Switch.Label as='span' className='text-base font-bold' passive>
-               {label}
-            </Switch.Label>
-            <Switch.Description as='span' className='text-sm font-light'>
-               {description}
-            </Switch.Description>
-         </span>
-         <Switch
-            checked={enabled}
-            onChange={setEnabled}
-            className={cn(
-               enabled ? 'bg-success' : 'bg-secondary',
-               'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-primary'
-            )}
-         >
-            <span
-               aria-hidden='true'
-               className={cn(
-                  enabled ? 'translate-x-5' : 'translate-x-0',
-                  'bg-neutral pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out'
-               )}
-            />
-         </Switch>
-      </Switch.Group>
+      <div className={cn('flex gap-2', className)}>
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger>
+                  <div className='flex items-center gap-2'>
+                     <Label htmlFor={id}>{label}</Label>
+                     <InformationCircleIcon className='h-4 w-4' />
+                  </div>
+               </TooltipTrigger>
+               <TooltipContent>{description}</TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+         <Switch id={id} checked={enabled} onCheckedChange={setEnabled} />
+      </div>
    )
 }
