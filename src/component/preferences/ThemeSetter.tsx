@@ -11,14 +11,17 @@ import { Theme, Themes, useTheme } from 'state/UserPreferences'
 
 const ThemeOptions = [...Themes].sort((a, b) => a.localeCompare(b)) as Theme[]
 
-export const ThemeSetter = () => {
+type ThemeSetterProps = { open: boolean; setOpen: (open: boolean) => void }
+
+export const ThemeSetter = ({ open, setOpen }: ThemeSetterProps) => {
    const [currentTheme, setTheme] = useTheme()
 
    return (
       <Select
-         // open={true}
+         open={open}
          value={currentTheme}
          onValueChange={v => setTheme(v as Theme)}
+         onOpenChange={open => setOpen(open)}
       >
          <SelectTrigger>
             <SelectValue placeholder='Select a theme' />

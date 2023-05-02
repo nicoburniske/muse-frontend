@@ -8,6 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
 import { nowPlayingTrackAtom } from 'state/NowPlayingAtom'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { Progress } from 'platform/component/progress'
 
 export const SpotifyPlayerWrapper = () => {
    return (
