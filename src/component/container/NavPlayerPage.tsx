@@ -30,12 +30,6 @@ export const NavPlayerPageOutlet = () => {
 
 // Add navbar and player to the page.
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
-   const theme = useThemeValue()
-
-   useEffect(() => {
-      document.documentElement.setAttribute('data-theme', theme)
-   }, [theme])
-
    return (
       <TourProvider
          // @ts-ignore
