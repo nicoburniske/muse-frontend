@@ -41,7 +41,7 @@ export const SeekIntervalSetter = () => {
 
    return (
       <div>
-         <div className='relative'>
+         <div className='flex flex-col gap-2'>
             <label htmlFor='seekInterval' className='block text-sm font-medium text-foreground'>
                Seek interval (seconds)
             </label>
