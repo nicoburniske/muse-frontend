@@ -1,38 +1,43 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
 import { Input } from 'platform/component/Input'
 import { cn } from 'util/Utils'
 import { z } from 'zod'
+import { Button } from 'platform/component/Button'
+import { CheckIcon } from '@heroicons/react/24/outline'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 
-const seekIntervalSchema = z.coerce
-   .number()
-   .min(1)
-   .max(120)
-   .transform(seek => seek * 1000)
+const SeekIntervalSchema = z.object({
+   seekInterval: z.coerce.number().min(1).max(120),
+})
+
+type SeekIntervalInputType = z.infer<typeof SeekIntervalSchema>
 
 export const SeekIntervalSetter = () => {
    // seek interval is stored in milliseconds.
-   const seekInterval = useSeekInterval()
+   const seekInterval = useSeekInterval() / 1000
    const setSeekInterval = useSetSeekInterval()
 
-   const [tempInterval, setTempInterval] = useState<string>((seekInterval / 1000).toString())
-   const [errors, setErrors] = useState<string[]>([])
-   const hasErrors = errors.length > 0
+   const {
+      register,
+      reset,
+      handleSubmit,
+      formState: { isValid, isDirty },
+   } = useForm<SeekIntervalInputType>({
+      resolver: zodResolver(SeekIntervalSchema),
+      defaultValues: { seekInterval },
+   })
 
-   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTempInterval(e.target.value)
-   }
+   const submitDisabled = !isDirty || !isValid
+
+   const submit = handleSubmit(input => {
+      setSeekInterval(input.seekInterval * 1000)
+   })
 
    useEffect(() => {
-      const parsed = seekIntervalSchema.safeParse(tempInterval)
-      if (parsed.success) {
-         setErrors([])
-         setSeekInterval(parsed.data)
-      } else {
-         const messages = parsed.error.issues.map(i => i.message)
-         setErrors(messages)
-      }
-   }, [tempInterval])
+      reset({ seekInterval })
+   }, [seekInterval])
 
    return (
       <div>
@@ -40,18 +45,13 @@ export const SeekIntervalSetter = () => {
             <label htmlFor='seekInterval' className='block text-sm font-medium text-foreground'>
                Seek interval (seconds)
             </label>
-            <Input
-               type='number'
-               name='number'
-               id='seekInterval'
-               className={cn('input input-bordered w-full sm:text-sm', hasErrors ? 'input-error text-error' : '')}
-               value={tempInterval}
-               onChange={onChange}
-               aria-invalid='true'
-               aria-describedby='number-error'
-            />
+            <form className='flex gap-2' onSubmit={submit}>
+               <Input id='seekInterval' type='number' className={cn('w-full')} {...register('seekInterval')} />
+               <Button disabled={submitDisabled}>
+                  <CheckIcon className='h-4 w-4' />
+               </Button>
+            </form>
          </div>
-         <p className='text-error mt-2 h-6 text-sm'>{errors.join(',')}</p>
       </div>
    )
 }

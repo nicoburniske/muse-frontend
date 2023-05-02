@@ -12,7 +12,7 @@ export const TogglePreferences = ({ atom, id, label, description }: TogglePrefer
    const [shouldTransfer, setShouldTransfer] = useAtom(atom)
 
    return (
-      <div className='flex '>
+      <div className='flex justify-between'>
          <div className='flex-col items-center'>
             <Label htmlFor={id}>{label}</Label>
             <div className='text-sm text-muted-foreground'>{description}</div>

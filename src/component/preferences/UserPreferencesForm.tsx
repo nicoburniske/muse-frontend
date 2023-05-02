@@ -8,6 +8,7 @@ import { CogIcon } from '@heroicons/react/24/outline'
 import { clearPersister } from 'MuseQueryClientProvider'
 import { Dialog, DialogContent, DialogTitle } from 'platform/component/Dialog'
 import { Button } from 'platform/component/Button'
+import { useState } from 'react'
 
 const modalOpenAtom = atom(false)
 
@@ -33,17 +34,27 @@ export const UserPreferencesButton = () => {
 export const UserPreferencesModal = () => {
    const [open, setModalOpen] = useAtom(modalOpenAtom)
    const queryClient = useQueryClient()
+   // This is necessary for edge case where menu is open, and then outside click closes modal.
+   const [menuOpen, setMenuOpen] = useState(false)
 
    return (
-      <Dialog open={open} onOpenChange={open => setModalOpen(open)}>
+      <Dialog
+         open={open}
+         onOpenChange={open => {
+            setModalOpen(open)
+            if (!open) {
+               setMenuOpen(false)
+            }
+         }}
+      >
          <DialogContent>
             <DialogTitle>Settings</DialogTitle>
-            <ThemeSetter />
+            <ThemeSetter open={menuOpen} setOpen={setMenuOpen} />
             <TogglePreferences
                atom={transferPlaybackOnMountAtom}
                id={'transfer-playback'}
                label={'Transfer Playback'}
-               description={'If enabled, playback will be immediately transfered on page load.'}
+               description={'If enabled, playback will start on page load.'}
             />
             <SeekIntervalSetter />
             <Button

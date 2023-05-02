@@ -15,7 +15,10 @@ export const useTransferPlayback = (options?: UseMutationOptions) => {
 }
 
 export const useTransferPlaybackOnMount = () => {
-   const { transfer, needsReconnect } = useTransferPlayback()
+   const { transfer, needsReconnect } = useTransferPlayback({
+      retry: 3,
+      retryDelay: (attemptIndex: number) => 1000 * 2 * attemptIndex,
+   })
    const transferPlayback = useShouldTransferPlaybackOnMountValue()
 
    const player = useSpotifyPlayer()

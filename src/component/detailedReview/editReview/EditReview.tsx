@@ -95,12 +95,7 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
             <form className='flex w-full flex-col items-center space-y-2 px-2' onSubmit={handleSubmit(onSubmit)}>
                <div className='w-full'>
                   <Label htmlFor='review-name'>Review Name</Label>
-                  <Input
-                     id='review-name'
-                     type='text'
-                     className='input input-bordered w-full'
-                     {...register('reviewName')}
-                  />
+                  <Input id='review-name' type='text' {...register('reviewName')} />
                </div>
                <div className='flex w-full flex-col'>
                   <label className='label'>
