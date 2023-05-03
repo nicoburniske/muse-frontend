@@ -7,7 +7,7 @@ import { atom } from 'jotai'
 import { nonNullable } from 'util/Utils'
 import { getTrack, getTracks, Group, HeaderData, ReviewOverview, searchTrack, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
-import { MemoTrack } from './MemoTrack'
+import { EitherTrack } from './EitherTrack'
 import { searchLoweredAtom } from 'state/Atoms'
 
 /**
@@ -104,12 +104,12 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
    return allGroups.map(({ tracks, headerData, overview }) => {
       const header = {
          element: <MemoHeader {...overview} entity={headerData} parentReviewId={rootReviewId} />,
-         size: 58,
+         size: 60,
       }
       const { reviewId } = overview
       const children = tracks.map((t, i) => {
          return {
-            element: <MemoTrack track={t} index={i} reviewId={overview.reviewId} />,
+            element: <EitherTrack track={t} index={i} reviewId={overview.reviewId} />,
             size: 60,
          }
       })

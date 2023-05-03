@@ -1,5 +1,6 @@
 import { Transition } from '@headlessui/react'
 import { CheckCircleIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
+import { Button } from 'platform/component/Button'
 import { Fragment } from 'react'
 import { Toaster, toast as hotToast, resolveValue } from 'react-hot-toast'
 import { useThemeValue } from 'state/UserPreferences'
@@ -17,10 +18,10 @@ export function MuseToaster() {
             duration: 2000,
             position: 'top-right',
             success: {
-               icon: <CheckCircleIcon className='h-6 w-6 text-success' aria-hidden='true' />,
+               icon: <CheckCircleIcon className='text-success h-6 w-6' aria-hidden='true' />,
             },
             error: {
-               icon: <ExclamationTriangleIcon className='h-6 w-6 text-error' aria-hidden='true' />,
+               icon: <ExclamationTriangleIcon className='text-error h-6 w-6' aria-hidden='true' />,
             },
          }}
       >
@@ -40,8 +41,8 @@ export function MuseToaster() {
                >
                   <div
                      className={cn(
-                        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-opacity-5',
-                        'bg-base-300 text-base-content ring-primary',
+                        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring ring-opacity-5',
+                        'bg-background text-foreground',
                         t.className
                      )}
                   >
@@ -52,16 +53,17 @@ export function MuseToaster() {
                               <p className='text-sm font-medium '>{resolveValue(t.message, t)}</p>
                            </div>
                            <div className='ml-4 flex flex-shrink-0'>
-                              <button
+                              <Button
                                  type='button'
-                                 className='btn btn-square btn-ghost'
+                                 variant='svg'
+                                 size='empty'
                                  onClick={() => {
                                     hotToast.dismiss(t.id)
                                  }}
                               >
                                  <span className='sr-only'>Close</span>
                                  <XMarkIcon className='h-5 w-5' aria-hidden='true' />
-                              </button>
+                              </Button>
                            </div>
                         </div>
                      </div>

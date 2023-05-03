@@ -1,17 +1,19 @@
 import { MutableRefObject, useRef, useState } from 'react'
 import CommentMarkdown from '../comment/CommentMarkdown'
-import { Tab } from '@headlessui/react'
 import { cn } from 'util/Utils'
+import { Textarea } from 'platform/component/TextArea'
+import { Button } from 'platform/component/Button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from 'platform/component/Tabs'
+import { CardContent, CardFooter, CardHeader } from 'platform/component/Card'
 
 export interface CommentFormProps {
    initialValue?: string
    // This promise should not throw.
    onSubmit: (comment: string) => Promise<void>
-   onCancel: () => void
    trackId: string
 }
 
-export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: CommentFormProps) {
+export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFormProps) {
    const commentInputRef = useRef() as MutableRefObject<HTMLTextAreaElement>
    const [comment, setComment] = useState(initialValue)
    const [isSubmitting, setIsSubmitting] = useState(false)
@@ -26,12 +28,6 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
       } finally {
          setIsSubmitting(false)
       }
-   }
-
-   const cancel = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      event.preventDefault()
-      onCancel()
-      setComment(initialValue)
    }
 
    const applyToSelected = (apply: (substring: string) => string) => {
@@ -60,114 +56,77 @@ export function CommentForm({ onSubmit, onCancel, initialValue = '', trackId }: 
 
    return (
       <>
-         <form className='flex-1 p-5 pb-0'>
-            <Tab.Group>
-               {({ selectedIndex }) => (
-                  <>
-                     <Tab.List className='flex items-center text-base-content'>
-                        <div className='space-x-1'>
-                           <Tab
-                              className={({ selected }) =>
-                                 cn(
-                                    selected
-                                       ? 'bg-base-200 font-bold'
-                                       : 'bg-base-100  text-base-content/50 hover:bg-base-200',
-                                    'rounded-md border border-transparent px-3 py-1.5 text-sm font-medium'
-                                 )
-                              }
+         <div className={cn('rounded-lg border-0 shadow-sm')}>
+            <Tabs defaultValue={'Write'}>
+               <CardHeader>
+                  <TabsList>
+                     <TabsTrigger value={'Write'}>Write</TabsTrigger>
+                     <TabsTrigger value={'Preview'}>Preview</TabsTrigger>
+                     <div className='ml-auto hidden items-center space-x-5 sm:flex'>
+                        <div className='flex items-center'>
+                           <button
+                              type='button'
+                              className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
+                              onClick={blockQuoteSelected}
                            >
-                              Write
-                           </Tab>
-                           <Tab
-                              className={({ selected }) =>
-                                 cn(
-                                    selected
-                                       ? 'bg-base-200 font-bold'
-                                       : 'bg-base-100  text-base-content/50 hover:bg-base-200 hover:text-base-content',
-                                    'rounded-md border border-transparent px-3 py-1.5 text-sm font-medium'
-                                 )
-                              }
-                           >
-                              Preview
-                           </Tab>
+                              <span className='sr-only'>Block comment selected text</span>
+                              <QuoteIcon />
+                           </button>
                         </div>
 
-                        {selectedIndex === 0 ? (
-                           <div className='ml-auto hidden items-center space-x-5 sm:flex'>
-                              <div className='flex items-center'>
-                                 <button
-                                    type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
-                                    onClick={blockQuoteSelected}
-                                 >
-                                    <span className='sr-only'>Block comment selected text</span>
-                                    <QuoteIcon />
-                                 </button>
-                              </div>
+                        <div className='flex items-center'>
+                           <button
+                              type='button'
+                              className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
+                              onClick={boldSelected}
+                           >
+                              <span className='sr-only'>Bold selected text</span>
+                              <BoldIcon />
+                           </button>
+                        </div>
 
-                              <div className='flex items-center'>
-                                 <button
-                                    type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
-                                    onClick={boldSelected}
-                                 >
-                                    <span className='sr-only'>Bold selected text</span>
-                                    <BoldIcon />
-
-                                    {/* <b className='font-extrabold'>B</b> */}
-                                 </button>
-                              </div>
-
-                              <div className='flex items-center'>
-                                 <button
-                                    type='button'
-                                    className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-base-content/50 hover:text-base-content'
-                                    onClick={italicSelected}
-                                 >
-                                    <span className='sr-only'>Italicize selected text</span>
-                                    <ItalicIcon />
-                                    {/* <i className='italic'>I</i> */}
-                                 </button>
-                              </div>
-                           </div>
-                        ) : null}
-                     </Tab.List>
-                     <Tab.Panels className='mt-2'>
-                        <Tab.Panel className='-m-0.5 rounded-lg p-0.5'>
-                           <label htmlFor='comment' className='sr-only'>
-                              Comment
-                           </label>
-                           <div>
-                              <textarea
-                                 ref={commentInputRef}
-                                 rows={6}
-                                 placeholder='Add your comment...'
-                                 className='textarea textarea-bordered w-full grow placeholder-base-content/50'
-                                 onChange={e => setComment(e.target.value as string)}
-                                 value={comment}
-                              />
-                           </div>
-                        </Tab.Panel>
-                        <Tab.Panel className='-m-0.5 rounded-lg p-0.5'>
-                           <div className='border-b border-primary'>
-                              <div className='prose mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5'>
-                                 <CommentMarkdown trackId={trackId} comment={comment} />
-                              </div>
-                           </div>
-                        </Tab.Panel>
-                     </Tab.Panels>
-                  </>
-               )}
-            </Tab.Group>
-            <div className='mt-2 flex justify-end space-x-2'>
-               <button className='btn' onClick={cancel} disabled={isSubmitting}>
-                  Cancel
-               </button>
-               <button className='btn btn-primary' onClick={submitAndReset} disabled={!canSubmit || isSubmitting}>
-                  Post
-               </button>
-            </div>
-         </form>
+                        <div className='flex items-center'>
+                           <button
+                              type='button'
+                              className='-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground/50 hover:text-foreground'
+                              onClick={italicSelected}
+                           >
+                              <span className='sr-only'>Italicize selected text</span>
+                              <ItalicIcon />
+                           </button>
+                        </div>
+                     </div>
+                  </TabsList>
+               </CardHeader>
+               <CardContent className='p-4'>
+                  <TabsContent value={'Write'}>
+                     <label htmlFor='comment' className='sr-only'>
+                        Comment
+                     </label>
+                     <div>
+                        <Textarea
+                           ref={commentInputRef}
+                           rows={10}
+                           placeholder='Add your comment...'
+                           className='h-64'
+                           onChange={e => setComment(e.target.value as string)}
+                           value={comment}
+                        />
+                     </div>
+                  </TabsContent>
+                  <TabsContent value={'Preview'}>
+                     <div className='prose mx-px mt-px px-3 pb-12 pt-2 text-sm leading-5'>
+                        <CommentMarkdown trackId={trackId} comment={comment} />
+                     </div>
+                  </TabsContent>
+               </CardContent>
+            </Tabs>
+            <CardFooter className='flex justify-between'>
+               <Button onClick={submitAndReset} disabled={!canSubmit || isSubmitting}>
+                  Submit
+               </Button>
+            </CardFooter>
+         </div>
       </>
    )
 }

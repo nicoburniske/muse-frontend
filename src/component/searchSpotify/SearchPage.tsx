@@ -1,4 +1,3 @@
-import { BackspaceIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useSpotifyClient } from 'component/sdk/ClientAtoms'
@@ -7,7 +6,7 @@ import { EntityType } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import atomWithDebounce from 'platform/atom/atomWithDebounce'
 import { HeroLoading } from 'platform/component/HeroLoading'
-import { useEffect, useMemo, useRef, memo, ReactNode, RefObject, useCallback, useState } from 'react'
+import { useEffect, useMemo, useRef, memo, ReactNode, RefObject, useCallback } from 'react'
 import {
    Artist,
    SearchType,
@@ -27,40 +26,50 @@ import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSugge
 import { CreateReviewModal, useCreateReviewModal } from 'component/createReview/CreateReviewModal'
 import toast from 'react-hot-toast'
 import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
+import {
+   Select,
+   SelectContent,
+   SelectGroup,
+   SelectItem,
+   SelectItemText,
+   SelectTrigger,
+   SelectValue,
+} from 'platform/component/Select'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'platform/component/Card'
+import { Button } from 'platform/component/Button'
+import { Badge } from 'platform/component/Badge'
+import { Bars3BottomLeftIcon, PlusIcon, BackspaceIcon } from '@heroicons/react/24/outline'
+import { Separator } from 'platform/component/Seperator'
+import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
 
 const SearchPage = () => {
-   const [expandFilter, setExpandFilter] = useState(true)
    return (
       <>
-         <div className='flex grow'>
-            {expandFilter && (
-               <div className='flex w-32 flex-col space-y-5 bg-base-200 p-2 md:w-56 md:p-4'>
-                  <SelectEntityTypes />
-                  <SelectGenreSeeds />
-                  <SelectHipsterFilter />
-                  <SelectNewFilter />
-                  <SelectPlayOnHover />
+         <div className='flex grow flex-col'>
+            <div className='relative flex w-full items-center justify-center'>
+               <OpenMobileMenuButton>
+                  {onClick => (
+                     <Button className='absolute left-2 inline md:hidden' onClick={onClick}>
+                        <span className='sr-only'>Open sidebar</span>
+                        <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
+                     </Button>
+                  )}
+               </OpenMobileMenuButton>
+               <div className='ml-16 w-full max-w-3xl justify-self-center'>
+                  <SearchInputBar />
                </div>
-            )}
-            <div className='flex grow flex-col items-center justify-between bg-base-100'>
-               <div className='flex w-full flex-none items-center justify-between'>
-                  <button
-                     className='btn btn-ghost btn-sm h-3/4 flex-none justify-self-start'
-                     onClick={() => setExpandFilter(!expandFilter)}
-                  >
-                     {expandFilter ? <ChevronLeftIcon className='h-6 w-6' /> : <ChevronRightIcon className='h-6 w-6' />}
-                  </button>
+            </div>
+            <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
+               <SelectEntityTypes />
+               <SelectGenreSeeds />
+               <SelectHipsterFilter />
+               <SelectNewFilter />
+            </div>
+            <Separator />
 
-                  <div className='max-w-3xl flex-1 justify-self-center'>
-                     <SearchInputBar />
-                  </div>
-                  {/* Empty div ftw */}
-                  <div />
-               </div>
-               {/* Again no idea why I need min-h */}
-               <div className='min-h-0 w-full grow rounded-md border-2 border-base-200 px-3 shadow-2xl'>
-                  <ScrollSearchResults />
-               </div>
+            {/* Again no idea why I need min-h */}
+            <div className='min-h-0 w-full grow rounded-md p-3 shadow-2xl'>
+               <ScrollSearchResults />
             </div>
          </div>
 
@@ -69,8 +78,6 @@ const SearchPage = () => {
    )
 }
 export default SearchPage
-
-const playOnHoverAtom = atom(false)
 
 type NoTrack = Exclude<EntityType, 'Track'>
 const NoTrackValues = EntityTypeValues.filter(t => t !== 'Track') as NoTrack[]
@@ -82,7 +89,7 @@ const asMap = new Map(
    ])
 )
 
-const selectedEntityTypesAtom = atom(['Album', 'Playlist', 'Artist'] as NoTrack[])
+const selectedEntityTypesAtom = atom(['Playlist'] as NoTrack[])
 const selectedGenreSeedsAtom = atom(new Array<string>())
 const filterHipsterAtom = atom(false)
 const filterNewAtom = atom(false)
@@ -117,6 +124,7 @@ const SelectHipsterFilter = () => {
 
    return (
       <ToggleWithDescription
+         id='hipster-filter'
          label={'Hipster'}
          description={'10% Least Popular'}
          enabled={hipster}
@@ -137,28 +145,11 @@ const SelectNewFilter = () => {
 
    return (
       <ToggleWithDescription
+         id='new-filter'
          label='New'
          description='Released In Last 2 Weeks'
          enabled={newOnly}
          setEnabled={onChange}
-      />
-   )
-}
-
-const SelectPlayOnHover = () => {
-   const [playOnHove, setPlayOnHover] = useAtom(playOnHoverAtom)
-
-   const onChange = (value: boolean) => {
-      setPlayOnHover(value)
-   }
-
-   return (
-      <ToggleWithDescription
-         label={'Play on Hover'}
-         description={'Hover over an item to play it'}
-         enabled={playOnHove}
-         setEnabled={onChange}
-         className='hidden sm:flex'
       />
    )
 }
@@ -168,34 +159,44 @@ const SearchInputBar = () => {
    const setSearch = useSetAtom(setQueryStringAtom)
 
    return (
-      <SearchInputKbdSuggestion screenReaderLabel='Search' placeholder='Search' search={search} setSearch={setSearch} />
+      <SearchInputKbdSuggestion
+         screenReaderLabel='Search'
+         placeholder='Search'
+         search={search}
+         setSearch={setSearch}
+         autoFocus={true}
+      />
    )
 }
 
-const renderString = (selected: string[]) => (selected.length > 0 ? selected.join(', ') : 'None')
 const capitalizeFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 const SelectEntityTypes = () => {
    const [selected, setSelectedEntityTypes] = useAtom(selectedEntityTypesAtom)
-   const clear = () => setSelectedEntityTypes([])
+   const setNewToggle = useSetAtom(filterNewAtom)
+
+   const set = (value: NoTrack) => {
+      if (value !== 'Album') {
+         setNewToggle(false)
+      }
+      setSelectedEntityTypes([value])
+   }
    return (
-      <div className='flex flex-col items-center space-y-2'>
-         <div className='w-full'>
-            <SelectMany
-               label={'Search Types'}
-               selected={selected}
-               // Can't currently handle track reviews.
-               allOptions={['Album', 'Playlist', 'Artist'] as EntityType[]}
-               onChange={setSelectedEntityTypes}
-               createKey={(e: EntityType) => e}
-               renderOption={(e: EntityType) => e}
-               renderSelected={renderString}
-            />
-         </div>
-         <button className='btn btn-md w-20 gap-2 md:w-32' onClick={clear} disabled={selected.length === 0}>
-            <span className='hidden md:block'>Clear</span>
-            <BackspaceIcon className='h-6 w-6' />
-         </button>
+      <div className='w-32'>
+         <Select value={selected[0]} onValueChange={set}>
+            <SelectTrigger>
+               <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+               <SelectGroup>
+                  {NoTrackValues.map(item => (
+                     <SelectItem key={item} value={item}>
+                        <SelectItemText>{capitalizeFirst(item)}</SelectItemText>
+                     </SelectItem>
+                  ))}
+               </SelectGroup>
+            </SelectContent>
+         </Select>
       </div>
    )
 }
@@ -205,24 +206,22 @@ const SelectGenreSeeds = () => {
    const clear = () => setSelected([])
    const { data } = useAvailableGenreSeeds({ staleTime: 5 * 60 * 1000 })
    return (
-      <div className='flex flex-col items-center space-y-2'>
-         <div className='w-full'>
+      <div className='flex items-center gap-2'>
+         <div className='w-32'>
             <SelectMany
-               label={'Genres'}
                selected={selected}
                allOptions={data ?? []}
                onChange={setSelected}
                createKey={(s: string) => s}
                renderOption={capitalizeFirst}
                renderSelected={(selected: string[]) =>
-                  selected.length > 0 ? selected.map(capitalizeFirst).join(', ') : 'None'
+                  selected.length > 0 ? selected.map(capitalizeFirst).join(', ') : 'Genres'
                }
             />
          </div>
-         <button className='btn btn-md w-20 gap-2 md:w-32' onClick={clear} disabled={selected.length === 0}>
-            <span className='hidden md:block'>Clear</span>
+         <Button onClick={clear} variant='svg' size='empty' disabled={selected.length === 0}>
             <BackspaceIcon className='h-6 w-6' />
-         </button>
+         </Button>
       </div>
    )
 }
@@ -268,13 +267,14 @@ const ScrollSearchResults = () => {
 
    const [numCols, colsStyle, height]: [number, string, number] = useWindowSizeAtom(
       useCallback(s => {
-         const itemWidth = s.isMd ? 192 : 128
-         const sidebarWidth = s.isMd ? 224 : 128
-         const height = s.isMd ? 300 : 200
+         const itemWidth = s.isMd ? 192 : 144
+         const height = s.isMd ? 350 : 275
          // this one is aribitrary.
          const padding = s.isMd ? 100 : 50
-         const width = s.width - sidebarWidth
-         if (width > itemWidth * 5 + padding) {
+         const width = s.width
+         if (width > itemWidth * 6 + padding) {
+            return [6, 'grid-cols-6', height]
+         } else if (width > itemWidth * 5 + padding) {
             return [5, 'grid-cols-5', height]
          } else if (width > itemWidth * 4 + padding) {
             return [4, 'grid-cols-4', height]
@@ -298,7 +298,7 @@ const ScrollSearchResults = () => {
          .flat()
          .filter(r => nonNullable(r?.href ?? r?.id))
          .filter(r => nonNullable(r.type))
-      const unique = uniqueByProperty(validResults, r => r?.href ?? r?.id)
+      const unique = uniqueByProperty(validResults, r => r.id)
       return chunkArrayInGroups(unique, numCols)
    }, [response, numCols])
 
@@ -400,7 +400,6 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
       entityType: capitalizeFirst(type) as EntityType,
    })
 
-   const delayHandler = useRef<NodeJS.Timeout | undefined>(undefined)
    const isPlaying = useDerivedAtomValue(get => get(nowPlayingAtom) === searchRow.id, [searchRow.id])
    const setIsPlaying = useSetAtom(nowPlayingAtom)
 
@@ -426,49 +425,39 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
       }
    }
 
-   const shouldPlayHover = useAtomValue(playOnHoverAtom)
-
-   const playHover = () => {
-      delayHandler.current = setTimeout(() => {
-         if (shouldPlayHover && !isPlaying && !isLoading) {
-            if (type === 'track') {
-               const offset = searchRow.duration_ms / 2
-               playTrackOffset(searchRow.id, offset)
-            } else if (type === 'artist') {
-               playArtist(searchRow.id, 15 * 1000)
-            } else if (type === 'playlist') {
-               playPlaylistIndexOffset(searchRow.id, 0, 15 * 1000)
-            } else if (type === 'album') {
-               playAlbumIndexOffset(searchRow.id, 0, 15 * 1000)
-            }
-         }
-      }, 100)
-   }
-
-   const mouseLeave = () => {
-      const timeout = delayHandler.current
-      if (timeout !== undefined) {
-         clearTimeout(timeout)
-      }
-   }
-
    const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
    useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: playDoubleClick })
 
    return (
-      <div
-         className='flex w-32 flex-col bg-base-200 text-base-content shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-base-300 hover:shadow-xl md:w-48'
-         onMouseEnter={playHover}
-         onMouseLeave={mouseLeave}
+      <Card
+         className='relative flex w-36 flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg md:w-48'
          ref={playOnDoubleClickRef}
       >
-         <img src={tileImage} className='h-32 w-32 object-center md:h-48 md:w-48' alt='SearchResult' />
-         <div className='flex cursor-pointer flex-col items-center justify-evenly text-center' onClick={open}>
-            <div className='w-full text-xs font-extrabold line-clamp-1 md:text-base'>{searchRow.name}</div>
-            <div className='badge badge-primary truncate text-xs md:text-sm'>{capitalizeFirst(searchRow.type)}</div>
-            <p className='text-clip text-sm line-clamp-1'>{secondaryData(searchRow)}</p>
-         </div>
-      </div>
+         <CardHeader className='space-y-0 p-4 pb-0'>
+            <CardTitle className='line-clamp-1 text-base lg:text-lg'>{searchRow.name}</CardTitle>
+            <div className='line-clamp-1 px-0 py-0 text-sm text-muted-foreground md:text-base'>
+               {secondaryData(searchRow)}
+            </div>
+         </CardHeader>
+         <CardContent className='p-2'>
+            <img
+               src={tileImage}
+               className='aspect-square h-32 w-32 object-cover object-center md:h-48 md:w-48'
+               alt='SearchResult'
+            />
+            {/* </div> */}
+         </CardContent>
+
+         <CardFooter className='flex-col items-start space-y-1'>
+            <div className='flex w-full justify-between'>
+               <Badge variant='outline'>{capitalizeFirst(type)}</Badge>
+
+               <Button variant='svg' size='empty' onClick={open}>
+                  <PlusIcon className='h-6 w-6' aria-hidden='true' />
+               </Button>
+            </div>
+         </CardFooter>
+      </Card>
    )
 }
 

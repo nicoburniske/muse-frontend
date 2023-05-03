@@ -1,9 +1,10 @@
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { UserAvatar } from 'component/UserAvatar'
 import { BrowseCard } from 'component/myReviews/BrowseCard'
 import { SelectedReview, useSelectReview } from 'component/myReviews/SelectedReview'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { NotFound } from 'pages/NotFound'
-import { Alert, AlertSeverity } from 'platform/component/Alert'
+import { Alert, AlertTitle } from 'platform/component/Alert'
 import Hero from 'platform/component/Hero'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { MuseTransition } from 'platform/component/MuseTransition'
@@ -19,14 +20,15 @@ export function ProfilePage() {
             fallback={
                <Hero>
                   <div className='h-10 w-full'>
-                     <Alert severity={AlertSeverity.Error}>
-                        <span> Error Loading User Profile</span>
+                     <Alert variant='destructive'>
+                        <ExclamationTriangleIcon className='h-4 w-4' />
+                        <AlertTitle>Something went wrong while loading user profile.</AlertTitle>
                      </Alert>
                   </div>
                </Hero>
             }
          >
-            <div className='flex grow bg-base-100'>
+            <div className='flex grow bg-background'>
                <Suspense fallback={<HeroLoading />}>
                   <UserProfile userId={userId} />
                </Suspense>
@@ -34,11 +36,7 @@ export function ProfilePage() {
          </ErrorBoundary>
       )
    } else {
-      return (
-         <Alert severity={AlertSeverity.Error}>
-            <span> Missing User ID </span>
-         </Alert>
-      )
+      return <NotFound label={'Go Back Home'} />
    }
 }
 
@@ -66,7 +64,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
    return (
       <>
          <div className='muse-scrollbar flex flex-1 flex-col items-center overflow-y-auto px-2 pt-16'>
-            <div className='mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg bg-base-200 text-base-content shadow-2xl'>
+            <div className='bg-base-200 mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg text-foreground shadow-2xl'>
                <div className='px-6'>
                   <div className='flex flex-wrap justify-center'>
                      <div className='flex w-full justify-center px-4'>
@@ -79,7 +77,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
                      <div className='mt-20 w-full px-4 text-center'>
                         <div className='text-center'>
                            <h3 className='mb-2 text-xl font-semibold leading-normal'>{displayName ?? userId}</h3>
-                           <div className='mt-0 mb-2 text-sm font-bold leading-normal'>@{userId}</div>
+                           <div className='mb-2 mt-0 text-sm font-bold leading-normal'>@{userId}</div>
                         </div>
                         <div className='flex justify-center py-4 pt-8 lg:pt-4'>
                            <div className='mr-4 p-3 text-center'>

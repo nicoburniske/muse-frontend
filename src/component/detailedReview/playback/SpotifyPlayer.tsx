@@ -1,9 +1,10 @@
 import LikeButton from 'component/LikeButton'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { cn, msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
+import { Slider as LibSlider } from 'platform/component/Slider'
 import { useCurrentTrack, useVolume, useExistsPlaybackState, useCurrentPosition } from 'component/sdk/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
@@ -31,6 +32,8 @@ import {
 import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { usePlayerState } from 'component/sdk/usePlayerState'
+import { Button } from 'platform/component/Button'
+import { Toggle } from 'platform/component/Toggle'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -42,7 +45,7 @@ export function SpotifyPlayerFallback() {
       )
    } else {
       return (
-         <div className='grid w-full place-items-center rounded border border-accent bg-neutral'>
+         <div className='grid w-full place-items-center rounded border border-accent bg-card text-card-foreground'>
             <div className='py-2'>
                <TransferPlaybackButton />
             </div>
@@ -53,10 +56,10 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='grid h-20 w-full grid-cols-3 justify-between bg-neutral md:grid-cols-5'>
+      <div className='grid h-20 w-full grid-cols-3 justify-between border-t bg-card text-card-foreground md:grid-cols-5'>
          <NowPlayingItem />
          <div className='col-span-2 flex w-full min-w-0 max-w-md grow flex-col items-end justify-center justify-self-center md:col-span-3 lg:max-w-3xl'>
-            <div className='flex w-full flex-row items-center justify-evenly text-neutral-content'>
+            <div className='flex w-full flex-row items-center justify-evenly'>
                <PlayerButtons />
             </div>
             <PlaybackProgress />
@@ -88,17 +91,15 @@ const NowPlayingItem = () => {
 
    return (
       <div className={cn(' col-span-1 flex select-none items-center justify-start lg:max-w-lg')}>
-         <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : 'bg-neutral')}>
+         <div ref={drag} className={cn('flex min-w-0', isDragging ? 'opacity-20' : '')}>
             <div className='avatar p-1'>
                <div className='w-16'>
                   <img src={nowPlayingImage} />
                </div>
             </div>
             <div className={'flex min-w-0 flex-col justify-center'}>
-               <div className='truncate text-left text-xs text-neutral-content md:p-0.5 lg:text-base'>{trackName}</div>
-               <div className='lg:text-md prose truncate text-left text-xs text-neutral-content md:p-0.5'>
-                  {nowPlayingArtist}
-               </div>
+               <div className='truncate text-left text-xs md:p-0.5 lg:text-base'>{trackName}</div>
+               <div className='lg:text-md truncate text-left text-xs md:p-0.5'>{nowPlayingArtist}</div>
             </div>
          </div>
 
@@ -107,9 +108,9 @@ const NowPlayingItem = () => {
    )
 }
 
-const commonBtnClass = 'btn btn-md btn-square'
+const commonBtnClass = ''
 
-const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-success text-success' : '', iconClass)
+const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-primary text-primary' : '', iconClass)
 
 const LikeNowPlaying = () => {
    const nowPlaying = useAtomValue(isPlayingAtom)
@@ -122,18 +123,18 @@ const LikeNowPlaying = () => {
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
             className={cn(
-               commonBtnClass,
+               commonBtnClass
                // We want the same padding as btn but no border/background.
-               'border-0 bg-transparent hover:bg-transparent',
-               'transition-all duration-500 hover:scale-125'
+               // 'border-0 bg-transparent hover:bg-transparent',
+               // 'transition-all duration-500 hover:scale-125'
             )}
          />
       )
    } else {
       return (
-         <button className={commonBtnClass} disabled={true}>
+         <Button variant='svg' size='empty' disabled>
             <HeartIcon className='h-6 w-6' />
-         </button>
+         </Button>
       )
    }
 }
@@ -170,7 +171,7 @@ const PlaybackProgress = () => {
    const { minutes: minDuration, seconds: secDuration } = msToTime(durationMs)
 
    return (
-      <div className='flex w-full flex-row items-center justify-center space-x-1 p-1 text-neutral-content'>
+      <div className='mt-3 flex w-full flex-row items-center justify-center space-x-1'>
          <span className='countdown font-mono text-sm lg:text-lg'>
             {/* @ts-ignore */}
             <span style={{ '--value': minProgress }}></span>:<span style={{ '--value': secProgress }}></span>
@@ -186,8 +187,8 @@ const PlaybackProgress = () => {
             aria-label='value'
             className='relative flex h-5 w-5/6 touch-none items-center'
          >
-            <Slider.Track className='relative h-3 grow rounded-full bg-neutral-focus'>
-               <Slider.Range className='absolute h-full rounded-full bg-success' />
+            <Slider.Track className='relative h-3 grow rounded-lg bg-secondary'>
+               <Slider.Range className='absolute h-full rounded-lg bg-primary' />
             </Slider.Track>
          </Slider.Root>
          <span className='countdown font-mono text-sm lg:text-lg'>
@@ -226,11 +227,7 @@ const PlayerButtons = () => {
    }
 
    const toggleShuffle = () => setShuffle(!isShuffled)
-   const successButton = cn(commonBtnClass, 'btn-success')
-   const shuffleButtonClass = isShuffled ? successButton : commonBtnClass
 
-   const repeatModeClass = repeatMode !== 0 ? successButton : commonBtnClass
-   // This isn't working as intended.
    // Spotify Playback SDK is not receiving the change, so I am going to disable it for now.
    // const repeatModeText = repeatMode === 0 ? '' : repeatMode === 1 ? '' : '1'
    // const nextRepeatMode = repeatMode === 0 ? 'context' : repeatMode === 1 ? 'track' : 'off'
@@ -240,40 +237,62 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <button className={cn(commonBtnClass, 'muse-finder')} onClick={selectNowPlaying} disabled={!nowPlayingEnabled}>
+         <Button
+            variant='svg'
+            size='empty'
+            className={cn('muse-finder', commonBtnClass)}
+            onClick={selectNowPlaying}
+            disabled={!nowPlayingEnabled}
+         >
             <MagnifyingGlassIcon className={iconClass} />
-         </button>
-         <button className={commonBtnClass} onClick={previousTrack} disabled={prevTrackDisabled}>
+         </Button>
+         <Button
+            variant='svg'
+            size='empty'
+            onClick={previousTrack}
+            disabled={prevTrackDisabled}
+            className={cn(commonBtnClass)}
+         >
             <BackwardIcon className={iconClass} />
-         </button>
-         <button
+         </Button>
+         <Button
+            variant='svg'
+            size='empty'
             className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
             onClick={seekBackward}
             disabled={seekDisabled}
          >
             <ChevronLeftIcon className={iconClass} />
-         </button>
+         </Button>
          <PlayOrTransferButton />
-         <button className={cn(commonBtnClass, 'hidden sm:inline-flex ')} onClick={seekForward} disabled={seekDisabled}>
+         <Button
+            variant='svg'
+            size='empty'
+            className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
+            onClick={seekForward}
+            disabled={seekDisabled}
+         >
             <ChevronRightIcon className={iconClass} />
-         </button>
-         <button className={commonBtnClass} onClick={nextTrack} disabled={nextTrackDisabled}>
+         </Button>
+         <Button variant='svg' size='empty' onClick={nextTrack} disabled={nextTrackDisabled}>
             <ForwardIcon className={iconClass} />
-         </button>
-         <button
-            className={cn(shuffleButtonClass, 'hidden sm:inline-flex ')}
-            onClick={toggleShuffle}
+         </Button>
+         <Toggle
+            className={cn('hidden sm:inline-flex')}
+            onPressedChange={toggleShuffle}
+            pressed={isShuffled}
             disabled={toggleShuffleDisabled}
          >
             <ArrowsUpDownIcon className={iconClass} />
-         </button>
-         <button
-            className={cn(repeatModeClass, 'hidden sm:inline-flex ')}
-            onClick={cycleRepeatMode}
+         </Toggle>
+         <Toggle
+            className={cn('hidden sm:inline-flex')}
+            onPressedChange={cycleRepeatMode}
+            pressed={repeatMode !== 0}
             disabled={repeatModeDisabled}
          >
             <ArrowPathRoundedSquareIcon className={iconClass} />
-         </button>
+         </Toggle>
       </>
    )
 }
@@ -285,8 +304,6 @@ const TransferPlaybackButton = () => {
    } = useTransferPlayback({
       onError: () => toast.error('Failed to transfer playback'),
    })
-
-   const className = cn(commonBtnClass, needsReconnect ? 'btn-success animate-pulse' : '')
 
    // Buffer time for playback sdk to be setup.
    const [isReady, setIsReady] = useState(false)
@@ -300,11 +317,16 @@ const TransferPlaybackButton = () => {
       <TooltipProvider delayDuration={300}>
          <Tooltip>
             <TooltipTrigger asChild>
-               <button className={cn('muse-power-on-button', className)} disabled={disabled} onClick={() => mutate()}>
+               <Button
+                  size='empty'
+                  className={cn('muse-power-on-button p-2', needsReconnect ? 'animate-pulse' : '')}
+                  disabled={disabled}
+                  onClick={() => mutate()}
+               >
                   <PowerIcon className={iconClass} />
-               </button>
+               </Button>
             </TooltipTrigger>
-            <TooltipContent className='bg-primary text-primary-content'>
+            <TooltipContent className='bg-primary text-primary-foreground'>
                <p> Start Player </p>
             </TooltipContent>
          </Tooltip>
@@ -320,9 +342,15 @@ const PlayOrTransferButton = () => {
    return needsReconnect ? (
       <TransferPlaybackButton />
    ) : (
-      <button className={cn(commonBtnClass, 'muse-play-button')} onClick={togglePlay} disabled={togglePlayDisabled}>
+      <Button
+         variant='svg'
+         size='empty'
+         className={cn('muse-play-button')}
+         onClick={togglePlay}
+         disabled={togglePlayDisabled}
+      >
          {isPlaying ? <PauseIcon className={iconClass} /> : <PlayIcon className={iconClass} />}
-      </button>
+      </Button>
    )
 }
 
@@ -331,28 +359,31 @@ const VolumeSlider = () => {
 
    const asInt = Math.floor(volume * 100)
 
-   const convertAndSetVolume = (e: ChangeEvent<HTMLInputElement>) => {
-      const newVolumeInt = parseInt(e.currentTarget.value)
-      setVolume(newVolumeInt / 100)
+   const convertAndSetVolume = (newVolume: number[]) => {
+      if (newVolume.length > 0) {
+         setVolume(newVolume[0] / 100)
+      }
    }
 
    const isMuted = volume === 0
    const onClick = () => toggleMute(undefined)
    return (
       <div className='flex w-full grow flex-row items-center'>
-         <button onClick={onClick} className={commonBtnClass} disabled={disabled}>
-            {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
-         </button>
-
-         <input
-            type='range'
-            className='range range-primary bg-primary/50'
+         <Button
+            variant='svg'
+            size='empty'
+            onClick={onClick}
+            className={cn(commonBtnClass, 'mr-1')}
             disabled={disabled}
-            min={0}
+         >
+            {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
+         </Button>
+         <LibSlider
+            disabled={disabled}
+            defaultValue={[asInt]}
             max={100}
             step={1}
-            value={asInt}
-            onChange={e => convertAndSetVolume(e)}
+            onValueChange={e => convertAndSetVolume(e)}
          />
       </div>
    )

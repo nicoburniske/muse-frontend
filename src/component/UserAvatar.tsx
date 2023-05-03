@@ -1,8 +1,8 @@
 import { UserWithSpotifyOverviewFragment } from 'graphql/generated/schema'
+import { Avatar, AvatarFallback, AvatarImage } from 'platform/component/Avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
-import { cn, nonNullable } from 'util/Utils'
 
-const size = 'w-6 md:w-8 lg:w-8'
+const size = 'w-6 h-6 md:w-8 md:h-8'
 
 type UserAvatarTooltipProps = {
    dateAdded?: string
@@ -24,7 +24,7 @@ export function UserAvatarTooltip({ dateAdded, user }: UserAvatarTooltipProps) {
             <TooltipTrigger>
                <UserAvatar name={name} image={image} className={size} />
             </TooltipTrigger>
-            <TooltipContent side='right' align='start' className='bg-primary text-primary-content'>
+            <TooltipContent side='right' align='start' className='bg-primary text-primary-foreground'>
                <p>
                   {name} on {dateAdded}
                </p>
@@ -40,21 +40,10 @@ export type UserAvatarProps = {
    className?: string
 }
 export const UserAvatar = ({ name, image, className }: UserAvatarProps) => {
-   if (nonNullable(image) && image.length > 0) {
-      return (
-         <div className={'avatar'}>
-            <div className={cn('rounded-full ', className)}>
-               <img src={image} alt='UserProfilePicture' />
-            </div>
-         </div>
-      )
-   } else {
-      return (
-         <div className={'avatar placeholder'}>
-            <div className={cn('w-12 rounded-full bg-neutral-focus text-neutral-content', className)}>
-               <span>{name.slice(0, 1)}</span>
-            </div>
-         </div>
-      )
-   }
+   return (
+      <Avatar className={className}>
+         <AvatarImage src={image} alt='UserProfilePicture' />
+         <AvatarFallback>{name.slice(0, 1)}</AvatarFallback>
+      </Avatar>
+   )
 }

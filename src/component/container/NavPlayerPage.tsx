@@ -15,14 +15,14 @@ import { SyncCurrentUser } from 'state/CurrentUser'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { ErrorBoundary } from 'react-error-boundary'
 import Hero from 'platform/component/Hero'
-import { Alert, AlertSeverity } from 'platform/component/Alert'
 import { StylesObj, TourProvider } from '@reactour/tour'
 import { SubscribeReviews } from 'component/reviewUpdates/SubscribeReviews'
+import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 export const NavPlayerPageOutlet = () => {
-   const theme = useThemeValue()
    return (
-      <NavPlayerPage data-theme={theme}>
+      <NavPlayerPage>
          <Outlet />
       </NavPlayerPage>
    )
@@ -30,15 +30,13 @@ export const NavPlayerPageOutlet = () => {
 
 // Add navbar and player to the page.
 const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
-   const theme = useThemeValue()
    return (
       <TourProvider
-         data-theme={theme}
          // @ts-ignore
          Wrapper={ThemeWrapper}
          styles={onboardingStyles}
       >
-         <div className='flex h-screen flex-col bg-base-100' data-theme={theme}>
+         <div className='flex h-screen flex-col bg-background'>
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />
@@ -48,8 +46,10 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
                   fallback={
                      <Hero>
                         <div className='h-10 w-full'>
-                           <Alert severity={AlertSeverity.Error}>
-                              <span> Something went wrong. </span>
+                           <Alert variant='destructive'>
+                              <ExclamationTriangleIcon className='h-4 w-4' />
+                              <AlertTitle>Something went wrong.</AlertTitle>
+                              <AlertDescription> Refresh the page! </AlertDescription>
                            </Alert>
                         </div>
                      </Hero>
@@ -81,21 +81,21 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
 }
 
 const onboardingStyles = {
-   badge: base => ({ ...base, background: 'hsl(var(--p))', color: 'hsl(var(--pc))' }),
-   controls: base => ({ ...base, color: 'hsl(var(--p))' }),
-   navigation: base => ({ ...base, color: 'hsl(var(--p))' }),
+   badge: base => ({ ...base, background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }),
+   controls: base => ({ ...base, color: 'hsl(var(--primary))' }),
+   navigation: base => ({ ...base, color: 'hsl(var(--primary))' }),
    // @ts-ignore. These type definitions are horrendous.
    dot: (base, { current }) => ({
       ...base,
       color: 'hsl(var(--p))',
-      background: current ? 'hsl(var(--p))' : 'hsl(var(--b1))',
+      background: current ? 'hsl(var(--primary))' : 'hsl(var(--background))',
    }),
-   arrow: base => ({ ...base, color: 'hsl(var(--bc))' }),
+   arrow: base => ({ ...base, color: 'hsl(var(--foreground))' }),
    // @ts-ignore.
    popover: base => ({
       ...base,
-      color: 'hsl(var(--bc))',
-      backgroundColor: 'hsl(var(--b1))',
+      color: 'hsl(var(--foreground))',
+      backgroundColor: 'hsl(var(--background))',
    }),
 } as StylesObj
 

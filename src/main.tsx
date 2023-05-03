@@ -11,6 +11,9 @@ import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { MuseToaster } from 'MuseToaster'
+import './index.css'
+import { useThemeValue } from 'state/UserPreferences'
+import { useEffect } from 'react'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -31,6 +34,12 @@ const urqlClient = createClient({
 })
 
 const Main = () => {
+   const theme = useThemeValue()
+
+   useEffect(() => {
+      document.documentElement.setAttribute('data-theme', theme)
+   }, [theme])
+
    return (
       <BrowserRouter>
          <DndProvider backend={HTML5Backend}>

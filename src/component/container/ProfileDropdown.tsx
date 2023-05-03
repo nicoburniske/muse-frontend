@@ -67,7 +67,7 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
             <div className='grid place-items-center'>
                <UserAvatar
                   name={name}
-                  className={'h-10 w-10 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100'}
+                  className={'h-10 w-10 rounded-full ring ring-primary ring-offset-2 ring-offset-background'}
                   image={image}
                />
                <span className='sr-only'>Open user menu</span>
@@ -92,7 +92,7 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
                      left: x ?? 0,
                      zIndex: 50,
                   }}
-                  className='divide-y divide-base-content/20 rounded-md bg-base-100 text-base-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'
+                  className='divide-y divide-foreground/20 rounded-md bg-background text-foreground shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'
                >
                   <div className='py-1'>
                      <Menu.Item>
@@ -133,7 +133,7 @@ export const ProfilePlaceholder = () => {
    return (
       <div className='flex w-full justify-center'>
          <div className='avatar placeholder'>
-            <div className='w-10 rounded-full bg-neutral-focus text-neutral-content'>
+            <div className='bg-neutral-focus text-neutral-content w-10 rounded-full'>
                <span className='text-xl'>?</span>
             </div>
          </div>

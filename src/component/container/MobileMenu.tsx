@@ -25,7 +25,7 @@ export function MobileMenu() {
                leaveFrom='opacity-100'
                leaveTo='opacity-0'
             >
-               <div className='fixed inset-x-0 top-0 z-20 bg-neutral/60 sm:inset-0' aria-hidden='true' />
+               <div className='bg-neutral/60 fixed inset-x-0 top-0 z-20 sm:inset-0' aria-hidden='true' />
             </Transition.Child>
 
             <div className='fixed inset-0 z-40 flex'>
@@ -38,7 +38,7 @@ export function MobileMenu() {
                   leaveFrom='translate-x-0'
                   leaveTo='-translate-x-full'
                >
-                  <Dialog.Panel className='relative flex flex-col bg-base-100 pt-5 pb-4'>
+                  <Dialog.Panel className='relative flex flex-col bg-background pb-4 pt-5'>
                      <Transition.Child
                         as={Fragment}
                         enter='ease-in-out duration-300'
@@ -48,13 +48,13 @@ export function MobileMenu() {
                         leaveFrom='opacity-100'
                         leaveTo='opacity-0'
                      >
-                        <div className='absolute top-1 right-0 -mr-14 p-1'>
+                        <div className='absolute right-0 top-1 -mr-14 p-1'>
                            <button
                               type='button'
                               className='btn btn-secondary btn-circle'
                               onClick={() => setMobileMenuOpen(false)}
                            >
-                              <XMarkIcon className='h-6 w-6 text-secondary-content' aria-hidden='true' />
+                              <XMarkIcon className='text-secondary-content h-6 w-6' aria-hidden='true' />
                               <span className='sr-only'>Close sidebar</span>
                            </button>
                         </div>
@@ -98,7 +98,7 @@ const NavOption = ({ item, onSelect }: { item: NavItem; onSelect: () => void }) 
          onClick={onClick}
          className={cn(
             path.includes(item.href) ? 'bg-primary-focus text-primary-content' : '',
-            'group flex items-center rounded-md py-2 px-3 text-sm font-medium'
+            'group flex items-center rounded-md px-3 py-2 text-sm font-medium'
          )}
          aria-current={path.includes(item.href) ? 'page' : undefined}
       >

@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import { useCommentModal } from '../commentForm/CommentFormModalWrapper'
+import { useCommentModal } from '../commentForm/CommentFormModal'
 
 export const useCommentModalTrack = (reviewId: string, trackId: string, invalidate = false) => {
    // On successful comment creation, clear the comment box

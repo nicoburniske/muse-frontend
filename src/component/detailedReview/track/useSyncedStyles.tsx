@@ -5,39 +5,46 @@ import { cn } from 'util/Utils'
 
 // Only change styling if derived values are different.
 
-const trackAnimation = 'transition-all duration-100'
+const trackAnimation = ''
 export const useTrackColor = (trackId: string) =>
    useDerivedAtomValue(
       get => {
          const isPlaying = get(nowPlayingTrackIdAtom) === trackId
          const isSelected = get(selectedTrackAtom)?.trackId === trackId
 
-         return isPlaying
-            ? cn(trackAnimation, 'bg-success text-success-content')
-            : isSelected
-            ? cn(trackAnimation, 'bg-info text-info-content')
-            : cn(
-                 trackAnimation,
-                 'bg-base-200 text-base-content active:bg-accent active:text-accent-content hover:bg-base-300'
-              )
+         if (isPlaying) {
+            return cn(trackAnimation, 'bg-primary text-primary-foreground')
+         } else if (isSelected) {
+            return cn(trackAnimation, 'bg-secondary text-secondary-foreground')
+         } else {
+            return cn(
+               trackAnimation,
+               'bg-background text-foreground',
+               'hover:bg-accent hover:text-accent-foreground',
+               'active:text-accent-foreground active:bg-accent/90'
+            )
+         }
       },
       [trackId]
    )
 
-const animation = 'transition-all duration-500 hover:scale-125'
+const animation = 'transition-all duration-200 hover:scale-125'
 export const useLikeSvgStyle = (trackId: string) => (isLiked: boolean | undefined) =>
    useDerivedAtomValue(
       get => {
          if (isLiked !== undefined) {
             const isPlaying = get(nowPlayingTrackIdAtom) === trackId
             if (isLiked && isPlaying) {
-               return cn('fill-success-content', animation)
+               return cn('fill-primary-foreground', animation)
             } else if (isLiked) {
-               return cn('fill-success', animation)
+               return cn('fill-primary', animation)
             } else if (isPlaying) {
-               return cn('stroke-success-content', animation)
+               return cn('stroke-primary-foreground', animation)
             } else {
-               return cn('stroke-base-content', animation)
+               return cn(
+                  'stroke-foreground group-active:stroke-accent-foreground group-hover:stroke-accent-foreground ',
+                  animation
+               )
             }
          }
          return ''

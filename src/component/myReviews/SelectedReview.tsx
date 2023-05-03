@@ -1,16 +1,18 @@
-import { ChevronRightIcon, PlusIcon as PlusIconMini } from '@heroicons/react/20/solid'
+import { PlusIcon as PlusIconMini } from '@heroicons/react/20/solid'
 import { ListenOnSpotifyLogoTooltip } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { useCollaboratorsQuery, useDetailedReviewCacheQuery, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
 import { ReviewDetailsFragment } from 'graphql/generated/schema'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import RightSidePane from 'platform/component/RightSidePane'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
 import { DeleteReviewButton } from 'component/DeleteReviewButton'
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from 'platform/component/Sheet'
+import { Badge } from 'platform/component/Badge'
+import { Button } from 'platform/component/Button'
 
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)
@@ -52,7 +54,18 @@ export const SelectedReview = ({ userId }: { userId?: string }) => {
    const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
    const review = useSelectedReview(userId)
 
-   return <RightSidePane isOpen={selectedReviewOpen}>{review && <SidebarContent review={review} />}</RightSidePane>
+   return review ? (
+      <Sheet
+         open={selectedReviewOpen}
+         onOpenChange={open => {
+            if (!open) {
+               closeSelectedReview()
+            }
+         }}
+      >
+         <SidebarContent review={review} />
+      </Sheet>
+   ) : null
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
@@ -62,6 +75,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    const image = findFirstImage(allEntities)
    const entityType = review?.entity?.__typename
+   const entityName = review?.entity?.name
    const entityId = review?.entity?.id
 
    const nameToShow = review.creator.spotifyProfile?.displayName ?? review.creator.id
@@ -73,8 +87,8 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
       Links: childEntities?.length ?? 0,
 
       // Include playlist owner, popularity / num followers, num tracks.
-      [`${entityType} Name`]: review?.entity?.name,
-   }))()
+      // [`${entityType} Name`]: review?.entity?.name,
+   }))() as Record<string, React.ReactNode>
 
    const { data: collabData } = useCollaboratorsQuery(review.id)
    const collaborators = collabData ?? []
@@ -83,28 +97,27 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
    const isEditable = useIsReviewOwner(review.id, currentUserId)
 
    return (
-      <div className='space-y-2'>
-         <div className='flex w-full items-center justify-start space-x-5 p-2 pl-1'>
-            <button type='button' className='btn btn-ghost btn-square' onClick={() => closeSelectedReview()}>
-               <span className='sr-only'>Close panel</span>
-               <ChevronRightIcon className='h-8 w-8' aria-hidden='true' />
-            </button>
+      <SheetContent position='right' size='content' className='overflow-y-auto'>
+         {/* <div className='flex w-full items-center justify-start space-x-5 p-2 pl-1'> */}
+         <SheetHeader>
+            <SheetTitle>
+               <span className='sr-only'>Details for Review </span>
+               {review.reviewName}
+            </SheetTitle>
 
-            <div>
-               <h2 className='text-xl font-bold'>
-                  <span className='sr-only'>Details for </span>
-                  {review.reviewName}
-               </h2>
-               <p className={cn('text-sm font-medium', textColorSecondary)}>{entityType}</p>
-            </div>
-         </div>
+            <SheetDescription className='flex justify-evenly'>
+               <span className='text-lg'>{entityName} </span>
+               <Badge variant='outline'>{entityType}</Badge>
+            </SheetDescription>
+         </SheetHeader>
+         {/* </div> */}
          <Link to={`/app/reviews/${review.id}`}>
-            <img src={image} alt='' className='h-full w-full object-cover' />
+            <img src={image} alt='Review Entity Image' className='h-56 w-56 object-cover py-2 md:h-96 md:w-96' />
          </Link>
-         <div className='w-full space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
+         <div className='w-full overflow-hidden px-2 md:px-4 lg:px-8'>
             <div>
                <h3 className='font-medium'>Information</h3>
-               <dl className='mt-2 divide-y divide-secondary-content/50'>
+               <dl className='divide-secondary-content/50 mt-2 divide-y'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
                         <dt className={cn(textColorSecondary)}>{key}</dt>
@@ -117,33 +130,34 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                </div>
             </div>
 
-            <div>
-               <h3 className='font-medium'>Shared with</h3>
-               <ul
-                  role='list'
-                  className='mt-2 divide-y divide-secondary-content/50 border-t border-b border-secondary-content/50'
-               >
-                  {collaborators.map(user => (
-                     <div className='p-2' key={user.user.id}>
-                        <UserWithAccessLevel reviewId={review.id} user={user} />
-                     </div>
-                  ))}
-                  {isEditable && (
-                     <li className='m-auto flex items-center justify-center py-2'>
-                        <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
-                           <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
-                              <PlusIconMini className='h-5 w-5' aria-hidden='true' />
-                           </span>
-                           <span className='ml-4'>Share</span>
-                        </ShareReview>
-                     </li>
-                  )}
-               </ul>
-            </div>
-            <div className='flex justify-center'>
+            {collaborators.length > 0 && (
+               <div>
+                  <h3 className='font-medium'>Shared with</h3>
+                  <ul role='list' className='my-2 h-40 overflow-y-auto border-b border-t'>
+                     {collaborators.map(user => (
+                        <div className='p-2' key={user.user.id}>
+                           <UserWithAccessLevel reviewId={review.id} user={user} />
+                        </div>
+                     ))}
+                  </ul>
+               </div>
+            )}
+         </div>
+
+         {isEditable && (
+            <div className='flex flex-col space-y-2'>
+               <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
+                  <Button>
+                     <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
+                        <PlusIconMini className='h-5 w-5' aria-hidden='true' />
+                     </span>
+                     <span className='ml-4'>Share</span>
+                  </Button>
+               </ShareReview>
+
                <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
             </div>
-         </div>
-      </div>
+         )}
+      </SheetContent>
    )
 }

@@ -20,6 +20,8 @@ import { usePrefetchLikes } from 'state/useTrackLikeQuery'
 import useEffectDeepEqual from 'platform/hook/useEffectDeepEqual'
 import { MuseTransition } from 'platform/component/MuseTransition'
 import { useDerivedAtomValue } from 'platform/hook/useDerivedAtomValue'
+import { ContextMenu, ContextMenuTrigger } from 'platform/component/ContextMenu'
+import { TrackContextMenuContent } from '../track/TrackContextMenu'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -150,26 +152,31 @@ export const GroupedTrackTable = () => {
    const [getRows] = useTransientAtom(indexToJsxAtom)
    const rows = getRows()
    return (
-      <MuseTransition option={'Simple'} as={Fragment} duration='duration-300'>
-         <div ref={parentRef} className='muse-scrollbar w-full overflow-y-auto'>
-            <div
-               className='muse-tracks relative w-full'
-               style={{
-                  height: `${rowVirtualizer.getTotalSize()}px`,
-               }}
-            >
-               {rowVirtualizer
-                  .getVirtualItems()
-                  .filter(Boolean)
-                  .map(virtualRow => {
-                     return (
-                        <div key={virtualRow.index} style={indexToStyle(virtualRow) as CSSProperties}>
-                           {rows[virtualRow.index]}
-                        </div>
-                     )
-                  })}
+      <ContextMenu>
+         <ContextMenuTrigger asChild>
+            {/* <MuseTransition option={'Simple'} as={Fragment} duration='duration-300'> */}
+            <div ref={parentRef} className='muse-scrollbar w-full overflow-y-auto'>
+               <div
+                  className='muse-tracks relative w-full'
+                  style={{
+                     height: `${rowVirtualizer.getTotalSize()}px`,
+                  }}
+               >
+                  {rowVirtualizer
+                     .getVirtualItems()
+                     .filter(Boolean)
+                     .map(virtualRow => {
+                        return (
+                           <div key={virtualRow.index} style={indexToStyle(virtualRow) as CSSProperties}>
+                              {rows[virtualRow.index]}
+                           </div>
+                        )
+                     })}
+               </div>
             </div>
-         </div>
-      </MuseTransition>
+            {/* </MuseTransition> */}
+         </ContextMenuTrigger>
+         <TrackContextMenuContent />
+      </ContextMenu>
    )
 }

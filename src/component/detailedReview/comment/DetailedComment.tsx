@@ -9,7 +9,6 @@ import CommentMarkdown from './CommentMarkdown'
 import { findFirstImage, cn } from 'util/Utils'
 import { ReviewOverview } from '../table/Helpers'
 import { useCurrentUserId } from 'state/CurrentUser'
-import { Menu, Transition } from '@headlessui/react'
 import {
    ChatBubbleLeftEllipsisIcon,
    ChatBubbleOvalLeftEllipsisIcon,
@@ -17,7 +16,7 @@ import {
    MagnifyingGlassCircleIcon,
    PencilIcon,
    TrashIcon,
-} from '@heroicons/react/20/solid'
+} from '@heroicons/react/24/outline'
 import { useSetAtom } from 'jotai'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import { useOpenNewComment } from '../commentForm/useOpenNewComment'
@@ -32,6 +31,13 @@ import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
 import { ListenOnSpotifyIcon, getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
 import useDoubleClick from 'platform/hook/useDoubleClick'
+import {
+   DropdownMenu,
+   DropdownMenuItem,
+   DropdownMenuTrigger,
+   DropdownMenuContent,
+} from 'platform/component/DropdownMenu'
+import { Button } from 'platform/component/Button'
 
 export interface DetailedCommentProps {
    review: ReviewOverview
@@ -150,8 +156,8 @@ export default function DetailedComment({ review, comment: detailedComment }: De
             }}
             className={cn(
                isDragging ?? 'opacity-50',
-               isOver && canDrop ? 'bg-base-300' : 'bg-base-200',
-               'rounded-lg p-2 text-base-content shadow md:p-4 '
+               isOver && canDrop ? 'border-foreground' : '',
+               'rounded-md border bg-card p-2 text-foreground shadow md:p-4'
             )}
          >
             <div>
@@ -161,17 +167,14 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                         <UserAvatar name={commenterName ?? commenterId} image={avatar} className='h-10 w-10' />
                      </div>
                      <div className='min-w-0 flex-1'>
-                        <p className='space-x-1 text-sm font-medium text-base-content'>
+                        <p className='space-x-1 text-sm font-medium text-foreground'>
                            <a className=''>{commenterName}</a>
-                           <a className='hidden text-xs text-base-content/50 md:inline'>
+                           <a className='hidden text-xs text-muted-foreground md:inline'>
                               <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
                            </a>
                         </p>
-                        <p className='text-sm text-base-content/50'>
-                           <Link
-                              to={`/app/user/${commenterId}`}
-                              className='text-xs text-base-content/50 hover:underline'
-                           >
+                        <p className='text-xs text-muted-foreground'>
+                           <Link to={`/app/user/${commenterId}`} className='hover:underline'>
                               @{commenterId}
                            </Link>
                         </p>
@@ -180,15 +183,12 @@ export default function DetailedComment({ review, comment: detailedComment }: De
 
                   <div className='flex items-center justify-between space-x-1'>
                      <div className='flex items-center space-x-1' ref={playOnDoubleClickRef}>
-                        <div className='avatar ml-1'>
-                           <div className='h-10 w-10'>
-                              <img src={image} />
-                           </div>
+                        <div className='h-10 w-10'>
+                           <img src={image} />
                         </div>
                         <div className='min-w-0 flex-1 overflow-hidden'>
                            <p className='select-none truncate p-0.5 text-sm'> {name} </p>
                         </div>
-                        <ListenOnSpotifyIcon entityId={entityId} entityType={entityType} />
                      </div>
                      <div className='flex flex-shrink-0 self-center'>
                         <CommentMenu reviewId={reviewId} comment={detailedComment} />
@@ -197,55 +197,38 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                </div>
             </div>
 
-            <article className='prose p-1 py-2 text-sm md:text-base lg:p-2'>
+            <article className='prose p-1 py-2 text-sm text-card-foreground md:text-base lg:p-2'>
                <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
             </article>
             <div className='mt-6 flex justify-between space-x-8'>
                <div className='flex space-x-6'>
-                  <span className='inline-flex items-center text-sm'>
-                     <button
-                        type='button'
-                        className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
-                        onClick={selectTrack}
-                     >
-                        <MagnifyingGlassCircleIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='hidden font-medium text-base-content/50 md:inline'>Find</span>
-                        <span className='sr-only'>Find Track</span>
-                     </button>
-                  </span>
-                  <span className='inline-flex items-center text-sm'>
-                     <button
-                        type='button'
-                        className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
-                        onClick={() => setIsExpanded(!isExpanded)}
-                     >
-                        <ChatBubbleLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                        <span className='hidden font-medium text-base-content/50 md:inline'>
-                           {childComments.length}
-                        </span>
-                        <span className='sr-only'>replies</span>
-                     </button>
-                  </span>
+                  <Button variant='svg' size='empty' onClick={selectTrack} className='space-x-2 text-sm'>
+                     <MagnifyingGlassCircleIcon className='h-5 w-5' aria-hidden='true' />
+                     <span className='hidden font-medium md:inline'>Find</span>
+                     <span className='sr-only'>Find Track</span>
+                  </Button>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     onClick={() => setIsExpanded(!isExpanded)}
+                     className='space-x-2 text-sm'
+                  >
+                     <ChatBubbleLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                     <span className='hidden font-medium md:inline'>{childComments.length}</span>
+                     <span className='sr-only'>replies</span>
+                  </Button>
                </div>
                {isCollaborator && (
-                  <div className='flex text-sm'>
-                     <span className='inline-flex items-center text-sm'>
-                        <button
-                           type='button'
-                           className='inline-flex space-x-2 text-base-content/50 hover:text-base-content'
-                           onClick={replyComment}
-                        >
-                           <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                           <span className='hidden font-medium text-base-content/50 md:inline'>Reply</span>
-                        </button>
-                     </span>
-                  </div>
+                  <Button variant='svg' size='empty' onClick={replyComment} className='space-x-2 text-sm'>
+                     <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
+                     <span className='hidden font-medium md:inline'>Reply</span>
+                  </Button>
                )}
             </div>
          </div>
 
          {childComments.length > 0 && isExpanded ? (
-            <div className='mt-1 ml-2 space-y-1 lg:ml-4'>
+            <div className='ml-2 mt-1 space-y-1 lg:ml-4'>
                {childComments.map(child => (
                   <DetailedComment key={child.id} review={review} comment={child} />
                ))}
@@ -272,10 +255,11 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
    const currentUserId = useCurrentUserId()
    const isEditable = comment.commenter?.id === currentUserId
 
-   const openDelete = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
-
    const entityId = comment.entities?.at(0)?.id
    const entityType = comment.entities?.at(0)?.__typename as EntityType | undefined
+
+   const spotifyLink = getLink(entityId, entityType)
+   const spotifyIcon = useSpotifyIcon()
 
    const openEdit = useOpenUpdateComment({
       reviewId,
@@ -284,73 +268,48 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
       trackId: entityId ?? '',
    })
 
-   const spotifyLink = getLink(entityId, entityType)
-   const spotifyIcon = useSpotifyIcon()
+   const [open, setOpen] = useState(false)
+   const editComment = () => {
+      setOpen(false)
+      openEdit()
+   }
+
+   const openDeleteComment = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
+
+   const deleteComment = () => {
+      setOpen(false)
+      openDeleteComment()
+   }
 
    return (
-      <>
-         <Menu as='div' className='relative inline-block text-left'>
-            <div>
-               <Menu.Button className='-m-2 flex items-center rounded-full p-2 text-base-content hover:text-base-content/50'>
-                  <span className='sr-only'>Open options</span>
-                  <EllipsisVerticalIcon className='h-5 w-5' aria-hidden='true' />
-               </Menu.Button>
-            </div>
+      <DropdownMenu open={open} onOpenChange={open => setOpen(open)}>
+         <DropdownMenuTrigger>
+            <Button size='square' variant='svg' className='p-1'>
+               <span className='sr-only'>Open comment menu</span>
+               <EllipsisVerticalIcon className='h-5 w-5' aria-hidden='true' />
+            </Button>
+         </DropdownMenuTrigger>
+         <DropdownMenuContent>
+            <DropdownMenuItem>
+               <img src={spotifyIcon} className={'mr-3 h-5 w-5'} />
+               <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('')}>
+                  Listen on Spotify
+               </a>
+            </DropdownMenuItem>
+            {isEditable && (
+               <>
+                  <DropdownMenuItem onClick={editComment}>
+                     <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                     <span>Edit comment</span>
+                  </DropdownMenuItem>
 
-            <Transition
-               as={Fragment}
-               enter='transition ease-out duration-100'
-               enterFrom='transform opacity-0 scale-95'
-               enterTo='transform opacity-100 scale-100'
-               leave='transition ease-in duration-75'
-               leaveFrom='transform opacity-100 scale-100'
-               leaveTo='transform opacity-0 scale-95'
-            >
-               <Menu.Items className='absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-neutral text-neutral-content shadow-lg ring-1 ring-primary ring-opacity-5 focus:outline-none'>
-                  <div className='py-1'>
-                     <Menu.Item>
-                        {({ active }) => (
-                           <a
-                              href={spotifyLink}
-                              rel='noreferrer'
-                              target='_blank'
-                              className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
-                           >
-                              <img src={spotifyIcon} className={'mr-3 h-5 w-5'} />
-                              <span>Listen on Spotify </span>
-                           </a>
-                        )}
-                     </Menu.Item>
-                     {isEditable && (
-                        <>
-                           <Menu.Item>
-                              {({ active }) => (
-                                 <div
-                                    className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
-                                    onClick={openEdit}
-                                 >
-                                    <PencilIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
-                                    <span>Edit comment</span>
-                                 </div>
-                              )}
-                           </Menu.Item>
-                           <Menu.Item>
-                              {({ active }) => (
-                                 <div
-                                    className={cn(active ? 'bg-neutral-focus' : '', 'flex px-4 py-2 text-sm')}
-                                    onClick={openDelete}
-                                 >
-                                    <TrashIcon className='mr-3 h-5 w-5' aria-hidden='true' />
-                                    <span>Delete comment</span>
-                                 </div>
-                              )}
-                           </Menu.Item>
-                        </>
-                     )}
-                  </div>
-               </Menu.Items>
-            </Transition>
-         </Menu>
-      </>
+                  <DropdownMenuItem onClick={deleteComment}>
+                     <TrashIcon className='mr-3 h-5 w-5 ' aria-hidden='true' />
+                     <span>Delete comment</span>
+                  </DropdownMenuItem>
+               </>
+            )}
+         </DropdownMenuContent>
+      </DropdownMenu>
    )
 }

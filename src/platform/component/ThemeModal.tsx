@@ -29,7 +29,7 @@ export const ThemeModal = ({
                leaveFrom='opacity-100'
                leaveTo='opacity-0'
             >
-               <div className='fixed inset-0 z-20 bg-neutral/60' aria-hidden='true' />
+               <div className='bg-neutral/60 fixed inset-0 z-20' aria-hidden='true' />
             </Transition.Child>
 
             {/* Panel transition */}
@@ -43,7 +43,7 @@ export const ThemeModal = ({
                leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             >
                <div className='fixed inset-0 z-20 flex items-start justify-center p-4 sm:items-center'>
-                  <Dialog.Panel className={cn('rounded-md border-2 border-base-200 bg-base-100', className)}>
+                  <Dialog.Panel className={cn('border-base-200 rounded-md border-2 bg-background', className)}>
                      {children}
                   </Dialog.Panel>
                </div>

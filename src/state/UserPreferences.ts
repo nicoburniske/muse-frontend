@@ -8,58 +8,15 @@ export interface UserPreferences {
    seekInterval: number
 }
 
-export enum Theme {
-   Acid = 'acid',
-   Aqua = 'aqua',
-   Autumn = 'autumn',
-   Black = 'black',
-   Bumblebee = 'bumblebee',
-   Business = 'business',
-   Cymk = 'cmyk',
-   Coffee = 'coffee',
-   Corporate = 'corporate',
-   Cupcake = 'cupcake',
-   Cyberpunk = 'cyberpunk',
-   Dark = 'dark',
-   Dracula = 'dracula',
-   Emerald = 'emerald',
-   Fantasy = 'fantasy',
-   Forest = 'forest',
-   Garden = 'garden',
-   Halloween = 'halloween',
-   Lemonade = 'lemonade',
-   Light = 'light',
-   Lofi = 'lofi',
-   Luxury = 'luxury',
-   Night = 'night',
-   Pastel = 'pastel',
-   Retro = 'retro',
-   Synthwave = 'synthwave',
-   Valentine = 'valentine',
-   Winter = 'winter',
-   Wireframe = 'wireframe',
-}
+export const Themes = ['light', 'dark', 'emerald', 'emerald-dark', 'spotify-dark'] as const
+export type Theme = (typeof Themes)[number]
 
 const isDark = (theme: Theme) => {
-   switch (theme) {
-      case Theme.Black:
-      case Theme.Business:
-      case Theme.Coffee:
-      case Theme.Dark:
-      case Theme.Dracula:
-      case Theme.Forest:
-      case Theme.Halloween:
-      case Theme.Luxury:
-      case Theme.Night:
-      case Theme.Synthwave:
-         return true
-      default:
-         return false
-   }
+   return theme.includes('dark')
 }
 
 const userPreferencesAtom = atomWithStorage<UserPreferences>('MuseUserPreferences', {
-   theme: Theme.Black,
+   theme: 'dark',
    shouldTransferPlaybackOnMount: false,
    seekInterval: 10000,
 })

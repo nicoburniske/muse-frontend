@@ -1,5 +1,5 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { RefObject, useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -16,6 +16,8 @@ import toast from 'react-hot-toast'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { CommentAndOptions } from './CommentAndOptions'
 import { UserAvatarTooltip } from 'component/UserAvatar'
+import { useSetTrackContextMenu } from './TrackContextMenu'
+import { useSimulateRightClick } from './useSimulateRightClick'
 
 export interface PlaylistTrackProps {
    index: number
@@ -59,8 +61,8 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    }
 
    // Play on div double click.
-   const trackDivRef = useRef<HTMLDivElement>()
-   useDoubleClick({ ref: trackDivRef as RefObject<HTMLDivElement>, onDoubleClick: onPlayTrack })
+   const trackDivRef = useRef<HTMLDivElement>(null)
+   useDoubleClick({ ref: trackDivRef, onDoubleClick: onPlayTrack })
 
    const { minutes, seconds } = msToTimeStr(track.durationMs)
 
@@ -145,11 +147,18 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
 
    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(trackId)(isLiked), [trackId])
 
+   const setContextMenu = useSetTrackContextMenu()
+   const showContextMenu = () => setContextMenu({ trackId, playlistId })
+
+   // Making context menu appear on options button regular click.
+   const optionsRef = useRef<HTMLDivElement>(null)
+   const onMenuClick = useSimulateRightClick(trackDivRef, optionsRef)
+
    return (
       <div
          className={cn(
-            'muse-track group flex items-center justify-between',
-            'm-0 select-none border-2 border-transparent p-0.5',
+            'muse-track group',
+            'm-0 select-none rounded-md p-0',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
@@ -158,19 +167,21 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                ? 'border-t-2 border-t-primary'
                : 'border-b-2 border-b-primary'
          )}
+         onContextMenu={showContextMenu}
       >
          <div
             ref={(el: HTMLDivElement) => {
                drag(el)
                drop(el)
+               // @ts-ignore - These types are garbage.
                trackDivRef.current = el
             }}
             className={cn('grid grow grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6')}
          >
             <div className='col-span-2 flex flex-row items-center justify-start space-x-1'>
                <div className='avatar ml-1 flex-none'>
-                  <div className='h-8 w-8 md:h-12 md:w-12'>
-                     <img src={albumImage} />
+                  <div className='h-12 w-12'>
+                     <img src={albumImage} alt='AlbumImage' />
                   </div>
                </div>
 
@@ -191,8 +202,13 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                <LikeButton trackId={track.id} svgStyle={svgStyle} options={{ staleTime: 1000 * 60 }} />
             </div>
 
-            <div className='flex flex-none items-center justify-center space-x-2'>
-               <CommentAndOptions trackId={track.id} reviewId={reviewId} playlistId={playlistId} />
+            <div className='flex flex-none items-center justify-center space-x-2' ref={optionsRef}>
+               <CommentAndOptions
+                  trackId={track.id}
+                  reviewId={reviewId}
+                  playlistId={playlistOwner ?? playlistId}
+                  onMenuClick={onMenuClick}
+               />
             </div>
          </div>
       </div>

@@ -1,11 +1,18 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { ThemeModal } from 'platform/component/ThemeModal'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { cn } from 'util/Utils'
-import Portal from 'platform/component/Portal'
 import { TrashIcon } from '@heroicons/react/24/outline'
+import { Button } from 'platform/component/Button'
+import {
+   Dialog,
+   DialogFooter,
+   DialogTitle,
+   DialogTrigger,
+   DialogContent,
+   DialogDescription,
+} from 'platform/component/Dialog'
 
 type DeleteReviewButtonProps = {
    reviewId: string
@@ -30,48 +37,29 @@ export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonPr
       },
    })
 
-   const deleteReview = () => {
-      mutate({ input: { id: reviewId } })
-   }
+   const deleteReview = () => mutate({ input: { id: reviewId } })
 
    return (
-      <>
-         <Portal>
-            <ThemeModal open={isModalOpen} className='max-w-md'>
-               <div className='bg-base-100 text-base-content shadow sm:rounded-lg'>
-                  <div className='px-4 py-5 sm:p-6'>
-                     <h3 className='text-lg font-medium leading-6 '>Delete Review</h3>
-                     <div className='mt-2 max-w-xl text-sm'>
-                        <p>Once you delete your review, you won't be able to recover it.</p>
-                     </div>
-                     <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                        <button
-                           type='button'
-                           disabled={isLoading}
-                           onClick={() => setIsModalOpen(false)}
-                           className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
-                        >
-                           Cancel
-                        </button>
+      <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
+         <DialogTrigger>
+            <Button type='button' onClick={() => setIsModalOpen(true)} variant={'destructive'}>
+               <TrashIcon className='h-5 w-5' aria-hidden='true' />
+               Delete Review
+            </Button>
+         </DialogTrigger>
+         <DialogContent>
+            <DialogTitle>Delete Review</DialogTitle>
+            <DialogDescription>Once you delete your review, you won't be able to recover it.</DialogDescription>
+            <DialogFooter>
+               <Button disabled={isLoading} onClick={() => setIsModalOpen(false)}>
+                  Cancel
+               </Button>
 
-                        <button
-                           type='button'
-                           disabled={isLoading}
-                           onClick={deleteReview}
-                           className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
-                        >
-                           Delete
-                        </button>
-                     </div>
-                  </div>
-               </div>
-            </ThemeModal>
-         </Portal>
-
-         <button type='button' className='btn btn-error' onClick={() => setIsModalOpen(true)}>
-            <TrashIcon className='h-5 w-5' aria-hidden='true' />
-            <span className='ml-4'>Delete Review</span>
-         </button>
-      </>
+               <Button disabled={isLoading} onClick={deleteReview} variant={'destructive'}>
+                  Delete Review
+               </Button>
+            </DialogFooter>
+         </DialogContent>
+      </Dialog>
    )
 }

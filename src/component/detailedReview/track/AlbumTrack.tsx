@@ -1,5 +1,5 @@
 import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { RefObject, useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import { usePlayMutation } from 'component/sdk/ClientHooks'
@@ -8,6 +8,8 @@ import { cn, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
 import { CommentAndOptions } from './CommentAndOptions'
 import { useDrag } from 'react-dnd'
+import { useSimulateRightClick } from './useSimulateRightClick'
+import { useSetTrackContextMenu } from './TrackContextMenu'
 
 export interface AlbumTrackProps {
    track: DetailedTrackFragment
@@ -35,8 +37,8 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
    }
 
    // Play on div double click.
-   const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
-   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: onPlayTrack })
+   const trackDivRef = useRef<HTMLDivElement>(null)
+   useDoubleClick({ ref: trackDivRef, onDoubleClick: onPlayTrack })
 
    const { minutes, seconds } = msToTimeStr(track.durationMs)
 
@@ -53,6 +55,11 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
       [trackId]
    )
 
+   const setContextMenu = useSetTrackContextMenu()
+   const showContextMenu = () => setContextMenu({ trackId })
+   const optionsRef = useRef<HTMLDivElement>(null)
+   const onMenuClick = useSimulateRightClick(trackDivRef, optionsRef)
+
    return (
       <div
          ref={drag}
@@ -62,9 +69,10 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
             styles,
             isDragging ?? 'opacity-50'
          )}
+         onContextMenu={showContextMenu}
       >
          <div
-            ref={playOnDoubleClickRef}
+            ref={trackDivRef}
             className={cn(
                'grid grow select-none grid-cols-4 items-center justify-center md:grid-cols-5 lg:grid-cols-6'
             )}
@@ -84,8 +92,8 @@ export default function AlbumTrack({ track, reviewId }: AlbumTrackProps) {
                <LikeButton trackId={track.id} svgStyle={svgStyle} options={{ staleTime: 1000 * 60 }} />
             </div>
 
-            <div className='flex flex-none items-center justify-center space-x-2'>
-               <CommentAndOptions trackId={track.id} reviewId={reviewId} />
+            <div className='flex flex-none items-center justify-center space-x-2' ref={optionsRef}>
+               <CommentAndOptions trackId={track.id} reviewId={reviewId} onMenuClick={onMenuClick} />
             </div>
          </div>
       </div>

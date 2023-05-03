@@ -1,7 +1,6 @@
 import {
    EntityType,
    ReviewDetailsFragment,
-   useDetailedReviewQuery,
    useGetPlaylistQuery,
    useGetAlbumQuery,
    DetailedPlaylistFragment,
@@ -12,18 +11,17 @@ import {
 import { useEffect } from 'react'
 import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
 import { ShareReview } from '../shareReview/ShareReview'
-import { CommentFormModalWrapper } from './commentForm/CommentFormModalWrapper'
+import { CommentFormModal } from './commentForm/CommentFormModal'
 import Split from 'react-split'
 import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
-import { useQueries, useQueryClient, UseQueryResult } from '@tanstack/react-query'
+import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { GroupedTrackTableWrapper } from './table/GroupedTrackTable'
 import { NotFound } from 'pages/NotFound'
 import { Group, ReviewOverview } from './table/Helpers'
 import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { Bars3BottomLeftIcon, PencilIcon, QuestionMarkCircleIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { Bars3BottomLeftIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
-import { EditReviewButton } from './editReview/EditReviewButton'
 import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
 import { HeroLoading } from 'platform/component/HeroLoading'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
@@ -37,6 +35,10 @@ import { useDetailedReviewCacheQuery } from 'state/useDetailedReviewCacheQuery'
 import { Link } from 'react-router-dom'
 import { ArrowsRightLeftIcon, ChatBubbleBottomCenterIcon, MusicalNoteIcon } from '@heroicons/react/24/outline'
 import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
+import { EditReview } from './editReview/EditReview'
+import { Button } from 'platform/component/Button'
+import { Badge } from 'platform/component/Badge'
+import { Separator } from 'platform/component/Seperator'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -99,22 +101,23 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
       <>
          <div className='relative flex grow flex-col'>
             <ReviewHeader review={review} />
-            <div className='flex h-8 flex-none justify-evenly'>
-               <RenderOptionTabs />
+            <Separator />
+            <div className='m-auto inline-flex w-16 items-center justify-center space-x-10 rounded-md p-1 lg:hidden'>
+               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
             </div>
+            <Separator />
             {/* For some reason I need a min-height? When doing flex-col in page. */}
             <div className='mx-1 min-h-0 grow'>
                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
             </div>
          </div>
-         <CommentFormModalWrapper />
+         <CommentFormModal />
       </>
    )
 }
 
 const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
-   const queryClient = useQueryClient()
-   const reload = () => queryClient.invalidateQueries(useDetailedReviewQuery.getKey({ reviewId }))
    const openTour = useOpenReviewTour()
 
    const reviewId = review.id
@@ -138,8 +141,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
 
    return (
-      <div className='shadow-l mb-1 flex items-center justify-between bg-base-100 lg:grid lg:grid-cols-3'>
-         <div className='flex w-24 flex-1 items-center justify-start lg:w-full'>
+      <div className='shadow-l mb-1 grid grid-cols-2 lg:grid-cols-3'>
+         <div className='flex w-full items-center justify-start'>
             <img
                className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
                src={reviewEntityImage}
@@ -147,60 +150,65 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             />
             <OpenMobileMenuButton>
                {onClick => (
-                  <button type='button' className='btn btn-primary btn-square mr-1 md:hidden' onClick={onClick}>
+                  <Button size='sm' className='md:hidden' onClick={onClick}>
                      <span className='sr-only'>Open sidebar</span>
                      <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                  </button>
+                  </Button>
                )}
             </OpenMobileMenuButton>
-            <dl className='ml-1 flex flex-col items-start justify-center space-y-1 md:ml-3 '>
+            <dl className='ml-1 grid grid-rows-3 items-start justify-evenly space-y-1 md:ml-3 '>
                <h1 className='truncate text-base font-bold md:text-xl'>{title}</h1>
                <dt className='sr-only'>Entity Details</dt>
                <dd className='flex items-center text-sm font-medium'>
-                  <div className='badge badge-secondary mr-1.5 truncate whitespace-nowrap text-sm'>
+                  <Badge variant='outline' className='mr-1.5 truncate whitespace-nowrap'>
                      {entity?.__typename}
-                  </div>
-                  {entityName ?? <div className='line-clamp-1'>{entityName}</div>}
+                  </Badge>
+                  <div className='line-clamp-1'>{entityName}</div>
                </dd>
                <dt className='sr-only'>Creator name</dt>
-               <div className='flex flex-1 space-x-1'>
-                  <Link to={`/app/user/${creatorId}`} className='text-sm font-medium text-base-content'>
-                     {creatorDisplayName ?? creatorId}
+               <dd>
+                  <Link to={`/app/user/${creatorId}`}>
+                     <Button variant='link' size='empty' className='text-sm text-muted-foreground'>
+                        <span className='truncate'>{creatorDisplayName ?? creatorId}</span>
+                     </Button>
                   </Link>
-               </div>
+               </dd>
+               <div className='flex flex-1 space-x-1'></div>
             </dl>
-            <ListenOnSpotifyIcon entityId={entity?.id} entityType={entity?.__typename} />
          </div>
-         <div className='m-auto hidden w-full max-w-xl lg:inline'>
-            <SearchTracks />
-         </div>
-         <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:space-y-0 md:space-x-1'>
-            <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
-               <QuestionMarkCircleIcon className='h-6 w-6' />
-            </button>
-            {isReviewOwner ? (
-               <>
-                  <EditReviewButton
-                     reviewId={reviewId}
-                     reviewName={title!}
-                     onSuccess={() => {
-                        reload()
-                     }}
-                     isPublic={isPublic === undefined ? false : isPublic}
-                  >
-                     {onClick => (
-                        <button className='btn btn-primary btn-sm lg:btn-md' onClick={onClick}>
-                           <PencilIcon className='h-6 w-6' />
-                        </button>
-                     )}
-                  </EditReviewButton>
 
-                  <ShareReview reviewId={reviewId} collaborators={collaborators}>
-                     <ShareIcon className='h-6 w-6' />
-                  </ShareReview>
-                  {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
-               </>
-            ) : null}
+         <div className='m-auto hidden w-full max-w-xl flex-col items-center lg:flex'>
+            <div className='w-full'>
+               <SearchTracks />
+            </div>
+            <div className='inline-flex h-10 w-16 items-center justify-center rounded-md p-1 lg:w-24 lg:space-x-10'>
+               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
+               <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
+               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
+            </div>
+         </div>
+
+         <div className='flex items-center justify-end'>
+            <ListenOnSpotifyIcon entityId={entity?.id} entityType={entity?.__typename} />
+            <div className='mr-4 flex flex-none flex-col items-center justify-between space-y-1 md:flex-row md:justify-end md:gap-1'>
+               <button className='hidden text-primary md:inline' onClick={openTour}>
+                  <QuestionMarkCircleIcon className='h-6 w-6' />
+               </button>
+               {isReviewOwner ? (
+                  <>
+                     <EditReview
+                        reviewId={reviewId}
+                        reviewName={title!}
+                        isPublic={isPublic === undefined ? false : isPublic}
+                     />
+
+                     <ShareReview reviewId={reviewId} collaborators={collaborators}>
+                        <Button variant='outline'>Share</Button>
+                     </ShareReview>
+                     {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
+                  </>
+               ) : null}
+            </div>
          </div>
       </div>
    )
@@ -219,16 +227,6 @@ const SearchTracks = () => {
    )
 }
 
-const tabStyle = 'tab tab-xs md:tab-md tab-bordered h-8'
-const RenderOptionTabs = () => {
-   return (
-      <>
-         <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
-         <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
-         <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
-      </>
-   )
-}
 const RenderOptionTooltip = (props: { renderOption: RenderOption; label: string; icon: Icon; className?: string }) => {
    const { renderOption, label, className } = props
    const [currentRenderOption, setRenderOption] = useAtom(renderOptionAtom)
@@ -237,15 +235,20 @@ const RenderOptionTooltip = (props: { renderOption: RenderOption; label: string;
       <TooltipProvider delayDuration={500}>
          <Tooltip>
             <TooltipTrigger asChild>
-               <button
-                  className={cn(tabStyle, currentRenderOption === renderOption ? 'tab-active' : '', className)}
+               <Button
+                  variant='ghost'
+                  size='sm'
+                  className={cn(
+                     currentRenderOption === renderOption ? 'bg-accent text-accent-foreground shadow-sm' : '',
+                     className
+                  )}
                   onClick={() => setRenderOption(renderOption)}
                >
                   <props.icon className='h-6 w-6' />
-               </button>
+               </Button>
             </TooltipTrigger>
 
-            <TooltipContent side='top' align='center' className='bg-primary text-primary-content'>
+            <TooltipContent side='top' align='start' className='text-primary-content bg-primary'>
                <p>{label}</p>
             </TooltipContent>
          </Tooltip>
