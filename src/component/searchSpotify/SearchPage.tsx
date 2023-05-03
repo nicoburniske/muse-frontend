@@ -159,7 +159,13 @@ const SearchInputBar = () => {
    const setSearch = useSetAtom(setQueryStringAtom)
 
    return (
-      <SearchInputKbdSuggestion screenReaderLabel='Search' placeholder='Search' search={search} setSearch={setSearch} />
+      <SearchInputKbdSuggestion
+         screenReaderLabel='Search'
+         placeholder='Search'
+         search={search}
+         setSearch={setSearch}
+         autoFocus={true}
+      />
    )
 }
 

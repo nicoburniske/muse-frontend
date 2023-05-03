@@ -1,5 +1,5 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { atom, useAtomValue } from 'jotai'
@@ -9,6 +9,7 @@ import { Input } from './Input'
 export type SearchInputKbdSuggestionProps = {
    screenReaderLabel: string
    placeholder: string
+   autoFocus?: boolean
    search: string
    setSearch: (value: string) => void
 }
@@ -16,6 +17,7 @@ export type SearchInputKbdSuggestionProps = {
 export const SearchInputKbdSuggestion = ({
    screenReaderLabel,
    placeholder,
+   autoFocus = false,
    search,
    setSearch,
 }: SearchInputKbdSuggestionProps) => {
@@ -26,6 +28,12 @@ export const SearchInputKbdSuggestion = ({
       flushSync(() => setIsSearching(true))
       inputRef.current?.focus()
    }, [inputRef, setIsSearching])
+
+   useEffect(() => {
+      if (autoFocus) {
+         focus()
+      }
+   }, [autoFocus, focus])
 
    const keyCombo = useAtomValue(keyComboAtom)
    useHotkeys(keyCombo, focus, [inputRef])
