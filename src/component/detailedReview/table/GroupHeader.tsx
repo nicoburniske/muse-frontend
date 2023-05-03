@@ -12,12 +12,16 @@ import { useDrag, useDrop } from 'react-dnd'
 import { reviewOrderAtom, swapReviewsAtom } from './TableAtoms'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { cn } from 'util/Utils'
-import { Menu, Transition } from '@headlessui/react'
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
-import { useThemeValue } from 'state/UserPreferences'
-import { flip, useFloating } from '@floating-ui/react'
-import Portal from 'platform/component/Portal'
-import { ThemeModal } from 'platform/component/ThemeModal'
+import { Button } from 'platform/component/Button'
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuItem,
+   DropdownMenuTrigger,
+} from 'platform/component/DropdownMenu'
+import { ArrowTopRightOnSquareIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from 'platform/component/Dialog'
+import { Badge } from 'platform/component/Badge'
 
 /**
  * REVIEW HEADER
@@ -66,18 +70,19 @@ export const ReviewGroupHeader = ({
       [isChild, reviewId]
    )
 
-   const dragClass = isDragging ? 'opacity-20' : isOver ? 'card-bordered border-primary' : ''
+   const dragClass = isDragging ? 'opacity-20' : isOver ? 'border-primary' : ''
 
    const entityImage = entity.images.at(-1)
 
    return (
       <div
-         className={cn('card w-full bg-secondary py-0', dragClass)}
+         className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', dragClass)}
          ref={el => {
             drop(el)
             drag(el)
          }}
          onClick={onClick}
+         onContextMenu={e => e.preventDefault()}
       >
          <div className={cn('flex w-full items-center p-1')}>
             <div className='grid grow grid-cols-2 items-center'>
@@ -90,9 +95,9 @@ export const ReviewGroupHeader = ({
                         </div>
                      </div>
                   }
-                  <div className='ml-1 flex flex-col space-y-0.5'>
-                     <div className='badge badge-primary text-primary-content truncate text-center'>{entityName}</div>
-                     <div className='badge badge-accent text-accent-content text-center'>{entityType}</div>
+                  <div className='ml-1 flex flex-col items-start gap-0.5'>
+                     <Badge>{entityName}</Badge>
+                     <Badge variant='secondary'>{entityType}</Badge>
                   </div>
                </div>
             </div>
@@ -121,90 +126,43 @@ const useSwapReviews = (parentReviewId: string, dropReviewId: string) => {
 }
 
 const HeaderMenu = ({ reviewId, parentReviewId }: { reviewId: string; parentReviewId: string }) => {
-   const theme = useThemeValue()
-   const { x, y, strategy, refs } = useFloating({
-      placement: 'right-start',
-      strategy: 'absolute',
-      middleware: [flip()],
-   })
-
    const nav = useNavigate()
 
    const [modalOpen, setModalOpen] = useState(false)
 
+   const [menuOpen, setMenuOpen] = useState(false)
+
+   const setModalOpenSync = (open: boolean) => {
+      if (open) {
+         setMenuOpen(false)
+      }
+      setModalOpen(open)
+   }
+
    return (
       <>
-         <Menu>
-            {({ open }) => (
-               <>
-                  <Menu.Button
-                     ref={refs.setReference}
-                     // Stop handler on header from collapsing/opening.
-                     onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation()}
-                     className={cn('btn btn-square btn-ghost btn-sm place-items-center')}
-                  >
-                     <EllipsisHorizontalIcon className='h-5 w-5' aria-hidden='true' />
-                  </Menu.Button>
-                  <Portal>
-                     <Transition
-                        data-theme={theme}
-                        as={Fragment}
-                        show={open}
-                        enter='transition ease-out duration-100'
-                        enterFrom='transform opacity-0 scale-95'
-                        enterTo='transform opacity-100 scale-100'
-                        leave='transition ease-in duration-75'
-                        leaveFrom='transform opacity-100 scale-100'
-                        leaveTo='transform opacity-0 scale-95'
-                     >
-                        <Menu.Items
-                           ref={refs.setFloating}
-                           style={{
-                              position: strategy,
-                              top: y ?? 0,
-                              left: x ?? 0,
-                              zIndex: 100,
-                              width: 'max-content',
-                           }}
-                           className='menu bg-neutral text-neutral-content rounded-md shadow-lg '
-                        >
-                           <Menu.Item>
-                              {({ active }) => (
-                                 <li>
-                                    <a
-                                       className={cn(active ? 'active' : '', 'text-sm')}
-                                       onClick={() => nav(`/app/reviews/${reviewId}`)}
-                                    >
-                                       Open Review
-                                    </a>
-                                 </li>
-                              )}
-                           </Menu.Item>
-
-                           <Menu.Item>
-                              {({ active }) => (
-                                 <li>
-                                    <a
-                                       className={cn(active ? 'active' : '', 'text-sm')}
-                                       onClick={() => setModalOpen(true)}
-                                    >
-                                       Delete Review Link
-                                    </a>
-                                 </li>
-                              )}
-                           </Menu.Item>
-                        </Menu.Items>
-                     </Transition>
-                  </Portal>
-               </>
-            )}
-         </Menu>
-
+         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+            <DropdownMenuTrigger>
+               <Button variant='svg' size='empty' className='mr-4'>
+                  <EllipsisVerticalIcon className='h-5 w-5' />
+               </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent onClick={e => e.stopPropagation()}>
+               <DropdownMenuItem onClick={() => nav(`/app/reviews/${reviewId}`)}>
+                  <ArrowTopRightOnSquareIcon className='mr-3 h-5 w-5' aria-hidden='true' />
+                  <span> Open Review </span>
+               </DropdownMenuItem>
+               <DropdownMenuItem onClick={() => setModalOpenSync(true)}>
+                  <TrashIcon className='mr-3 h-5 w-5' aria-hidden='true' />
+                  <span>Delete Review Link </span>
+               </DropdownMenuItem>
+            </DropdownMenuContent>
+         </DropdownMenu>
          <DeleteReviewLinkModal
             reviewId={reviewId}
             parentReviewId={parentReviewId}
             modalOpen={modalOpen}
-            setModalOpen={setModalOpen}
+            setModalOpen={setModalOpenSync}
          />
       </>
    )
@@ -234,36 +192,20 @@ const DeleteReviewLinkModal = ({
       mutate({ input: { childReviewId: reviewId, parentReviewId } })
    }
    return (
-      <Portal>
-         <ThemeModal open={modalOpen} className='max-w-md'>
-            <div className='bg-background text-foreground shadow sm:rounded-lg'>
-               <div className='px-4 py-5 sm:p-6'>
-                  <h3 className='text-lg font-medium leading-6 '>Delete Review Link</h3>
-                  <div className='mt-2 max-w-xl text-sm'>
-                     <p> Your reviews will still exist, they'll just be disconnected.</p>
-                  </div>
-                  <div className='mt-5 flex w-full flex-row items-center justify-around'>
-                     <button
-                        type='button'
-                        disabled={isLoading}
-                        onClick={() => setModalOpen(false)}
-                        className={cn('btn btn-primary btn-md', isLoading && 'btn-loading')}
-                     >
-                        Cancel
-                     </button>
+      <Dialog open={modalOpen} onOpenChange={open => setModalOpen(open)}>
+         <DialogContent onClick={e => e.stopPropagation()}>
+            <DialogTitle>Delete Review Link</DialogTitle>
+            <DialogDescription>Your reviews will still exist. They'll just be disconnected</DialogDescription>
+            <DialogFooter>
+               <Button disabled={isLoading} onClick={() => setModalOpen(false)}>
+                  Cancel
+               </Button>
 
-                     <button
-                        type='button'
-                        disabled={isLoading}
-                        onClick={deleteReviewLink}
-                        className={cn('btn btn-error btn-md', isLoading && 'btn-loading')}
-                     >
-                        Delete
-                     </button>
-                  </div>
-               </div>
-            </div>
-         </ThemeModal>
-      </Portal>
+               <Button disabled={isLoading} onClick={deleteReviewLink} variant={'destructive'}>
+                  Delete Comment
+               </Button>
+            </DialogFooter>
+         </DialogContent>
+      </Dialog>
    )
 }
