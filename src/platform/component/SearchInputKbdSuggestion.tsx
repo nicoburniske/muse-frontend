@@ -24,8 +24,7 @@ export const SearchInputKbdSuggestion = ({
    const inputRef = useRef<HTMLInputElement>(null)
    const [isSearching, setIsSearching] = useState(false)
    const focus = useCallback(() => {
-      // We want to guarantee the input is rendered before focusing.
-      flushSync(() => setIsSearching(true))
+      setIsSearching(true)
       inputRef.current?.focus()
    }, [inputRef, setIsSearching])
 

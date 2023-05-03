@@ -81,12 +81,15 @@ export const CreateReviewModal = () => {
             if (!open) close()
          }}
       >
-         <DialogContent className='flex justify-evenly rounded-md sm:max-w-3xl'>
-            <img src={entityImage} alt='ReviewEntityImage' className=' h-64 w-64 object-cover lg:h-96 lg:w-96' />
-            <div className='flex flex-col justify-between'>
-               <h2 className='text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
-               <div className='flex gap-2 self-center'>
+         <DialogContent className='flex flex-col justify-evenly rounded-md sm:max-w-3xl sm:flex-row'>
+            <img src={entityImage} alt='ReviewEntityImage' className='m-auto h-64 w-64 object-cover lg:h-96 lg:w-96' />
+            <div className='flex flex-col justify-between gap-2'>
+               <div className='flex w-full gap-2'>
+                  <h2 className='truncate text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
                   <Badge className='ml-2'>{entityType} </Badge>
+               </div>
+
+               <div className='flex gap-2 self-center'>
                   <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
                </div>
                <div>

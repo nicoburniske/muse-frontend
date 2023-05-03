@@ -59,7 +59,7 @@ const SearchPage = () => {
                   <SearchInputBar />
                </div>
             </div>
-            <div className='flex items-center justify-evenly p-1'>
+            <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
                <SelectEntityTypes />
                <SelectGenreSeeds />
                <SelectHipsterFilter />
@@ -267,7 +267,7 @@ const ScrollSearchResults = () => {
 
    const [numCols, colsStyle, height]: [number, string, number] = useWindowSizeAtom(
       useCallback(s => {
-         const itemWidth = s.isMd ? 192 : 128
+         const itemWidth = s.isMd ? 192 : 144
          const height = s.isMd ? 350 : 275
          // this one is aribitrary.
          const padding = s.isMd ? 100 : 50
@@ -430,7 +430,7 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
 
    return (
       <Card
-         className='relative flex w-32 flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg md:w-48'
+         className='relative flex w-36 flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg md:w-48'
          ref={playOnDoubleClickRef}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
