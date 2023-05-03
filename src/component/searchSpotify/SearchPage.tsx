@@ -114,12 +114,14 @@ const setQueryStringAtom = atom(null, (get, set, value: string) => {
    set(debouncedQueryString, filteredString)
 })
 
-// Hipster only applies to albums?
+// Hipster is only Albums or Artists.
 const SelectHipsterFilter = () => {
    const [hipster, setHipster] = useAtom(filterHipsterAtom)
+   const setEntityTypes = useSetAtom(selectedEntityTypesAtom)
 
    const onChange = (value: boolean) => {
       setHipster(value)
+      setEntityTypes(current => (value ? ['Album'] : current))
    }
 
    return (
