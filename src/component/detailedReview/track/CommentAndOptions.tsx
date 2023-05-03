@@ -27,7 +27,7 @@ export const CommentAndOptions = ({ trackId, reviewId, playlistId, onMenuClick }
                <ChatBubbleLeftIcon className='h-5 w-5' />
             </Button>
          )}
-         <EllipsisVerticalIcon className='h-5 w-5' onClick={showContextMenu} />
+         <EllipsisVerticalIcon className='h-5 w-5 cursor-pointer' onClick={showContextMenu} />
       </div>
    )
 }
