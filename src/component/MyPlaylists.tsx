@@ -108,7 +108,7 @@ const SearchBar = () => {
    )
 }
 
-const PlaylistFilters = ['All', 'Owned', 'Blend', 'Made by Spotify', 'Made by Others'] as const
+const PlaylistFilters = ['All', 'Owned', 'Blend', 'By Spotify', 'By Others'] as const
 type PlaylistFilter = (typeof PlaylistFilters)[number]
 const playlistFilterAtom = atom<PlaylistFilter>('All')
 
@@ -116,10 +116,10 @@ const FilterTabs = ({ className }: { className?: string }) => {
    const [sortOrder, setSortOrder] = useAtom(playlistFilterAtom)
 
    return (
-      <Tabs value={sortOrder} className={className} onValueChange={v => setSortOrder(v)}>
-         <TabsList>
+      <Tabs value={sortOrder} onValueChange={v => setSortOrder(v as PlaylistFilter)}>
+         <TabsList className={className}>
             {PlaylistFilters.map(value => (
-               <TabsTrigger key={value} value={value as PlaylistFilter}>
+               <TabsTrigger key={value} value={value as PlaylistFilter} className='text-xs sm:text-sm'>
                   {value}
                </TabsTrigger>
             ))}
@@ -301,9 +301,9 @@ const useMyPlaylists = () => {
       return filtered.filter(p => p.owner.id === userId)
    } else if (playlistFilter === 'Blend') {
       return filtered.filter(isPlaylistBlend(displayName))
-   } else if (playlistFilter === 'Made by Spotify') {
+   } else if (playlistFilter === 'By Spotify') {
       return filtered.filter(p => p.owner.id === 'spotify')
-   } else if (playlistFilter === 'Made by Others') {
+   } else if (playlistFilter === 'By Others') {
       return filtered.filter(p => p.owner.id !== userId).filter(p => p.owner.id !== 'spotify')
    }
 }
