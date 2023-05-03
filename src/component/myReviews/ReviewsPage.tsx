@@ -30,18 +30,18 @@ const ReviewSorts = {
    shared: 'Shared With You',
 } as const
 
-type ReviewSort = keyof typeof ReviewSorts
+type ReviewFilter = keyof typeof ReviewSorts
 
-const sortOrderAtom = atom<ReviewSort>('owned')
+const sortOrderAtom = atom<ReviewFilter>('owned')
 
 const SortTabs = ({ className }: { className?: string }) => {
    const [sortOrder, setSortOrder] = useAtom(sortOrderAtom)
 
    return (
-      <Tabs value={sortOrder} className={className} onValueChange={v => setSortOrder(v)}>
+      <Tabs value={sortOrder} className={className} onValueChange={v => setSortOrder(v as ReviewFilter)}>
          <TabsList>
             {Object.entries(ReviewSorts).map(([key, value]) => (
-               <TabsTrigger key={key} value={key as ReviewSort}>
+               <TabsTrigger key={key} value={key as ReviewFilter} className='text-xs sm:text-sm'>
                   {value}
                </TabsTrigger>
             ))}
@@ -275,7 +275,7 @@ const searchReviews = (reviews: ReviewDetailsFragment[], search: string) => {
 
 const transformFunction = (
    reviews: ReviewDetailsFragment[],
-   sortOrder: ReviewSort,
+   sortOrder: ReviewFilter,
    currentUserId: string,
    reviewIdHistory: string[]
 ): ReviewDetailsFragment[] => {
