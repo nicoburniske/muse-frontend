@@ -42,7 +42,7 @@ export const useCommentModal = () => {
 }
 
 export const CommentFormModal = () => {
-   const { onSubmit, onCancel, title, trackId, initialValue } = useAtomValue(commentModalValues)
+   const { onSubmit, onCancel, trackId, initialValue } = useAtomValue(commentModalValues)
    const open = useAtomValue(isOpenModalAtom)
 
    const userImage = useCurrentUserImage()
@@ -58,12 +58,12 @@ export const CommentFormModal = () => {
          }}
       >
          <DialogContent className='rounded-md sm:max-w-3xl'>
-            <div className='items-start justify-between p-3'>
+            <div className='items-start justify-between'>
                <div className='hidden flex-shrink-0 sm:inline-block'>
                   <UserAvatar name={userDisplayName} image={userImage} className='h-10 w-10 lg:h-12 lg:w-12' />
                </div>
 
-               <CommentForm onSubmit={onSubmit} onCancel={onCancel} initialValue={initialValue} trackId={trackId} />
+               <CommentForm onSubmit={onSubmit} initialValue={initialValue} trackId={trackId} />
             </div>
          </DialogContent>
       </Dialog>
