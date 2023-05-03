@@ -52,8 +52,8 @@ export const TrackContextMenuContent = () => {
    return (
       <ContextMenuContent>
          <ContextMenuItem>
-            <img src={spotifyIcon} className={'mr-2 h-4 w-4'} />
             <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('flex')}>
+               <img src={spotifyIcon} className={'mr-2 h-4 w-4'} />
                Listen on Spotify
             </a>
          </ContextMenuItem>
@@ -62,8 +62,8 @@ export const TrackContextMenuContent = () => {
             <span> Add to Queue </span>
          </ContextMenuItem>
 
-         <ContextMenuItem>
-            <XCircleIcon className={'mr-2 h-4 w-4'} onClick={removeFromPlaylist} />
+         <ContextMenuItem onClick={removeFromPlaylist}>
+            <XCircleIcon className={'mr-2 h-4 w-4'} />
             <span> Remove from Playlist </span>
          </ContextMenuItem>
       </ContextMenuContent>
