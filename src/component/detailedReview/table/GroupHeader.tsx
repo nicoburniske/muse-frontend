@@ -202,7 +202,7 @@ const DeleteReviewLinkModal = ({
                </Button>
 
                <Button disabled={isLoading} onClick={deleteReviewLink} variant={'destructive'}>
-                  Delete Comment
+                  Delete Link
                </Button>
             </DialogFooter>
          </DialogContent>
