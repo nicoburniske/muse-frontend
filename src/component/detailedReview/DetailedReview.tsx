@@ -203,7 +203,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      />
 
                      <ShareReview reviewId={reviewId} collaborators={collaborators}>
-                        <Button variant='outline'>Share</Button>
+                        <Button variant='outline' className='muse-share'>
+                           Share
+                        </Button>
                      </ShareReview>
                      {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                   </>

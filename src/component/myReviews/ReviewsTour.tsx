@@ -37,12 +37,8 @@ const steps = [
       content: 'You can also tweak your preferences. Find a theme you mess with!',
    },
    {
-      selector: '.muse-review-card-image',
-      content: 'Open the Review Details Sidebar by clicking on a review card image.',
-   },
-   {
-      selector: '.muse-review-card-title',
-      content: 'Open the Review by clicking on the review title.',
+      selector: '.muse-review-card-details',
+      content: 'Open the Review Details Sidebar by clicking this button.',
    },
    {
       selector: '.body',

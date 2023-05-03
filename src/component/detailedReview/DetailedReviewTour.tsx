@@ -40,7 +40,17 @@ const detailedReviewSteps = [
    },
    {
       selector: '.muse-comments',
-      content: 'Comments you make will appear here. You can reply to, reorder, and delete them.',
+      content: (
+         <>
+            <p> Comments you make will appear here. You can:</p>
+            <br />
+            <ul>
+               <li>Reply to comments</li>
+               <li>Update & Delete your comments</li>
+               <li>And re-order comments!</li>
+            </ul>
+         </>
+      ),
    },
    {
       selector: '.muse-share',

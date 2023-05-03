@@ -24,7 +24,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
 
    return (
       <Card
-         className='relative transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
+         className=' relative transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
          onClick={linkToReviewPage}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
@@ -58,6 +58,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
                      onClick()
                      e.stopPropagation()
                   }}
+                  className='muse-review-card-details'
                >
                   <EllipsisVerticalIcon className='h-6 w-6' aria-hidden='true' />
                </Button>

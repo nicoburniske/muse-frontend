@@ -2,13 +2,9 @@ import { ReactNode } from 'react'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import useStateWithReset from 'platform/hook/useStateWithReset'
-import Portal from 'platform/component/Portal'
-import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { SearchUsersComboBox } from 'component/shareReview/SearchUsersCombobox'
 import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
-import { ArrowPathIcon } from '@heroicons/react/24/outline'
-import { cn } from 'util/Utils'
 import {
    Dialog,
    DialogContent,
@@ -18,7 +14,6 @@ import {
    DialogTitle,
    DialogTrigger,
 } from 'platform/component/Dialog'
-import { Switch } from 'platform/component/Switch'
 import {
    Select,
    SelectContent,
