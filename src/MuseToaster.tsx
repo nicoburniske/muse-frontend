@@ -3,12 +3,9 @@ import { CheckCircleIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/
 import { Button } from 'platform/component/Button'
 import { Fragment } from 'react'
 import { Toaster, toast as hotToast, resolveValue } from 'react-hot-toast'
-import { useThemeValue } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
 
 export function MuseToaster() {
-   const theme = useThemeValue()
-
    return (
       <Toaster
          position='bottom-right'
@@ -18,17 +15,16 @@ export function MuseToaster() {
             duration: 2000,
             position: 'top-right',
             success: {
-               icon: <CheckCircleIcon className='text-success h-6 w-6' aria-hidden='true' />,
+               icon: <CheckCircleIcon className='h-6 w-6 text-primary' aria-hidden='true' />,
             },
             error: {
-               icon: <ExclamationTriangleIcon className='text-error h-6 w-6' aria-hidden='true' />,
+               icon: <ExclamationTriangleIcon className='h-6 w-6 text-destructive' aria-hidden='true' />,
             },
          }}
       >
          {t => (
             <div className='flex w-full flex-col items-center space-y-4 sm:items-end'>
                <Transition
-                  data-theme={theme}
                   appear
                   show={t.visible}
                   as={Fragment}
@@ -41,7 +37,7 @@ export function MuseToaster() {
                >
                   <div
                      className={cn(
-                        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring ring-opacity-5',
+                        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border shadow-lg',
                         'bg-background text-foreground',
                         t.className
                      )}
