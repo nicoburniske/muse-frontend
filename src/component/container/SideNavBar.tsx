@@ -3,7 +3,7 @@ import { cn } from 'util/Utils'
 import LogoImage from '/logo.png'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
 
 export const SideNavBar = () => {
    const nav = useNavigate()

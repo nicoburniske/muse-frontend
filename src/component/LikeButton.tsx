@@ -5,7 +5,7 @@ import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
 import { UseQueryOptions } from '@tanstack/react-query'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/20/solid'
-import { Button } from 'platform/component/Button'
+import { Button } from 'lib/component/Button'
 
 interface LikeButtonProps {
    trackId: string

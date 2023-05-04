@@ -1,5 +1,5 @@
 import { EntityType } from 'graphql/generated/schema'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
 import { useIsDarkTheme } from 'state/UserPreferences'
 import { cn } from 'util/Utils'
 
@@ -10,26 +10,31 @@ export type ListenOnSpotifyProps = {
    entityId?: string
    entityType?: EntityType
    className?: string
-   logoClassName?: string
 }
 
 export const ListenOnSpotifyLogoTooltip = (props: ListenOnSpotifyProps) => {
    const { entityId, entityType, className } = props
+   const spotifyLink = getLink(entityId, entityType)
+   const spotifyLogo = useSpotifyLogo()
 
    return (
-      <>
-         <div className={cn('p-3', className)}>
-            <ListenOnSpotifyTooltip>
-               <ListenOnSpotifyLogo {...props} />
-            </ListenOnSpotifyTooltip>
-         </div>
-         <ListenOnSpotifyIcon entityId={entityId} entityType={entityType} className={'md:hidden'} />
-      </>
+      <div className={cn('p-3', className)}>
+         <ListenOnSpotifyTooltip>
+            <a
+               className={cn('hidden md:flex', entityId && entityType ? '' : 'pointer-events-none')}
+               href={spotifyLink}
+               rel='noreferrer'
+               target='_blank'
+            >
+               <img src={spotifyLogo} className={cn('w-20')} />
+            </a>
+         </ListenOnSpotifyTooltip>
+      </div>
    )
 }
 
-export const ListenOnSpotifyLogo = (props: Omit<ListenOnSpotifyProps, 'className'>) => {
-   const { entityId, entityType, logoClassName } = props
+export const ListenOnSpotifyLogo = (props: ListenOnSpotifyProps) => {
+   const { entityId, entityType, className } = props
    const spotifyLink = getLink(entityId, entityType)
    const spotifyLogo = useSpotifyLogo()
    return (
@@ -39,13 +44,13 @@ export const ListenOnSpotifyLogo = (props: Omit<ListenOnSpotifyProps, 'className
          rel='noreferrer'
          target='_blank'
       >
-         <img src={spotifyLogo} className={cn('w-20', logoClassName)} />
+         <img src={spotifyLogo} className={cn('w-20', className)} />
       </a>
    )
 }
 
 export const ListenOnSpotifyIcon = (props: ListenOnSpotifyProps) => {
-   const { entityId, entityType, className, logoClassName } = props
+   const { entityId, entityType, className } = props
 
    const spotifyLink = getLink(entityId, entityType)
    const spotifyIcon = useSpotifyIcon()
@@ -53,7 +58,7 @@ export const ListenOnSpotifyIcon = (props: ListenOnSpotifyProps) => {
       <div className={cn('flex-none p-4', className)}>
          <ListenOnSpotifyTooltip>
             <a href={spotifyLink} rel='noreferrer' target='_blank'>
-               <img src={spotifyIcon} className={cn('h-8 w-8', logoClassName)} />
+               <img src={spotifyIcon} className={cn('h-8 w-8')} />
             </a>
          </ListenOnSpotifyTooltip>
       </div>

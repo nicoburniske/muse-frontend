@@ -1,4 +1,4 @@
-import { Label } from 'platform/component/Label'
+import { Label } from 'lib/component/Label'
 import {
    Select,
    SelectTrigger,
@@ -7,7 +7,7 @@ import {
    SelectGroup,
    SelectItem,
    SelectItemText,
-} from 'platform/component/Select'
+} from 'lib/component/Select'
 import { Theme, Themes, useTheme } from 'state/UserPreferences'
 
 const ThemeOptions = [...Themes].sort((a, b) => a.localeCompare(b)) as Theme[]

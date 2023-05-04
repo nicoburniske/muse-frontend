@@ -1,5 +1,5 @@
-import { Button } from 'platform/component/Button'
-import Hero from 'platform/component/Hero'
+import { Button } from 'lib/component/Button'
+import Hero from 'lib/component/Hero'
 import { useNavigate } from 'react-router-dom'
 import { nonNullable } from 'util/Utils'
 

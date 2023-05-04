@@ -1,6 +1,6 @@
 import { SetStateAction, atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomsDebugValue, useAtomsDevtools } from 'jotai-devtools'
-import atomWithDebounce from 'platform/atom/atomWithDebounce'
+import atomWithDebounce from 'lib/atom/atomWithDebounce'
 import { getOS } from 'util/Utils'
 
 export const osAtom = atom<string | undefined>(() => getOS())

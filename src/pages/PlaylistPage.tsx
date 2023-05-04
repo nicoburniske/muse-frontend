@@ -1,23 +1,19 @@
 import { Bars3BottomLeftIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
-import { Alert, AlertTitle, AlertDescription } from 'platform/component/Alert'
-import Hero from 'platform/component/Hero'
-import { HeroLoading } from 'platform/component/HeroLoading'
-import { Suspense, useRef } from 'react'
+import { Alert, AlertTitle, AlertDescription } from 'lib/component/Alert'
+import Hero from 'lib/component/Hero'
+import { HeroLoading } from 'lib/component/HeroLoading'
+import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
 import { NotFound } from './NotFound'
 import { useGetPlaylistQuery } from 'graphql/generated/schema'
-import { Separator } from 'platform/component/Seperator'
-import { TrackRow } from 'component/detailedReview/table/Helpers'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { ContextMenu, ContextMenuTrigger } from 'platform/component/ContextMenu'
-import { useKeepMountedRangeExtractorSorted, useSmoothScroll } from 'component/detailedReview/table/TableHooks'
-import { TrackContextMenuContent } from 'component/detailedReview/track/TrackContextMenu'
-import { EitherTrackMemo } from 'component/detailedReview/table/EitherTrack'
+import { Separator } from 'lib/component/Seperator'
+
 import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
-import { Button } from 'platform/component/Button'
-import { SelectedPlaylist, useSelectPlaylist } from 'component/MyPlaylists'
+import { Button } from 'lib/component/Button'
+import { SelectedPlaylist, useSelectPlaylist } from 'pages/MyPlaylists'
 import { CreateReviewModal } from 'component/createReview/CreateReviewModal'
+import { TrackTable } from 'component/trackTable/TrackTable'
 
 export const PlaylistPage = () => {
    const { playlistId } = useParams()
@@ -31,8 +27,8 @@ export const PlaylistPage = () => {
                   <div className='h-10 w-full'>
                      <Alert variant='destructive'>
                         <ExclamationTriangleIcon className='h-4 w-4' />
-                        <AlertTitle>Error Loading Review</AlertTitle>
-                        <AlertDescription></AlertDescription>
+                        <AlertTitle>Error Loading Playlist</AlertTitle>
+                        <AlertDescription>Please refresh the page</AlertDescription>
                      </Alert>
                   </div>
                </Hero>
@@ -54,7 +50,7 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
    const { data } = useGetPlaylistQuery({ id: playlistId }, { suspense: true })
 
    const playlist = data?.getPlaylist!
-   const image = playlist.images.slice(-2)[0]
+   const image = playlist?.images?.slice(-2)[0]
 
    const creatorId = playlist.owner.id
    const creatorDisplayName = playlist.owner?.spotifyProfile?.displayName
@@ -108,57 +104,5 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
          <CreateReviewModal />
          <SelectedPlaylist />
       </>
-   )
-}
-
-const TrackTable = ({ tracks }: { tracks: TrackRow[] }) => {
-   const parentRef = useRef<HTMLDivElement>(null)
-
-   const scrollToFn = useSmoothScroll(parentRef)
-   const rangeExtractor = useKeepMountedRangeExtractorSorted()
-
-   const rowVirtualizer = useVirtualizer({
-      overscan: 20,
-      count: tracks.length,
-      estimateSize: () => 60,
-      getScrollElement: () => parentRef.current,
-      scrollToFn,
-      rangeExtractor,
-   })
-
-   return (
-      <ContextMenu>
-         <ContextMenuTrigger asChild>
-            <div ref={parentRef} className='muse-scrollbar h-full w-full overflow-y-auto'>
-               <div
-                  className='muse-tracks relative w-full'
-                  style={{
-                     height: `${rowVirtualizer.getTotalSize()}px`,
-                  }}
-               >
-                  {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                     const index = virtualRow.index
-                     return (
-                        <div
-                           key={virtualRow.index}
-                           style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: `${virtualRow.size}px`,
-                              transform: `translateY(${virtualRow.start}px)`,
-                           }}
-                        >
-                           <EitherTrackMemo reviewId={''} track={tracks[index]} index={index} />
-                        </div>
-                     )
-                  })}
-               </div>
-            </div>
-         </ContextMenuTrigger>
-
-         <TrackContextMenuContent />
-      </ContextMenu>
    )
 }

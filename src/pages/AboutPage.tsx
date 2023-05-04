@@ -4,7 +4,7 @@ import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { Link } from 'react-router-dom'
 import { cn } from 'util/Utils'
 import { useSpotifyLogo } from 'component/ListenOnSpotify'
-import { Button } from 'platform/component/Button'
+import { Button } from 'lib/component/Button'
 
 type NavigationItem = {
    name: string

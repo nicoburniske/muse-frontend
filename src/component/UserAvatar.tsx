@@ -1,6 +1,6 @@
 import { UserWithSpotifyOverviewFragment } from 'graphql/generated/schema'
-import { Avatar, AvatarFallback, AvatarImage } from 'platform/component/Avatar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
+import { Avatar, AvatarFallback, AvatarImage } from 'lib/component/Avatar'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
 
 const size = 'w-6 h-6 md:w-8 md:h-8'
 

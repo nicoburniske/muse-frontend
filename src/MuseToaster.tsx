@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react'
 import { CheckCircleIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
-import { Button } from 'platform/component/Button'
+import { Button } from 'lib/component/Button'
 import { Fragment } from 'react'
 import { Toaster, toast as hotToast, resolveValue } from 'react-hot-toast'
 import { cn } from 'util/Utils'

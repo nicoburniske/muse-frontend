@@ -40,6 +40,7 @@ export const useDetailedReviewCacheQuery = <T>(
                })
             }
          },
+         enabled: reviewId.length !== 0,
          ...options,
       }
    )

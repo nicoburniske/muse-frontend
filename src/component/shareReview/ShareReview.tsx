@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
-import useStateWithReset from 'platform/hook/useStateWithReset'
+import useStateWithReset from 'lib/hook/useStateWithReset'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
 import { SearchUsersComboBox } from 'component/shareReview/SearchUsersCombobox'
 import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
@@ -13,7 +13,7 @@ import {
    DialogHeader,
    DialogTitle,
    DialogTrigger,
-} from 'platform/component/Dialog'
+} from 'lib/component/Dialog'
 import {
    Select,
    SelectContent,
@@ -22,9 +22,9 @@ import {
    SelectItemText,
    SelectTrigger,
    SelectValue,
-} from 'platform/component/Select'
-import { Button } from 'platform/component/Button'
-import { Separator } from 'platform/component/Seperator'
+} from 'lib/component/Select'
+import { Button } from 'lib/component/Button'
+import { Separator } from 'lib/component/Seperator'
 
 export interface ShareReviewProps {
    reviewId: string
@@ -65,7 +65,7 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
 
    return (
       <Dialog>
-         <DialogTrigger>{children}</DialogTrigger>
+         <DialogTrigger asChild>{children}</DialogTrigger>
 
          <DialogContent>
             <DialogHeader>

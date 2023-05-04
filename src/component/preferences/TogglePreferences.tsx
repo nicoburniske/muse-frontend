@@ -1,6 +1,6 @@
 import { useAtom, WritableAtom } from 'jotai'
-import { Label } from 'platform/component/Label'
-import { Switch } from 'platform/component/Switch'
+import { Label } from 'lib/component/Label'
+import { Switch } from 'lib/component/Switch'
 
 type TogglePreferencesProps = {
    atom: WritableAtom<boolean, [boolean], void>

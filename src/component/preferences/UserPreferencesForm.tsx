@@ -6,8 +6,8 @@ import { TogglePreferences } from './TogglePreferences'
 import { useQueryClient } from '@tanstack/react-query'
 import { CogIcon } from '@heroicons/react/24/outline'
 import { clearPersister } from 'MuseQueryClientProvider'
-import { Dialog, DialogContent, DialogTitle } from 'platform/component/Dialog'
-import { Button } from 'platform/component/Button'
+import { Dialog, DialogContent, DialogTitle } from 'lib/component/Dialog'
+import { Button } from 'lib/component/Button'
 import { useState } from 'react'
 
 const modalOpenAtom = atom(false)

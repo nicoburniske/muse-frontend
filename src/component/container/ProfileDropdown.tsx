@@ -1,8 +1,6 @@
-import { useCurrentUser } from 'component/sdk/ClientHooks'
 import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
 import useLogoutMutation from 'state/useLogoutMutation'
-import { Suspense, useCallback, useState } from 'react'
-import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects'
+import { Suspense, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { UserAvatar } from 'component/UserAvatar'
 import {
@@ -11,9 +9,10 @@ import {
    DropdownMenuTrigger,
    DropdownMenuItem,
    DropdownMenuSeparator,
-} from 'platform/component/DropdownMenu'
+} from 'lib/component/DropdownMenu'
 import { ArrowRightOnRectangleIcon, CogIcon, UserIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
+import { useCurrentUserDisplayName, useCurrentUserId, useCurrentUserImage } from 'state/CurrentUser'
 
 type ProfileDropdownProps = {
    onModalOpen?: () => void
@@ -32,20 +31,9 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
    const { openPreferencesModal } = usePreferencesModal()
    const { mutate: logout } = useLogoutMutation()
 
-   const { data } = useCurrentUser({
-      suspense: true,
-      staleTime: 1000 * 60 * 60,
-      select: useCallback((data?: PrivateUser) => {
-         return {
-            image: data?.images.at(0)?.url,
-            id: data?.id ?? '',
-            displayName: data?.display_name ?? '',
-         }
-      }, []),
-   })
-
-   const { image, id, displayName } = data ?? {}
-   const name = displayName ?? id ?? ''
+   const id = useCurrentUserId()
+   const displayName = useCurrentUserDisplayName()
+   const image = useCurrentUserImage()
 
    const [open, setOpen] = useState(false)
 
@@ -61,12 +49,12 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
       <DropdownMenu open={open} onOpenChange={setOpen}>
          <DropdownMenuTrigger>
             <UserAvatar
-               name={name}
+               name={displayName}
                className={'h-10 w-10 rounded-full ring ring-primary ring-offset-2 ring-offset-background'}
                image={image}
             />
          </DropdownMenuTrigger>
-         <DropdownMenuContent className='w-48'>
+         <DropdownMenuContent className='w-42'>
             <DropdownMenuItem onClick={profileLink}>
                <UserIcon className='mr-2 h-4 w-4' />
                <span>Profile</span>
@@ -81,6 +69,12 @@ export const ProfileDropdown = ({ onModalOpen = () => {} }: ProfileDropdownProps
                <ArrowRightOnRectangleIcon className='mr-2 h-4 w-4' />
                <span>Log out</span>
             </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+            <div className='px-2 py-1.5'>
+               <p className='text-sm'>{displayName}</p>
+               <p className='truncate text-sm font-medium'>@{id}</p>
+            </div>
          </DropdownMenuContent>
       </DropdownMenu>
    )

@@ -4,7 +4,7 @@ import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 import { validPlaybackStateAtom, deviceIdAtom, playerAtom } from './PlaybackSDK'
 import { seekIntervalAtom } from 'state/UserPreferences'
 import { spotifyClientAtom } from './ClientAtoms'
-import { useTransientAtom } from 'platform/hook/useTransientAtom'
+import { useTransientAtom } from 'lib/hook/useTransientAtom'
 
 /**
  * Playback Actions

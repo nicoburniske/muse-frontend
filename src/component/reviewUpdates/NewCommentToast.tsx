@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react'
-import { useOpenNewComment } from 'component/detailedReview/commentForm/useOpenNewComment'
+import { useOpenNewComment } from 'component/commentForm/useOpenNewComment'
 import { DetailedCommentFragment } from 'graphql/generated/schema'
 import { Fragment } from 'react'
 import toast, { Toast } from 'react-hot-toast'

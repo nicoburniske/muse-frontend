@@ -1,8 +1,8 @@
 import { useCurrentUserId } from 'state/CurrentUser'
 import { useSubscribeToReviews } from './useSubscribeToReviews'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { useDeepCompareMemoize } from 'platform/hook/useDeepCompareMemoize'
-import { CommentFormModal } from 'component/detailedReview/commentForm/CommentFormModal'
+import { useDeepCompareMemoize } from 'lib/hook/useDeepCompareMemoize'
+import { CommentFormModal } from 'component/commentForm/CommentFormModal'
 
 export const SubscribeReviews = () => {
    const currentUserId = useCurrentUserId()
