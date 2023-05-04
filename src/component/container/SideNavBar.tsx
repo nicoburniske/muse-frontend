@@ -19,7 +19,7 @@ export const SideNavBar = () => {
                      <NavBarLinks />
                   </div>
                   <div className='flex flex-shrink-0 pb-5'>
-                     <div className='w-full flex-shrink-0'>
+                     <div className='grid w-full flex-shrink-0 place-items-center'>
                         <ProfileDropdownSuspense />
                      </div>
                   </div>
