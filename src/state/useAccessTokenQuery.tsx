@@ -39,7 +39,9 @@ const useLogin = () => {
    const location = useLocation()
    return useCallback(() => {
       const win: Window = window
-      win.location = `${AppConfig.loginEndpoint}?redirect=${encodeURIComponent(window.location.href)}`
+      const newLocation = `${AppConfig.loginEndpoint}?redirect=${encodeURIComponent(window.location.href)}`
+      console.log('Redirecting to login', newLocation)
+      win.location = newLocation
    }, [location])
 }
 
