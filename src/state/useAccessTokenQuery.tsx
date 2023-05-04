@@ -25,12 +25,12 @@ const useAccessTokenQuery = () => {
          const status = axios.isAxiosError(error) ? error.response?.status : undefined
          return status !== undefined && status !== 401
       },
-      onError: error => {
+      onError: () => {
+         // We can't check for specific error types because of CORS errors on unauthorized pre-flight requests.
+         // TODO: fix this somehow.
          // if (axios.isAxiosError(error) && error.response?.status === 401) {
-         console.error('Access token query error', error)
          queryClient.clear()
          login()
-         // }
       },
    })
 }
@@ -41,7 +41,6 @@ const useLogin = () => {
    return useCallback(() => {
       const win: Window = window
       const newLocation = `${AppConfig.loginEndpoint}?redirect=${encodeURIComponent(window.location.href)}`
-      console.log('Redirecting to login', newLocation)
       win.location = newLocation
    }, [location])
 }
