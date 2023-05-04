@@ -1,12 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from 'component/sdk/ClientHooks'
-import { useGetPlaylistQuery } from 'graphql/generated/schema'
+import { GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { QueueListIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import toast from 'react-hot-toast'
 import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
 import { ContextMenuContent, ContextMenuItem } from 'platform/component/ContextMenu'
 import { cn } from 'util/Utils'
+import { useCallback } from 'react'
+import { useCurrentUserId } from 'state/CurrentUser'
 
 type ContextMenuProps = {
    trackId: string
@@ -26,8 +28,6 @@ export const TrackContextMenuContent = () => {
    })
    const addToQueue = () => addToQueueMutation(trackId)
 
-   const showPlaylistActions = playlistId !== undefined
-
    const queryClient = useQueryClient()
    const { mutate: removeFromPlaylistMutation } = useRemoveTracksFromPlaylistMutation({
       onSuccess: () => {
@@ -38,13 +38,23 @@ export const TrackContextMenuContent = () => {
    })
 
    const removeFromPlaylist = () => {
-      if (showPlaylistActions) {
+      if (playlistId !== undefined) {
          removeFromPlaylistMutation({
             playlistId,
             trackIds: [trackId],
          })
       }
    }
+
+   const { data: playlistOwner } = useGetPlaylistQuery(
+      { id: playlistId! },
+      {
+         enabled: playlistId !== undefined,
+         select: useCallback((data: GetPlaylistQuery) => data.getPlaylist?.owner.id, []),
+      }
+   )
+   const currentUserId = useCurrentUserId()
+   const isUserOwnedPlaylist = playlistId !== undefined && playlistOwner === currentUserId
 
    const spotifyLink = getLink(trackId, 'Track')
    const spotifyIcon = useSpotifyIcon()
@@ -57,15 +67,19 @@ export const TrackContextMenuContent = () => {
                Listen on Spotify
             </a>
          </ContextMenuItem>
-         <ContextMenuItem onClick={addToQueue}>
-            <QueueListIcon className={'mr-2 h-4 w-4'} />
-            <span> Add to Queue </span>
-         </ContextMenuItem>
+         {
+            <ContextMenuItem onClick={addToQueue}>
+               <QueueListIcon className={'mr-2 h-4 w-4'} />
+               <span> Add to Queue </span>
+            </ContextMenuItem>
+         }
 
-         <ContextMenuItem onClick={removeFromPlaylist}>
-            <XCircleIcon className={'mr-2 h-4 w-4'} />
-            <span> Remove from Playlist </span>
-         </ContextMenuItem>
+         {isUserOwnedPlaylist && (
+            <ContextMenuItem onClick={removeFromPlaylist}>
+               <XCircleIcon className={'mr-2 h-4 w-4'} />
+               <span> Remove from Playlist </span>
+            </ContextMenuItem>
+         )}
       </ContextMenuContent>
    )
 }

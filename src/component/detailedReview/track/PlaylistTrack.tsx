@@ -1,5 +1,5 @@
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { useCallback, useEffect, useRef } from 'react'
+import { RefObject, useCallback, useEffect, useRef } from 'react'
 import useDoubleClick from 'platform/hook/useDoubleClick'
 import LikeButton from 'component/LikeButton'
 import {
@@ -151,8 +151,9 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    const showContextMenu = () => setContextMenu({ trackId, playlistId })
 
    // Making context menu appear on options button regular click.
-   const optionsRef = useRef<HTMLDivElement>(null)
-   const onMenuClick = useSimulateRightClick(trackDivRef, optionsRef)
+   const simulateRightClick = useSimulateRightClick()
+   const onMenuClick = (referenceRef: RefObject<Element>) =>
+      simulateRightClick(trackDivRef, referenceRef as RefObject<Element>)
 
    return (
       <div
@@ -202,7 +203,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                <LikeButton trackId={track.id} svgStyle={svgStyle} options={{ staleTime: 1000 * 60 }} />
             </div>
 
-            <div className='flex flex-none items-center justify-center space-x-2' ref={optionsRef}>
+            <div className='flex flex-none items-center justify-center space-x-2'>
                <CommentAndOptions
                   trackId={track.id}
                   reviewId={reviewId}
