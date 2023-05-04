@@ -56,6 +56,22 @@ export const useKeepMountedRangeExtractor = () => {
    return [mounted, rangeExtractor] as [MutableRefObject<Set<number>>, (range: Range) => number[]]
 }
 
+export const useKeepMountedRangeExtractorSorted = () => {
+   const mounted = useRef(new Set<number>())
+
+   const rangeExtractor = useCallback(
+      (range: Range) => {
+         const newRange = [...mounted.current, ...defaultRangeExtractor(range)]
+         const asSet = new Set(newRange)
+         mounted.current = asSet
+         return [...asSet].sort((a, b) => a - b)
+      },
+      [mounted]
+   )
+
+   return rangeExtractor as (range: Range) => number[]
+}
+
 // ReviewId => TrackId => Index
 const trackIndexAtom = atom<Map<string, Map<string, number>>>(get => {
    const expandedGroups = get(expandedGroupsAtom)

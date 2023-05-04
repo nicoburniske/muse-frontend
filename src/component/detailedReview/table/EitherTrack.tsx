@@ -1,6 +1,8 @@
 import { DetailedPlaylistTrackFragment, DetailedTrackFragment } from 'graphql/generated/schema'
 import AlbumTrack from '../track/AlbumTrack'
 import PlaylistTrack from '../track/PlaylistTrack'
+import { memo } from 'react'
+import { getTrackId } from './Helpers'
 
 export interface EitherTrackProps {
    index: number
@@ -18,3 +20,7 @@ export const EitherTrack = ({ reviewId, track, index }: EitherTrackProps) => {
       return <AlbumTrack track={track} reviewId={reviewId} />
    }
 }
+
+export const EitherTrackMemo = memo(EitherTrack, (prev, next) => {
+   return getTrackId(prev.track) === getTrackId(next.track) && prev.index === next.index
+})
