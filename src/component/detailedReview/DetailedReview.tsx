@@ -143,11 +143,13 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    return (
       <div className='shadow-l mb-1 grid grid-cols-2 lg:grid-cols-3'>
          <div className='flex w-full items-center justify-start'>
-            <img
-               className='hidden h-20 w-20 object-scale-down object-center shadow-2xl md:flex'
-               src={reviewEntityImage}
-               alt='Review Image'
-            />
+            <div className='ml-2 hidden md:flex'>
+               <img
+                  className='h-20 w-20 object-scale-down object-center shadow-2xl'
+                  src={reviewEntityImage}
+                  alt='Review Image'
+               />
+            </div>
             <OpenMobileMenuButton>
                {onClick => (
                   <Button size='sm' className='md:hidden' onClick={onClick}>
