@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { AppConfig } from 'util/AppConfig'
 
 // 55 minutes just to be safe.
@@ -13,8 +14,8 @@ const getAccessToken = async () => {
 
 const queryKey = ['SpotifyAccessToken']
 const useAccessTokenQuery = () => {
-   const nav = useNavigate()
    const queryClient = useQueryClient()
+   const login = useLogin()
    return useQuery(queryKey, getAccessToken, {
       refetchInterval: accessTokenInterval,
       staleTime: accessTokenInterval,
@@ -27,11 +28,19 @@ const useAccessTokenQuery = () => {
       onError: error => {
          if (axios.isAxiosError(error) && error.response?.status === 401) {
             queryClient.clear()
-            nav('/')
+            login()
          }
       },
    })
 }
 useAccessTokenQuery.getKey = () => queryKey
+
+const useLogin = () => {
+   const location = useLocation()
+   return useCallback(() => {
+      const win: Window = window
+      win.location = `${AppConfig.loginEndpoint}?redirect=${encodeURIComponent(window.location.href)}`
+   }, [location])
+}
 
 export default useAccessTokenQuery

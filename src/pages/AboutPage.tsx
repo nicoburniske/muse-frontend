@@ -45,7 +45,7 @@ export default function AboutPage() {
                         <Button>Enter App</Button>
                      </Link>
                   ) : (
-                     <a href={AppConfig.loginRedirect}>
+                     <a href={AppConfig.loginEndpoint}>
                         <Button>Log in with Spotify</Button>
                      </a>
                   )}

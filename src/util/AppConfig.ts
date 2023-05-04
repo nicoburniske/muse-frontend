@@ -16,7 +16,7 @@ export const AppConfig = (() => {
       websocketGraphEndpoint: webSocketEndpoint('/ws/graphql'),
       // HTTP Endpoints require local proxy for CORS. See vite.config.ts
       // Double slash for absolute path.
-      loginRedirect: DEV ? '/login' : `//${backendUrl}/login`,
+      loginEndpoint: DEV ? '/login' : `//${backendUrl}/login`,
       logoutEndpoint: DEV ? '/logout' : prodEndpoint('/logout'),
       httpGraphEndpoint: DEV ? '/api/graphql' : prodEndpoint('/api/graphql'),
       httpSessionEndpoint: DEV ? '/session' : prodEndpoint('/session'),
