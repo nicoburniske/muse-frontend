@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai'
-import { asyncPlaybackStateAtom, needsReconnectAtom } from './PlaybackSDK'
+import { validPlaybackStateAtom, needsReconnectAtom } from './PlaybackSDK'
 import { useCallback } from 'react'
 
 export type PlayerState = {
@@ -25,7 +25,7 @@ export type PlayerState = {
 }
 
 export const usePlayerState = (): PlayerState => {
-   const current = useAtomValue(asyncPlaybackStateAtom)
+   const current = useAtomValue(validPlaybackStateAtom)
    const needsReconnect = useAtomValue(needsReconnectAtom)
 
    const disallows = current.disallows

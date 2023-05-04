@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import { asyncPlaybackStateAtom, deviceIdAtom, playerAtom } from './PlaybackSDK'
+import { validPlaybackStateAtom, deviceIdAtom, playerAtom } from './PlaybackSDK'
 import { seekIntervalAtom } from 'state/UserPreferences'
 import { spotifyClientAtom } from './ClientAtoms'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
@@ -11,7 +11,7 @@ import { useTransientAtom } from 'platform/hook/useTransientAtom'
  */
 
 export type PlayerActions = {
-   getCurrentPositionMs: () => Promise<number>
+   getCurrentPositionMs: () => number
 
    /**
     * 0: NO_REPEAT
@@ -40,10 +40,10 @@ export const usePlayerActions = (): PlayerActions => {
    const seekInterval = useAtomValue(seekIntervalAtom)
    const client = useAtomValue(spotifyClientAtom)
 
-   const [getCurrent] = useTransientAtom(asyncPlaybackStateAtom)
+   const [getCurrent] = useTransientAtom(validPlaybackStateAtom)
 
-   const getCurrentPositionMs = async () => {
-      const current = await getCurrent()
+   const getCurrentPositionMs = () => {
+      const current = getCurrent()
       const positionMs = current.position
       const timestamp = current.timestamp
       return current.paused ? positionMs : Date.now() - timestamp + positionMs
@@ -63,18 +63,18 @@ export const usePlayerActions = (): PlayerActions => {
       play: () => player.resume(),
 
       seekForward: async () => {
-         const current = await getCurrentPositionMs()
+         const current = getCurrentPositionMs()
          return player.seek(current + seekInterval)
       },
       seekBackward: async () => {
-         const current = await getCurrentPositionMs()
+         const current = getCurrentPositionMs()
          return player.seek(current - seekInterval)
       },
       seekTo: (positionMs: number) => player.seek(positionMs),
 
       nextTrack: () => player.nextTrack(),
       previousTrack: async () => {
-         const current = await getCurrentPositionMs()
+         const current = getCurrentPositionMs()
          if (current > 3000) {
             return player.seek(0)
          } else {

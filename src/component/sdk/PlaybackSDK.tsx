@@ -1,15 +1,10 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithStorage, loadable } from 'jotai/utils'
-import atomValueOrSuspend from 'platform/atom/atomValueOrSuspend'
-import atomWithSuspend from 'platform/atom/atomWithSuspend'
-import { useExecuteOnce } from 'platform/hook/useExecuteOnce'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import atomValueOrThrow from 'platform/atom/atomValueOrThrow'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { nonNullable } from 'util/Utils'
 
-export const SPOTIFY_WEB_PLAYBACK_SDK_URL = 'https://sdk.scdn.co/spotify-player.js'
-
-type HasData<T> = { state: 'hasData'; data: T }
 type SpotifyErrorHandler = {
    initializationError: (error: Spotify.Error) => void
    authenticationError: (error: Spotify.Error) => void
@@ -19,82 +14,167 @@ type SpotifyErrorHandler = {
 
 // This needs to be imported at top level to setup spotify sdk.
 export function SpotifyPlaybackSdk({ errorHandler }: { errorHandler: SpotifyErrorHandler }) {
-   const isReady = useAtomValue(sdkReadyAtom)
-   const load = useAtomValue(loadable(getTokenAtom))
-   const [getPlayer, setPlayer] = useTransientAtom(playerAtom)
+   useSetupSdk()
+
+   const player = useAtomValue(maybePlayerAtom)
+   const { isReady, initPlayer } = useInitPlayer()
+
+   useEffect(() => {
+      const execute = () => initPlayer()
+      if (isReady) {
+         execute()
+      }
+   }, [isReady, initPlayer])
+
+   // Disconnect on window close.
+   useEffect(() => {
+      const cleanup = () => player?.disconnect()
+
+      window.addEventListener('beforeunload', cleanup)
+
+      return () => {
+         window.removeEventListener('beforeunload', cleanup)
+      }
+   }, [player])
+
+   // Event handling.
    const setPlaybackState = useSetAtom(setPlaybackStateAtom)
+   useEffect(() => {
+      if (player) {
+         player.addListener('player_state_changed', setPlaybackState)
 
-   useExecuteOnce(
-      () => isReady && load.state === 'hasData',
-      () => {
-         ;(async () => {
-            const getOAuthToken = (load as HasData<GetTokenObject>).data.getOAuthToken
-            const player = new Spotify.Player({
-               name: 'Muse',
-               getOAuthToken,
-            })
-            const success = await player.connect()
+         const { initializationError, authenticationError, accountError, playbackError } = errorHandler
+         player.addListener('initialization_error', initializationError)
+         player.addListener('authentication_error', authenticationError)
+         player.addListener('account_error', accountError)
+         player.addListener('playback_error', playbackError)
 
-            if (success) {
-               player.addListener('player_state_changed', state => setPlaybackState(state))
-               const { initializationError, authenticationError, accountError, playbackError } = errorHandler
-               player.addListener('initialization_error', error => initializationError(error))
-               player.addListener('authentication_error', error => authenticationError(error))
-               player.addListener('account_error', error => accountError(error))
-               player.addListener('playback_error', error => playbackError(error))
-
-               setPlayer(player)
-            } else {
-               throw new Error('Failed to connect to Spotify Player.')
-            }
-         })()
-      },
-      [load, setPlayer, setPlaybackState]
-   )
-   useEffect(
-      () => () => {
-         getPlayer().then(p => p.disconnect())
-      },
-      [getPlayer]
-   )
+         return () => {
+            player.removeListener('player_state_changed', setPlaybackState)
+            player.removeListener('initialization_error', initializationError)
+            player.removeListener('authentication_error', authenticationError)
+            player.removeListener('account_error', accountError)
+            player.removeListener('playback_error', playbackError)
+         }
+      }
+   }, [player, setPlaybackState])
 
    return null
 }
 
-export const useDisconnectPlayer = () => {
-   const [getPlayer] = useTransientAtom(playerAtom)
+const useInitPlayer = () => {
+   const setPlayer = useSetAtom(maybePlayerAtom)
+   const setDeviceId = useSetAtom(maybeDeviceIdAtom)
 
-   return useCallback(() => getPlayer().then(p => p.disconnect()), [getPlayer])
+   const { isReady, createPlayer } = useCreatePlayer()
+
+   const initPlayer = useCallback(async () => {
+      const { player, deviceId } = await createPlayer()
+      setPlayer(player)
+      setDeviceId(deviceId)
+   }, [isReady, createPlayer, setPlayer, setDeviceId])
+
+   return {
+      isReady,
+      initPlayer,
+   }
+}
+
+const useCreatePlayer = () => {
+   const sdkReady = useAtomValue(sdkReadyAtom)
+   const accessTokenFunc = useAtomValue(maybeTokenAtom)
+
+   const isReady = sdkReady && accessTokenFunc !== null
+   const createPlayer = useCallback(async () => {
+      if (isReady) {
+         const getOAuthToken = accessTokenFunc.getOAuthToken
+         const player = new Spotify.Player({
+            name: 'Muse',
+            getOAuthToken,
+         })
+         const successPromise = player.connect()
+         const deviceIdPromise = new Promise<string>((resolve, reject) => {
+            player.addListener('ready', ({ device_id }) => {
+               resolve(device_id)
+            })
+
+            player.addListener('not_ready', () => {
+               reject(new Error('Spotify player not ready.'))
+            })
+         })
+
+         await Promise.all([successPromise, deviceIdPromise])
+         const success = await successPromise
+         const deviceId = await deviceIdPromise
+
+         if (success) {
+            return { player, deviceId }
+         } else {
+            throw new Error('Failed to connect to Spotify Player.')
+         }
+      } else {
+         throw new Error('Spotify SDK not ready.')
+      }
+   }, [sdkReady, accessTokenFunc])
+
+   return {
+      isReady,
+      createPlayer,
+   }
+}
+
+const isPlayerReadyAtom = atom(
+   get => get(sdkReadyAtom) && get(maybePlayerAtom) !== null && get(maybeDeviceIdAtom) !== null
+)
+export const useIsPlayerReady = () => useAtomValue(isPlayerReadyAtom)
+
+export const useDisconnectPlayer = () => {
+   const [getPlayer] = useTransientAtom(maybePlayerAtom)
+
+   return useCallback(() => getPlayer()?.disconnect(), [getPlayer])
 }
 
 export const sdkReadyAtom = atom<boolean>(false)
 sdkReadyAtom.debugLabel = 'sdkReadyAtom'
-sdkReadyAtom.onMount = setAtom => {
-   const script = document.createElement('script')
-   script.src = SPOTIFY_WEB_PLAYBACK_SDK_URL
-   document.body.appendChild(script)
+const useSetupSdk = () => {
+   const [isReady, setReady] = useAtom(sdkReadyAtom)
 
-   window.onSpotifyWebPlaybackSDKReady = () => {
-      setAtom(true)
-   }
+   useEffect(() => {
+      if (!isReady) {
+         const script = document.createElement('script')
+         script.src = 'https://sdk.scdn.co/spotify-player.js'
+         script.async = true
+         document.body.appendChild(script)
 
-   return () => {
-      document.body.removeChild(script)
-   }
+         window.onSpotifyWebPlaybackSDKReady = () => {
+            setReady(true)
+         }
+
+         return () => {
+            document.body.removeChild(script)
+         }
+      }
+   }, [isReady, setReady])
+}
+
+export const useResetSpotifySdk = () => {
+   const setReady = useSetAtom(sdkReadyAtom)
+   return useCallback(() => setReady(false), [setReady])
 }
 
 type GetTokenObject = {
    getOAuthToken: Spotify.PlayerInit['getOAuthToken']
 }
 
-const getTokenAtom = atomWithSuspend<GetTokenObject>()
-getTokenAtom.debugLabel = 'getAccessTokenAtom'
-export const useSetTokenFunction = () => useSetAtom(getTokenAtom)
+const maybeTokenAtom = atom<GetTokenObject | null>(null)
+maybeTokenAtom.debugLabel = 'getAccessTokenAtom'
+export const useSetTokenFunction = () => useSetAtom(maybeTokenAtom)
 
 /**
  * Spotify Player.
  **/
-export const playerAtom = atomWithSuspend<Spotify.Player>()
+const maybePlayerAtom = atom<Spotify.Player | null>(null)
+export const playerAtom = atomValueOrThrow(maybePlayerAtom)
 playerAtom.debugLabel = 'playerAtom'
 export const useSpotifyPlayer = () => useAtomValue(playerAtom)
 
@@ -102,18 +182,8 @@ export const useSpotifyPlayer = () => useAtomValue(playerAtom)
  * Device ID.
  */
 
-export const deviceIdAtom = atom<Promise<string>>(async get => {
-   const player = await get(playerAtom)
-   return await new Promise((resolve, reject) => {
-      player.addListener('ready', ({ device_id }) => {
-         resolve(device_id)
-      })
-
-      player.addListener('not_ready', () => {
-         reject('Spotify player not ready.')
-      })
-   })
-})
+const maybeDeviceIdAtom = atom<string | null>(null)
+export const deviceIdAtom = atomValueOrThrow(maybeDeviceIdAtom)
 deviceIdAtom.debugLabel = 'deviceIdAtom'
 export const useDeviceId = () => useAtomValue(deviceIdAtom)
 
@@ -155,12 +225,12 @@ latestValidPlaybackStateMaybeAtom.debugLabel = 'latestValidPlaybackStateMaybeAto
 const existsPlaybackStateAtom = atom<boolean>(get => get(latestValidPlaybackStateMaybeAtom) !== null)
 export const useExistsPlaybackState = () => useAtomValue(existsPlaybackStateAtom)
 
-export const asyncPlaybackStateAtom = atomValueOrSuspend(latestValidPlaybackStateMaybeAtom)
-asyncPlaybackStateAtom.debugLabel = 'asyncPlaybackStateAtom'
-export const usePlaybackState = () => useAtomValue(asyncPlaybackStateAtom)
+export const validPlaybackStateAtom = atomValueOrThrow(latestValidPlaybackStateMaybeAtom)
+validPlaybackStateAtom.debugLabel = 'asyncPlaybackStateAtom'
+export const usePlaybackState = () => useAtomValue(validPlaybackStateAtom)
 
 const currentTrackAtom = atom<Promise<Spotify.Track>>(async get => {
-   const state = await get(asyncPlaybackStateAtom)
+   const state = await get(validPlaybackStateAtom)
    return state.track_window.current_track
 })
 export const useCurrentTrack = () => useAtomValue(currentTrackAtom)

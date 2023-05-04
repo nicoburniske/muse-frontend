@@ -5,8 +5,6 @@ import { MobileMenu } from './MobileMenu'
 import Portal from 'platform/component/Portal'
 import { useSetTokenFunction } from 'component/sdk/PlaybackSDK'
 import useAccessTokenQuery from 'state/useAccessTokenQuery'
-import { useExecuteOnce } from 'platform/hook/useExecuteOnce'
-import { nonNullable } from 'util/Utils'
 import { Outlet } from 'react-router-dom'
 import { UserPreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { useThemeValue } from 'state/UserPreferences'
@@ -109,24 +107,28 @@ const SyncAccessToken = () => {
       if (data) {
          accessTokenRef.current = data
       }
-   }, [data])
+   }, [accessTokenRef, data])
 
-   const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(callback => {
-      const accessToken = accessTokenRef.current
-      if (accessToken) {
-         callback(accessToken)
-      }
-   }, [])
+   const accessTokenFunc: Spotify.PlayerInit['getOAuthToken'] = useCallback(
+      callback => {
+         const accessToken = accessTokenRef.current
+         if (accessToken) {
+            callback(accessToken)
+         }
+      },
+      [accessTokenRef]
+   )
 
    /**
     * Set Token callback for Playback SDK.
     */
    const setTokenFunction = useSetTokenFunction()
-   useExecuteOnce(
-      () => nonNullable(data),
-      () => setTokenFunction({ getOAuthToken: accessTokenFunc }),
-      [data]
-   )
+
+   useEffect(() => {
+      if (data) {
+         setTokenFunction({ getOAuthToken: accessTokenFunc })
+      }
+   }, [data])
 
    /**
     * Setup Spotify API.
