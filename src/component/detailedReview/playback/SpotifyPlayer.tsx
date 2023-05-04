@@ -5,7 +5,13 @@ import toast from 'react-hot-toast'
 import { cn, msToTime } from 'util/Utils'
 import * as Slider from '@radix-ui/react-slider'
 import { Slider as LibSlider } from 'platform/component/Slider'
-import { useCurrentTrack, useVolume, useExistsPlaybackState, useCurrentPosition } from 'component/sdk/PlaybackSDK'
+import {
+   useCurrentTrack,
+   useVolume,
+   useExistsPlaybackState,
+   useCurrentPosition,
+   useResetSpotifySdk,
+} from 'component/sdk/PlaybackSDK'
 import { useTransferPlayback } from './TransferPlayback'
 import { useTransientAtom } from 'platform/hook/useTransientAtom'
 import { MuseTransition } from 'platform/component/MuseTransition'
@@ -15,9 +21,11 @@ import { usePlayerActions } from 'component/sdk/usePlayerActions'
 import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
 import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import {
+   ArrowPathIcon,
    BackwardIcon,
    ChevronLeftIcon,
    ChevronRightIcon,
+   EllipsisVerticalIcon,
    ForwardIcon,
    PauseIcon,
    PlayIcon,
@@ -29,11 +37,17 @@ import {
    SpeakerWaveIcon,
    SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
-import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
+import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'platform/component/Tooltip'
 import { usePlayerState } from 'component/sdk/usePlayerState'
 import { Button } from 'platform/component/Button'
 import { Toggle } from 'platform/component/Toggle'
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuTrigger,
+   DropdownMenuItem,
+} from 'platform/component/DropdownMenu'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
@@ -102,9 +116,38 @@ const NowPlayingItem = () => {
                <div className='lg:text-md truncate text-left text-xs md:p-0.5'>{nowPlayingArtist}</div>
             </div>
          </div>
-
-         <ListenOnSpotifyIcon entityType='Track' entityId={trackId ?? undefined} className='flex-none' />
+         <NowPlayingMenu />
       </div>
+   )
+}
+const NowPlayingMenu = () => {
+   const { id: trackId } = useCurrentTrack()
+
+   const spotifyLink = getLink(trackId ?? undefined, 'Track')
+   const spotifyIcon = useSpotifyIcon()
+   const resetPlayer = useResetSpotifySdk()
+
+   return (
+      <DropdownMenu>
+         <DropdownMenuTrigger>
+            <Button variant='svg' size='empty' className='ml-2 p-1 hover:bg-accent hover:text-accent-foreground'>
+               <EllipsisVerticalIcon className='h-6 w-6' />
+            </Button>
+         </DropdownMenuTrigger>
+         <DropdownMenuContent className='text-base'>
+            <DropdownMenuItem>
+               <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('flex')}>
+                  <img src={spotifyIcon} className={'mr-2 h-4 w-4'} />
+                  Listen on Spotify
+               </a>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={resetPlayer}>
+               <ArrowPathIcon className='mr-2 h-4 w-4' />
+               <span>Reset Player</span>
+            </DropdownMenuItem>
+         </DropdownMenuContent>
+      </DropdownMenu>
    )
 }
 

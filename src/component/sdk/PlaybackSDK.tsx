@@ -159,7 +159,17 @@ const useSetupSdk = () => {
 
 export const useResetSpotifySdk = () => {
    const setReady = useSetAtom(sdkReadyAtom)
-   return useCallback(() => setReady(false), [setReady])
+   const disconnect = useDisconnectPlayer()
+   const setPlayer = useSetAtom(maybePlayerAtom)
+   const setDeviceId = useSetAtom(maybeDeviceIdAtom)
+   const setPlaybackState = useSetAtom(setPlaybackStateAtom)
+   return useCallback(() => {
+      disconnect()
+      setPlaybackState(null)
+      setReady(false)
+      setPlayer(null)
+      setDeviceId(null)
+   }, [setReady, disconnect, setPlayer, setDeviceId])
 }
 
 type GetTokenObject = {
