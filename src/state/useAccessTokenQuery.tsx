@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -14,7 +14,6 @@ const getAccessToken = async () => {
 
 const queryKey = ['SpotifyAccessToken']
 const useAccessTokenQuery = () => {
-   const queryClient = useQueryClient()
    const login = useLogin()
    return useQuery(queryKey, getAccessToken, {
       refetchInterval: accessTokenInterval,
@@ -29,7 +28,6 @@ const useAccessTokenQuery = () => {
          // We can't check for specific error types because of CORS errors on unauthorized pre-flight requests.
          // TODO: fix this somehow.
          // if (axios.isAxiosError(error) && error.response?.status === 401) {
-         queryClient.clear()
          login()
       },
    })
