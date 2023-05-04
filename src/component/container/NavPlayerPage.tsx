@@ -67,9 +67,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             <Portal>
                <MobileMenu />
             </Portal>
-            <Portal>
-               <UserPreferencesModal />
-            </Portal>
+            <UserPreferencesModal />
          </div>
       </TourProvider>
    )

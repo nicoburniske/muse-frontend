@@ -1,4 +1,3 @@
-import { PlusIcon as PlusIconMini } from '@heroicons/react/20/solid'
 import { ListenOnSpotifyLogoTooltip } from 'component/ListenOnSpotify'
 import { ShareReview } from 'component/shareReview/ShareReview'
 import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
@@ -10,9 +9,13 @@ import { Link } from 'react-router-dom'
 import { useCurrentUserId } from 'state/CurrentUser'
 import { nonNullable, findFirstImage, cn } from 'util/Utils'
 import { DeleteReviewButton } from 'component/DeleteReviewButton'
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from 'platform/component/Sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from 'platform/component/Sheet'
 import { Badge } from 'platform/component/Badge'
 import { Button } from 'platform/component/Button'
+import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
+import { EditReview } from 'component/detailedReview/editReview/EditReview'
+import { ScrollArea } from 'platform/component/ScrollArea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from 'platform/component/Tabs'
 
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)
@@ -107,17 +110,40 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
             <SheetDescription className='flex justify-evenly'>
                <span className='text-lg'>{entityName} </span>
-               <Badge variant='outline'>{entityType}</Badge>
+               <Badge>{entityType}</Badge>
             </SheetDescription>
          </SheetHeader>
          {/* </div> */}
          <Link to={`/app/reviews/${review.id}`}>
             <img src={image} alt='Review Entity Image' className='h-56 w-56 object-cover py-2 md:h-96 md:w-96' />
          </Link>
-         <div className='w-full overflow-hidden px-2 md:px-4 lg:px-8'>
-            <div>
-               <h3 className='font-medium'>Information</h3>
-               <dl className='divide-secondary-content/50 mt-2 divide-y'>
+
+         <div className='grid place-items-center'>
+            <ListenOnSpotifyLogoTooltip entityId={entityId} entityType={entityType} />
+         </div>
+         {isEditable && (
+            <div className='m-auto flex items-center justify-center gap-4 p-1'>
+               <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
+                  <Button variant='outline'>
+                     <ArrowUpOnSquareIcon className='h-5 w-5' aria-hidden='true' />
+                     <span className='ml-1'>Share</span>
+                  </Button>
+               </ShareReview>
+               <EditReview reviewId={review.id} reviewName={review.reviewName} isPublic={review.isPublic}>
+                  <Button variant='outline'>
+                     <PencilSquareIcon className='h-5 w-5' aria-hidden='true' />
+                     <span className='ml-1'>Edit</span>
+                  </Button>
+               </EditReview>
+            </div>
+         )}
+         <Tabs defaultValue='info' className='my-2'>
+            <TabsList>
+               <TabsTrigger value='info'>Info</TabsTrigger>
+               <TabsTrigger value='share'>Sharing</TabsTrigger>
+            </TabsList>
+            <TabsContent value='info'>
+               <dl className='divide-primary-content/50 mt-2 divide-y px-4'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
                         <dt className={cn(textColorSecondary)}>{key}</dt>
@@ -125,36 +151,26 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                      </div>
                   ))}
                </dl>
-               <div className='grid place-items-center'>
-                  <ListenOnSpotifyLogoTooltip entityId={entityId} entityType={entityType} />
-               </div>
-            </div>
-
-            {collaborators.length > 0 && (
-               <div>
-                  <h3 className='font-medium'>Shared with</h3>
-                  <ul role='list' className='my-2 h-40 overflow-y-auto border-b border-t'>
+            </TabsContent>
+            <TabsContent value='share'>
+               {collaborators.length > 0 ? (
+                  <ScrollArea className='h-40'>
                      {collaborators.map(user => (
-                        <div className='p-2' key={user.user.id}>
+                        <div className='p-1' key={user.user.id}>
                            <UserWithAccessLevel reviewId={review.id} user={user} />
                         </div>
                      ))}
-                  </ul>
-               </div>
-            )}
-         </div>
+                  </ScrollArea>
+               ) : (
+                  <div className='grid h-40 place-items-center'>
+                     <div>Not Shared</div>
+                  </div>
+               )}
+            </TabsContent>
+         </Tabs>
 
          {isEditable && (
-            <div className='flex flex-col space-y-2'>
-               <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
-                  <Button>
-                     <span className='flex items-center justify-center rounded-full border-2 border-dashed'>
-                        <PlusIconMini className='h-5 w-5' aria-hidden='true' />
-                     </span>
-                     <span className='ml-4'>Share</span>
-                  </Button>
-               </ShareReview>
-
+            <div className='m-1 flex flex-col'>
                <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
             </div>
          )}

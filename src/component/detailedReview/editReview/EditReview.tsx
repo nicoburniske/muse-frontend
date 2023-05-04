@@ -32,6 +32,7 @@ export type EditReviewProps = {
    reviewId: string
    reviewName: string
    isPublic: boolean
+   children: React.ReactNode
 }
 
 const EditReviewSchema = z.object({
@@ -41,7 +42,7 @@ const EditReviewSchema = z.object({
 
 type EditReviewInputType = z.infer<typeof EditReviewSchema>
 
-export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) => {
+export const EditReview = ({ reviewId, reviewName, isPublic, children }: EditReviewProps) => {
    const defaultValues: EditReviewInputType = { reviewName, isPublic: isPublic ? 'public' : 'private' }
 
    const {
@@ -82,9 +83,7 @@ export const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) 
 
    return (
       <Dialog>
-         <DialogTrigger>
-            <Button variant='outline'>Edit</Button>
-         </DialogTrigger>
+         <DialogTrigger>{children}</DialogTrigger>
 
          <DialogContent>
             <DialogHeader>

@@ -2,7 +2,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { cn } from 'util/Utils'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { Button } from 'platform/component/Button'
 import {
@@ -44,7 +43,7 @@ export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonPr
          <DialogTrigger>
             <Button type='button' onClick={() => setIsModalOpen(true)} variant={'destructive'}>
                <TrashIcon className='h-5 w-5' aria-hidden='true' />
-               Delete Review
+               <span className='ml-1'>Delete Review</span>
             </Button>
          </DialogTrigger>
          <DialogContent>

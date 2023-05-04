@@ -1,8 +1,10 @@
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
+import { TooltipTrigger } from '@radix-ui/react-tooltip'
 import { ReviewDetailsFragment } from 'graphql/generated/schema'
 import { Badge } from 'platform/component/Badge'
 import { Button } from 'platform/component/Button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 'platform/component/Card'
+import { Tooltip, TooltipContent, TooltipProvider } from 'platform/component/Tooltip'
 import { useNavigate } from 'react-router'
 import { nonNullable, findFirstImage } from 'util/Utils'
 
@@ -24,7 +26,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
 
    return (
       <Card
-         className=' relative transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
+         className='relative transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
          onClick={linkToReviewPage}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
@@ -51,17 +53,24 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
             <CardDescription className='line-clamp-1'>{entityName}</CardDescription>
             <div className='flex w-full justify-between'>
                <Badge variant='outline'>{entityType}</Badge>
-               <Button
-                  variant='svg'
-                  size='empty'
-                  onClick={e => {
-                     onClick()
-                     e.stopPropagation()
-                  }}
-                  className='muse-review-card-details'
-               >
-                  <EllipsisVerticalIcon className='h-6 w-6' aria-hidden='true' />
-               </Button>
+               <TooltipProvider>
+                  <Tooltip>
+                     <TooltipTrigger>
+                        <Button
+                           variant='svg'
+                           size='empty'
+                           onClick={e => {
+                              onClick()
+                              e.stopPropagation()
+                           }}
+                           className='muse-review-card-details'
+                        >
+                           <EllipsisVerticalIcon className='h-6 w-6' aria-hidden='true' />
+                        </Button>
+                     </TooltipTrigger>
+                     <TooltipContent>More details</TooltipContent>
+                  </Tooltip>
+               </TooltipProvider>
             </div>
          </CardFooter>
       </Card>

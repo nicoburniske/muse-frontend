@@ -200,7 +200,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         reviewId={reviewId}
                         reviewName={title!}
                         isPublic={isPublic === undefined ? false : isPublic}
-                     />
+                     >
+                        <Button variant='outline'>Edit</Button>
+                     </EditReview>
 
                      <ShareReview reviewId={reviewId} collaborators={collaborators}>
                         <Button variant='outline' className='muse-share'>

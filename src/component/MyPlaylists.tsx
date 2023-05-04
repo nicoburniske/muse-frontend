@@ -1,7 +1,12 @@
-import { MyPlaylistsQuery, PlaylistDetailsFragment, useMyPlaylistsQuery } from 'graphql/generated/schema'
+import {
+   MyPlaylistsQuery,
+   PlaylistDetailsFragment,
+   useGetPlaylistQuery,
+   useMyPlaylistsQuery,
+} from 'graphql/generated/schema'
 import { useCallback, useEffect, useMemo } from 'react'
 import { OpenMobileMenuButton } from './container/OpenMobileMenuButton'
-import { ArrowPathIcon, Bars3BottomLeftIcon } from '@heroicons/react/20/solid'
+import { ArrowPathIcon, Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
 import { SearchInputKbdSuggestion } from 'platform/component/SearchInputKbdSuggestion'
 import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
 import { MuseTransition } from 'platform/component/MuseTransition'
@@ -132,15 +137,19 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
    const image = playlist.images.at(1) ?? playlist.images.at(0)
    const creatorName = playlist?.owner?.spotifyProfile?.displayName ?? playlist.owner.id
    const { setSelectedPlaylist } = useSelectPlaylist()
-   const onClick = () => setSelectedPlaylist(playlist.id)
+   const openDetails = () => setSelectedPlaylist(playlist.id)
 
    const nav = useNavigate()
+   const linkToPlaylist = () => nav(`/app/playlist/${playlist.id}`)
    const linkToProfile = () => nav(`/app/user/${playlist.owner.id}`)
 
    return (
-      <Card onClick={onClick}>
+      <Card
+         onClick={linkToPlaylist}
+         className='relative cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg '
+      >
          <CardHeader className='space-y-0 p-4 pb-0'>
-            <CardTitle className='line-clamp-1 text-base lg:text-lg'>{playlist.name}</CardTitle>
+            <CardTitle className='line-clamp-1 text-base'>{playlist.name}</CardTitle>
             <Button
                variant='link'
                size='sm'
@@ -154,7 +163,7 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
             </Button>
          </CardHeader>
 
-         <CardContent>
+         <CardContent className='p-2'>
             <div className='aspect-h-4 aspect-w-4'>
                {/* No image distortion and crop the image into center */}
                <img src={image} alt='ReviewImage' className='object-cover object-center' />
@@ -166,9 +175,9 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
 
 const selectedPlaylistOpenAtom = atom(false)
 const selectedPlaylistIdAtom = atom<string | undefined>(undefined)
-const openSelectedPlaylist = atom(null, (_get, set, reviewId: string) => {
+const openSelectedPlaylist = atom(null, (_get, set, playlistId: string) => {
    set(selectedPlaylistOpenAtom, true)
-   set(selectedPlaylistIdAtom, reviewId)
+   set(selectedPlaylistIdAtom, playlistId)
 })
 const closeSelectedPlaylistAtom = atom(null, (_get, set) => {
    set(selectedPlaylistOpenAtom, false)
@@ -199,10 +208,19 @@ const useSelectedPlaylist = () => {
          staleTime: Infinity,
       }
    )
-   return data
+
+   const { data: allData } = useGetPlaylistQuery(
+      { id: playlistId! },
+      {
+         enabled: !!playlistId,
+         staleTime: Infinity,
+      }
+   )
+
+   return data ?? allData?.getPlaylist
 }
 
-const SelectedPlaylist = () => {
+export const SelectedPlaylist = () => {
    const { closeSelectedPlaylist } = useSelectPlaylist()
    // Close review details after going to new page.
    useEffect(() => () => closeSelectedPlaylist(), [closeSelectedPlaylist])
@@ -252,6 +270,11 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
          </SheetHeader>
          <div className='flex w-56 flex-col items-center lg:w-96 '>
             <img src={image} alt='Playlist Image' className='m-auto object-cover py-2' />
+
+            <div className='grid place-items-center'>
+               <ListenOnSpotifyLogoTooltip entityId={playlist.id} entityType={'Playlist'} />
+            </div>
+
             <div className='flex w-full flex-1 flex-col items-center justify-between'>
                <div className='flex w-full flex-col items-center space-y-6 overflow-hidden px-2 md:px-4 lg:px-8'>
                   <h3 className='self-start font-medium'>Information</h3>
@@ -263,13 +286,11 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
                         </div>
                      ))}
                   </dl>
-                  <Button type='button' onClick={open}>
-                     Create Review
-                  </Button>
                </div>
-               <div className='grid place-items-center'>
-                  <ListenOnSpotifyLogoTooltip entityId={playlist.id} entityType={'Playlist'} />
-               </div>
+
+               <Button type='button' onClick={open} className='mt-6'>
+                  Create Review
+               </Button>
             </div>
          </div>
       </SheetContent>
