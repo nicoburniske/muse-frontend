@@ -26,10 +26,11 @@ const useAccessTokenQuery = () => {
          return status !== undefined && status !== 401
       },
       onError: error => {
-         if (axios.isAxiosError(error) && error.response?.status === 401) {
-            queryClient.clear()
-            login()
-         }
+         // if (axios.isAxiosError(error) && error.response?.status === 401) {
+         console.error('Access token query error', error)
+         queryClient.clear()
+         login()
+         // }
       },
    })
 }
