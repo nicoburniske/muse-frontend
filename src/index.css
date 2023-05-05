@@ -14,7 +14,7 @@
 }
 
 .muse-scrollbar {
-   @apply scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground scrollbar-thumb-rounded-lg;
+   @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground scrollbar-thumb-rounded-lg;
 }
 
 :root .countdown {
