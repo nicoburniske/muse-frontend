@@ -365,7 +365,7 @@ const TransferPlaybackButton = () => {
             <TooltipTrigger asChild>
                <Button
                   size='empty'
-                  className={cn('muse-power-on-button p-2', needsReconnect ? 'animate-pulse' : '')}
+                  className={cn('muse-power-on-button', commonBtnClass, needsReconnect ? 'animate-pulse' : '')}
                   disabled={disabled}
                   onClick={() => mutate()}
                >
@@ -391,7 +391,7 @@ const PlayOrTransferButton = () => {
       <Button
          variant='svg'
          size='empty'
-         className={cn('muse-play-button')}
+         className={cn('muse-play-button', commonBtnClass)}
          onClick={togglePlay}
          disabled={togglePlayDisabled}
       >
