@@ -1,12 +1,12 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { useSetAtom } from 'jotai'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 
 import { useIsPlayerReady, useLatestPlaybackState, useResetSpotifySdk } from '@/component/sdk/PlaybackSDK'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import { Button } from '@/lib/component/Button'
-import { Progress } from '@/lib/component/Progress'
+import { Skeleton } from '@/lib/component/Skeleton'
 import { nowPlayingTrackAtom } from '@/state/NowPlayingAtom'
 import { nonNullable } from '@/util/Utils'
 
@@ -18,13 +18,7 @@ export const SpotifyPlayerWrapper = () => {
 
    return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-         {ready ? (
-            <SpotifyPlayerSync />
-         ) : (
-            <div className='w-full bg-card p-5'>
-               <IndeterminateProgress />
-            </div>
-         )}
+         {ready ? <SpotifyPlayerSync /> : <IndeterminateProgress />}
       </ErrorBoundary>
    )
 }
@@ -52,28 +46,42 @@ const ErrorFallback = (props: FallbackProps) => {
 }
 
 const IndeterminateProgress = () => {
-   const [progress, setProgress] = useState(0)
-   useEffect(() => {
-      const execute = () =>
-         setProgress(p => {
-            if (p >= 100) return 0
-            else return p + 5
-         })
-      const interval = setInterval(execute, 100)
-      return () => clearInterval(interval)
-   }, [setProgress])
+   return (
+      <div className='flex items-center justify-between gap-10 px-4 py-2'>
+         <div className='flex items-center space-x-4 '>
+            <Skeleton className='h-12 w-12 rounded-md' />
+            <div className='w-48 space-y-2'>
+               <Skeleton className='h-4 w-full' />
+               <Skeleton className='h-4 w-3/4' />
+            </div>
+         </div>
+         <div className='flex	w-80 max-w-2xl flex-1 flex-col items-center justify-center gap-4 justify-self-center'>
+            <div className='flex w-full justify-evenly gap-1'>
+               {Array(9)
+                  .fill(0)
+                  .map((_, i) => (
+                     <Skeleton key={i} className='h-8 w-8 rounded-md' />
+                  ))}
+            </div>
+            <Skeleton className='h-3 w-full' />
+         </div>
 
-   return <Progress value={progress} />
+         <div className='hidden h-4 w-48 items-center gap-4 md:flex'>
+            <Skeleton className='h-8 w-8 rounded-md' />
+            <Skeleton className='h-4 flex-1' />
+         </div>
+      </div>
+   )
 }
 
 const SpotifyPlayerSync = () => {
-   useSyncNowPlayingLiked()
+   useSyncNowPlaying()
    useTransferPlaybackOnMount()
 
    return <SpotifyPlayerFallback />
 }
 
-const useSyncNowPlayingLiked = () => {
+const useSyncNowPlaying = () => {
    const playbackState = useLatestPlaybackState()
    const nowPlaying = playbackState?.track_window?.current_track?.id
    const setNowPlaying = useSetAtom(nowPlayingTrackAtom)

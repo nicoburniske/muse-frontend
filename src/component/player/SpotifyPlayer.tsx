@@ -148,7 +148,7 @@ const NowPlayingMenu = () => {
    )
 }
 
-const commonBtnClass = ''
+const commonBtnClass = 'h-10 px-3'
 
 const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-primary text-primary' : '', iconClass)
 
@@ -314,11 +314,17 @@ const PlayerButtons = () => {
          >
             <ChevronRightIcon className={iconClass} />
          </Button>
-         <Button variant='svg' size='empty' onClick={nextTrack} disabled={nextTrackDisabled}>
+         <Button
+            variant='svg'
+            size='empty'
+            className={cn(commonBtnClass)}
+            onClick={nextTrack}
+            disabled={nextTrackDisabled}
+         >
             <ForwardIcon className={iconClass} />
          </Button>
          <Toggle
-            className={cn('hidden sm:inline-flex')}
+            className={cn('hidden sm:inline-flex', commonBtnClass)}
             onPressedChange={toggleShuffle}
             pressed={isShuffled}
             disabled={toggleShuffleDisabled}
@@ -326,7 +332,7 @@ const PlayerButtons = () => {
             <ArrowsUpDownIcon className={iconClass} />
          </Toggle>
          <Toggle
-            className={cn('hidden sm:inline-flex')}
+            className={cn('hidden sm:inline-flex', commonBtnClass)}
             onPressedChange={cycleRepeatMode}
             pressed={repeatMode !== 0}
             disabled={repeatModeDisabled}
