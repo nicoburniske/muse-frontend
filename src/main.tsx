@@ -1,10 +1,8 @@
 import './index.css'
 
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { createClient as createWSClient } from 'graphql-ws'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { MuseToaster } from 'MuseToaster'
-import { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ReactDOM from 'react-dom/client'
@@ -13,7 +11,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { createClient, Provider, subscriptionExchange } from 'urql'
 
 import { SpotifyPlaybackSdk } from '@/component/sdk/PlaybackSDK'
-import { useThemeValue } from '@/state/UserPreferences'
+import { Theme, useThemeValueEffect } from '@/state/UserPreferences'
 import { AppConfig } from '@/util/AppConfig'
 
 import MuseRoutes from './MuseRoutes'
@@ -36,12 +34,9 @@ const urqlClient = createClient({
    ],
 })
 
+const setDocumentTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme)
 const Main = () => {
-   const theme = useThemeValue()
-
-   useEffect(() => {
-      document.documentElement.setAttribute('data-theme', theme)
-   }, [theme])
+   useThemeValueEffect(setDocumentTheme)
 
    return (
       <BrowserRouter>

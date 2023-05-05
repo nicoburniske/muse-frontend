@@ -1,6 +1,7 @@
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { focusAtom } from 'jotai-optics'
+import { useEffect } from 'react'
 
 export interface UserPreferences {
    theme: Theme
@@ -26,6 +27,19 @@ const isDarkThemeAtom = atom(get => isDark(get(themeAtom)))
 export const useTheme = () => useAtom(themeAtom)
 export const useThemeValue = () => useAtomValue(themeAtom)
 export const useSetTheme = () => useSetAtom(themeAtom)
+export const useThemeValueEffect = (effect: (theme: Theme) => void) => {
+   const store = useStore()
+   useEffect(() => {
+      const execute = () => {
+         const currentTheme = store.get(themeAtom)
+         const nextTheme = Themes.includes(currentTheme) ? currentTheme : 'dark'
+         effect(nextTheme)
+      }
+      execute()
+      const sub = store.sub(themeAtom, execute)
+      return sub
+   }, [store, effect])
+}
 export const useIsDarkTheme = () => useAtomValue(isDarkThemeAtom)
 
 export const transferPlaybackOnMountAtom = focusAtom(userPreferencesAtom, optic =>
