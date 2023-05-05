@@ -162,17 +162,12 @@ const LikeNowPlaying = () => {
             trackId={getNowPlayingId()!}
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
-            className={cn(
-               commonBtnClass
-               // We want the same padding as btn but no border/background.
-               // 'border-0 bg-transparent hover:bg-transparent',
-               // 'transition-all duration-500 hover:scale-125'
-            )}
+            className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
          />
       )
    } else {
       return (
-         <Button variant='svg' size='empty' disabled>
+         <Button variant='svg' size='empty' disabled className={cn(commonBtnClass)}>
             <HeartIcon className='h-6 w-6' />
          </Button>
       )
@@ -348,7 +343,8 @@ const TransferPlaybackButton = () => {
       transfer: { mutate, isLoading },
       needsReconnect,
    } = useTransferPlayback({
-      onError: () => toast.error('Failed to transfer playback'),
+      onError: () =>
+         toast.error('Failed to transfer playback. Try playing a song and try again. Make sure you have Spotify open.'),
    })
 
    // Buffer time for playback sdk to be setup.
