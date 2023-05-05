@@ -1,11 +1,3 @@
-import { atom, useAtom, useAtomValue } from 'jotai'
-import { SelectedReview, useSelectReview } from '../../component/SelectedReview'
-import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
-import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
-import toast from 'react-hot-toast'
-import { MuseTransition } from 'lib/component/MuseTransition'
-import { BrowseCard } from 'pages/myReviews/BrowseCard'
 import {
    Bars3BottomLeftIcon,
    ChevronRightIcon,
@@ -13,14 +5,24 @@ import {
    MusicalNoteIcon,
    QuestionMarkCircleIcon,
 } from '@heroicons/react/20/solid'
-import { cn } from 'util/Utils'
-import { useViewHistory } from 'state/ViewHistory'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { SearchInputKbdSuggestion } from 'lib/component/SearchInputKbdSuggestion'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+
+import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
+import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { MuseTransition } from '@/lib/component/MuseTransition'
+import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
+import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
+import { BrowseCard } from '@/pages/myReviews/BrowseCard'
+import { searchLoweredAtom, useSearchAtom } from '@/state/Atoms'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { useViewHistory } from '@/state/ViewHistory'
+import { cn } from '@/util/Utils'
+
 import { useOpenReviewsTour, useOpenReviewsTourFirstTime } from './ReviewsTour'
-import { Button } from 'lib/component/Button'
-import { Tabs, TabsList, TabsTrigger } from 'lib/component/Tabs'
 
 const viewToggleAtom = atom(false)
 

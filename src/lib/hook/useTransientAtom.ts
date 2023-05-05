@@ -1,6 +1,6 @@
-import { useCallback, useEffect } from 'react'
 import { useStore } from 'jotai/react'
 import type { Atom, WritableAtom } from 'jotai/vanilla'
+import { useCallback, useEffect } from 'react'
 
 type GetAtom<Value> = () => Value
 type SetAtom<Args extends unknown[], Result> = (...args: Args) => Result

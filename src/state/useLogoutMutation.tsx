@@ -1,8 +1,9 @@
-import { UseMutationOptions, useMutation, useQueryClient } from '@tanstack/react-query'
-import { AppConfig } from 'util/AppConfig'
+import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { useDisconnectPlayer } from 'component/sdk/PlaybackSDK'
+
+import { useDisconnectPlayer } from '@/component/sdk/PlaybackSDK'
+import { AppConfig } from '@/util/AppConfig'
 
 export default function useLogoutMutation(options?: UseMutationOptions<unknown, unknown, undefined, unknown>) {
    const nav = useNavigate()

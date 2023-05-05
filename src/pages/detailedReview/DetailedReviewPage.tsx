@@ -1,12 +1,13 @@
-import { useParams } from 'react-router-dom'
-import { DetailedReview } from 'pages/detailedReview/DetailedReview'
-import { Alert, AlertTitle, AlertDescription } from 'lib/component/Alert'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import Hero from 'lib/component/Hero'
-import { HeroLoading } from 'lib/component/HeroLoading'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-import { NotFound } from 'pages/NotFound'
+import { useParams } from 'react-router-dom'
+
+import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
+import Hero from '@/lib/component/Hero'
+import { HeroLoading } from '@/lib/component/HeroLoading'
+import { DetailedReview } from '@/pages/detailedReview/DetailedReview'
+import { NotFound } from '@/pages/NotFound'
 
 export default function DetailedReviewPage() {
    const { reviewId } = useParams()

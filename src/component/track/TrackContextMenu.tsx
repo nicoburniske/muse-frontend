@@ -1,14 +1,15 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from 'component/sdk/ClientHooks'
-import { GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
 import { QueueListIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { useQueryClient } from '@tanstack/react-query'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import toast from 'react-hot-toast'
-import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
-import { ContextMenuContent, ContextMenuItem } from 'lib/component/ContextMenu'
-import { cn } from 'util/Utils'
 import { useCallback } from 'react'
-import { useCurrentUserId } from 'state/CurrentUser'
+import toast from 'react-hot-toast'
+
+import { getLink, useSpotifyIcon } from '@/component/ListenOnSpotify'
+import { useAddTrackToQueue, useRemoveTracksFromPlaylistMutation } from '@/component/sdk/ClientHooks'
+import { GetPlaylistQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
+import { ContextMenuContent, ContextMenuItem } from '@/lib/component/ContextMenu'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { cn } from '@/util/Utils'
 
 type ContextMenuProps = {
    trackId: string

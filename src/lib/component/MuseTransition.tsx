@@ -1,6 +1,7 @@
 import { Transition } from '@headlessui/react'
 import { JSXElementConstructor } from 'react'
-import { cn } from 'util/Utils'
+
+import { cn } from '@/util/Utils'
 
 type MuseTransitionProps = {
    children: React.ReactNode

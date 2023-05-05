@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai'
-import { validPlaybackStateAtom, needsReconnectAtom } from './PlaybackSDK'
 import { useCallback } from 'react'
+
+import { needsReconnectAtom, validPlaybackStateAtom } from './PlaybackSDK'
 
 export type PlayerState = {
    timestamp: number

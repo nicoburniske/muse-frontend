@@ -1,10 +1,11 @@
-import { TrackRow } from 'component/trackTable/Helpers'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ContextMenu, ContextMenuTrigger } from 'lib/component/ContextMenu'
-import { useKeepMountedRangeExtractorSorted, useSmoothScroll } from 'component/trackTable/TableHooks'
-import { TrackContextMenuContent } from 'component/track/TrackContextMenu'
-import { EitherTrackMemo } from 'component/track/EitherTrack'
 import { useRef } from 'react'
+
+import { EitherTrackMemo } from '@/component/track/EitherTrack'
+import { TrackContextMenuContent } from '@/component/track/TrackContextMenu'
+import { TrackRow } from '@/component/trackTable/Helpers'
+import { useKeepMountedRangeExtractorSorted, useSmoothScroll } from '@/component/trackTable/TableHooks'
+import { ContextMenu, ContextMenuTrigger } from '@/lib/component/ContextMenu'
 
 export const TrackTable = ({ tracks }: { tracks: TrackRow[] }) => {
    const parentRef = useRef<HTMLDivElement>(null)

@@ -1,8 +1,10 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useCurrentUserDisplayName, useCurrentUserImage } from 'state/CurrentUser'
-import { UserAvatar } from 'component/UserAvatar'
+
+import { UserAvatar } from '@/component/UserAvatar'
+import { Dialog, DialogContent } from '@/lib/component/Dialog'
+import { useCurrentUserDisplayName, useCurrentUserImage } from '@/state/CurrentUser'
+
 import { CommentForm } from './CommentForm'
-import { DialogContent, Dialog } from 'lib/component/Dialog'
 
 interface CommentModalData {
    trackId: string

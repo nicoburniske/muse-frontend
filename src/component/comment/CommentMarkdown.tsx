@@ -1,6 +1,7 @@
 import Markdown from 'markdown-to-jsx'
-import { createStamp } from './PlayAtTimestamp'
 import { useMemo } from 'react'
+
+import { createStamp } from './PlayAtTimestamp'
 
 interface CommentMarkdownProps {
    comment: string

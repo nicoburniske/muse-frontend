@@ -1,48 +1,50 @@
-import LikeButton from 'component/LikeButton'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { cn, msToTime } from 'util/Utils'
-import * as Slider from '@radix-ui/react-slider'
-import { Slider as LibSlider } from 'lib/component/Slider'
-import {
-   useCurrentTrack,
-   useVolume,
-   useExistsPlaybackState,
-   useCurrentPosition,
-   useResetSpotifySdk,
-} from 'component/sdk/PlaybackSDK'
-import { useTransferPlayback } from './TransferPlayback'
-import { useTransientAtom } from 'lib/hook/useTransientAtom'
-import { MuseTransition } from 'lib/component/MuseTransition'
-import { useCurrentReview } from 'state/CurrentReviewAtom'
-import { useDrag } from 'react-dnd'
-import { usePlayerActions } from 'component/sdk/usePlayerActions'
-import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 import {
    ArrowPathIcon,
+   ArrowPathRoundedSquareIcon,
+   ArrowsUpDownIcon,
    BackwardIcon,
    ChevronLeftIcon,
    ChevronRightIcon,
    EllipsisVerticalIcon,
    ForwardIcon,
+   HeartIcon,
+   MagnifyingGlassIcon,
    PauseIcon,
    PlayIcon,
-   HeartIcon,
    PowerIcon,
-   ArrowsUpDownIcon,
-   MagnifyingGlassIcon,
-   ArrowPathRoundedSquareIcon,
    SpeakerWaveIcon,
    SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
-import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
-import { usePlayerState } from 'component/sdk/usePlayerState'
-import { Button } from 'lib/component/Button'
-import { Toggle } from 'lib/component/Toggle'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from 'lib/component/DropdownMenu'
+import * as Slider from '@radix-ui/react-slider'
+import LikeButton from 'component/LikeButton'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { useEffect, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import toast from 'react-hot-toast'
+
+import { getLink, useSpotifyIcon } from '@/component/ListenOnSpotify'
+import {
+   useCurrentPosition,
+   useCurrentTrack,
+   useExistsPlaybackState,
+   useResetSpotifySdk,
+   useVolume,
+} from '@/component/sdk/PlaybackSDK'
+import { usePlayerActions } from '@/component/sdk/usePlayerActions'
+import { usePlayerState } from '@/component/sdk/usePlayerState'
+import { Button } from '@/lib/component/Button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/lib/component/DropdownMenu'
+import { MuseTransition } from '@/lib/component/MuseTransition'
+import { Slider as LibSlider } from '@/lib/component/Slider'
+import { Toggle } from '@/lib/component/Toggle'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { useTransientAtom } from '@/lib/hook/useTransientAtom'
+import { useCurrentReview } from '@/state/CurrentReviewAtom'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from '@/state/NowPlayingAtom'
+import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
+import { cn, msToTime } from '@/util/Utils'
+
+import { useTransferPlayback } from './TransferPlayback'
 
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()

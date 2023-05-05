@@ -1,16 +1,17 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-import { UserAvatar } from 'component/UserAvatar'
-import { BrowseCard } from 'pages/myReviews/BrowseCard'
-import { SelectedReview, useSelectReview } from 'component/SelectedReview'
-import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from 'graphql/generated/schema'
-import { NotFound } from 'pages/NotFound'
-import { Alert, AlertTitle } from 'lib/component/Alert'
-import Hero from 'lib/component/Hero'
-import { HeroLoading } from 'lib/component/HeroLoading'
-import { MuseTransition } from 'lib/component/MuseTransition'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useParams } from 'react-router-dom'
+
+import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
+import { UserAvatar } from '@/component/UserAvatar'
+import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
+import { Alert, AlertTitle } from '@/lib/component/Alert'
+import Hero from '@/lib/component/Hero'
+import { HeroLoading } from '@/lib/component/HeroLoading'
+import { MuseTransition } from '@/lib/component/MuseTransition'
+import { BrowseCard } from '@/pages/myReviews/BrowseCard'
+import { NotFound } from '@/pages/NotFound'
 
 export function ProfilePage() {
    const { userId } = useParams()

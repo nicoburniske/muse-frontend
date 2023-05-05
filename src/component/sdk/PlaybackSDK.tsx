@@ -1,9 +1,10 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import atomValueOrThrow from 'lib/atom/atomValueOrThrow'
-import { useTransientAtom } from 'lib/hook/useTransientAtom'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { nonNullable } from 'util/Utils'
+
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
+import { useTransientAtom } from '@/lib/hook/useTransientAtom'
+import { nonNullable } from '@/util/Utils'
 
 type SpotifyErrorHandler = {
    initializationError: (error: Spotify.Error) => void

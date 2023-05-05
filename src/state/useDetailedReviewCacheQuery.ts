@@ -1,13 +1,14 @@
-import { UseQueryOptions, UseQueryResult, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import { useCallback } from 'react'
+
 import {
    DetailedReviewQuery,
    ProfileAndReviewsQuery,
    useDetailedReviewQuery,
    useProfileAndReviewsQuery,
-} from 'graphql/generated/schema'
-import { useCallback } from 'react'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { userDisplayNameOrId } from 'util/Utils'
+} from '@/graphql/generated/schema'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { userDisplayNameOrId } from '@/util/Utils'
 
 // We need to seperate select so that can update cache after a response comes through.
 export const useDetailedReviewCacheQuery = <T>(

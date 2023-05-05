@@ -1,11 +1,12 @@
 import clsx, { ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 import {
    EntityType,
    ReviewDetailsFragment,
    ReviewEntityOverviewFragment,
    UserWithSpotifyOverviewFragment,
-} from 'graphql/generated/schema'
-import { twMerge } from 'tailwind-merge'
+} from '@/graphql/generated/schema'
 
 export const EntityTypeValues: readonly EntityType[] = ['Track', 'Album', 'Artist', 'Playlist'] as const
 

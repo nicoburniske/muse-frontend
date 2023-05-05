@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import { atom, useSetAtom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithReset, useResetAtom } from 'jotai/utils'
-import { Button } from 'lib/component/Button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from 'lib/component/Dialog'
 import { useCallback } from 'react'
 import { toast } from 'react-hot-toast'
+
+import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/lib/component/Dialog'
 
 type DeleteModalValues = {
    reviewId: string

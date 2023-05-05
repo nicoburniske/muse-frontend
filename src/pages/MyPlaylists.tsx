@@ -1,25 +1,26 @@
+import { ArrowPathIcon, Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import {
    MyPlaylistsQuery,
    PlaylistDetailsFragment,
    useGetPlaylistQuery,
    useMyPlaylistsQuery,
-} from 'graphql/generated/schema'
-import { useCallback, useEffect, useMemo } from 'react'
-import { OpenMobileMenuButton } from '../component/container/OpenMobileMenuButton'
-import { ArrowPathIcon, Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
-import { SearchInputKbdSuggestion } from 'lib/component/SearchInputKbdSuggestion'
-import { searchLoweredAtom, useSearchAtom } from 'state/Atoms'
-import { MuseTransition } from 'lib/component/MuseTransition'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { cn, nonNullable, userDisplayNameOrId } from 'util/Utils'
-import { useCurrentUserDisplayName, useCurrentUserId } from 'state/CurrentUser'
-import { CreateReviewModal, useCreateReviewModal } from '../component/createReview/CreateReviewModal'
-import { ListenOnSpotifyLogoTooltip } from '../component/ListenOnSpotify'
-import { Button } from 'lib/component/Button'
-import { Tabs, TabsList, TabsTrigger } from 'lib/component/Tabs'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from 'lib/component/Sheet'
-import { Card, CardContent, CardHeader, CardTitle } from 'lib/component/Card'
-import { useNavigate } from 'react-router-dom'
+} from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/lib/component/Card'
+import { MuseTransition } from '@/lib/component/MuseTransition'
+import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/lib/component/Sheet'
+import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
+import { searchLoweredAtom, useSearchAtom } from '@/state/Atoms'
+import { useCurrentUserDisplayName, useCurrentUserId } from '@/state/CurrentUser'
+import { cn, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 export const MyPlaylistsPage = () => {
    const data = useMyPlaylists()

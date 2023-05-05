@@ -1,9 +1,11 @@
-import { NAVIGATION, NavItem } from './NavConstants'
-import { cn } from 'util/Utils'
-import LogoImage from '/logo.png'
-import { ProfileDropdownSuspense } from './ProfileDropdown'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
+
+import LogoImage from '/logo.png'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { cn } from '@/util/Utils'
+
+import { NAVIGATION, NavItem } from './NavConstants'
+import { ProfileDropdownSuspense } from './ProfileDropdown'
 
 export const SideNavBar = () => {
    const nav = useNavigate()

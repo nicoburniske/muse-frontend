@@ -1,18 +1,19 @@
-import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
-import useLogoutMutation from 'state/useLogoutMutation'
+import { ArrowRightOnRectangleIcon, CogIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Suspense, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import { UserAvatar } from 'component/UserAvatar'
+import { useNavigate } from 'react-router-dom'
+
+import { usePreferencesModal } from '@/component/preferences/UserPreferencesForm'
+import { UserAvatar } from '@/component/UserAvatar'
 import {
    DropdownMenu,
    DropdownMenuContent,
-   DropdownMenuTrigger,
    DropdownMenuItem,
    DropdownMenuSeparator,
-} from 'lib/component/DropdownMenu'
-import { ArrowRightOnRectangleIcon, CogIcon, UserIcon } from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
-import { useCurrentUserDisplayName, useCurrentUserId, useCurrentUserImage } from 'state/CurrentUser'
+   DropdownMenuTrigger,
+} from '@/lib/component/DropdownMenu'
+import { useCurrentUserDisplayName, useCurrentUserId, useCurrentUserImage } from '@/state/CurrentUser'
+import useLogoutMutation from '@/state/useLogoutMutation'
 
 type ProfileDropdownProps = {
    onModalOpen?: () => void

@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
-import { AppConfig } from 'util/AppConfig'
-import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { Link } from 'react-router-dom'
-import { cn } from 'util/Utils'
-import { useSpotifyLogo } from 'component/ListenOnSpotify'
-import { Button } from 'lib/component/Button'
+
+import { useSpotifyLogo } from '@/component/ListenOnSpotify'
+import { CurrentUserQuery, useCurrentUserQuery } from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { AppConfig } from '@/util/AppConfig'
+import { cn } from '@/util/Utils'
 
 type NavigationItem = {
    name: string

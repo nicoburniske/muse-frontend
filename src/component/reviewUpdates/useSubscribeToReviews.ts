@@ -1,13 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect } from 'react'
+import toast from 'react-hot-toast'
+
 import {
    DetailedReviewCommentsQuery,
    ReviewUpdatesSubscription,
    useDetailedReviewCommentsQuery,
-} from 'graphql/generated/schema'
-import { useReviewUpdatesSubscription } from 'graphql/generated/urqlSchema'
-import { useCallback, useEffect } from 'react'
-import toast from 'react-hot-toast'
-import { useCurrentUserId } from 'state/CurrentUser'
+} from '@/graphql/generated/schema'
+import { useReviewUpdatesSubscription } from '@/graphql/generated/urqlSchema'
+import { useCurrentUserId } from '@/state/CurrentUser'
+
 import { newCommentToast } from './NewCommentToast'
 
 export const useSubscribeToReviews = (reviewIds: string[]) => {

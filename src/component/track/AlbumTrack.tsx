@@ -1,15 +1,17 @@
-import { DetailedTrackFragment } from 'graphql/generated/schema'
-import { RefObject, useCallback, useRef } from 'react'
-import useDoubleClick from 'lib/hook/useDoubleClick'
-import LikeButton from 'component/LikeButton'
-import { usePlayMutation } from 'component/sdk/ClientHooks'
-import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { cn, msToTimeStr } from 'util/Utils'
 import { FireIcon } from '@heroicons/react/20/solid'
-import { CommentAndOptions } from './CommentAndOptions'
+import LikeButton from 'component/LikeButton'
+import { RefObject, useCallback, useRef } from 'react'
 import { useDrag } from 'react-dnd'
-import { useSimulateRightClick } from './useSimulateRightClick'
+
+import { usePlayMutation } from '@/component/sdk/ClientHooks'
+import { DetailedTrackFragment } from '@/graphql/generated/schema'
+import useDoubleClick from '@/lib/hook/useDoubleClick'
+import { cn, msToTimeStr } from '@/util/Utils'
+
+import { CommentAndOptions } from './CommentAndOptions'
 import { useSetTrackContextMenu } from './TrackContextMenu'
+import { useSimulateRightClick } from './useSimulateRightClick'
+import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 
 export interface AlbumTrackProps {
    track: DetailedTrackFragment

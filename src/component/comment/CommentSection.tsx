@@ -1,15 +1,17 @@
+import { useQueries } from '@tanstack/react-query'
+import { useMemo, useRef } from 'react'
+import { useDndScrolling } from 'react-dnd-scrolling'
+
+import { ReviewOverview } from '@/component/trackTable/Helpers'
 import {
    DetailedCommentFragment,
    DetailedReviewCommentsQuery,
    useDetailedReviewCommentsQuery,
-} from 'graphql/generated/schema'
-import { useMemo, useRef } from 'react'
-import { groupBy, nonNullable } from 'util/Utils'
-import { useQueries } from '@tanstack/react-query'
-import { useDndScrolling } from 'react-dnd-scrolling'
-import { ReviewOverview } from '../trackTable/Helpers'
-import DetailedComment from './DetailedComment'
+} from '@/graphql/generated/schema'
+import { groupBy, nonNullable } from '@/util/Utils'
+
 import { DeleteCommentConfirmation } from './DeleteCommentConfirmation'
+import DetailedComment from './DetailedComment'
 
 const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
 

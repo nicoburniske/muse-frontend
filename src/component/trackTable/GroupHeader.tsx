@@ -1,22 +1,24 @@
+import { ArrowTopRightOnSquareIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useQueryClient } from '@tanstack/react-query'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { Fragment, useMemo, useState } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router'
+
 import {
    useDeleteReviewLinkMutation,
    useDetailedReviewQuery,
    useUpdateReviewLinkMutation,
-} from 'graphql/generated/schema'
-import { Fragment, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router'
+} from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/lib/component/Dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/lib/component/DropdownMenu'
+import { cn } from '@/util/Utils'
+
 import { HeaderData, ReviewOverview } from './Helpers'
-import { useDrag, useDrop } from 'react-dnd'
 import { reviewOrderAtom, swapReviewsAtom } from './TableAtoms'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { cn } from 'util/Utils'
-import { Button } from 'lib/component/Button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'lib/component/DropdownMenu'
-import { ArrowTopRightOnSquareIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from 'lib/component/Dialog'
-import { Badge } from 'lib/component/Badge'
 
 /**
  * REVIEW HEADER

@@ -1,9 +1,10 @@
 import { Transition } from '@headlessui/react'
-import { CheckCircleIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid'
-import { Button } from 'lib/component/Button'
+import { CheckCircleIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { Fragment } from 'react'
-import { Toaster, toast as hotToast, resolveValue } from 'react-hot-toast'
-import { cn } from 'util/Utils'
+import { resolveValue, toast as hotToast, Toaster } from 'react-hot-toast'
+
+import { Button } from '@/lib/component/Button'
+import { cn } from '@/util/Utils'
 
 export function MuseToaster() {
    return (

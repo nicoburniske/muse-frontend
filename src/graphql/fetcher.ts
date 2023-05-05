@@ -1,4 +1,4 @@
-import { AppConfig } from 'util/AppConfig'
+import { AppConfig } from '@/util/AppConfig'
 
 export function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
    return async (): Promise<TData> => {

@@ -1,4 +1,4 @@
-import { Getter, atom, useAtomValue } from 'jotai'
+import { atom, Getter, useAtomValue } from 'jotai'
 import { DependencyList, useMemo } from 'react'
 
 export const useDerivedAtomValue = <T>(func: (getter: Getter) => T, deps?: DependencyList): T => {

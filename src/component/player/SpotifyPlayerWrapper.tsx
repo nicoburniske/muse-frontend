@@ -1,15 +1,17 @@
-import { useIsPlayerReady, useLatestPlaybackState, useResetSpotifySdk } from 'component/sdk/PlaybackSDK'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { useSetAtom } from 'jotai'
 import { useEffect, useState } from 'react'
-import { nonNullable } from 'util/Utils'
-import { SpotifyPlayerFallback } from './SpotifyPlayer'
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
-import { Alert, AlertTitle, AlertDescription } from 'lib/component/Alert'
-import { nowPlayingTrackAtom } from 'state/NowPlayingAtom'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-import { Progress } from 'lib/component/Progress'
+
+import { useIsPlayerReady, useLatestPlaybackState, useResetSpotifySdk } from '@/component/sdk/PlaybackSDK'
+import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
+import { Button } from '@/lib/component/Button'
+import { Progress } from '@/lib/component/Progress'
+import { nowPlayingTrackAtom } from '@/state/NowPlayingAtom'
+import { nonNullable } from '@/util/Utils'
+
+import { SpotifyPlayerFallback } from './SpotifyPlayer'
 import { useTransferPlaybackOnMount } from './TransferPlayback'
-import { Button } from 'lib/component/Button'
 
 export const SpotifyPlayerWrapper = () => {
    const ready = useIsPlayerReady()

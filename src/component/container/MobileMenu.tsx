@@ -1,12 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { atom, useAtom } from 'jotai'
 import { Fragment } from 'react'
-import { cn } from 'util/Utils'
-import { NAVIGATION, NavItem } from './NavConstants'
-import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useLocation } from 'react-router-dom'
+
+import { useThemeValue } from '@/state/UserPreferences'
+import { cn } from '@/util/Utils'
+
+import { NAVIGATION, NavItem } from './NavConstants'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
-import { useThemeValue } from 'state/UserPreferences'
 
 export const mobileMenuOpenAtom = atom(false)
 

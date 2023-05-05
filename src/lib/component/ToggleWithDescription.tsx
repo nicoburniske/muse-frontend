@@ -1,8 +1,10 @@
-import { cn } from 'util/Utils'
+import { InformationCircleIcon } from '@heroicons/react/24/outline'
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { cn } from '@/util/Utils'
+
 import { Label } from './Label'
 import { Switch } from './Switch'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
-import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
 export type ToggleProps = {
    id: string

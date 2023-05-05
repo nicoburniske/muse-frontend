@@ -1,9 +1,11 @@
 import { ChatBubbleLeftIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline'
-import { useCommentModalTrack } from './useCommentModalTrack'
-import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
-import { Button } from 'lib/component/Button'
-import { useSetTrackContextMenu } from './TrackContextMenu'
 import { RefObject, useRef } from 'react'
+
+import { Button } from '@/lib/component/Button'
+import { useIsCurrentUserCollaborator } from '@/state/useDetailedReviewCacheQuery'
+
+import { useSetTrackContextMenu } from './TrackContextMenu'
+import { useCommentModalTrack } from './useCommentModalTrack'
 
 type CommentAndOptionsProps = {
    onMenuClick: (ref: RefObject<Element>) => void

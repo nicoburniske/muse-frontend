@@ -1,4 +1,4 @@
-import { atom, Atom, PrimitiveAtom } from 'jotai'
+import { Atom, atom, PrimitiveAtom } from 'jotai'
 
 const atomDerivedWithWrite = <T>(baseAtom: Atom<T>): PrimitiveAtom<T> => {
    const overrideAtom = atom<T | null>(null)

@@ -1,10 +1,12 @@
 import { useAtomValue } from 'jotai'
 import { RepeatState } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { DeviceIdOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import { validPlaybackStateAtom, deviceIdAtom, playerAtom } from './PlaybackSDK'
-import { seekIntervalAtom } from 'state/UserPreferences'
+
+import { useTransientAtom } from '@/lib/hook/useTransientAtom'
+import { seekIntervalAtom } from '@/state/UserPreferences'
+
 import { spotifyClientAtom } from './ClientAtoms'
-import { useTransientAtom } from 'lib/hook/useTransientAtom'
+import { deviceIdAtom, playerAtom, validPlaybackStateAtom } from './PlaybackSDK'
 
 /**
  * Playback Actions

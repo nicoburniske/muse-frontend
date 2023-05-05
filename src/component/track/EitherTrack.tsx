@@ -1,8 +1,10 @@
-import { DetailedPlaylistTrackFragment, DetailedTrackFragment } from 'graphql/generated/schema'
+import { memo } from 'react'
+
+import { getTrackId } from '@/component/trackTable/Helpers'
+import { DetailedPlaylistTrackFragment, DetailedTrackFragment } from '@/graphql/generated/schema'
+
 import AlbumTrack from './AlbumTrack'
 import PlaylistTrack from './PlaylistTrack'
-import { memo } from 'react'
-import { getTrackId } from '../trackTable/Helpers'
 
 export interface EitherTrackProps {
    index: number

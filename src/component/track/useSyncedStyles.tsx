@@ -1,7 +1,7 @@
-import { useDerivedAtomValue } from 'lib/hook/useDerivedAtomValue'
-import { nowPlayingTrackIdAtom } from 'state/NowPlayingAtom'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
-import { cn } from 'util/Utils'
+import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
+import { nowPlayingTrackIdAtom } from '@/state/NowPlayingAtom'
+import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
+import { cn } from '@/util/Utils'
 
 // Only change styling if derived values are different.
 

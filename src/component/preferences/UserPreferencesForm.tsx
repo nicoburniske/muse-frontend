@@ -1,14 +1,16 @@
+import { CogIcon } from '@heroicons/react/24/outline'
+import { useQueryClient } from '@tanstack/react-query'
 import { atom, useAtom, useSetAtom } from 'jotai'
-import { transferPlaybackOnMountAtom } from 'state/UserPreferences'
+import { clearPersister } from 'MuseQueryClientProvider'
+import { useState } from 'react'
+
+import { Button } from '@/lib/component/Button'
+import { Dialog, DialogContent, DialogTitle } from '@/lib/component/Dialog'
+import { transferPlaybackOnMountAtom } from '@/state/UserPreferences'
+
 import { SeekIntervalSetter } from './SeekIntervalSetter'
 import { ThemeSetter } from './ThemeSetter'
 import { TogglePreferences } from './TogglePreferences'
-import { useQueryClient } from '@tanstack/react-query'
-import { CogIcon } from '@heroicons/react/24/outline'
-import { clearPersister } from 'MuseQueryClientProvider'
-import { Dialog, DialogContent, DialogTitle } from 'lib/component/Dialog'
-import { Button } from 'lib/component/Button'
-import { useState } from 'react'
 
 const modalOpenAtom = atom(false)
 

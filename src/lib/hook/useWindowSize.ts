@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { selectAtom } from 'jotai/utils'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 export interface Size {
    width: number
    height: number

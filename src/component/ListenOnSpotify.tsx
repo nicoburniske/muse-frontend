@@ -1,7 +1,7 @@
-import { EntityType } from 'graphql/generated/schema'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
-import { useIsDarkTheme } from 'state/UserPreferences'
-import { cn } from 'util/Utils'
+import { EntityType } from '@/graphql/generated/schema'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { useIsDarkTheme } from '@/state/UserPreferences'
+import { cn } from '@/util/Utils'
 
 export const useSpotifyLogo = () => (useIsDarkTheme() ? '/spotifyLogoWhite.png' : '/spotifyLogoBlack.png')
 export const useSpotifyIcon = () => (useIsDarkTheme() ? '/spotifyIconWhite.png' : '/spotifyIconBlack.png')

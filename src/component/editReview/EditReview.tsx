@@ -1,12 +1,23 @@
-import { useUpdateReviewMutation } from 'graphql/generated/schema'
-import { useEffect } from 'react'
-import toast from 'react-hot-toast'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller } from 'react-hook-form'
-import { DeleteReviewButton } from 'component/deleteReview/DeleteReviewButton'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
-import { Input } from 'lib/component/Input'
+import { z } from 'zod'
+
+import { DeleteReviewButton } from '@/component/deleteReview/DeleteReviewButton'
+import { useUpdateReviewMutation } from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+} from '@/lib/component/Dialog'
+import { Input } from '@/lib/component/Input'
+import { Label } from '@/lib/component/Label'
 import {
    Select,
    SelectContent,
@@ -15,18 +26,8 @@ import {
    SelectItemText,
    SelectTrigger,
    SelectValue,
-} from 'lib/component/Select'
-import { Button } from 'lib/component/Button'
-import { Label } from 'lib/component/Label'
-import {
-   Dialog,
-   DialogContent,
-   DialogDescription,
-   DialogHeader,
-   DialogTitle,
-   DialogTrigger,
-} from 'lib/component/Dialog'
-import { useInvalidateDetailedReviewCache } from 'state/useDetailedReviewCacheQuery'
+} from '@/lib/component/Select'
+import { useInvalidateDetailedReviewCache } from '@/state/useDetailedReviewCacheQuery'
 
 export type EditReviewProps = {
    reviewId: string

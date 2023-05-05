@@ -1,12 +1,13 @@
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
-import { ReviewDetailsFragment } from 'graphql/generated/schema'
-import { Badge } from 'lib/component/Badge'
-import { Button } from 'lib/component/Button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 'lib/component/Card'
-import { Tooltip, TooltipContent, TooltipProvider } from 'lib/component/Tooltip'
 import { useNavigate } from 'react-router'
-import { nonNullable, findFirstImage } from 'util/Utils'
+
+import { ReviewDetailsFragment } from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/lib/component/Card'
+import { Tooltip, TooltipContent, TooltipProvider } from '@/lib/component/Tooltip'
+import { findFirstImage, nonNullable } from '@/util/Utils'
 
 interface BrowseCardProps {
    review: ReviewDetailsFragment

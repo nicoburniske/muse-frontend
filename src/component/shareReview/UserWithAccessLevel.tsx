@@ -1,12 +1,13 @@
-import { useInvalidateDetailedReviewCache, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from 'lib/component/Select'
-import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from 'graphql/generated/schema'
 import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { cn } from 'util/Utils'
-import { Button } from 'lib/component/Button'
-import { Badge } from 'lib/component/Badge'
+
+import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from '@/lib/component/Select'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { useInvalidateDetailedReviewCache, useIsReviewOwner } from '@/state/useDetailedReviewCacheQuery'
+import { cn } from '@/util/Utils'
 
 type ShareOption = {
    value: AccessLevel

@@ -1,17 +1,18 @@
+import { TrashIcon } from '@heroicons/react/24/outline'
 import { useQueryClient } from '@tanstack/react-query'
-import { useDeleteReviewMutation, useProfileAndReviewsQuery } from 'graphql/generated/schema'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { TrashIcon } from '@heroicons/react/24/outline'
-import { Button } from 'lib/component/Button'
+
+import { useDeleteReviewMutation, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
 import {
    Dialog,
+   DialogContent,
+   DialogDescription,
    DialogFooter,
    DialogTitle,
    DialogTrigger,
-   DialogContent,
-   DialogDescription,
-} from 'lib/component/Dialog'
+} from '@/lib/component/Dialog'
 
 type DeleteReviewButtonProps = {
    reviewId: string

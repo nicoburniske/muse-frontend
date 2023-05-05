@@ -1,10 +1,11 @@
 import { MutableRefObject, useRef, useState } from 'react'
-import CommentMarkdown from '../comment/CommentMarkdown'
-import { cn } from 'util/Utils'
-import { Textarea } from 'lib/component/TextArea'
-import { Button } from 'lib/component/Button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from 'lib/component/Tabs'
-import { CardContent, CardFooter, CardHeader } from 'lib/component/Card'
+
+import CommentMarkdown from '@/component/comment/CommentMarkdown'
+import { Button } from '@/lib/component/Button'
+import { CardContent, CardFooter, CardHeader } from '@/lib/component/Card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/component/Tabs'
+import { Textarea } from '@/lib/component/TextArea'
+import { cn } from '@/util/Utils'
 
 export interface CommentFormProps {
    initialValue?: string

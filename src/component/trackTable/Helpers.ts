@@ -4,9 +4,9 @@ import {
    DetailedPlaylistFragment,
    DetailedPlaylistTrackFragment,
    DetailedTrackFragment,
-} from 'graphql/generated/schema'
-import { PlaylistDetailsFragment } from 'graphql/generated/urqlSchema'
-import { nonNullable } from 'util/Utils'
+} from '@/graphql/generated/schema'
+import { PlaylistDetailsFragment } from '@/graphql/generated/urqlSchema'
+import { nonNullable } from '@/util/Utils'
 
 export type Group = {
    data: GroupData

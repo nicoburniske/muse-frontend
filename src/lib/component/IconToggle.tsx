@@ -1,5 +1,6 @@
 import { PrimitiveAtom, useAtom } from 'jotai'
-import { cn } from 'util/Utils'
+
+import { cn } from '@/util/Utils'
 
 type ToggleProps = {
    toggleAtom: PrimitiveAtom<boolean>

@@ -1,11 +1,13 @@
-import toast from 'react-hot-toast'
-import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
-import { cn } from 'util/Utils'
-import { useTrackLikeQuery } from '../state/useTrackLikeQuery'
-import { UseQueryOptions } from '@tanstack/react-query'
-import { HeartIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/20/solid'
-import { Button } from 'lib/component/Button'
+import { HeartIcon } from '@heroicons/react/24/outline'
+import { UseQueryOptions } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
+
+import { Button } from '@/lib/component/Button'
+import { useTrackLikeQuery } from '@/state/useTrackLikeQuery'
+import { cn } from '@/util/Utils'
+
+import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
 
 interface LikeButtonProps {
    trackId: string

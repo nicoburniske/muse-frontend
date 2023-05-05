@@ -16,7 +16,7 @@ module.exports = {
       ecmaVersion: 'latest',
       sourceType: 'module',
    },
-   plugins: ['react', '@typescript-eslint'],
+   plugins: ['react', '@typescript-eslint', 'simple-import-sort', 'no-relative-import-paths'],
    rules: {
       'react/react-in-jsx-scope': 'off',
       'react/display-name': 'off',
@@ -28,5 +28,15 @@ module.exports = {
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+      'no-relative-import-paths/no-relative-import-paths': [
+         'warn',
+         {
+            allowSameFolder: true,
+            prefix: '@',
+            rootDir: 'src',
+         },
+      ],
    },
 }

@@ -1,10 +1,11 @@
 import { Combobox } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { useSearchUsersQuery } from 'graphql/generated/schema'
-import useDebounce from 'lib/hook/useDebounce'
 import { useState } from 'react'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { cn, nonNullable } from 'util/Utils'
+
+import { useSearchUsersQuery } from '@/graphql/generated/schema'
+import useDebounce from '@/lib/hook/useDebounce'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { cn, nonNullable } from '@/util/Utils'
 
 export const SearchUsersComboBox = ({ onSelect }: { onSelect: (userId: string) => void }) => {
    const [query, setQuery] = useState('')

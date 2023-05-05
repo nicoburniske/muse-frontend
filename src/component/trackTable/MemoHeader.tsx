@@ -5,9 +5,11 @@
 
 import { atom, useSetAtom } from 'jotai'
 import { memo } from 'react'
+
+import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
+
 import { ReviewGroupHeader, ReviewGroupHeaderProps } from './GroupHeader'
 import { expandedGroupsAtom } from './TableAtoms'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
 
 type MemoHeaderProps = Omit<ReviewGroupHeaderProps, 'onClick'>
 

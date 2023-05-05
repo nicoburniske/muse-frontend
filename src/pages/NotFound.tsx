@@ -1,7 +1,8 @@
-import { Button } from 'lib/component/Button'
-import Hero from 'lib/component/Hero'
 import { useNavigate } from 'react-router-dom'
-import { nonNullable } from 'util/Utils'
+
+import { Button } from '@/lib/component/Button'
+import Hero from '@/lib/component/Hero'
+import { nonNullable } from '@/util/Utils'
 
 export const NotFound = ({ redirect, label }: { redirect?: string; label: string }) => {
    const nav = useNavigate()

@@ -1,16 +1,17 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+
 import {
    ProfileAndReviewsQuery,
    useDetailedReviewQuery,
    useLinkReviewsMutation,
    useProfileAndReviewsQuery,
-} from 'graphql/generated/schema'
-import { useState } from 'react'
-import { cn, getReviewOverviewImage } from 'util/Utils'
-import { useQueryClient } from '@tanstack/react-query'
-import toast from 'react-hot-toast'
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from 'lib/component/Dialog'
-import { Button } from 'lib/component/Button'
-import { ScrollArea } from 'lib/component/ScrollArea'
+} from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/lib/component/Dialog'
+import { ScrollArea } from '@/lib/component/ScrollArea'
+import { cn, getReviewOverviewImage } from '@/util/Utils'
 
 const searchTextResult = 'select-none truncate text-sm lg:text-base p-0.5'
 

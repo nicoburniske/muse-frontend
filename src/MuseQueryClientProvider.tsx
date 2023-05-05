@@ -10,11 +10,12 @@ import {
    persistQueryClientRestore,
    persistQueryClientSave,
 } from '@tanstack/react-query-persist-client'
-import useAccessTokenQuery from 'state/useAccessTokenQuery'
-import { get, set, del } from 'idb-keyval'
 import { PersistedClient, Persister } from '@tanstack/react-query-persist-client'
-import { Prettify } from 'util/Types'
+import { del, get, set } from 'idb-keyval'
 import { useEffect, useRef, useState } from 'react'
+
+import useAccessTokenQuery from '@/state/useAccessTokenQuery'
+import { Prettify } from '@/util/Types'
 
 const persister = createIDBPersister()
 export const clearPersister = () => persister.removeClient()

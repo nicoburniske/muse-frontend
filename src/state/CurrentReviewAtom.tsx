@@ -1,8 +1,9 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
-import { useAddToHistory } from './ViewHistory'
+
 import { nowPlayingEnabledAtom } from './NowPlayingAtom'
 import { selectedTrackAtom } from './SelectedTrackAtom'
+import { useAddToHistory } from './ViewHistory'
 
 export const currentReviewAtom = atom<string | undefined>(undefined)
 

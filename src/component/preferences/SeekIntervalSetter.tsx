@@ -1,12 +1,13 @@
-import { useEffect } from 'react'
-import { useSeekInterval, useSetSeekInterval } from 'state/UserPreferences'
-import { Input } from 'lib/component/Input'
-import { cn } from 'util/Utils'
-import { z } from 'zod'
-import { Button } from 'lib/component/Button'
 import { CheckIcon } from '@heroicons/react/24/outline'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
+import { Button } from '@/lib/component/Button'
+import { Input } from '@/lib/component/Input'
+import { useSeekInterval, useSetSeekInterval } from '@/state/UserPreferences'
+import { cn } from '@/util/Utils'
 
 const SeekIntervalSchema = z.object({
    seekInterval: z.coerce.number().min(1).max(120),

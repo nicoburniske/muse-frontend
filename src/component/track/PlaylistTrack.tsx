@@ -1,23 +1,24 @@
-import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from 'graphql/generated/schema'
-import { RefObject, useCallback, useEffect, useRef } from 'react'
-import useDoubleClick from 'lib/hook/useDoubleClick'
+import { useQueryClient } from '@tanstack/react-query'
 import LikeButton from 'component/LikeButton'
+import { RefObject, useCallback, useEffect, useRef } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import toast from 'react-hot-toast'
+
 import {
    useAddTracksToPlaylistMutation,
    usePlayMutation,
    useReorderPlaylistTracksMutation,
-} from 'component/sdk/ClientHooks'
-import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
-import { cn, msToTimeStr } from 'util/Utils'
-import { useDrag, useDrop } from 'react-dnd'
-import { useQueryClient } from '@tanstack/react-query'
-import toast from 'react-hot-toast'
+} from '@/component/sdk/ClientHooks'
+import { UserAvatarTooltip } from '@/component/UserAvatar'
+import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
+import useDoubleClick from '@/lib/hook/useDoubleClick'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { cn, msToTimeStr } from '@/util/Utils'
 
-import { useCurrentUserId } from 'state/CurrentUser'
 import { CommentAndOptions } from './CommentAndOptions'
-import { UserAvatarTooltip } from 'component/UserAvatar'
 import { useSetTrackContextMenu } from './TrackContextMenu'
 import { useSimulateRightClick } from './useSimulateRightClick'
+import { useLikeSvgStyle, useTrackColor } from './useSyncedStyles'
 
 export interface PlaylistTrackProps {
    index: number

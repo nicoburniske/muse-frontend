@@ -1,7 +1,8 @@
-import * as React from 'react'
-import * as SelectPrimitive from '@radix-ui/react-select'
-import { cn } from 'util/Utils'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import * as SelectPrimitive from '@radix-ui/react-select'
+import * as React from 'react'
+
+import { cn } from '@/util/Utils'
 // import { Check, ChevronDown } from 'lucide-react'
 
 const Select = SelectPrimitive.Root
@@ -105,12 +106,12 @@ SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
 export {
    Select,
-   SelectGroup,
-   SelectValue,
-   SelectTrigger,
    SelectContent,
-   SelectLabel,
+   SelectGroup,
    SelectItem,
    SelectItemText,
+   SelectLabel,
    SelectSeparator,
+   SelectTrigger,
+   SelectValue,
 }

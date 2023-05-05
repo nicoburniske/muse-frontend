@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
+
 import useStateWithReset from './useStateWithReset'
 
 type ToggleFunc<T> = (value: T) => T

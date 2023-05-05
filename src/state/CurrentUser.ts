@@ -1,8 +1,9 @@
-import { CurrentUserQuery, useCurrentUserQuery } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { loadable } from 'jotai/utils'
-import atomValueOrSuspend from 'lib/atom/atomValueOrSuspend'
 import { useEffect } from 'react'
+
+import { CurrentUserQuery, useCurrentUserQuery } from '@/graphql/generated/schema'
+import atomValueOrSuspend from '@/lib/atom/atomValueOrSuspend'
 
 type CurrentUser = CurrentUserQuery['user']
 const maybeCurrentUserAtom = atom<CurrentUser | undefined>(undefined)

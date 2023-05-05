@@ -1,8 +1,9 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { PrivateUser, SearchType } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { PlayOptions, SearchOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
-import { useSpotifyClient } from './ClientAtoms'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
+
+import { useSpotifyClient } from './ClientAtoms'
 
 type EntityType = 'Album' | 'Artist' | 'Playlist' | 'Track'
 

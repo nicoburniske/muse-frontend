@@ -1,8 +1,10 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { atom, useAtomValue } from 'jotai'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { atom, useAtomValue } from 'jotai'
-import { osAtom } from 'state/Atoms'
+
+import { osAtom } from '@/state/Atoms'
+
 import { Input } from './Input'
 
 export type SearchInputKbdSuggestionProps = {

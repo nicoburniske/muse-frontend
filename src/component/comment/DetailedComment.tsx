@@ -1,15 +1,4 @@
 import {
-   DetailedCommentFragment,
-   EntityType,
-   useDetailedReviewCommentsQuery,
-   useUpdateCommentIndexMutation,
-} from 'graphql/generated/schema'
-import { RefObject, useCallback, useRef, useState } from 'react'
-import CommentMarkdown from './CommentMarkdown'
-import { findFirstImage, cn } from 'util/Utils'
-import { ReviewOverview } from '../trackTable/Helpers'
-import { useCurrentUserId } from 'state/CurrentUser'
-import {
    ChatBubbleLeftEllipsisIcon,
    ChatBubbleOvalLeftEllipsisIcon,
    EllipsisVerticalIcon,
@@ -17,22 +6,35 @@ import {
    PencilIcon,
    TrashIcon,
 } from '@heroicons/react/24/outline'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSetAtom } from 'jotai'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
-import { useOpenNewComment } from '../commentForm/useOpenNewComment'
-import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
-import { useOpenUpdateComment } from '../commentForm/useOpenUpdateComment'
+import { RefObject, useCallback, useRef, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { toast } from 'react-hot-toast'
-import { useQueryClient } from '@tanstack/react-query'
-import { UserAvatar } from 'component/UserAvatar'
 import { Link } from 'react-router-dom'
-import { useIsCurrentUserCollaborator } from 'state/useDetailedReviewCacheQuery'
-import { getLink, useSpotifyIcon } from 'component/ListenOnSpotify'
-import { usePlayMutation } from 'component/sdk/ClientHooks'
-import useDoubleClick from 'lib/hook/useDoubleClick'
-import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from 'lib/component/DropdownMenu'
-import { Button } from 'lib/component/Button'
+
+import { useOpenNewComment } from '@/component/commentForm/useOpenNewComment'
+import { useOpenUpdateComment } from '@/component/commentForm/useOpenUpdateComment'
+import { getLink, useSpotifyIcon } from '@/component/ListenOnSpotify'
+import { usePlayMutation } from '@/component/sdk/ClientHooks'
+import { ReviewOverview } from '@/component/trackTable/Helpers'
+import { UserAvatar } from '@/component/UserAvatar'
+import {
+   DetailedCommentFragment,
+   EntityType,
+   useDetailedReviewCommentsQuery,
+   useUpdateCommentIndexMutation,
+} from '@/graphql/generated/schema'
+import { Button } from '@/lib/component/Button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/lib/component/DropdownMenu'
+import useDoubleClick from '@/lib/hook/useDoubleClick'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
+import { useIsCurrentUserCollaborator } from '@/state/useDetailedReviewCacheQuery'
+import { cn, findFirstImage } from '@/util/Utils'
+
+import CommentMarkdown from './CommentMarkdown'
+import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
 
 export interface DetailedCommentProps {
    review: ReviewOverview

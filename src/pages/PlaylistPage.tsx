@@ -1,19 +1,20 @@
 import { Bars3BottomLeftIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
-import { Alert, AlertTitle, AlertDescription } from 'lib/component/Alert'
-import Hero from 'lib/component/Hero'
-import { HeroLoading } from 'lib/component/HeroLoading'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
-import { NotFound } from './NotFound'
-import { useGetPlaylistQuery } from 'graphql/generated/schema'
-import { Separator } from 'lib/component/Seperator'
 
-import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
-import { Button } from 'lib/component/Button'
-import { SelectedPlaylist, useSelectPlaylist } from 'pages/MyPlaylists'
-import { CreateReviewModal } from 'component/createReview/CreateReviewModal'
-import { TrackTable } from 'component/trackTable/TrackTable'
+import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { TrackTable } from '@/component/trackTable/TrackTable'
+import { useGetPlaylistQuery } from '@/graphql/generated/schema'
+import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
+import { Button } from '@/lib/component/Button'
+import Hero from '@/lib/component/Hero'
+import { HeroLoading } from '@/lib/component/HeroLoading'
+import { Separator } from '@/lib/component/Seperator'
+import { SelectedPlaylist, useSelectPlaylist } from '@/pages/MyPlaylists'
+
+import { NotFound } from './NotFound'
 
 export const PlaylistPage = () => {
    const { playlistId } = useParams()

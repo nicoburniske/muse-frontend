@@ -1,6 +1,7 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import atomWithSuspend from 'lib/atom/atomWithSuspend'
 import { SpotifyWebApi } from 'spotify-web-api-ts'
+
+import atomWithSuspend from '@/lib/atom/atomWithSuspend'
 
 const accessTokenAtom = atomWithSuspend<string>()
 accessTokenAtom.debugLabel = 'accessTokenAtom'

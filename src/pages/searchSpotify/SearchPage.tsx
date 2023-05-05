@@ -1,12 +1,9 @@
-import { QueryFunction, UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { BackspaceIcon, Bars3BottomLeftIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { QueryFunction, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useSpotifyClient } from 'component/sdk/ClientAtoms'
-import { SearchConfig, useAvailableGenreSeeds, usePlayMutation } from 'component/sdk/ClientHooks'
-import { EntityType } from 'graphql/generated/schema'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import atomWithDebounce from 'lib/atom/atomWithDebounce'
-import { HeroLoading } from 'lib/component/HeroLoading'
-import { useEffect, useMemo, useRef, memo, ReactNode, RefObject, useCallback } from 'react'
+import { memo, ReactNode, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import toast from 'react-hot-toast'
 import {
    Artist,
    SearchType,
@@ -17,15 +14,18 @@ import {
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
-import { EntityTypeValues, chunkArrayInGroups, cn, nonNullable, uniqueByProperty } from 'util/Utils'
-import { ToggleWithDescription } from 'lib/component/ToggleWithDescription'
-import SelectMany from 'lib/component/SelectMany'
-import useDoubleClick from 'lib/hook/useDoubleClick'
-import { useWindowSizeAtom } from 'lib/hook/useWindowSize'
-import { SearchInputKbdSuggestion } from 'lib/component/SearchInputKbdSuggestion'
-import { CreateReviewModal, useCreateReviewModal } from 'component/createReview/CreateReviewModal'
-import toast from 'react-hot-toast'
-import { useDerivedAtomValue } from 'lib/hook/useDerivedAtomValue'
+
+import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useSpotifyClient } from '@/component/sdk/ClientAtoms'
+import { SearchConfig, useAvailableGenreSeeds, usePlayMutation } from '@/component/sdk/ClientHooks'
+import { EntityType } from '@/graphql/generated/schema'
+import atomWithDebounce from '@/lib/atom/atomWithDebounce'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/lib/component/Card'
+import { HeroLoading } from '@/lib/component/HeroLoading'
+import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import {
    Select,
    SelectContent,
@@ -34,13 +34,14 @@ import {
    SelectItemText,
    SelectTrigger,
    SelectValue,
-} from 'lib/component/Select'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'lib/component/Card'
-import { Button } from 'lib/component/Button'
-import { Badge } from 'lib/component/Badge'
-import { Bars3BottomLeftIcon, PlusIcon, BackspaceIcon } from '@heroicons/react/24/outline'
-import { Separator } from 'lib/component/Seperator'
-import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
+} from '@/lib/component/Select'
+import SelectMany from '@/lib/component/SelectMany'
+import { Separator } from '@/lib/component/Seperator'
+import { ToggleWithDescription } from '@/lib/component/ToggleWithDescription'
+import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
+import useDoubleClick from '@/lib/hook/useDoubleClick'
+import { useWindowSizeAtom } from '@/lib/hook/useWindowSize'
+import { chunkArrayInGroups, cn, EntityTypeValues, nonNullable, uniqueByProperty } from '@/util/Utils'
 
 const SearchPage = () => {
    return (

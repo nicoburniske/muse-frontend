@@ -1,21 +1,22 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ListenOnSpotifyLogo } from 'component/ListenOnSpotify'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+
+import { ListenOnSpotifyLogo } from '@/component/ListenOnSpotify'
 import {
    CreateReviewMutationVariables,
    EntityType,
    useCreateReviewMutation,
    useProfileAndReviewsQuery,
-} from 'graphql/generated/schema'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { Badge } from 'lib/component/Badge'
-import { Button } from 'lib/component/Button'
-import { Dialog, DialogContent } from 'lib/component/Dialog'
-import { Input } from 'lib/component/Input'
-import { Label } from 'lib/component/Label'
-import { Switch } from 'lib/component/Switch'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+} from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { Dialog, DialogContent } from '@/lib/component/Dialog'
+import { Input } from '@/lib/component/Input'
+import { Label } from '@/lib/component/Label'
+import { Switch } from '@/lib/component/Switch'
 
 export type CreateReviewProps = {
    entityId: string

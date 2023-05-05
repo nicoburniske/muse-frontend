@@ -1,9 +1,10 @@
 import { Transition } from '@headlessui/react'
-import { useOpenNewComment } from 'component/commentForm/useOpenNewComment'
-import { DetailedCommentFragment } from 'graphql/generated/schema'
 import { Fragment } from 'react'
 import toast, { Toast } from 'react-hot-toast'
-import { useThemeValue } from 'state/UserPreferences'
+
+import { useOpenNewComment } from '@/component/commentForm/useOpenNewComment'
+import { DetailedCommentFragment } from '@/graphql/generated/schema'
+import { useThemeValue } from '@/state/UserPreferences'
 
 export const newCommentToast = (c: DetailedCommentFragment) =>
    toast.custom((t: Toast) => <NewCommentToast comment={c} t={t} />, { duration: 5000 })

@@ -1,7 +1,16 @@
-import { CSSProperties, useRef, useCallback, useEffect } from 'react'
-import { useVirtualizer, Range, VirtualItem } from '@tanstack/react-virtual'
+import { Range, useVirtualizer, VirtualItem } from '@tanstack/react-virtual'
 import { atom, useAtom, useSetAtom } from 'jotai'
-import { useTransientAtom } from 'lib/hook/useTransientAtom'
+import { CSSProperties, useCallback, useEffect, useRef } from 'react'
+
+import { TrackContextMenuContent } from '@/component/track/TrackContextMenu'
+import { ContextMenu, ContextMenuTrigger } from '@/lib/component/ContextMenu'
+import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
+import useEffectDeepEqual from '@/lib/hook/useEffectDeepEqual'
+import useSyncAtoms from '@/lib/hook/useSyncAtoms'
+import { useTransientAtom } from '@/lib/hook/useTransientAtom'
+import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from '@/state/NowPlayingAtom'
+import { usePrefetchLikes } from '@/state/useTrackLikeQuery'
+
 import { Group } from './Helpers'
 import {
    expandedGroupsAtom,
@@ -14,13 +23,6 @@ import {
    tracksAtom,
 } from './TableAtoms'
 import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
-import useSyncAtoms from 'lib/hook/useSyncAtoms'
-import { nowPlayingEnabledAtom, nowPlayingTrackAtom } from 'state/NowPlayingAtom'
-import { usePrefetchLikes } from 'state/useTrackLikeQuery'
-import useEffectDeepEqual from 'lib/hook/useEffectDeepEqual'
-import { useDerivedAtomValue } from 'lib/hook/useDerivedAtomValue'
-import { ContextMenu, ContextMenuTrigger } from 'lib/component/ContextMenu'
-import { TrackContextMenuContent } from '../track/TrackContextMenu'
 
 interface GroupedTrackTableProps {
    rootReview: string

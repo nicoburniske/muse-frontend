@@ -1,4 +1,4 @@
-import { UseMutationOptions, useMutation } from '@tanstack/react-query'
+import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 
 const useCopyToClipboard = (options?: UseMutationOptions<boolean, unknown, string, unknown>) =>
    useMutation({

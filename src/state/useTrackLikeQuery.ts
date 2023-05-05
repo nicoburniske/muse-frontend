@@ -1,9 +1,10 @@
-import { UseQueryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
-import { atom, useAtomValue } from 'jotai'
-import { spotifyClientAtom } from '../component/sdk/ClientAtoms'
+import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import DataLoader from 'dataloader'
-import { SpotifyWebApi } from 'spotify-web-api-ts/types'
+import { atom, useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
+import { SpotifyWebApi } from 'spotify-web-api-ts/types'
+
+import { spotifyClientAtom } from '@/component/sdk/ClientAtoms'
 
 const MAX_PER_QUERY = 50
 

@@ -1,13 +1,14 @@
-import DetailedReviewPage from 'pages/detailedReview/DetailedReviewPage'
-import { NotFound } from 'pages/NotFound'
-import { Routes, Route } from 'react-router-dom'
-import { NavPlayerPageOutlet } from 'component/container/NavPlayerPage'
-import ReviewsPage from 'pages/myReviews/ReviewsPage'
-import AboutPage from 'pages/AboutPage'
-import SearchPage from 'pages/searchSpotify/SearchPage'
-import { MyPlaylistsPage } from 'pages/MyPlaylists'
-import { ProfilePage } from 'pages/profile/ProfilePage'
-import { PlaylistPage } from 'pages/PlaylistPage'
+import { Route, Routes } from 'react-router-dom'
+
+import { NavPlayerPageOutlet } from '@/component/container/NavPlayerPage'
+import AboutPage from '@/pages/AboutPage'
+import DetailedReviewPage from '@/pages/detailedReview/DetailedReviewPage'
+import { MyPlaylistsPage } from '@/pages/MyPlaylists'
+import ReviewsPage from '@/pages/myReviews/ReviewsPage'
+import { NotFound } from '@/pages/NotFound'
+import { PlaylistPage } from '@/pages/PlaylistPage'
+import { ProfilePage } from '@/pages/profile/ProfilePage'
+import SearchPage from '@/pages/searchSpotify/SearchPage'
 
 export default function MuseRoutes() {
    return (

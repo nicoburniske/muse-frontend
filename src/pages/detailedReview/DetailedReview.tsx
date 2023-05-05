@@ -1,44 +1,46 @@
+import { Bars3BottomLeftIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
+import { ArrowsRightLeftIcon, ChatBubbleBottomCenterIcon, MusicalNoteIcon } from '@heroicons/react/24/outline'
+import { useQueries, UseQueryResult } from '@tanstack/react-query'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import Split from 'react-split'
+
+import ReviewCommentSection from '@/component/comment/CommentSection'
+import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
+import { Icon } from '@/component/container/NavConstants'
+import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { EditReview } from '@/component/editReview/EditReview'
+import { ListenOnSpotifyIcon } from '@/component/ListenOnSpotify'
+import { ShareReview } from '@/component/shareReview/ShareReview'
+import { GroupedTrackTableWrapper } from '@/component/trackTable/GroupedTrackTable'
+import { Group, ReviewOverview } from '@/component/trackTable/Helpers'
 import {
-   EntityType,
-   ReviewDetailsFragment,
-   useGetPlaylistQuery,
-   useGetAlbumQuery,
-   DetailedPlaylistFragment,
    DetailedAlbumFragment,
+   DetailedPlaylistFragment,
+   EntityType,
    GetAlbumQuery,
    GetPlaylistQuery,
-} from 'graphql/generated/schema'
-import { useEffect } from 'react'
-import { useSetAtom, useAtomValue, atom, useAtom } from 'jotai'
-import { ShareReview } from '../../component/shareReview/ShareReview'
-import { CommentFormModal } from '../../component/commentForm/CommentFormModal'
-import Split from 'react-split'
-import { nonNullable, findFirstImage, groupBy, cn } from 'util/Utils'
-import { useQueries, UseQueryResult } from '@tanstack/react-query'
-import { GroupedTrackTableWrapper } from '../../component/trackTable/GroupedTrackTable'
-import { NotFound } from 'pages/NotFound'
-import { Group, ReviewOverview } from '../../component/trackTable/Helpers'
-import { useSetCurrentReview } from 'state/CurrentReviewAtom'
-import { Bars3BottomLeftIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { selectedTrackAtom } from 'state/SelectedTrackAtom'
-import { OpenMobileMenuButton } from 'component/container/OpenMobileMenuButton'
-import { HeroLoading } from 'lib/component/HeroLoading'
-import { SearchInputKbdSuggestion } from 'lib/component/SearchInputKbdSuggestion'
-import { useSearchAtom } from 'state/Atoms'
-import { LinkReviewButton } from './LinkReview'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lib/component/Tooltip'
-import { Icon } from 'component/container/NavConstants'
+   ReviewDetailsFragment,
+   useGetAlbumQuery,
+   useGetPlaylistQuery,
+} from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { HeroLoading } from '@/lib/component/HeroLoading'
+import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
+import { Separator } from '@/lib/component/Seperator'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { NotFound } from '@/pages/NotFound'
+import { useSearchAtom } from '@/state/Atoms'
+import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
+import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
+import { cn, findFirstImage, groupBy, nonNullable } from '@/util/Utils'
+
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
-import ReviewCommentSection from '../../component/comment/CommentSection'
-import { useDetailedReviewCacheQuery } from 'state/useDetailedReviewCacheQuery'
-import { Link } from 'react-router-dom'
-import { ArrowsRightLeftIcon, ChatBubbleBottomCenterIcon, MusicalNoteIcon } from '@heroicons/react/24/outline'
-import { ListenOnSpotifyIcon } from 'component/ListenOnSpotify'
-import { EditReview } from '../../component/editReview/EditReview'
-import { Button } from 'lib/component/Button'
-import { Badge } from 'lib/component/Badge'
-import { Separator } from 'lib/component/Seperator'
+import { LinkReviewButton } from './LinkReview'
 
 export interface DetailedReviewProps {
    reviewId: string

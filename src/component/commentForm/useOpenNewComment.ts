@@ -1,9 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { CreateCommentInput, useCreateCommentMutation, useDetailedReviewCommentsQuery } from 'graphql/generated/schema'
-import toast from 'react-hot-toast'
-import { useCommentModal } from './CommentFormModal'
-import { Prettify } from 'util/Types'
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
+
+import {
+   CreateCommentInput,
+   useCreateCommentMutation,
+   useDetailedReviewCommentsQuery,
+} from '@/graphql/generated/schema'
+import { Prettify } from '@/util/Types'
+
+import { useCommentModal } from './CommentFormModal'
 
 type OpenNewComment = {
    title: string

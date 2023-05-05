@@ -1,5 +1,6 @@
-import { useOpenTour } from 'lib/hook/useOpenTour'
 import { useEffect } from 'react'
+
+import { useOpenTour } from '@/lib/hook/useOpenTour'
 
 export const useOpenReviewTour = () => useOpenTour(detailedReviewSteps, 0)
 

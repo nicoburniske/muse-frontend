@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import { AppConfig } from 'util/AppConfig'
+
+import { AppConfig } from '@/util/AppConfig'
 
 // 55 minutes just to be safe.
 const accessTokenInterval = 55 * 60 * 1000

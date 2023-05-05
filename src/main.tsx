@@ -1,19 +1,22 @@
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import MuseRoutes from './MuseRoutes'
-import toast from 'react-hot-toast'
-import { AppConfig } from 'util/AppConfig'
-import { createClient, subscriptionExchange, Provider } from 'urql'
+import './index.css'
+
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { createClient as createWSClient } from 'graphql-ws'
+import MuseQueryClientProvider from 'MuseQueryClientProvider'
+import { MuseToaster } from 'MuseToaster'
+import { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import MuseQueryClientProvider from 'MuseQueryClientProvider'
-import { SpotifyPlaybackSdk } from 'component/sdk/PlaybackSDK'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { MuseToaster } from 'MuseToaster'
-import './index.css'
-import { useThemeValue } from 'state/UserPreferences'
-import { useEffect } from 'react'
+import ReactDOM from 'react-dom/client'
+import toast from 'react-hot-toast'
+import { BrowserRouter } from 'react-router-dom'
+import { createClient, Provider, subscriptionExchange } from 'urql'
+
+import { SpotifyPlaybackSdk } from '@/component/sdk/PlaybackSDK'
+import { useThemeValue } from '@/state/UserPreferences'
+import { AppConfig } from '@/util/AppConfig'
+
+import MuseRoutes from './MuseRoutes'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,

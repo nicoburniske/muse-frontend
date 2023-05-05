@@ -4,8 +4,9 @@ import {
    MagnifyingGlassIcon,
    MusicalNoteIcon,
 } from '@heroicons/react/24/outline'
-import { usePreferencesModal } from 'component/preferences/UserPreferencesForm'
 import { useNavigate } from 'react-router-dom'
+
+import { usePreferencesModal } from '@/component/preferences/UserPreferencesForm'
 
 export type NavItem = {
    name: string

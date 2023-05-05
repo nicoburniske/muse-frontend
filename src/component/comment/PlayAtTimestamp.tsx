@@ -1,8 +1,9 @@
-import { usePlayMutation } from 'component/sdk/ClientHooks'
-import { Button } from 'lib/component/Button'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { padTime } from 'util/Utils'
+
+import { usePlayMutation } from '@/component/sdk/ClientHooks'
+import { Button } from '@/lib/component/Button'
+import { padTime } from '@/util/Utils'
 
 interface PlayAtTimestampProps {
    time: string

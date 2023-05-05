@@ -1,21 +1,26 @@
-import { ListenOnSpotifyLogoTooltip } from 'component/ListenOnSpotify'
-import { ShareReview } from 'component/shareReview/ShareReview'
-import { UserWithAccessLevel } from 'component/shareReview/UserWithAccessLevel'
-import { useCollaboratorsQuery, useDetailedReviewCacheQuery, useIsReviewOwner } from 'state/useDetailedReviewCacheQuery'
-import { ReviewDetailsFragment } from 'graphql/generated/schema'
+import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useCurrentUserId } from 'state/CurrentUser'
-import { nonNullable, findFirstImage, cn } from 'util/Utils'
-import { DeleteReviewButton } from 'component/deleteReview/DeleteReviewButton'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from 'lib/component/Sheet'
-import { Badge } from 'lib/component/Badge'
-import { Button } from 'lib/component/Button'
-import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
-import { EditReview } from 'component/editReview/EditReview'
-import { ScrollArea } from 'lib/component/ScrollArea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from 'lib/component/Tabs'
+
+import { DeleteReviewButton } from '@/component/deleteReview/DeleteReviewButton'
+import { EditReview } from '@/component/editReview/EditReview'
+import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
+import { ShareReview } from '@/component/shareReview/ShareReview'
+import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'
+import { ReviewDetailsFragment } from '@/graphql/generated/schema'
+import { Badge } from '@/lib/component/Badge'
+import { Button } from '@/lib/component/Button'
+import { ScrollArea } from '@/lib/component/ScrollArea'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/lib/component/Sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/component/Tabs'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import {
+   useCollaboratorsQuery,
+   useDetailedReviewCacheQuery,
+   useIsReviewOwner,
+} from '@/state/useDetailedReviewCacheQuery'
+import { cn, findFirstImage, nonNullable } from '@/util/Utils'
 
 const selectedReviewOpenAtom = atom(false)
 const selectedReviewIdAtom = atom<string | undefined>(undefined)

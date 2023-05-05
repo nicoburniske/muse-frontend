@@ -2,13 +2,15 @@
  * Atoms for GroupedTrackTable
  */
 
-import { DetailedTrackFragment } from 'graphql/generated/schema'
 import { atom } from 'jotai'
-import { nonNullable } from 'util/Utils'
+
+import { EitherTrack } from '@/component/track/EitherTrack'
+import { DetailedTrackFragment } from '@/graphql/generated/schema'
+import { searchLoweredAtom } from '@/state/Atoms'
+import { nonNullable } from '@/util/Utils'
+
 import { getTrack, getTracks, Group, HeaderData, ReviewOverview, searchTrack, TrackRow } from './Helpers'
 import { MemoHeader } from './MemoHeader'
-import { EitherTrack } from '../track/EitherTrack'
-import { searchLoweredAtom } from 'state/Atoms'
 
 /**
  * Constructor atoms!
