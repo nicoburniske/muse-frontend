@@ -13,7 +13,7 @@ export default function LandingPage() {
    const spotifyLogo = useSpotifyLogo()
 
    return (
-      <div className='relative isolate flex h-screen w-full flex-col overflow-hidden  bg-background text-foreground'>
+      <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto  bg-background text-foreground'>
          <svg
             className='absolute inset-0 -z-10 h-full w-full stroke-foreground/10 [mask-image:radial-gradient(100%_100%_at_top_right,hsl(var(--foreground)),transparent)]'
             aria-hidden='true'
@@ -106,7 +106,7 @@ export default function LandingPage() {
                   </a>
                </div>
                <div className='grid w-full place-items-center'>
-                  <div className='mt-20 inline-flex items-center leading-8 sm:text-lg'>
+                  <div className='mt-20 inline-flex items-center text-lg leading-8'>
                      Powered by
                      <a
                         className={cn('inline-block pl-3 lg:pl-5')}
@@ -114,7 +114,7 @@ export default function LandingPage() {
                         rel='noreferrer'
                         target='_blank'
                      >
-                        <img src={spotifyLogo} className='w-20 lg:w-28' />
+                        <img src={spotifyLogo} className='w-24 lg:w-32' />
                      </a>
                   </div>
                </div>
@@ -132,7 +132,7 @@ export default function LandingPage() {
             </div>
          </div>
 
-         <footer className='absolute bottom-0 w-full bg-background'>
+         <footer className='w-full bg-background'>
             <div className='mx-auto max-w-7xl px-6 py-8 md:flex md:items-center md:justify-between lg:px-8'>
                <div className='flex justify-center space-x-6 md:order-2'>
                   {Footerlinks.map(item => (
