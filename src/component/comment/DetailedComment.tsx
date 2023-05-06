@@ -152,7 +152,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                drag(el)
             }}
             className={cn(
-               isDragging ?? 'opacity-50',
+               isDragging ? 'opacity-50' : '',
                isOver && canDrop ? 'border-foreground' : '',
                'rounded-md border bg-card p-2 text-foreground shadow md:p-4'
             )}
@@ -179,11 +179,11 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                   </div>
 
                   <div className='flex items-center justify-between space-x-1'>
-                     <div className='flex items-center space-x-1' ref={playOnDoubleClickRef}>
-                        <div className='h-10 w-10'>
+                     <div className='flex max-w-[75%] items-center space-x-1' ref={playOnDoubleClickRef}>
+                        <div className='h-10 w-10 flex-none'>
                            <img src={image} />
                         </div>
-                        <div className='min-w-0 flex-1 overflow-hidden'>
+                        <div className='min-w-0 flex-shrink'>
                            <p className='select-none truncate p-0.5 text-sm'> {name} </p>
                         </div>
                      </div>

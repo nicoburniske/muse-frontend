@@ -8,8 +8,6 @@ import {
    DetailedReviewCommentsQuery,
    useDetailedReviewCommentsQuery,
 } from '@/graphql/generated/schema'
-import { ScrollArea } from '@/lib/component/ScrollArea'
-import { Separator } from '@/lib/component/Seperator'
 import { groupBy, nonNullable } from '@/util/Utils'
 
 import { DeleteCommentConfirmation } from './DeleteCommentConfirmation'
@@ -51,16 +49,21 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
 
    return (
       <>
-         <ScrollArea className='muse-comments flex-1' ref={ref}>
-            <div className='mr-2'>
-               {rootComments.map((c: DetailedCommentFragment) => (
-                  <>
-                     <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
-                     <Separator className='my-0.5 bg-transparent' />
-                  </>
-               ))}
-            </div>
-         </ScrollArea>
+         <div
+            className='muse-comments muse-scrollbar my-1 mr-2 flex flex-1 flex-col space-y-1 overflow-y-auto'
+            // to stop drag from dragging two elements.
+            // https://github.com/react-dnd/react-dnd/issues/832
+            style={{
+               transform: `translate3d(0, 0, 0)`,
+            }}
+            ref={ref}
+         >
+            {rootComments.map((c: DetailedCommentFragment) => (
+               <>
+                  <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
+               </>
+            ))}
+         </div>
          <DeleteCommentConfirmation />
       </>
    )
