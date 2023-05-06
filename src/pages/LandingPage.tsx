@@ -13,7 +13,7 @@ export default function LandingPage() {
    const spotifyLogo = useSpotifyLogo()
 
    return (
-      <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto  bg-background text-foreground'>
+      <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto bg-background text-foreground overflow-x-hidden'>
          <svg
             className='absolute inset-0 -z-10 h-full w-full stroke-foreground/10 [mask-image:radial-gradient(100%_100%_at_top_right,hsl(var(--foreground)),transparent)]'
             aria-hidden='true'
