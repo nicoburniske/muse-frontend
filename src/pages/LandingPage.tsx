@@ -85,6 +85,8 @@ export default function LandingPage() {
                <h1 className='mt-10 text-4xl font-bold tracking-tight text-foreground sm:text-6xl'>
                   Share your music taste with the world
                </h1>
+
+               <h2 className='mt-10 text-xl font-bold tracking-tight text-foreground'>(or just your friends...)</h2>
                <p className='mt-6 text-lg leading-8 text-muted-foreground'>
                   Team up with friends or fellow music enthusiasts to create detailed, interactive reviews of your
                   favorite playlists, albums, and artists on Spotify.
