@@ -197,11 +197,16 @@ export default function DetailedComment({ review, comment: detailedComment }: De
             <article className='prose p-1 py-2 text-sm text-card-foreground md:text-base lg:p-2'>
                <CommentMarkdown comment={comment} trackId={detailedComment?.entities?.at(0)?.id!} />
             </article>
-            <div className='mt-6 flex justify-between space-x-8'>
-               <div className='flex space-x-6'>
-                  <Button variant='svg' size='empty' onClick={selectTrack} className='space-x-2 text-sm'>
+            <div className='mt-6 flex justify-between'>
+               <div className='flex gap-x-6'>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     onClick={selectTrack}
+                     className='hidden space-x-2 text-sm md:inline-flex'
+                  >
                      <MagnifyingGlassCircleIcon className='h-5 w-5' aria-hidden='true' />
-                     <span className='hidden font-medium md:inline'>Find</span>
+                     <span className='font-medium'>Find</span>
                      <span className='sr-only'>Find Track</span>
                   </Button>
                   <Button
@@ -211,14 +216,14 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                      className='space-x-2 text-sm'
                   >
                      <ChatBubbleLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                     <span className='hidden font-medium md:inline'>{childComments.length}</span>
+                     <span className='font-medium'>{childComments.length}</span>
                      <span className='sr-only'>replies</span>
                   </Button>
                </div>
                {isCollaborator && (
                   <Button variant='svg' size='empty' onClick={replyComment} className='space-x-2 text-sm'>
                      <ChatBubbleOvalLeftEllipsisIcon className='h-5 w-5' aria-hidden='true' />
-                     <span className='hidden font-medium md:inline'>Reply</span>
+                     <span className='font-medium'>Reply</span>
                   </Button>
                )}
             </div>
