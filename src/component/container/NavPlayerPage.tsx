@@ -12,12 +12,10 @@ import { useSetTokenFunction } from '@/component/sdk/PlaybackSDK'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'
 import { HeroLoading } from '@/lib/component/HeroLoading'
-import Portal from '@/lib/component/Portal'
 import { SyncCurrentUser } from '@/state/CurrentUser'
 import useAccessTokenQuery from '@/state/useAccessTokenQuery'
 import { useThemeValue } from '@/state/UserPreferences'
 
-import { MobileMenu } from './MobileMenu'
 import { SideNavBar } from './SideNavBar'
 
 export const NavPlayerPageOutlet = () => {
@@ -64,9 +62,6 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             <div className='muse-player hidden w-full sm:inline'>
                <SpotifyPlayerWrapper />
             </div>
-            <Portal>
-               <MobileMenu />
-            </Portal>
             <UserPreferencesModal />
          </div>
       </TourProvider>
