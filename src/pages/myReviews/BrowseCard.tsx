@@ -17,7 +17,7 @@ interface BrowseCardProps {
 export function BrowseCard({ review, onClick }: BrowseCardProps) {
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
-   const image = findFirstImage(allEntities)
+   const image = findFirstImage(allEntities, 1)
    const entityName = allEntities.map(e => e.name).find(nonNullable)
    const entityType = allEntities.map(e => e.__typename).find(nonNullable)
    const nav = useNavigate()

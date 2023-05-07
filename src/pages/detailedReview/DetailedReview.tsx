@@ -11,6 +11,7 @@ import { useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Split from 'react-split'
 
+import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/component/Command'
 import ReviewCommentSection from '@/component/comment/CommentSection'
 import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { MobileNavigation } from '@/component/container/MobileMenu'
@@ -32,6 +33,7 @@ import {
 } from '@/graphql/generated/schema'
 import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
+import { CommandItem } from '@/lib/component/Command'
 import { HeroLoading } from '@/lib/component/HeroLoading'
 import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import { Separator } from '@/lib/component/Seperator'
@@ -121,8 +123,43 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
    )
 }
 
+const useAddCommands = (review: ReviewDetailsFragment) => {
+   const reviewId = review.id
+   const executeWrapper = useExecuteAndClose()
+   // Select review.
+   const { setSelectedReview } = useSelectReview()
+   const openInfo = () => executeWrapper(() => setSelectedReview(reviewId))
+
+   // Help.
+   const tour = useOpenReviewTour()
+   const openTour = () => executeWrapper(() => tour())
+
+   // Edit.
+   // Share.
+
+   const openDetails = 'Open Review Details'
+   const commandGroup = {
+      header: `Review Actions: ${review.reviewName}`,
+      items: [
+         {
+            id: openDetails,
+            label: 'See Review Details',
+            onSelect: openInfo,
+            icon: InformationCircleIcon,
+         },
+         {
+            id: 'Help',
+            label: 'Help',
+            onSelect: openTour,
+            icon: QuestionMarkCircleIcon,
+         },
+      ],
+   }
+   useSetExtraCommandGroups([commandGroup])
+}
+
 const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
-   const openTour = useOpenReviewTour()
+   useAddCommands(review)
 
    const reviewId = review.id
    const currentUserId = useCurrentUserId()
@@ -181,9 +218,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             </div>
 
             <div className='m-auto flex w-full max-w-xl flex-col items-center '>
-               <div className='hidden w-full lg:block'>
-                  <SearchTracks />
-               </div>
+               <CommandButton />
                <div className='inline-flex h-10 w-16 items-center justify-center rounded-md p-1 lg:w-24 lg:space-x-10'>
                   <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
                   <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
@@ -192,10 +227,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             </div>
 
             <div className='flex items-center justify-end'>
-               <div className='mr-4 flex flex-none items-center justify-end gap-1 space-y-1'>
-                  <button className='hidden text-primary md:inline' onClick={openTour}>
-                     <QuestionMarkCircleIcon className='h-6 w-6' />
-                  </button>
+               <div className='mr-4 flex flex-none items-center justify-end gap-1'>
                   {isReviewOwner ? (
                      <>
                         <EditReview
@@ -213,7 +245,12 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         </ShareReview>
                         {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                      </>
-                  ) : null}
+                  ) : (
+                     <Button variant='outline'>
+                        Info
+                        <InformationCircleIcon className='ml-2 h-4 w-4' />
+                     </Button>
+                  )}
                </div>
             </div>
          </div>

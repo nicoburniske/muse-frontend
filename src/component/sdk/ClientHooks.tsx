@@ -1,4 +1,12 @@
-import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
+import {
+   QueryFunction,
+   useInfiniteQuery,
+   UseInfiniteQueryOptions,
+   useMutation,
+   UseMutationOptions,
+   useQuery,
+   UseQueryOptions,
+} from '@tanstack/react-query'
 import { PrivateUser, SearchType } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { PlayOptions, SearchOptions } from 'spotify-web-api-ts/types/types/SpotifyOptions'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
@@ -166,9 +174,42 @@ export const useSearchSpotify = (
    searchConfig: SearchConfig,
    options?: UseQueryOptions<SearchResponse, unknown, SearchResponse, string[]>
 ) => {
-   const { query, type, options: searchOptions } = searchConfig
+   const query = searchConfig?.query
+   const type = searchConfig?.type ?? []
+   const searchOptions = searchConfig?.options
    const client = useSpotifyClient()
    return useQuery(['Search', query, ...type], () => client.search.search(query, type, searchOptions), options)
+}
+
+export const useInfiniteSearchSpotify = (
+   search: Omit<SearchConfig, 'options'>,
+   limit: number,
+   options: UseInfiniteQueryOptions<SearchResponse, unknown, SearchResponse>
+) => {
+   const { query, type } = search ?? {}
+
+   const client = useSpotifyClient()
+
+   const pageQuery: QueryFunction<SearchResponse, readonly unknown[]> = ({ pageParam }) => {
+      return client.search.search(query, type, { limit, offset: pageParam })
+   }
+
+   return useInfiniteQuery<SearchResponse, unknown, SearchResponse>(['SpotifySearch', query, type], pageQuery, {
+      getNextPageParam: (lastPage, pages) => {
+         if (
+            lastPage.albums?.next ||
+            lastPage.artists?.next ||
+            lastPage.episodes?.next ||
+            lastPage.playlists?.next ||
+            lastPage.shows?.next ||
+            lastPage.tracks?.next
+         ) {
+            return pages.length * limit
+         }
+         return false
+      },
+      ...options,
+   })
 }
 
 export const useAvailableGenreSeeds = (options?: UseQueryOptions<unknown, unknown, string[], string[]>) => {

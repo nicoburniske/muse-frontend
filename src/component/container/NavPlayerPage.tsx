@@ -4,6 +4,7 @@ import { StrictMode, Suspense, useCallback, useEffect, useRef } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
 
+import { CommandMenu } from '@/component/Command'
 import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
 import { UserPreferencesModal } from '@/component/preferences/UserPreferencesForm'
 import { SubscribeReviews } from '@/component/reviewUpdates/SubscribeReviews'
@@ -55,6 +56,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
                >
                   <Suspense fallback={<HeroLoading />}>
                      <SubscribeReviews />
+                     <CommandMenu />
                      <StrictMode>{children}</StrictMode>
                   </Suspense>
                </ErrorBoundary>

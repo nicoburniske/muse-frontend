@@ -4,8 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { osAtom } from '@/state/Atoms'
+import { cn } from '@/util/Utils'
 
 import { Input } from './Input'
+import { ShortCut } from './ShortCut'
 
 export type SearchInputKbdSuggestionProps = {
    screenReaderLabel: string
@@ -35,8 +37,9 @@ export const SearchInputKbdSuggestion = ({
       }
    }, [autoFocus, focus])
 
-   const keyCombo = useAtomValue(keyComboAtom)
-   useHotkeys(keyCombo, focus, [inputRef])
+   useHotkeys(['meta+f', 'ctrl+f'], focus, { preventDefault: true }, [inputRef])
+
+   const modifier = useAtomValue(modifierKeyAtom)
 
    return (
       <div className='flex py-1'>
@@ -59,21 +62,13 @@ export const SearchInputKbdSuggestion = ({
                   onChange={e => setSearch(e.target.value as string)}
                   onFocus={() => setIsSearching(true)}
                   onBlur={() => setIsSearching(false)}
+                  className='flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
                />
-               {!isSearching && <ShortCut />}
+               {!isSearching && <ShortCut actionKey='F' modifierKey={modifier} />}
             </div>
          </div>
       </div>
    )
 }
 
-const keyComboAtom = atom(get => (get(osAtom) === 'macos' ? 'meta+k' : 'ctrl+k'))
 const modifierKeyAtom = atom(get => (get(osAtom) === 'macos' ? '⌘' : 'ctrl'))
-const ShortCut = () => {
-   const modifier = useAtomValue(modifierKeyAtom)
-   return (
-      <div className={'pointer-events-none absolute right-4 top-2 hidden gap-1 opacity-50 lg:flex'}>
-         <kbd className='kbd kbd-sm'>{modifier}</kbd>+<kbd className='kbd kbd-sm'>k</kbd>
-      </div>
-   )
-}

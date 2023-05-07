@@ -1,8 +1,7 @@
-import { BackspaceIcon, PlusIcon } from '@heroicons/react/24/outline'
-import { QueryFunction, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query'
+import { BackspaceIcon, PlayIcon } from '@heroicons/react/24/outline'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { memo, ReactNode, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
 import toast from 'react-hot-toast'
 import {
    Artist,
@@ -13,12 +12,10 @@ import {
    SimplifiedShow,
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
-import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
-import { useSpotifyClient } from '@/component/sdk/ClientAtoms'
-import { SearchConfig, useAvailableGenreSeeds, usePlayMutation } from '@/component/sdk/ClientHooks'
+import { useAvailableGenreSeeds, useInfiniteSearchSpotify, usePlayMutation } from '@/component/sdk/ClientHooks'
 import { EntityType } from '@/graphql/generated/schema'
 import atomWithDebounce from '@/lib/atom/atomWithDebounce'
 import { Badge } from '@/lib/component/Badge'
@@ -37,9 +34,9 @@ import {
 } from '@/lib/component/Select'
 import SelectMany from '@/lib/component/SelectMany'
 import { Separator } from '@/lib/component/Seperator'
+import { Skeleton } from '@/lib/component/Skeleton'
 import { ToggleWithDescription } from '@/lib/component/ToggleWithDescription'
 import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
-import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useWindowSizeAtom } from '@/lib/hook/useWindowSize'
 import { chunkArrayInGroups, cn, EntityTypeValues, nonNullable, uniqueByProperty } from '@/util/Utils'
 
@@ -248,7 +245,7 @@ const ScrollSearchResults = () => {
    const searchConfig = useAtomValue(searchConfigAtom)
    const isDisabled = searchConfig === null
 
-   const { isLoading, data, error, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteSearch(
+   const { isLoading, data, error, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteSearchSpotify(
       searchConfig!,
       20,
       { enabled: !isDisabled, retry: false, staleTime: 1 * 60 * 1000 }
@@ -259,8 +256,6 @@ const ScrollSearchResults = () => {
          toast.error('Search Error.')
       }
    }, [error])
-
-   const response = data?.pages ?? []
 
    const [numCols, colsStyle, height]: [number, string, number] = useWindowSizeAtom(
       useCallback(s => {
@@ -283,6 +278,7 @@ const ScrollSearchResults = () => {
       }, [])
    )
 
+   const response = data?.pages ?? []
    const allRows = useMemo(() => {
       const validResults = [
          response.flatMap(r => r.albums?.items ?? []),
@@ -355,7 +351,13 @@ const ScrollSearchResults = () => {
                      >
                         {isLoaderRow ? (
                            hasNextPage ? (
-                              <progress className='progress w-full'></progress>
+                              <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
+                                 {Array(numCols)
+                                    .fill(0)
+                                    .map((_, i) => (
+                                       <Skeleton key={i} className='h-48 w-3/4 rounded p-4' />
+                                    ))}
+                              </div>
                            ) : null
                         ) : (
                            <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
@@ -373,7 +375,7 @@ const ScrollSearchResults = () => {
    }
 }
 
-type SearchRow = SimplifiedAlbum | Artist | SimplifiedEpisode | SimplifiedPlaylist | SimplifiedShow | Track
+type SearchRow = SimplifiedAlbum | Artist | SimplifiedPlaylist | SimplifiedEpisode | SimplifiedShow | Track
 const findImage = (searchRow: SearchRow, index: number) => {
    const images = searchRow.type === 'track' ? searchRow.album?.images : searchRow.images
    return (
@@ -422,13 +424,14 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
       }
    }
 
-   const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
-   useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: playDoubleClick })
+   // const playOnDoubleClickRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>
+   // useDoubleClick({ ref: playOnDoubleClickRef, onDoubleClick: playDoubleClick })
 
    return (
       <Card
          className='relative flex w-36 flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg md:w-48'
-         ref={playOnDoubleClickRef}
+         onClick={open}
+         // ref={playOnDoubleClickRef}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
             <CardTitle className='line-clamp-1 text-clip text-base lg:text-lg'>{searchRow.name}</CardTitle>
@@ -449,8 +452,15 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
             <div className='flex w-full justify-between'>
                <Badge variant='outline'>{capitalizeFirst(type)}</Badge>
 
-               <Button variant='svg' size='empty' onClick={open}>
-                  <PlusIcon className='h-6 w-6' aria-hidden='true' />
+               <Button
+                  variant='svg'
+                  size='empty'
+                  onClick={e => {
+                     e.stopPropagation()
+                     playDoubleClick()
+                  }}
+               >
+                  <PlayIcon className='h-6 w-6' aria-hidden='true' />
                </Button>
             </div>
          </CardFooter>
@@ -476,38 +486,3 @@ const MemoResultRow = memo(
    SearchResultTile,
    (prevProps, nextProps) => prevProps.searchRow.href === nextProps.searchRow.href
 )
-
-export const useInfiniteSearch = (
-   search: SearchConfig,
-   limit: number,
-   options: UseInfiniteQueryOptions<SearchResponse, unknown, SearchResponse>
-) => {
-   const { query, type, options: searchOptions } = search ?? {}
-
-   const client = useSpotifyClient()
-
-   const pageQuery: QueryFunction<SearchResponse, readonly unknown[]> = ({ pageParam }) => {
-      return client.search.search(query, type, { ...searchOptions, limit, offset: pageParam })
-   }
-
-   return useInfiniteQuery<SearchResponse, unknown, SearchResponse>(
-      ['SpotifySearch', query, type, searchOptions],
-      pageQuery,
-      {
-         getNextPageParam: (lastPage, pages) => {
-            if (
-               lastPage.albums?.next ||
-               lastPage.artists?.next ||
-               lastPage.episodes?.next ||
-               lastPage.playlists?.next ||
-               lastPage.shows?.next ||
-               lastPage.tracks?.next
-            ) {
-               return pages.length * limit
-            }
-            return false
-         },
-         ...options,
-      }
-   )
-}

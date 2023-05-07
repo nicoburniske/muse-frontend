@@ -82,35 +82,39 @@ export function orElse<T extends {}>(value: T | undefined, defaultValue: T): Non
    return nonNullable(value) ? value : defaultValue
 }
 
-export const getReviewOverviewImage = (review: ReviewDetailsFragment) => {
+export const getReviewOverviewImage = (review: ReviewDetailsFragment, index?: number = 0) => {
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
-   return findFirstImage(allEntities)
+   return findFirstImage(allEntities, index)
 }
 
 export const userDisplayNameOrId = (user: UserWithSpotifyOverviewFragment) => {
    return user?.spotifyProfile?.displayName ?? user?.id
 }
 
-export function findFirstImage(reviews: ReviewEntityOverviewFragment[]) {
-   return reviews
-      .map(entity =>
-         (() => {
-            /* eslint-disable */
-            switch (entity?.__typename) {
-               case 'Artist':
-                  return entity?.artistImages?.at(0)
-               case 'Playlist':
-               case 'Album':
-                  return entity?.images?.at(0)
-               case 'Track':
-                  return entity?.album?.images.at(0)
-            }
-            /* eslint-enable*/
-         })()
-      )
-      .filter(nonNullable)
-      .at(0)
+export function findFirstImage(reviews: ReviewEntityOverviewFragment[], index?: number) {
+   const atIndex = index === undefined ? 0 : index
+   return (
+      reviews
+         .flatMap(entity =>
+            (() => {
+               /* eslint-disable */
+               switch (entity?.__typename) {
+                  case 'Artist':
+                     return entity?.artistImages ?? []
+                  case 'Playlist':
+                  case 'Album':
+                     return entity?.images ?? []
+                  case 'Track':
+                     return entity?.album?.images ?? []
+               }
+               /* eslint-enable*/
+            })()
+         )
+         .filter(nonNullable)
+         .filter((_, i) => i <= atIndex)
+         .at(-1) ?? ''
+   )
 }
 
 export function chunkArrayInGroups<T>(arr: T[], size: number): T[][] {

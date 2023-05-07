@@ -3,6 +3,7 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { CommandButton } from '@/component/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
@@ -51,7 +52,8 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                <div className='relative flex h-16 flex-shrink-0 items-center border-b p-1 shadow-sm'>
                   <MobileNavigation />
                   <div className='align-center flex flex-1 justify-center px-4 py-2'>
-                     <SearchBar />
+                     <CommandButton />
+                     {/* <SearchBar /> */}
                   </div>
                   <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
                </div>

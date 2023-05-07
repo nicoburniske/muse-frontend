@@ -1,10 +1,14 @@
 import { MutableRefObject, useRef, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import CommentMarkdown from '@/component/comment/CommentMarkdown'
 import { Button } from '@/lib/component/Button'
 import { CardContent, CardFooter, CardHeader } from '@/lib/component/Card'
+import { ShortCut } from '@/lib/component/ShortCut'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { Textarea } from '@/lib/component/TextArea'
+import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
+import { osAtom } from '@/state/Atoms'
 import { cn } from '@/util/Utils'
 
 export interface CommentFormProps {
@@ -19,8 +23,13 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
    const [comment, setComment] = useState(initialValue)
    const [isSubmitting, setIsSubmitting] = useState(false)
 
+   const canSubmit = comment != initialValue
+
    const submitAndReset = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       event.preventDefault()
+      submit()
+   }
+   const submit = async () => {
       setIsSubmitting(true)
       try {
          await onSubmit(comment)
@@ -53,7 +62,19 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
       applyToSelected(s => `*${s}*`)
    }
 
-   const canSubmit = comment != initialValue
+   useHotkeys(
+      ['meta+enter', 'ctrl+enter'],
+      () => {
+         console.log('hotkey!')
+         if (canSubmit && !isSubmitting) {
+            submit()
+         }
+      },
+      { enableOnFormTags: ['textarea'] },
+      [canSubmit, isSubmitting, submit]
+   )
+
+   const modifier = useDerivedAtomValue(get => (get(osAtom) === 'macos' ? '⌘' : 'ctrl'), [])
 
    return (
       <>
@@ -123,8 +144,14 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
                </CardContent>
             </Tabs>
             <CardFooter className='flex justify-between'>
-               <Button onClick={submitAndReset} disabled={!canSubmit || isSubmitting}>
+               <Button
+                  variant='outline'
+                  onClick={submitAndReset}
+                  disabled={!canSubmit || isSubmitting}
+                  className='relative flex justify-start sm:w-32'
+               >
                   Submit
+                  <ShortCut modifierKey={modifier} actionKey={'↵'} />
                </Button>
             </CardFooter>
          </div>

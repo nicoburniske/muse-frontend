@@ -8,11 +8,11 @@ import { atom, useAtom, useAtomValue } from 'jotai'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
+import { CommandButton } from '@/component/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { MuseTransition } from '@/lib/component/MuseTransition'
-import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { BrowseCard } from '@/pages/myReviews/BrowseCard'
 import { searchLoweredAtom, useSearchAtom } from '@/state/Atoms'
@@ -142,16 +142,7 @@ const SearchBar = () => {
    // TODO: Fix centering!
    const [search, setSearch] = useSearchAtom()
 
-   return (
-      <div className='max-w-3xl flex-1'>
-         <SearchInputKbdSuggestion
-            screenReaderLabel='Search Reviews'
-            placeholder={'Search Reviews'}
-            search={search}
-            setSearch={setSearch as (s: string) => void}
-         />
-      </div>
-   )
+   return <CommandButton />
 }
 
 const selectNeedsReviews = (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0
@@ -228,7 +219,7 @@ const NoReviewsState = () => {
    )
 }
 
-const useProfileAndReviews = () => {
+export const useProfileAndReviews = () => {
    // TODO: Have to account for viewed reviews.
    const currentUserId = useCurrentUserId()
    const { data } = useProfileAndReviewsQuery(
