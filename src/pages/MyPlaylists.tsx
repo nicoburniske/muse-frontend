@@ -1,9 +1,9 @@
-import { ArrowPathIcon, Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import {
@@ -48,18 +48,12 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
       <>
          <div className='flex flex-1 flex-col bg-background'>
             <header className='w-full'>
-               <div className='relative z-10 flex h-16 flex-shrink-0 items-center shadow-sm'>
-                  <OpenMobileMenuButton>
-                     {onClick => (
-                        <Button className='ml-1 inline md:hidden' onClick={onClick}>
-                           <span className='sr-only'>Open sidebar</span>
-                           <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                        </Button>
-                     )}
-                  </OpenMobileMenuButton>
+               <div className='relative flex h-16 flex-shrink-0 items-center border-b p-1 shadow-sm'>
+                  <MobileNavigation />
                   <div className='align-center flex flex-1 justify-center px-4 py-2'>
                      <SearchBar />
                   </div>
+                  <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
                </div>
             </header>
 
@@ -81,7 +75,7 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                         <MuseTransition option={'Simple'} duration='duration-300'>
                            <ul
                               role='list'
-                              className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                              className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
                            >
                               {playlists.map(p => (
                                  <BrowseCard key={p.id} playlist={p} />
@@ -141,7 +135,7 @@ function BrowseCard({ playlist }: { playlist: PlaylistDetailsFragment }) {
    const openDetails = () => setSelectedPlaylist(playlist.id)
 
    const nav = useNavigate()
-   const linkToPlaylist = () => nav(`/app/playlist/${playlist.id}`)
+   const linkToPlaylist = () => nav(`/app/playlists/${playlist.id}`)
    const linkToProfile = () => nav(`/app/user/${playlist.owner.id}`)
 
    return (

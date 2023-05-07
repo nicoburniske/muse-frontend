@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useParams } from 'react-router-dom'
 
+import { MobileNavigation } from '@/component/container/MobileMenu'
 import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
 import { UserAvatar } from '@/component/UserAvatar'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
@@ -64,8 +65,13 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
 
    return (
       <>
-         <div className='muse-scrollbar flex flex-1 flex-col items-center overflow-y-auto px-2 pt-16'>
-            <div className='bg-base-200 mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg text-foreground shadow-2xl'>
+         <div className='muse-scrollbar flex flex-1 flex-col items-center overflow-y-auto px-2 md:pt-16'>
+            <header className='my-2 flex w-full items-center justify-between md:hidden'>
+               <MobileNavigation />
+
+               <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+            </header>
+            <div className='mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg bg-card text-card-foreground shadow-2xl'>
                <div className='px-6'>
                   <div className='flex flex-wrap justify-center'>
                      <div className='flex w-full justify-center px-4'>
@@ -102,7 +108,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
                   <MuseTransition option={'Simple'} duration='duration-300'>
                      <ul
                         role='list'
-                        className='grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                        className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
                      >
                         {reviews.map(review => (
                            <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review.id)} />

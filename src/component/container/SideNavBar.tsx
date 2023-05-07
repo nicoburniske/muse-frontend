@@ -4,7 +4,7 @@ import LogoImage from '/logo.png'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { cn } from '@/util/Utils'
 
-import { NAVIGATION, NavItem } from './NavConstants'
+import { NAV, NavItem } from './NavConstants'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
 
 export const SideNavBar = () => {
@@ -35,7 +35,7 @@ export const SideNavBar = () => {
 const NavBarLinks = () => {
    return (
       <nav aria-label='Sidebar' className='flex flex-col items-center space-y-3 py-6'>
-         {NAVIGATION.map(item => (
+         {NAV.map(item => (
             <NavBarLink key={item.name} item={item} />
          ))}
       </nav>

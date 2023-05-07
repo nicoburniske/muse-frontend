@@ -31,7 +31,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
          onClick={linkToReviewPage}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
-            <CardTitle className='line-clamp-1 text-base lg:text-lg'>{review.reviewName}</CardTitle>
+            <CardTitle className='line-clamp-1 text-clip text-base lg:text-lg'>{review.reviewName}</CardTitle>
             <Button
                variant='link'
                size='sm'

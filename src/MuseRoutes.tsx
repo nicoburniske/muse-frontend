@@ -18,7 +18,7 @@ export default function MuseRoutes() {
             <Route path='search' element={<SearchPage />} />
             <Route path='reviews' element={<ReviewsPage />} />
             <Route path='playlists' element={<MyPlaylistsPage />} />
-            <Route path='playlist/:playlistId' element={<PlaylistPage />} />
+            <Route path='playlists/:playlistId' element={<PlaylistPage />} />
             <Route path='reviews/:reviewId' element={<DetailedReviewPage />} />
             <Route path='user/:userId' element={<ProfilePage />} />
             <Route path='*' element={<NotFound label='Back' redirect='/app' />} />

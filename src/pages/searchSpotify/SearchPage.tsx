@@ -1,4 +1,4 @@
-import { BackspaceIcon, Bars3BottomLeftIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { BackspaceIcon, PlusIcon } from '@heroicons/react/24/outline'
 import { QueryFunction, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -15,7 +15,7 @@ import {
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 import { SearchResponse } from 'spotify-web-api-ts/types/types/SpotifyResponses'
 
-import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { useSpotifyClient } from '@/component/sdk/ClientAtoms'
 import { SearchConfig, useAvailableGenreSeeds, usePlayMutation } from '@/component/sdk/ClientHooks'
@@ -47,18 +47,12 @@ const SearchPage = () => {
    return (
       <>
          <div className='flex grow flex-col'>
-            <div className='relative flex w-full items-center justify-center'>
-               <OpenMobileMenuButton>
-                  {onClick => (
-                     <Button className='absolute left-2 inline md:hidden' onClick={onClick}>
-                        <span className='sr-only'>Open sidebar</span>
-                        <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                     </Button>
-                  )}
-               </OpenMobileMenuButton>
-               <div className='ml-16 w-full max-w-3xl justify-self-center'>
+            <div className='relative flex w-full items-center justify-between p-1 md:justify-center'>
+               <MobileNavigation />
+               <div className='w-full max-w-3xl justify-self-center'>
                   <SearchInputBar />
                </div>
+               <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
             </div>
             <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
                <SelectEntityTypes />
@@ -437,7 +431,7 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
          ref={playOnDoubleClickRef}
       >
          <CardHeader className='space-y-0 p-4 pb-0'>
-            <CardTitle className='line-clamp-1 text-base lg:text-lg'>{searchRow.name}</CardTitle>
+            <CardTitle className='line-clamp-1 text-clip text-base lg:text-lg'>{searchRow.name}</CardTitle>
             <div className='line-clamp-1 px-0 py-0 text-sm text-muted-foreground md:text-base'>
                {secondaryData(searchRow)}
             </div>

@@ -1,9 +1,9 @@
-import { Bars3BottomLeftIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
+import { ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
 
-import { OpenMobileMenuButton } from '@/component/container/OpenMobileMenuButton'
+import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { TrackTable } from '@/component/trackTable/TrackTable'
 import { useGetPlaylistQuery } from '@/graphql/generated/schema'
@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import { Button } from '@/lib/component/Button'
 import Hero from '@/lib/component/Hero'
 import { HeroLoading } from '@/lib/component/HeroLoading'
-import { Separator } from '@/lib/component/Seperator'
 import { SelectedPlaylist, useSelectPlaylist } from '@/pages/MyPlaylists'
 
 import { NotFound } from './NotFound'
@@ -63,21 +62,14 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
    return (
       <>
          <div className='flex h-full w-full flex-col'>
-            <div className='flex w-full items-center justify-between'>
+            <div className='flex w-full items-center justify-between border-b p-1'>
                <div className='flex items-center gap-4'>
-                  <OpenMobileMenuButton>
-                     {onClick => (
-                        <Button size='sm' className='md:hidden' onClick={onClick}>
-                           <span className='sr-only'>Open sidebar</span>
-                           <Bars3BottomLeftIcon className='h-6 w-6' aria-hidden='true' />
-                        </Button>
-                     )}
-                  </OpenMobileMenuButton>
+                  <MobileNavigation />
                   <div className='ml-2 hidden md:flex'>
                      <img
                         className='h-20 w-20 object-scale-down object-center shadow-2xl'
                         src={image}
-                        alt='Review Image'
+                        alt='Playlist Image'
                      />
                   </div>
                   <div className='flex flex-col justify-center'>
@@ -96,8 +88,7 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
                   </Button>
                </div>
             </div>
-            <Separator />
-            <main className='mx-auto mt-4 min-h-0 w-full max-w-7xl border'>
+            <main className='mx-auto min-h-0 w-full max-w-7xl border'>
                <TrackTable tracks={playlist.tracks!} />
             </main>
          </div>
