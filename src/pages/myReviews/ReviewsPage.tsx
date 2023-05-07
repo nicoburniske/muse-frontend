@@ -1,10 +1,9 @@
 import {
-   Bars3BottomLeftIcon,
    ChevronRightIcon,
    MagnifyingGlassCircleIcon,
    MusicalNoteIcon,
    QuestionMarkCircleIcon,
-} from '@heroicons/react/20/solid'
+} from '@heroicons/react/24/outline'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -174,14 +173,14 @@ const items = [
       name: 'From a Playlist',
       description: "Well curated tunes don't review themselves.",
       href: '/app/playlists',
-      iconColor: 'bg-primary text-primary-content',
+      iconColor: 'bg-primary text-primary-foreground',
       icon: MusicalNoteIcon,
    },
    {
       name: 'Browse Spotify',
       description: 'Always more music to explore.',
       href: '/app/search',
-      iconColor: 'bg-secondary text-secondary-content',
+      iconColor: 'bg-secondary text-secondary-foreground',
       icon: MagnifyingGlassCircleIcon,
    },
 ]
