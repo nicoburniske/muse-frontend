@@ -11,10 +11,10 @@ import { BrowserRouter } from 'react-router-dom'
 import { createClient, Provider, subscriptionExchange } from 'urql'
 
 import { SpotifyPlaybackSdk } from '@/component/sdk/PlaybackSDK'
-import { Theme, useThemeValueEffect } from '@/state/UserPreferences'
 import { AppConfig } from '@/util/AppConfig'
 
 import MuseRoutes from './MuseRoutes'
+import { Theme, useThemeValue } from './state/UserPreferences'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -34,9 +34,10 @@ const urqlClient = createClient({
    ],
 })
 
-const setDocumentTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme)
 const Main = () => {
-   useThemeValueEffect(setDocumentTheme)
+   const theme = useThemeValue()
+   const setDocumentTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme)
+   setDocumentTheme(theme)
 
    return (
       <BrowserRouter>
