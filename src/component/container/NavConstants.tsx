@@ -20,14 +20,9 @@ export type NavItem = {
 
 export type Icon = (props: React.ComponentProps<'svg'> & { title?: string; titleId?: string }) => JSX.Element
 
-const useNavAction = (path: string) => {
+export const useNavAction = (path: string) => {
    const nav = useNavigate()
    return () => nav(path)
-}
-
-const useOpenPreferences = () => {
-   const { openPreferencesModal } = usePreferencesModal()
-   return () => openPreferencesModal()
 }
 
 export const NAV: readonly NavItem[] = [
@@ -43,7 +38,11 @@ export const NAV: readonly NavItem[] = [
       name: 'Settings',
       href: '/app/settings',
       icon: CogIcon,
-      action: () => useOpenPreferences(),
+      action: () =>
+         (() => {
+            const { openPreferencesModal } = usePreferencesModal()
+            return () => openPreferencesModal()
+         })(),
       className: 'muse-preferences',
    },
 ] as const

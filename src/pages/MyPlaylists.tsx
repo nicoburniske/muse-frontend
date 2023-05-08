@@ -3,7 +3,7 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { CommandButton } from '@/component/Command'
+import { CommandButton } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'

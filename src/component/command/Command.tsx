@@ -7,11 +7,16 @@ import {
    PlusIcon,
 } from '@heroicons/react/24/outline'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, useEffect } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
 import { Artist, SearchType, SimplifiedAlbum, SimplifiedPlaylist } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 
+import { NAV, NavItem } from '@/component/container/NavConstants'
+import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useSpotifyIcon } from '@/component/ListenOnSpotify'
+import { useSearchSpotify } from '@/component/sdk/ClientHooks'
+import { useResetSpotifySdk } from '@/component/sdk/PlaybackSDK'
 import {
    EntityType,
    MyPlaylistsQuery,
@@ -38,27 +43,34 @@ import { useLogoutMutation } from '@/state/useLogoutMutation'
 import { Themes, useTheme } from '@/state/UserPreferences'
 import { allEntities, cn, getReviewOverviewImage, userDisplayNameOrId } from '@/util/Utils'
 
-import { NAV, NavItem } from './container/NavConstants'
-import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
-import { useSpotifyIcon } from './ListenOnSpotify'
-import { useSearchSpotify } from './sdk/ClientHooks'
-import { useResetSpotifySdk } from './sdk/PlaybackSDK'
-
 const openAtom = atom(false)
 
 const searchAtom = atomWithDebounce('')
-const useCurrentSearch = () => {
-   return [useAtomValue(searchAtom.currentValueAtom), useSetAtom(searchAtom.debouncedValueAtom)] as [
-      string,
-      (newSearch: string) => void
-   ]
-}
+const useCurrentSearch = (): [string, Dispatch<SetStateAction<string>>] => [
+   useAtomValue(searchAtom.currentValueAtom),
+   useSetAtom(searchAtom.debouncedValueAtom),
+]
 
-const pagesAtom = atom<string[]>([])
-const setPageAndClearAtom = atom(null, (get, set, page: string) => {
+export const Pages = {
+   createReview: 'Create Review',
+   searchReviews: 'Search Reviews',
+   searchPlaylists: 'Search Playlists',
+   createAlbumReview: 'Create Album Review',
+   createPlaylistReview: 'Create Playlist Review',
+} as const
+export type Page = (typeof Pages)[keyof typeof Pages]
+
+export const pagesAtom = atom<string[]>([])
+const setPageAndClearAtom = atom(null, (_get, set, page: Page) => {
    set(pagesAtom, pages => [...pages, page])
    set(searchAtom.debouncedValueAtom, '')
 })
+
+const setPageAndOpenAtom = atom(null, (_get, set, page: Page) => {
+   set(setPageAndClearAtom, page)
+   set(openAtom, true)
+})
+
 const currentPageAtom = atom(get => {
    const pages = get(pagesAtom)
    if (pages.length === 0) {
@@ -83,14 +95,24 @@ type CommandGroup = {
       }
    }[]
 }
-const extraCommandGroups = atom<CommandGroup[]>([])
+
+const extraCommandGroupsAtom = atom<CommandGroup[]>([])
+
+/**
+ * External hooks.
+ */
 
 export const useSetExtraCommandGroups = (pages: CommandGroup[]) => {
-   const setExtraCommandGroups = useSetAtom(extraCommandGroups)
+   const setExtraCommandGroups = useSetAtom(extraCommandGroupsAtom)
    useEffect(() => {
       setExtraCommandGroups(pages)
       return () => setExtraCommandGroups([])
    }, [pages])
+}
+
+export const useOpenCommandPage = () => {
+   const setPageAndOpen = useSetAtom(setPageAndOpenAtom)
+   return useCallback((page: Page) => setPageAndOpen(page), [setPageAndOpen])
 }
 
 export const useExecuteAndClose = () => {
@@ -139,9 +161,9 @@ export const CommandMenu = () => {
 
    const setPageAndClear = useSetAtom(setPageAndClearAtom)
 
-   const extraGroups = useAtomValue(extraCommandGroups)
+   const extraGroups = useAtomValue(extraCommandGroupsAtom)
 
-   const isCreateReview = page === 'Create Album Review' || page === 'Create Playlist Review'
+   const isCreateReview = page === Pages.createAlbumReview || page === Pages.createPlaylistReview
    const createType = (() => {
       const lowered = page?.toLowerCase()
       if (lowered?.includes('album')) {
@@ -207,15 +229,15 @@ export const CommandMenu = () => {
                      ))}
 
                      <CommandGroup heading='Suggestions'>
-                        <CommandItem onSelect={() => setPageAndClear('Create Review')}>
+                        <CommandItem onSelect={() => setPageAndClear(Pages.createReview)}>
                            <PlusIcon className='mr-2 h-4 w-4' />
                            Create a review
                         </CommandItem>
-                        <CommandItem onSelect={() => setPageAndClear('reviews')}>
+                        <CommandItem onSelect={() => setPageAndClear(Pages.searchReviews)}>
                            <ChatBubbleLeftRightIcon className='mr-2 h-4 w-4' />
                            Search your reviews…
                         </CommandItem>
-                        <CommandItem onSelect={() => setPageAndClear('playlists')}>
+                        <CommandItem onSelect={() => setPageAndClear(Pages.searchPlaylists)}>
                            <MusicalNoteIcon className='mr-2 h-4 w-4' />
                            Search your playlists...
                         </CommandItem>
@@ -235,9 +257,9 @@ export const CommandMenu = () => {
 
                <CommandSeparator />
 
-               {page === 'Create Review' && (
+               {page === Pages.createReview && (
                   <CommandGroup heading='Select Review Type'>
-                     <CommandItem onSelect={() => setPageAndClear('Create Album Review')}>
+                     <CommandItem onSelect={() => setPageAndClear(Pages.createAlbumReview)}>
                         <svg
                            xmlns='http://www.w3.org/2000/svg'
                            width='24'
@@ -256,7 +278,7 @@ export const CommandMenu = () => {
                         </svg>
                         Create Album Review
                      </CommandItem>
-                     <CommandItem onSelect={() => setPageAndClear('Create Playlist Review')}>
+                     <CommandItem onSelect={() => setPageAndClear(Pages.createPlaylistReview)}>
                         <ListBulletIcon className='mr-2 h-4 w-4' />
                         Create Playlist Review
                      </CommandItem>

@@ -15,7 +15,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Link } from 'react-router-dom'
 import Split from 'react-split'
 
-import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/component/Command'
+import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/component/command/Command'
 import ReviewCommentSection from '@/component/comment/CommentSection'
 import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { MobileNavigation } from '@/component/container/MobileMenu'

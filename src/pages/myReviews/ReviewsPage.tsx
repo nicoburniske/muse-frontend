@@ -1,15 +1,16 @@
 import {
    ChevronRightIcon,
+   CodeBracketIcon,
    MagnifyingGlassCircleIcon,
    MusicalNoteIcon,
    QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 
-import { CommandButton } from '@/component/Command'
+import { CommandButton, Pages, useOpenCommandPage } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
+import { useNavAction } from '@/component/container/NavConstants'
 import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { MuseTransition } from '@/lib/component/MuseTransition'
@@ -152,61 +153,74 @@ const useNeedsReviews = () => {
    return data
 }
 
-const items = [
+const CreateFirstReviewOptions = [
    {
-      name: 'From a Playlist',
+      name: 'Command',
+      description: 'This is the quickest option!',
+      action: () =>
+         (() => {
+            const openPage = useOpenCommandPage()
+            return () => openPage(Pages.createReview)
+         })(),
+      iconColor: 'bg-primary text-primary-foreground',
+      icon: CodeBracketIcon,
+   },
+   {
+      name: 'From Your Playlists',
       description: "Well curated tunes don't review themselves.",
-      href: '/app/playlists',
+      action: () => useNavAction('/app/playlists'),
       iconColor: 'bg-primary text-primary-foreground',
       icon: MusicalNoteIcon,
    },
    {
       name: 'Browse Spotify',
       description: 'Always more music to explore.',
-      href: '/app/search',
+      action: () => useNavAction('/app/search'),
       iconColor: 'bg-secondary text-secondary-foreground',
       icon: MagnifyingGlassCircleIcon,
    },
 ]
 
 const NoReviewsState = () => {
-   const nav = useNavigate()
    return (
       <div className='mx-auto max-w-lg pt-10'>
          <h2 className='text-lg font-medium text-foreground'>Create your first review </h2>
          {/* <p className='mt-1 text-sm text-gray-500'>Share some</p> */}
-         <ul role='list' className='mt-6 divide-y divide-foreground/10 border-b border-t border-foreground/10'>
-            {items.map((item, itemIdx) => (
-               <li key={itemIdx}>
-                  <div className='group relative flex items-start space-x-3 py-4'>
-                     <div className='flex-shrink-0'>
-                        <span
-                           className={cn(
-                              item.iconColor,
-                              'inline-flex h-10 w-10 items-center justify-center rounded-lg'
-                           )}
-                        >
-                           <item.icon className='h-6 w-6' aria-hidden='true' />
-                        </span>
-                     </div>
-                     <div className='min-w-0 flex-1'>
-                        <div className='text-sm font-medium text-foreground'>
-                           <button onClick={() => nav(item.href)}>
-                              <span className='absolute inset-0' aria-hidden='true' />
-                              {item.name}
-                           </button>
+         <ul role='list' className='mt-6 '>
+            {CreateFirstReviewOptions.map((item, itemIdx) => {
+               const action = item.action()
+               return (
+                  <li key={itemIdx}>
+                     <div className='group relative flex items-start space-x-3 border-b border-t border-foreground/10 py-4'>
+                        <div className='flex-shrink-0'>
+                           <span
+                              className={cn(
+                                 item.iconColor,
+                                 'inline-flex h-10 w-10 items-center justify-center rounded-lg'
+                              )}
+                           >
+                              <item.icon className='h-6 w-6' aria-hidden='true' />
+                           </span>
                         </div>
-                        <p className='text-sm text-foreground/50'>{item.description}</p>
+                        <div className='min-w-0 flex-1'>
+                           <div className='text-sm font-medium text-foreground'>
+                              <button onClick={action}>
+                                 <span className='absolute inset-0' aria-hidden='true' />
+                                 {item.name}
+                              </button>
+                           </div>
+                           <p className='text-sm text-foreground/50'>{item.description}</p>
+                        </div>
+                        <div className='flex-shrink-0 self-center'>
+                           <ChevronRightIcon
+                              className='h-5 w-5 text-foreground/50 group-hover:text-foreground'
+                              aria-hidden='true'
+                           />
+                        </div>
                      </div>
-                     <div className='flex-shrink-0 self-center'>
-                        <ChevronRightIcon
-                           className='h-5 w-5 text-foreground/50 group-hover:text-foreground'
-                           aria-hidden='true'
-                        />
-                     </div>
-                  </div>
-               </li>
-            ))}
+                  </li>
+               )
+            })}
          </ul>
       </div>
    )
