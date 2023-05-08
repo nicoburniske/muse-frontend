@@ -283,7 +283,7 @@ const ReviewGroup = () => {
             <CommandItem
                key={r.id}
                onSelect={() => executeAndClose(navToReview(r.id))}
-               value={`${r.reviewName} ${userDisplayNameOrId(r.creator)}`}
+               value={`${r.reviewName} ${userDisplayNameOrId(r.creator)} ${r.id}`}
             >
                <div className='flex w-full items-center justify-between'>
                   <div className='flex items-center gap-4'>
