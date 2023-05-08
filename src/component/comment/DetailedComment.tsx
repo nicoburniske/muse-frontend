@@ -179,13 +179,11 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                   </div>
 
                   <div className='flex items-center justify-between space-x-1'>
-                     <div className='flex max-w-[75%] items-center space-x-1' ref={playOnDoubleClickRef}>
+                     <div className='flex min-w-0 items-center space-x-1' ref={playOnDoubleClickRef}>
                         <div className='h-10 w-10 flex-none'>
                            <img src={image} />
                         </div>
-                        <div className='min-w-0 flex-shrink'>
-                           <p className='select-none truncate p-0.5 text-sm'> {name} </p>
-                        </div>
+                        <p className='min-w-0 select-none truncate p-0.5 text-sm'> {name} </p>
                      </div>
                      <div className='flex flex-shrink-0 self-center'>
                         <CommentMenu reviewId={reviewId} comment={detailedComment} />
@@ -276,7 +274,8 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
       openEdit()
    }
 
-   const openDeleteComment = useOpenDeleteConfirmation({ reviewId, commentId: comment.id })
+   const openDelete = useOpenDeleteConfirmation()
+   const openDeleteComment = () => openDelete({ reviewId, commentId: comment.id })
 
    const deleteComment = () => {
       setOpen(false)

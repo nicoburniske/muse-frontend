@@ -83,7 +83,7 @@ export const ReviewGroupHeader = ({
       >
          <div className={cn('flex w-full items-center p-1')}>
             <div className='grid grow grid-cols-2 items-center'>
-               <h2 className={'text-md text-secondary-content truncate md:text-xl'}>{reviewName}</h2>
+               <h2 className={'text-md runcate md:text-xl'}>{reviewName}</h2>
                <div className={'flex flex-row items-center justify-start'}>
                   {
                      <div className='avatar hidden md:inline-flex'>
@@ -92,9 +92,8 @@ export const ReviewGroupHeader = ({
                         </div>
                      </div>
                   }
-                  <div className='ml-1 flex flex-col items-start gap-0.5'>
-                     {/* TODO: fix multi-line */}
-                     <Badge>{entityName}</Badge>
+                  <div className='ml-1 flex min-w-0 flex-col items-start gap-0.5 overflow-hidden'>
+                     <Badge className='flex min-w-0 truncate'>{entityName}</Badge>
                      <Badge variant='secondary'>{entityType}</Badge>
                   </div>
                </div>

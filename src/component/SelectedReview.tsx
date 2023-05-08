@@ -3,7 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewButton'
+import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
 import { useEditReview } from '@/component/editReview/EditReview'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'

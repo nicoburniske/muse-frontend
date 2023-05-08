@@ -5,7 +5,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
 
 import { CommandMenu } from '@/component/Command'
-import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewButton'
+import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
 import { EditReviewModal } from '@/component/editReview/EditReview'
 import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
 import { UserPreferencesModal } from '@/component/preferences/UserPreferencesForm'

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 import { useDeleteReviewMutation, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
 import {
    AlertDialog,
    AlertDialogAction,
@@ -17,33 +18,35 @@ import {
    AlertDialogTitle,
 } from '@/lib/component/AlertDialog'
 
-const reviewIdAtom = atomWithReset<string | null>(null)
+const maybeReviewIdAtom = atomWithReset<string | null>(null)
+const reviewIdAtom = atomValueOrThrow(maybeReviewIdAtom)
 const openAtom = atom(
-   get => get(reviewIdAtom) !== null,
+   get => get(maybeReviewIdAtom) !== null,
    (_, set, open: boolean) => {
       if (!open) {
-         set(reviewIdAtom, RESET)
+         set(maybeReviewIdAtom, RESET)
       }
    }
 )
 
 export const useDeleteReview = () => {
-   const setReviewId = useSetAtom(reviewIdAtom)
+   const setReviewId = useSetAtom(maybeReviewIdAtom)
 
    return useCallback((reviewId: string) => setReviewId(reviewId), [setReviewId])
 }
 
 export const DeleteReviewModal = () => {
-   const reviewId = useAtomValue(reviewIdAtom)
+   const isOpen = useAtomValue(openAtom)
 
-   if (reviewId !== null) {
-      return <DeleteReview reviewId={reviewId} />
+   if (isOpen) {
+      return <DeleteReview />
    } else {
       return null
    }
 }
 
-export const DeleteReview = ({ reviewId }: { reviewId: string }) => {
+export const DeleteReview = () => {
+   const reviewId = useAtomValue(reviewIdAtom)
    const [open, setOpen] = useAtom(openAtom)
 
    const queryClient = useQueryClient()

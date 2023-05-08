@@ -11,6 +11,7 @@ import {
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { Link } from 'react-router-dom'
 import Split from 'react-split'
 
@@ -18,7 +19,7 @@ import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/c
 import ReviewCommentSection from '@/component/comment/CommentSection'
 import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { useDeleteReview } from '@/component/deleteReview/DeleteReviewButton'
+import { useDeleteReview } from '@/component/deleteReview/DeleteReviewModal'
 import { useEditReview } from '@/component/editReview/EditReview'
 import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
 import { useShareReview } from '@/component/shareReview/ShareReview'
@@ -44,7 +45,7 @@ import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
-import { findFirstImage, groupBy, nonNullable, userDisplayNameOrId } from '@/util/Utils'
+import { allEntities, findFirstImage, groupBy, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 import { LinkReviewButton } from './LinkReview'
@@ -125,33 +126,24 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
 const useAddCommands = (review: ReviewDetailsFragment) => {
    const reviewId = review.id
    const executeWrapper = useExecuteAndClose()
-   // Select review.
-   const { setSelectedReview } = useSelectReview()
-   const openInfo = () => executeWrapper(() => setSelectedReview(reviewId))
 
    // Help.
    const tour = useOpenReviewTour()
-   const openTour = () => executeWrapper(() => tour())
+   const openTour = executeWrapper(() => tour())
 
    // Edit.
    // Share.
    const { openShareReview } = useShareReview()
-   const openShare = () => executeWrapper(() => openShareReview(reviewId))
+   const openShare = executeWrapper(() => openShareReview(reviewId))
    const { openEditReview } = useEditReview()
-   const openEdit = () => executeWrapper(() => openEditReview(reviewId))
+   const openEdit = executeWrapper(() => openEditReview(reviewId))
 
    const deleteReview = useDeleteReview()
-   const openDelete = () => executeWrapper(() => deleteReview(reviewId))
+   const openDelete = executeWrapper(() => deleteReview(reviewId))
 
    const commandGroup = {
       header: `Review Actions: ${review.reviewName}`,
       items: [
-         {
-            id: 'See Review Details',
-            label: 'See Review Details',
-            onSelect: openInfo,
-            icon: InformationCircleIcon,
-         },
          {
             id: 'Share Review',
             label: 'Share Review',
@@ -181,28 +173,50 @@ const useAddCommands = (review: ReviewDetailsFragment) => {
 
    // Render options
    const setRenderOption = useSetAtom(renderOptionAtom)
-   const setRender = (option: RenderOption) => () => executeWrapper(() => setRenderOption(option))
+   const setRender = (option: RenderOption) => executeWrapper(() => setRenderOption(option))
+
+   // Select review.
+   const { setSelectedReview } = useSelectReview()
+   const openInfo = executeWrapper(() => setSelectedReview(reviewId))
 
    const quickActions = {
       header: 'Quick Actions',
       items: [
          {
-            id: 'Show Tracks',
+            id: 'Show View Tracks',
             label: 'Show Tracks',
             onSelect: setRender('tracks'),
             icon: ListBulletIcon,
+            shortcut: {
+               modifier: '⌥',
+               key: 'J',
+            },
          },
          {
-            id: 'Show Comments',
+            id: 'View Show Comments Tracks Both',
+            label: 'Show Comments & Tracks',
+            onSelect: setRender('both'),
+            icon: ArrowsRightLeftIcon,
+            shortcut: {
+               modifier: '⌥',
+               key: 'K',
+            },
+         },
+         {
+            id: 'View Show Comments',
             label: 'Show Comments',
             onSelect: setRender('comments'),
             icon: ChatBubbleBottomCenterIcon,
+            shortcut: {
+               modifier: '⌥',
+               key: 'L',
+            },
          },
          {
-            id: 'Show Comments and Tracks',
-            label: 'Show Comments and Tracks',
-            onSelect: setRender('both'),
-            icon: ArrowsRightLeftIcon,
+            id: 'Review info',
+            label: 'Review info',
+            onSelect: openInfo,
+            icon: InformationCircleIcon,
          },
       ],
    }
@@ -222,10 +236,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const creatorId = review.creator.id
    const entity = review.entity
 
-   // Find first image!
-   const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    // Root review doesn't need an entity.
-   const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
+   const reviewEntityImage = findFirstImage(allEntities(review))
 
    const linkEnabled = review.entity?.__typename === 'Artist'
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
@@ -332,6 +344,10 @@ const DetailedReviewBody = ({ rootReview, reviews }: DetailedReviewBodyProps) =>
    useEffect(() => {
       setSelectedTrack(undefined)
    }, [options])
+
+   useHotkeys(['alt+j'], () => setOption('tracks'))
+   useHotkeys(['alt+k'], () => setOption('both'))
+   useHotkeys(['alt+l'], () => setOption('comments'))
 
    return (
       <div className='h-full px-1'>

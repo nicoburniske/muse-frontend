@@ -10,7 +10,7 @@ import {
 } from '@/graphql/generated/schema'
 import { groupBy, nonNullable } from '@/util/Utils'
 
-import { DeleteCommentConfirmation } from './DeleteCommentConfirmation'
+import { DeleteCommentModal } from './DeleteCommentConfirmation'
 import DetailedComment from './DetailedComment'
 
 const selectComments = (data: DetailedReviewCommentsQuery) => data.review?.comments ?? []
@@ -64,7 +64,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
                </>
             ))}
          </div>
-         <DeleteCommentConfirmation />
+         <DeleteCommentModal />
       </>
    )
 }

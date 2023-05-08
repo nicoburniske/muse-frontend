@@ -28,13 +28,15 @@ import {
    CommandItem,
    CommandList,
    CommandSeparator,
+   CommandShortcut,
 } from '@/lib/component/Command'
 import { Skeleton } from '@/lib/component/Skeleton'
 import { useTransientAtom } from '@/lib/hook/useTransientAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { Themes, useTheme } from '@/state/UserPreferences'
-import { cn, getReviewOverviewImage, userDisplayNameOrId } from '@/util/Utils'
+import { allEntities, cn, getReviewOverviewImage, userDisplayNameOrId } from '@/util/Utils'
 
+import { NAV, NavItem } from './container/NavConstants'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
 import { useSearchSpotify } from './sdk/ClientHooks'
 
@@ -65,11 +67,16 @@ const currentPageAtom = atom(get => {
 type CommandGroup = {
    header: string
    items: {
+      // unique identifer with search properties.
       id: string
+      // menu string
       label: string
       onSelect: () => void
       icon?: (props: React.ComponentProps<'svg'>) => JSX.Element
-      shortcut?: string
+      shortcut?: {
+         key: string
+         modifier: string
+      }
    }[]
    // content: JSX.Element
 }
@@ -86,7 +93,7 @@ export const useSetExtraCommandGroups = (pages: CommandGroup[]) => {
 export const useExecuteAndClose = () => {
    const setOpen = useSetAtom(openAtom)
    return useCallback(
-      (func: () => void) => {
+      (func: () => void) => () => {
          func()
          setOpen(false)
       },
@@ -172,23 +179,33 @@ export const CommandMenu = () => {
             />
 
             <CommandList className='max-h-[300px] lg:max-h-[500px]'>
-               <CommandEmpty>No results found.</CommandEmpty>
-
                {!page && (
                   <>
+                     <CommandEmpty>No results found.</CommandEmpty>
                      {extraGroups.map(g => (
-                        <CommandGroup key={g.header} heading={g.header}>
-                           {g.items.map(item => {
-                              const { id, label, onSelect, icon } = item
-                              return (
-                                 <CommandItem key={id} onSelect={onSelect}>
-                                    {icon === undefined ? null : <item.icon className='mr-2 h-4 w-4' />}
-                                    {label}
-                                 </CommandItem>
-                              )
-                           })}
-                        </CommandGroup>
+                        <>
+                           <CommandGroup key={g.header} heading={g.header}>
+                              {g.items.map(item => {
+                                 const { id, label, onSelect, shortcut, icon } = item
+                                 return (
+                                    <CommandItem key={id} onSelect={onSelect} value={id}>
+                                       {icon === undefined ? null : <item.icon className='mr-2 h-4 w-4' />}
+                                       {label}
+
+                                       {shortcut && (
+                                          <CommandShortcut>
+                                             {shortcut.modifier}
+                                             {shortcut.key}
+                                          </CommandShortcut>
+                                       )}
+                                    </CommandItem>
+                                 )
+                              })}
+                           </CommandGroup>
+                           <CommandSeparator />
+                        </>
                      ))}
+
                      <CommandGroup heading='Suggestions'>
                         <CommandItem onSelect={() => setPageAndClear('Create Review')}>
                            <PlusIcon className='mr-2 h-4 w-4' />
@@ -205,18 +222,9 @@ export const CommandMenu = () => {
                      </CommandGroup>
                      <CommandSeparator />
                      <CommandGroup heading='Pages'>
-                        <CommandItem onSelect={() => executeAndClose(() => nav('/app/reviews'))}>
-                           Your reviews
-                        </CommandItem>
-                        <CommandItem onSelect={() => executeAndClose(() => nav('/app/playlists'))}>
-                           Your playlists
-                        </CommandItem>
-                        <CommandItem onSelect={() => executeAndClose(() => nav(`/app/user/${currentUserId}`))}>
-                           Your profile
-                        </CommandItem>
-                        <CommandItem onSelect={() => executeAndClose(() => nav('/app/search'))}>
-                           Search Spotify
-                        </CommandItem>
+                        {NAV.map(item => (
+                           <CommandNavItem key={item.href} nav={item} />
+                        ))}
                      </CommandGroup>
                      <CommandSeparator />
                      <ThemeGroup />
@@ -263,6 +271,18 @@ export const CommandMenu = () => {
    )
 }
 
+const CommandNavItem = ({ nav }: { nav: NavItem }) => {
+   const action = nav.action()
+   const wrapper = useExecuteAndClose()
+
+   return (
+      <CommandItem onSelect={wrapper(() => action())} value={`${nav.name} Page Nav`}>
+         <nav.icon className='mr-2 h-4 w-4' />
+         {nav.name}
+      </CommandItem>
+   )
+}
+
 const ReviewGroup = () => {
    const currentUserId = useCurrentUserId()
    const { data } = useProfileAndReviewsQuery(
@@ -280,21 +300,27 @@ const ReviewGroup = () => {
 
    return (
       <CommandGroup heading='Your Reviews'>
-         {reviews.map(r => (
-            <CommandItem
-               key={r.id}
-               onSelect={() => executeAndClose(navToReview(r.id))}
-               value={`${r.reviewName} ${userDisplayNameOrId(r.creator)} ${r.id}`}
-            >
-               <div className='flex w-full items-center justify-between'>
-                  <div className='flex items-center gap-4'>
-                     <img src={getReviewOverviewImage(r, 1)} className='h-12 w-12 object-cover object-center' />
-                     <span>{r.reviewName}</span>
+         {reviews.map(r => {
+            const displayName = userDisplayNameOrId(r.creator)
+            const entities = allEntities(r)
+               .map(e => e?.name)
+               .join(' ')
+            return (
+               <CommandItem
+                  key={r.id}
+                  onSelect={executeAndClose(navToReview(r.id))}
+                  value={`${r.reviewName} ${displayName} ${entities} ${r.id}`}
+               >
+                  <div className='flex w-full items-center justify-between'>
+                     <div className='flex items-center gap-4'>
+                        <img src={getReviewOverviewImage(r, 1)} className='h-12 w-12 object-cover object-center' />
+                        <span>{r.reviewName}</span>
+                     </div>
+                     <span>{displayName}</span>
                   </div>
-                  <span>{userDisplayNameOrId(r.creator)}</span>
-               </div>
-            </CommandItem>
-         ))}
+               </CommandItem>
+            )
+         })}
       </CommandGroup>
    )
 }
@@ -325,7 +351,7 @@ const PlaylistGroup = () => {
             : playlists.map(p => (
                  <CommandItem
                     key={p.id}
-                    onSelect={() => executeAndClose(navToPlaylist(p.id))}
+                    onSelect={executeAndClose(navToPlaylist(p.id))}
                     value={`${p.name}-${userDisplayNameOrId(p.owner)}`}
                  >
                     <div className='flex w-full items-center justify-between'>
@@ -434,6 +460,7 @@ const CreateReviewGroup = () => {
    } else {
       return (
          <>
+            <CommandEmpty>No Search Results.</CommandEmpty>
             {results.length > 0 && (
                <CommandGroup heading={heading}>
                   {results.map(result => (

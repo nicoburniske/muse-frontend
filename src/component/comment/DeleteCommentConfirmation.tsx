@@ -1,12 +1,21 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithReset, useResetAtom } from 'jotai/utils'
+import { atomWithReset, RESET } from 'jotai/utils'
 import { useCallback } from 'react'
 import { toast } from 'react-hot-toast'
 
 import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from '@/graphql/generated/schema'
-import { Button } from '@/lib/component/Button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/lib/component/Dialog'
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
+import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+} from '@/lib/component/AlertDialog'
 
 type DeleteModalValues = {
    reviewId: string
@@ -14,57 +23,68 @@ type DeleteModalValues = {
    invalidate?: boolean
 }
 
-const deleteModalOpenAtom = atom(false)
-const deleteModalValues = atomWithReset<DeleteModalValues>({
-   reviewId: '',
-   commentId: -1,
-   invalidate: false,
-})
+const maybeModalValuesAtom = atomWithReset<DeleteModalValues | null>(null)
+const deleteModalValues = atomValueOrThrow(maybeModalValuesAtom)
+const openAtom = atom(
+   get => get(maybeModalValuesAtom) !== null,
+   (_, set, open: boolean) => {
+      if (!open) {
+         set(maybeModalValuesAtom, RESET)
+      }
+   }
+)
 
-const setModalValuesAtom = atom(null, (_get, set, values: DeleteModalValues) => {
-   set(deleteModalOpenAtom, true)
-   set(deleteModalValues, values)
-})
-
-export const useOpenDeleteConfirmation = (values: DeleteModalValues) => {
-   const setModalValues = useSetAtom(setModalValuesAtom)
-   return useCallback(() => setModalValues(values), [setModalValues, values])
+export const useOpenDeleteConfirmation = () => {
+   const setModalValues = useSetAtom(maybeModalValuesAtom)
+   return useCallback((values: DeleteModalValues) => setModalValues(values), [setModalValues])
 }
 
-export const DeleteCommentConfirmation = () => {
-   const [isModalOpen, setIsModalOpen] = useAtom(deleteModalOpenAtom)
+export const DeleteCommentModal = () => {
+   const open = useAtomValue(openAtom)
+   if (open) {
+      return <DeleteComment />
+   } else {
+      return null
+   }
+}
+
+export const DeleteComment = () => {
+   const [open, setOpen] = useAtom(openAtom)
    const { reviewId, commentId, invalidate = false } = useAtomValue(deleteModalValues)
-   const resetModalValues = useResetAtom(deleteModalValues)
 
    const queryClient = useQueryClient()
 
    const { mutateAsync: deleteCommentMutation, isLoading } = useDeleteCommentMutation({
       onSuccess: () => {
-         setIsModalOpen(false)
+         setOpen(false)
          if (invalidate) {
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
          }
-         resetModalValues()
+         toast.success('Deleted comment.')
       },
       onError: () => toast.error('Failed to delete comment'),
    })
    const deleteComment = () => deleteCommentMutation({ input: { reviewId, commentId } })
 
    return (
-      <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
-         <DialogContent>
-            <DialogTitle>Delete Comment </DialogTitle>
-            <DialogDescription>Once you delete your comment, you won't be able to recover it.</DialogDescription>
-            <DialogFooter>
-               <Button disabled={isLoading} onClick={() => setIsModalOpen(false)}>
-                  Cancel
-               </Button>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+         <AlertDialogContent>
+            <AlertDialogHeader>
+               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+               <AlertDialogDescription>
+                  Once you delete your comment, you won't be able to recover it
+               </AlertDialogDescription>
+            </AlertDialogHeader>
 
-               <Button disabled={isLoading} onClick={deleteComment} variant={'destructive'}>
-                  Delete Comment
-               </Button>
-            </DialogFooter>
-         </DialogContent>
-      </Dialog>
+            <AlertDialogFooter>
+               <AlertDialogCancel disabled={isLoading} onClick={() => setOpen(false)}>
+                  Cancel
+               </AlertDialogCancel>
+               <AlertDialogAction disabled={isLoading} onClick={deleteComment}>
+                  Continue
+               </AlertDialogAction>
+            </AlertDialogFooter>
+         </AlertDialogContent>
+      </AlertDialog>
    )
 }

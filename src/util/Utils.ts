@@ -92,6 +92,11 @@ export const userDisplayNameOrId = (user: UserWithSpotifyOverviewFragment) => {
    return user?.spotifyProfile?.displayName ?? user?.id
 }
 
+export const allEntities = (review: ReviewDetailsFragment): ReviewEntityOverviewFragment[] => {
+   //@ts-ignore
+   return [review.entity, review?.childReviews?.map(child => child?.entity) ?? []].filter(nonNullable)
+}
+
 export function findFirstImage(reviews: ReviewEntityOverviewFragment[], index?: number) {
    const atIndex = index === undefined ? 0 : index
    return (
