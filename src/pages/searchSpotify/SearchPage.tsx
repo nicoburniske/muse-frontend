@@ -402,7 +402,7 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
    const isPlaying = useDerivedAtomValue(get => get(nowPlayingAtom) === searchRow.id, [searchRow.id])
    const setIsPlaying = useSetAtom(nowPlayingAtom)
 
-   const { isLoading, playAlbumIndexOffset, playTrackOffset, playArtist, playPlaylistIndexOffset } = usePlayMutation({
+   const { playAlbumIndexOffset, playTrackOffset, playArtist, playPlaylistIndexOffset } = usePlayMutation({
       onSuccess: () => setIsPlaying(searchRow.id),
       onError: () => {
          toast.error(`Error playing ${type}.`, { id: 'play-error', duration: 2000 })

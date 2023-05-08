@@ -3,7 +3,10 @@ import {
    ArrowsRightLeftIcon,
    ChatBubbleBottomCenterIcon,
    InformationCircleIcon,
-   MusicalNoteIcon,
+   ListBulletIcon,
+   PencilIcon,
+   ShareIcon,
+   TrashIcon,
 } from '@heroicons/react/24/outline'
 import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { atom, useAtom, useSetAtom } from 'jotai'
@@ -15,10 +18,10 @@ import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/c
 import ReviewCommentSection from '@/component/comment/CommentSection'
 import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { Icon } from '@/component/container/NavConstants'
-import { EditReview } from '@/component/editReview/EditReview'
-import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
-import { ShareReview } from '@/component/shareReview/ShareReview'
+import { useDeleteReview } from '@/component/deleteReview/DeleteReviewButton'
+import { useEditReview } from '@/component/editReview/EditReview'
+import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useShareReview } from '@/component/shareReview/ShareReview'
 import { GroupedTrackTableWrapper } from '@/component/trackTable/GroupedTrackTable'
 import { Group, ReviewOverview } from '@/component/trackTable/Helpers'
 import {
@@ -33,19 +36,15 @@ import {
 } from '@/graphql/generated/schema'
 import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
-import { CommandItem } from '@/lib/component/Command'
 import { HeroLoading } from '@/lib/component/HeroLoading'
-import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import { Separator } from '@/lib/component/Seperator'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { useWindowSizeAtom } from '@/lib/hook/useWindowSize'
 import { NotFound } from '@/pages/NotFound'
-import { useSearchAtom } from '@/state/Atoms'
 import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
-import { cn, findFirstImage, groupBy, nonNullable } from '@/util/Utils'
+import { findFirstImage, groupBy, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 import { LinkReviewButton } from './LinkReview'
@@ -117,7 +116,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
                <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
             </div>
          </div>
-         <SelectedReview />
+         <SelectedReviewModal />
          <CommentFormModal />
       </>
    )
@@ -136,16 +135,40 @@ const useAddCommands = (review: ReviewDetailsFragment) => {
 
    // Edit.
    // Share.
+   const { openShareReview } = useShareReview()
+   const openShare = () => executeWrapper(() => openShareReview(reviewId))
+   const { openEditReview } = useEditReview()
+   const openEdit = () => executeWrapper(() => openEditReview(reviewId))
 
-   const openDetails = 'Open Review Details'
+   const deleteReview = useDeleteReview()
+   const openDelete = () => executeWrapper(() => deleteReview(reviewId))
+
    const commandGroup = {
       header: `Review Actions: ${review.reviewName}`,
       items: [
          {
-            id: openDetails,
+            id: 'See Review Details',
             label: 'See Review Details',
             onSelect: openInfo,
             icon: InformationCircleIcon,
+         },
+         {
+            id: 'Share Review',
+            label: 'Share Review',
+            onSelect: openShare,
+            icon: ShareIcon,
+         },
+         {
+            id: 'Edit Review',
+            label: 'Edit Review',
+            onSelect: openEdit,
+            icon: PencilIcon,
+         },
+         {
+            id: 'Delete Review',
+            label: 'Delete Review',
+            onSelect: openDelete,
+            icon: TrashIcon,
          },
          {
             id: 'Help',
@@ -155,7 +178,35 @@ const useAddCommands = (review: ReviewDetailsFragment) => {
          },
       ],
    }
-   useSetExtraCommandGroups([commandGroup])
+
+   // Render options
+   const setRenderOption = useSetAtom(renderOptionAtom)
+   const setRender = (option: RenderOption) => () => executeWrapper(() => setRenderOption(option))
+
+   const quickActions = {
+      header: 'Quick Actions',
+      items: [
+         {
+            id: 'Show Tracks',
+            label: 'Show Tracks',
+            onSelect: setRender('tracks'),
+            icon: ListBulletIcon,
+         },
+         {
+            id: 'Show Comments',
+            label: 'Show Comments',
+            onSelect: setRender('comments'),
+            icon: ChatBubbleBottomCenterIcon,
+         },
+         {
+            id: 'Show Comments and Tracks',
+            label: 'Show Comments and Tracks',
+            onSelect: setRender('both'),
+            icon: ArrowsRightLeftIcon,
+         },
+      ],
+   }
+   useSetExtraCommandGroups([quickActions, commandGroup])
 }
 
 const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
@@ -165,24 +216,22 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    const currentUserId = useCurrentUserId()
 
    const isReviewOwner = currentUserId === review?.creator?.id
-   const collaborators = review?.collaborators ?? []
-   const isPublic = review.isPublic
    const title = review.reviewName
    const entityName = review.entity?.name
-   const creatorDisplayName = review?.creator?.spotifyProfile?.displayName ?? review?.creator?.id
-   const creatorId = review?.creator?.id
-   const entity = review?.entity
+   const creatorDisplayName = userDisplayNameOrId(review.creator)
+   const creatorId = review.creator.id
+   const entity = review.entity
 
    // Find first image!
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    // Root review doesn't need an entity.
    const reviewEntityImage = findFirstImage(nonNullable(entity) ? [entity, ...childEntities] : childEntities)
 
-   const linkEnabled = review?.entity?.__typename === 'Artist'
+   const linkEnabled = review.entity?.__typename === 'Artist'
    const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
 
-   const { setSelectedReview } = useSelectReview()
-   const openInfo = () => setSelectedReview(reviewId)
+   const { openShareReview } = useShareReview()
+   const { openEditReview } = useEditReview()
 
    return (
       <>
@@ -209,7 +258,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                   <dd>
                      <Link to={`/app/user/${creatorId}`}>
                         <Button variant='link' size='empty' className='text-sm text-muted-foreground'>
-                           <span className='truncate'>{creatorDisplayName ?? creatorId}</span>
+                           <span className='truncate'>{creatorDisplayName}</span>
                         </Button>
                      </Link>
                   </dd>
@@ -219,30 +268,18 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
 
             <div className='m-auto flex w-full max-w-xl flex-col items-center '>
                <CommandButton />
-               <div className='inline-flex h-10 w-16 items-center justify-center rounded-md p-1 lg:w-24 lg:space-x-10'>
-                  <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
-                  <RenderOptionTooltip renderOption='both' label='Split' icon={ArrowsRightLeftIcon} />
-                  <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
-               </div>
             </div>
 
             <div className='flex items-center justify-end'>
                <div className='mr-4 flex flex-none items-center justify-end gap-1'>
                   {isReviewOwner ? (
                      <>
-                        <EditReview
-                           reviewId={reviewId}
-                           reviewName={title!}
-                           isPublic={isPublic === undefined ? false : isPublic}
-                        >
-                           <Button variant='outline'>Edit</Button>
-                        </EditReview>
-
-                        <ShareReview reviewId={reviewId} collaborators={collaborators}>
-                           <Button variant='outline' className='muse-share'>
-                              Share
-                           </Button>
-                        </ShareReview>
+                        <Button variant='outline' onClick={() => openEditReview(reviewId)}>
+                           Edit
+                        </Button>
+                        <Button variant='outline' className='muse-share' onClick={() => openShareReview(reviewId)}>
+                           Share
+                        </Button>
                         {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                      </>
                   ) : (
@@ -255,72 +292,15 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             </div>
          </div>
          {/* Mobile Header */}
-         <div className='flex w-full items-center justify-between bg-primary p-1 text-primary-foreground md:hidden'>
-            <div className='flex w-1/3 items-center gap-3 overflow-hidden'>
-               <MobileNavigation />
-               <div className='flex flex-col justify-center'>
-                  <h1 className=' w-full truncate text-base font-bold'>{title}</h1>
-                  <Link to={`/app/user/${creatorId}`}>
-                     <Button variant='link' size='empty' className='text-sm text-primary-foreground'>
-                        <span className='truncate'>{creatorDisplayName}</span>
-                     </Button>
-                  </Link>
-               </div>
+         <div className='relative flex h-16 flex-shrink-0 items-center border-b p-1 shadow-sm md:hidden'>
+            <MobileNavigation />
+
+            <div className='align-center flex flex-1 justify-center px-4 py-2'>
+               <CommandButton />
             </div>
-            <div className='items-center justify-center gap-1 rounded-md'>
-               <RenderOptionTooltip renderOption='tracks' label='Tracks' icon={MusicalNoteIcon} />
-               <RenderOptionTooltip renderOption='comments' label='Comments' icon={ChatBubbleBottomCenterIcon} />
-            </div>
-            <div className='mr-2'>
-               <Button variant='ghost' onClick={openInfo}>
-                  Info
-                  <InformationCircleIcon className='ml-2 h-4 w-4' />
-               </Button>
-            </div>
+            <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
          </div>
       </>
-   )
-}
-
-const SearchTracks = () => {
-   const [search, setSearch] = useSearchAtom()
-
-   return (
-      <SearchInputKbdSuggestion
-         screenReaderLabel={'Search Tracks'}
-         placeholder={'Search Tracks'}
-         search={search}
-         setSearch={setSearch as (search: string) => void}
-      />
-   )
-}
-
-const RenderOptionTooltip = (props: { renderOption: RenderOption; label: string; icon: Icon; className?: string }) => {
-   const { renderOption, label, className } = props
-   const [currentRenderOption, setRenderOption] = useAtom(renderOptionAtom)
-
-   return (
-      <TooltipProvider delayDuration={500}>
-         <Tooltip>
-            <TooltipTrigger asChild>
-               <Button
-                  variant='ghost'
-                  size='sm'
-                  className={cn(
-                     currentRenderOption === renderOption ? 'bg-accent text-accent-foreground shadow-sm' : '',
-                     className
-                  )}
-                  onClick={() => setRenderOption(renderOption)}
-               >
-                  <props.icon className='h-6 w-6' />
-               </Button>
-            </TooltipTrigger>
-
-            <TooltipContent side='top' align='start' className='text-primary-content bg-primary'>
-               <p>{label}</p>
-            </TooltipContent>
-         </Tooltip>
-      </TooltipProvider>
    )
 }
 
@@ -336,12 +316,12 @@ export type ReviewAndEntity = ReviewOverview & {
 
 const DetailedReviewBody = ({ rootReview, reviews }: DetailedReviewBodyProps) => {
    const [options, setOption] = useAtom(renderOptionAtom)
-   const isMd = useWindowSizeAtom(useCallback(size => size.isMd, []))
    const trackSection = <TrackSectionTable rootReview={rootReview} all={reviews} />
    const commentSection = <ReviewCommentSection reviews={reviews} />
    const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
    // both cannot be selected on mobile.
+   const isMd = useWindowSizeAtom(useCallback(size => size.height === 0 || size.width === 0 || size.isMd, []))
    useEffect(() => {
       if (!isMd && options === 'both') {
          setOption('tracks')

@@ -69,6 +69,7 @@ type CommandGroup = {
       label: string
       onSelect: () => void
       icon?: (props: React.ComponentProps<'svg'>) => JSX.Element
+      shortcut?: string
    }[]
    // content: JSX.Element
 }
@@ -390,12 +391,12 @@ const CreateReviewGroup = () => {
          return 'album'
       }
    })() as SearchType
-   console.log('type', type)
 
    const searchConfig = (() => {
       if (query.length > 0) {
          return {
             type: [type],
+            limit: 40,
             query,
          }
       }

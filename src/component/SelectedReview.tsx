@@ -1,14 +1,14 @@
 import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-import { DeleteReviewButton } from '@/component/deleteReview/DeleteReviewButton'
-import { EditReview } from '@/component/editReview/EditReview'
+import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewButton'
+import { useEditReview } from '@/component/editReview/EditReview'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
-import { ShareReview } from '@/component/shareReview/ShareReview'
 import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'
 import { ReviewDetailsFragment } from '@/graphql/generated/schema'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
 import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
 import { ScrollArea } from '@/lib/component/ScrollArea'
@@ -22,58 +22,37 @@ import {
 } from '@/state/useDetailedReviewCacheQuery'
 import { cn, findFirstImage, nonNullable } from '@/util/Utils'
 
-const selectedReviewOpenAtom = atom(false)
-const selectedReviewIdAtom = atom<string | undefined>(undefined)
-const openSelectedReview = atom(null, (_get, set, reviewId: string) => {
-   set(selectedReviewOpenAtom, true)
-   set(selectedReviewIdAtom, reviewId)
+import { useShareReview } from './shareReview/ShareReview'
+
+const { setOpen, setClose, valueAtom: reviewIdAtom, openAtom } = makeModalAtoms<string | null, string>(null)
+
+export const useSelectReview = () => ({
+   setSelectedReview: useSetAtom(setOpen),
+   closeSelectedReview: useSetAtom(setClose),
 })
-const closeSelectedReviewAtom = atom(null, (_get, set) => {
-   set(selectedReviewOpenAtom, false)
-   setTimeout(() => set(selectedReviewIdAtom, undefined), 500)
-})
-export const useSelectReview = () => {
-   const setSelectedReview = useSetAtom(openSelectedReview)
-   const closeSelectedReview = useSetAtom(closeSelectedReviewAtom)
-   return {
-      setSelectedReview,
-      closeSelectedReview,
-   }
-}
 
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = (userId?: string) => {
-   const reviewId = useAtomValue(selectedReviewIdAtom) ?? ''
+   const reviewId = useAtomValue(reviewIdAtom) ?? ''
    const { data } = useDetailedReviewCacheQuery(reviewId, d => d.review, { staleTime: Infinity }, userId)
    return data
 }
 
-const textColorSecondary = 'text-secondary-content/50'
-
-export const SelectedReview = ({ userId }: { userId?: string }) => {
+export const SelectedReviewModal = ({ userId }: { userId?: string }) => {
    const { closeSelectedReview } = useSelectReview()
    // Close review details after going to new page.
    useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
-   const selectedReviewOpen = useAtomValue(selectedReviewOpenAtom)
+   const [open, setOpen] = useAtom(openAtom)
    const review = useSelectedReview(userId)
 
    return review ? (
-      <Sheet
-         open={selectedReviewOpen}
-         onOpenChange={open => {
-            if (!open) {
-               closeSelectedReview()
-            }
-         }}
-      >
+      <Sheet open={open} onOpenChange={setOpen}>
          <SidebarContent review={review} />
       </Sheet>
    ) : null
 }
 
 const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
-   const { closeSelectedReview } = useSelectReview()
-
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    const image = findFirstImage(allEntities)
@@ -98,6 +77,9 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
    const currentUserId = useCurrentUserId()
    const isEditable = useIsReviewOwner(review.id, currentUserId)
+
+   const { openShareReview } = useShareReview()
+   const { openEditReview } = useEditReview()
 
    return (
       <SheetContent position='right' size='content' className='overflow-y-auto'>
@@ -126,22 +108,18 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
          </div>
          {isEditable && (
             <div className='m-auto flex items-center justify-center gap-4 p-1'>
-               <ShareReview reviewId={review.id} collaborators={review.collaborators ?? []}>
-                  <Button variant='outline'>
-                     <ArrowUpOnSquareIcon className='h-5 w-5' aria-hidden='true' />
-                     <span className='ml-1'>Share</span>
-                  </Button>
-               </ShareReview>
-               <EditReview reviewId={review.id} reviewName={review.reviewName} isPublic={review.isPublic}>
-                  <Button variant='outline'>
-                     <PencilSquareIcon className='h-5 w-5' aria-hidden='true' />
-                     <span className='ml-1'>Edit</span>
-                  </Button>
-               </EditReview>
+               <Button variant='outline' onClick={() => openShareReview(review.id)}>
+                  <ArrowUpOnSquareIcon className='h-5 w-5' aria-hidden='true' />
+                  <span className='ml-1'>Share</span>
+               </Button>
+               <Button variant='outline' onClick={() => openEditReview(review.id)}>
+                  <PencilSquareIcon className='h-5 w-5' aria-hidden='true' />
+                  <span className='ml-1'>Edit</span>
+               </Button>
             </div>
          )}
          <Tabs defaultValue='info' className='my-2'>
-            <TabsList>
+            <TabsList className='grid w-full grid-cols-2'>
                <TabsTrigger value='info'>Info</TabsTrigger>
                <TabsTrigger value='share'>Sharing</TabsTrigger>
             </TabsList>
@@ -149,7 +127,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
                <dl className='divide-primary-content/50 mt-2 divide-y px-4'>
                   {Object.keys(info).map(key => (
                      <div key={key} className='flex justify-between py-3 text-sm font-medium'>
-                        <dt className={cn(textColorSecondary)}>{key}</dt>
+                        <dt className={cn()}>{key}</dt>
                         <dd className='text-right'>{info[key]}</dd>
                      </div>
                   ))}
@@ -174,7 +152,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
          {isEditable && (
             <div className='m-1 flex flex-col'>
-               <DeleteReviewButton reviewId={review.id} onSettled={closeSelectedReview} />
+               <DeleteReviewModal reviewId={review.id} />
             </div>
          )}
       </SheetContent>

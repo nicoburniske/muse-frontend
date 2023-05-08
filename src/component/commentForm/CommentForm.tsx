@@ -65,7 +65,6 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
    useHotkeys(
       ['meta+enter', 'ctrl+enter'],
       () => {
-         console.log('hotkey!')
          if (canSubmit && !isSubmitting) {
             submit()
          }

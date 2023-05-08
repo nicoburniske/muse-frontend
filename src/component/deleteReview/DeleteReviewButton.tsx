@@ -1,26 +1,50 @@
-import { TrashIcon } from '@heroicons/react/24/outline'
 import { useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithReset, RESET } from 'jotai/utils'
+import { useCallback } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 import { useDeleteReviewMutation, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
-import { Button } from '@/lib/component/Button'
 import {
-   Dialog,
-   DialogContent,
-   DialogDescription,
-   DialogFooter,
-   DialogTitle,
-   DialogTrigger,
-} from '@/lib/component/Dialog'
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+} from '@/lib/component/AlertDialog'
 
-type DeleteReviewButtonProps = {
-   reviewId: string
-   onSettled: () => void
+const reviewIdAtom = atomWithReset<string | null>(null)
+const openAtom = atom(
+   get => get(reviewIdAtom) !== null,
+   (_, set, open: boolean) => {
+      if (!open) {
+         set(reviewIdAtom, RESET)
+      }
+   }
+)
+
+export const useDeleteReview = () => {
+   const setReviewId = useSetAtom(reviewIdAtom)
+
+   return useCallback((reviewId: string) => setReviewId(reviewId), [setReviewId])
 }
 
-export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonProps) => {
-   const [isModalOpen, setIsModalOpen] = useState(false)
+export const DeleteReviewModal = () => {
+   const reviewId = useAtomValue(reviewIdAtom)
+
+   if (reviewId !== null) {
+      return <DeleteReview reviewId={reviewId} />
+   } else {
+      return null
+   }
+}
+
+export const DeleteReview = ({ reviewId }: { reviewId: string }) => {
+   const [open, setOpen] = useAtom(openAtom)
 
    const queryClient = useQueryClient()
    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
@@ -30,36 +54,35 @@ export const DeleteReviewButton = ({ reviewId, onSettled }: DeleteReviewButtonPr
       onSuccess: () => {
          toast.success('Successfully deleted review.')
          resetReviewOverviews()
+         nav('/app/reviews')
       },
       onSettled: () => {
-         setIsModalOpen(false)
-         onSettled()
+         setOpen(false)
       },
    })
 
    const deleteReview = () => mutate({ input: { id: reviewId } })
+   const nav = useNavigate()
 
    return (
-      <Dialog open={isModalOpen} onOpenChange={open => setIsModalOpen(open)}>
-         <DialogTrigger asChild>
-            <Button type='button' onClick={() => setIsModalOpen(true)} variant={'destructive'}>
-               <TrashIcon className='h-5 w-5' aria-hidden='true' />
-               <span className='ml-1'>Delete Review</span>
-            </Button>
-         </DialogTrigger>
-         <DialogContent>
-            <DialogTitle>Delete Review</DialogTitle>
-            <DialogDescription>Once you delete your review, you won't be able to recover it.</DialogDescription>
-            <DialogFooter>
-               <Button disabled={isLoading} onClick={() => setIsModalOpen(false)}>
-                  Cancel
-               </Button>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+         <AlertDialogContent>
+            <AlertDialogHeader>
+               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+               <AlertDialogDescription>
+                  Once you delete your review, you won't be able to recover it.
+               </AlertDialogDescription>
+            </AlertDialogHeader>
 
-               <Button disabled={isLoading} onClick={deleteReview} variant={'destructive'}>
-                  Delete Review
-               </Button>
-            </DialogFooter>
-         </DialogContent>
-      </Dialog>
+            <AlertDialogFooter>
+               <AlertDialogCancel disabled={isLoading} onClick={() => setOpen(false)}>
+                  Cancel
+               </AlertDialogCancel>
+               <AlertDialogAction disabled={isLoading} onClick={deleteReview}>
+                  Continue
+               </AlertDialogAction>
+            </AlertDialogFooter>
+         </AlertDialogContent>
+      </AlertDialog>
    )
 }

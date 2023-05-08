@@ -82,7 +82,7 @@ export function orElse<T extends {}>(value: T | undefined, defaultValue: T): Non
    return nonNullable(value) ? value : defaultValue
 }
 
-export const getReviewOverviewImage = (review: ReviewDetailsFragment, index?: number = 0) => {
+export const getReviewOverviewImage = (review: ReviewDetailsFragment, index = 0) => {
    const childEntities = review?.childReviews?.map(child => child?.entity).filter(nonNullable) ?? []
    const allEntities = nonNullable(review?.entity) ? [review?.entity, ...childEntities] : childEntities
    return findFirstImage(allEntities, index)

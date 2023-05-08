@@ -19,6 +19,7 @@
       "@headlessui/react": "^1.7.3",
       "@heroicons/react": "^2.0.13",
       "@hookform/resolvers": "^3.0.1",
+      "@radix-ui/react-alert-dialog": "^1.0.3",
       "@radix-ui/react-avatar": "^1.0.2",
       "@radix-ui/react-collapsible": "^1.0.2",
       "@radix-ui/react-context-menu": "^2.1.3",

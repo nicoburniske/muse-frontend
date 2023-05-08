@@ -1,20 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
-import { DeleteReviewButton } from '@/component/deleteReview/DeleteReviewButton'
 import { useUpdateReviewMutation } from '@/graphql/generated/schema'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
 import { Button } from '@/lib/component/Button'
 import {
    Dialog,
    DialogContent,
    DialogDescription,
+   DialogFooter,
    DialogHeader,
    DialogTitle,
-   DialogTrigger,
 } from '@/lib/component/Dialog'
 import { Input } from '@/lib/component/Input'
 import { Label } from '@/lib/component/Label'
@@ -27,13 +27,23 @@ import {
    SelectTrigger,
    SelectValue,
 } from '@/lib/component/Select'
-import { useInvalidateDetailedReviewCache } from '@/state/useDetailedReviewCacheQuery'
+import { useDetailedReviewCacheQuery, useInvalidateDetailedReviewCache } from '@/state/useDetailedReviewCacheQuery'
 
-export type EditReviewProps = {
-   reviewId: string
-   reviewName: string
-   isPublic: boolean
-   children: React.ReactNode
+const { setOpen, setClose, valueAtom: reviewIdAtom, openAtom } = makeModalAtoms<string | null, string>(null)
+
+export const useEditReview = () => ({
+   openEditReview: useSetAtom(setOpen),
+   closeEditReview: useSetAtom(setClose),
+})
+
+export const EditReviewModal = () => {
+   const reviewId = useAtomValue(reviewIdAtom) ?? ''
+   const { data } = useDetailedReviewCacheQuery(reviewId, r => r.review)
+   if (data) {
+      return <EditReview reviewId={reviewId} reviewName={data.reviewName} isPublic={data.isPublic} />
+   } else {
+      return null
+   }
 }
 
 const EditReviewSchema = z.object({
@@ -43,7 +53,13 @@ const EditReviewSchema = z.object({
 
 type EditReviewInputType = z.infer<typeof EditReviewSchema>
 
-export const EditReview = ({ reviewId, reviewName, isPublic, children }: EditReviewProps) => {
+type EditReviewProps = {
+   reviewId: string
+   reviewName: string
+   isPublic: boolean
+}
+
+const EditReview = ({ reviewId, reviewName, isPublic }: EditReviewProps) => {
    const defaultValues: EditReviewInputType = { reviewName, isPublic: isPublic ? 'public' : 'private' }
 
    const {
@@ -79,13 +95,10 @@ export const EditReview = ({ reviewId, reviewName, isPublic, children }: EditRev
 
    const submitDisabled = !isDirty || !isValid || isSubmitting
 
-   const nav = useNavigate()
-   const onDeleted = () => nav('/app/reviews')
+   const [open, onOpenChange] = useAtom(openAtom)
 
    return (
-      <Dialog>
-         <DialogTrigger asChild>{children}</DialogTrigger>
-
+      <Dialog open={open} onOpenChange={onOpenChange}>
          <DialogContent>
             <DialogHeader>
                <DialogTitle>Edit Review</DialogTitle>
@@ -98,9 +111,7 @@ export const EditReview = ({ reviewId, reviewName, isPublic, children }: EditRev
                   <Input id='review-name' type='text' {...register('reviewName')} />
                </div>
                <div className='flex w-full flex-col'>
-                  <label className='label'>
-                     <span className='label-text'>Public</span>
-                  </label>
+                  <Label htmlFor='select-public'>Public</Label>
                   <Controller
                      control={control}
                      name='isPublic'
@@ -124,10 +135,9 @@ export const EditReview = ({ reviewId, reviewName, isPublic, children }: EditRev
                   />
                </div>
 
-               <div className='flex w-full justify-between'>
-                  <DeleteReviewButton reviewId={reviewId} onSettled={onDeleted} />
+               <DialogFooter className='w-full'>
                   <Button disabled={submitDisabled || isLoading}>Confirm</Button>
-               </div>
+               </DialogFooter>
             </form>
          </DialogContent>
       </Dialog>

@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { useParams } from 'react-router-dom'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
+import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
 import { UserAvatar } from '@/component/UserAvatar'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { Alert, AlertTitle } from '@/lib/component/Alert'
@@ -119,7 +119,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
             </main>
          </div>
 
-         <SelectedReview userId={userId} />
+         <SelectedReviewModal userId={userId} />
       </>
    )
 }

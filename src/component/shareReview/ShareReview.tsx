@@ -1,9 +1,10 @@
-import { ReactNode } from 'react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import toast from 'react-hot-toast'
 
 import { SearchUsersComboBox } from '@/component/shareReview/SearchUsersCombobox'
 import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'
-import { AccessLevel, CollaboratorFragment, useShareReviewMutation } from '@/graphql/generated/schema'
+import { AccessLevel, useShareReviewMutation } from '@/graphql/generated/schema'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
 import { Button } from '@/lib/component/Button'
 import {
    Dialog,
@@ -12,7 +13,6 @@ import {
    DialogFooter,
    DialogHeader,
    DialogTitle,
-   DialogTrigger,
 } from '@/lib/component/Dialog'
 import {
    Select,
@@ -27,13 +27,25 @@ import { Separator } from '@/lib/component/Seperator'
 import useStateWithReset from '@/lib/hook/useStateWithReset'
 import { useCollaboratorsQuery, useInvalidateDetailedReviewCache } from '@/state/useDetailedReviewCacheQuery'
 
-export interface ShareReviewProps {
-   reviewId: string
-   collaborators: CollaboratorFragment[]
-   children: ReactNode
+const { setOpen, setClose, valueAtom: reviewIdAtom, openAtom } = makeModalAtoms<string | null, string>(null)
+
+export const useShareReview = () => {
+   return {
+      openShareReview: useSetAtom(setOpen),
+      closeShareReview: useSetAtom(setClose),
+   }
+}
+export const ShareReviewModal = () => {
+   const reviewId = useAtomValue(reviewIdAtom)
+
+   if (reviewId) {
+      return <ShareReview reviewId={reviewId} />
+   } else {
+      return null
+   }
 }
 
-export function ShareReview({ reviewId, children }: ShareReviewProps) {
+function ShareReview({ reviewId }: { reviewId: string }) {
    const [accessLevel, setAccessLevel, resetAccessLevel] = useStateWithReset<AccessLevel>('Viewer')
    const [username, setUsername, resetUsername] = useStateWithReset('')
 
@@ -64,10 +76,10 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
    const { data: collaboratorData } = useCollaboratorsQuery(reviewId)
    const collaborators = collaboratorData ?? []
 
-   return (
-      <Dialog>
-         <DialogTrigger asChild>{children}</DialogTrigger>
+   const [open, setOpen] = useAtom(openAtom)
 
+   return (
+      <Dialog open={open} onOpenChange={setOpen}>
          <DialogContent>
             <DialogHeader>
                <DialogTitle>Share Review</DialogTitle>
@@ -112,7 +124,7 @@ export function ShareReview({ reviewId, children }: ShareReviewProps) {
                      </SelectContent>
                   </Select>
                </div>
-               <DialogFooter>
+               <DialogFooter className='w-full'>
                   <Button className='space-x-2' onClick={onSubmit} disabled={disabled}>
                      Confirm
                   </Button>

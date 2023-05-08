@@ -5,11 +5,15 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Outlet } from 'react-router-dom'
 
 import { CommandMenu } from '@/component/Command'
+import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewButton'
+import { EditReviewModal } from '@/component/editReview/EditReview'
 import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
 import { UserPreferencesModal } from '@/component/preferences/UserPreferencesForm'
 import { SubscribeReviews } from '@/component/reviewUpdates/SubscribeReviews'
 import { useSetAccessToken } from '@/component/sdk/ClientAtoms'
 import { useSetTokenFunction } from '@/component/sdk/PlaybackSDK'
+import { SelectedReviewModal } from '@/component/SelectedReview'
+import { ShareReviewModal } from '@/component/shareReview/ShareReview'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'
 import { HeroLoading } from '@/lib/component/HeroLoading'
@@ -64,6 +68,11 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             <div className='muse-player hidden w-full sm:inline'>
                <SpotifyPlayerWrapper />
             </div>
+            {/* TODO: inject user id? */}
+            <SelectedReviewModal />
+            <ShareReviewModal />
+            <EditReviewModal />
+            <DeleteReviewModal />
             <UserPreferencesModal />
          </div>
       </TourProvider>

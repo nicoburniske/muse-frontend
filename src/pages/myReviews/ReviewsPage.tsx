@@ -10,12 +10,12 @@ import { useNavigate } from 'react-router-dom'
 
 import { CommandButton } from '@/component/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { SelectedReview, useSelectReview } from '@/component/SelectedReview'
+import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { MuseTransition } from '@/lib/component/MuseTransition'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { BrowseCard } from '@/pages/myReviews/BrowseCard'
-import { searchLoweredAtom, useSearchAtom } from '@/state/Atoms'
+import { searchLoweredAtom } from '@/state/Atoms'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { useViewHistory } from '@/state/ViewHistory'
 import { cn } from '@/util/Utils'
@@ -38,7 +38,7 @@ export default function ReviewsPage() {
                <MobileNavigation />
 
                <div className='align-center flex flex-1 justify-center px-4 py-2'>
-                  <SearchBar />
+                  <CommandButton />
                </div>
                <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
             </div>
@@ -107,7 +107,7 @@ export default function ReviewsPage() {
                </main>
             )}
          </div>
-         <SelectedReview />
+         <SelectedReviewModal />
       </div>
    )
 }
@@ -136,13 +136,6 @@ const SortTabs = ({ className }: { className?: string }) => {
          </TabsList>
       </Tabs>
    )
-}
-
-const SearchBar = () => {
-   // TODO: Fix centering!
-   const [search, setSearch] = useSearchAtom()
-
-   return <CommandButton />
 }
 
 const selectNeedsReviews = (data: ProfileAndReviewsQuery) => data.user.reviews?.length === 0

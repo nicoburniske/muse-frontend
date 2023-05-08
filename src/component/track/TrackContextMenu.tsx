@@ -64,20 +64,20 @@ export const TrackContextMenuContent = () => {
       <ContextMenuContent>
          <ContextMenuItem>
             <a href={spotifyLink} rel='noreferrer' target='_blank' className={cn('flex')}>
-               <img src={spotifyIcon} className={'mr-2 h-4 w-4'} />
+               <img src={spotifyIcon} className={'mr-2 h-5 w-5'} />
                Listen on Spotify
             </a>
          </ContextMenuItem>
          {
             <ContextMenuItem onClick={addToQueue}>
-               <QueueListIcon className={'mr-2 h-4 w-4'} />
+               <QueueListIcon className={'mr-2 h-5 w-5'} />
                <span> Add to Queue </span>
             </ContextMenuItem>
          }
 
          {isUserOwnedPlaylist && (
             <ContextMenuItem onClick={removeFromPlaylist}>
-               <XCircleIcon className={'mr-2 h-4 w-4'} />
+               <XCircleIcon className={'mr-2 h-5 w-5'} />
                <span> Remove from Playlist </span>
             </ContextMenuItem>
          )}

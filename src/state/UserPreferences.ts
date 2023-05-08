@@ -1,7 +1,6 @@
-import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { focusAtom } from 'jotai-optics'
-import { useEffect } from 'react'
 
 export interface UserPreferences {
    theme: Theme

@@ -93,6 +93,7 @@ export const ReviewGroupHeader = ({
                      </div>
                   }
                   <div className='ml-1 flex flex-col items-start gap-0.5'>
+                     {/* TODO: fix multi-line */}
                      <Badge>{entityName}</Badge>
                      <Badge variant='secondary'>{entityType}</Badge>
                   </div>
