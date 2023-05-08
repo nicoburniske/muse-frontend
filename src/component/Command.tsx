@@ -276,7 +276,6 @@ const ReviewGroup = () => {
    const executeAndClose = useExecuteAndClose()
    const nav = useNavigate()
    const navToReview = useCallback((reviewId: string) => () => nav(`/app/reviews/${reviewId}`), [nav])
-   const displayName = userDisplayNameOrId(r.creator)
 
    return (
       <CommandGroup heading='Your Reviews'>
@@ -284,14 +283,14 @@ const ReviewGroup = () => {
             <CommandItem
                key={r.id}
                onSelect={() => executeAndClose(navToReview(r.id))}
-               value={`${r.reviewName} ${displayName}`}
+               value={`${r.reviewName} ${userDisplayNameOrId(r.creator)}`}
             >
                <div className='flex w-full items-center justify-between'>
                   <div className='flex items-center gap-4'>
                      <img src={getReviewOverviewImage(r, 1)} className='h-12 w-12 object-cover object-center' />
                      <span>{r.reviewName}</span>
                   </div>
-                  <span>{displayName}</span>
+                  <span>{userDisplayNameOrId(r.creator)}</span>
                </div>
             </CommandItem>
          ))}
