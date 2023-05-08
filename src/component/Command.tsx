@@ -276,17 +276,22 @@ const ReviewGroup = () => {
    const executeAndClose = useExecuteAndClose()
    const nav = useNavigate()
    const navToReview = useCallback((reviewId: string) => () => nav(`/app/reviews/${reviewId}`), [nav])
+   const displayName = userDisplayNameOrId(r.creator)
 
    return (
       <CommandGroup heading='Your Reviews'>
          {reviews.map(r => (
-            <CommandItem key={r.id} onSelect={() => executeAndClose(navToReview(r.id))}>
+            <CommandItem
+               key={r.id}
+               onSelect={() => executeAndClose(navToReview(r.id))}
+               value={`${r.reviewName} ${displayName}`}
+            >
                <div className='flex w-full items-center justify-between'>
                   <div className='flex items-center gap-4'>
                      <img src={getReviewOverviewImage(r, 1)} className='h-12 w-12 object-cover object-center' />
                      <span>{r.reviewName}</span>
                   </div>
-                  <span>{userDisplayNameOrId(r.creator)}</span>
+                  <span>{displayName}</span>
                </div>
             </CommandItem>
          ))}
@@ -419,6 +424,7 @@ const CreateReviewGroup = () => {
             {Array(10)
                .fill(0)
                .map((_, i) => (
+                  // so the rows don't get filtered out.
                   <CommandItem key={i} disabled value={getCurrentQuery()}>
                      <SearchResultSkeleton />
                   </CommandItem>
