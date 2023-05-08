@@ -1,4 +1,5 @@
 import {
+   ArrowLeftOnRectangleIcon,
    ChatBubbleLeftRightIcon,
    CheckIcon,
    ListBulletIcon,
@@ -33,12 +34,15 @@ import {
 import { Skeleton } from '@/lib/component/Skeleton'
 import { useTransientAtom } from '@/lib/hook/useTransientAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
+import { useLogoutMutation } from '@/state/useLogoutMutation'
 import { Themes, useTheme } from '@/state/UserPreferences'
 import { allEntities, cn, getReviewOverviewImage, userDisplayNameOrId } from '@/util/Utils'
 
 import { NAV, NavItem } from './container/NavConstants'
 import { CreateReviewModal, useCreateReviewModal } from './createReview/CreateReviewModal'
+import { useSpotifyIcon } from './ListenOnSpotify'
 import { useSearchSpotify } from './sdk/ClientHooks'
+import { useResetSpotifySdk } from './sdk/PlaybackSDK'
 
 const openAtom = atom(false)
 
@@ -78,7 +82,6 @@ type CommandGroup = {
          modifier: string
       }
    }[]
-   // content: JSX.Element
 }
 const extraCommandGroups = atom<CommandGroup[]>([])
 
@@ -121,9 +124,6 @@ export const CommandButton = () => {
 }
 
 export const CommandMenu = () => {
-   const currentUserId = useCurrentUserId()
-   const nav = useNavigate()
-
    const [open, setOpen] = useAtom(openAtom)
    const [search, setSearch] = useCurrentSearch()
    const setPages = useSetAtom(pagesAtom)
@@ -227,6 +227,8 @@ export const CommandMenu = () => {
                         ))}
                      </CommandGroup>
                      <CommandSeparator />
+                     <SessionGroup />
+                     <CommandSeparator />
                      <ThemeGroup />
                   </>
                )}
@@ -271,12 +273,34 @@ export const CommandMenu = () => {
    )
 }
 
+const SessionGroup = () => {
+   const execute = useExecuteAndClose()
+
+   const { mutate } = useLogoutMutation()
+   const logout = () => mutate(undefined)
+   const spotifyIcon = useSpotifyIcon()
+   const resetSdk = useResetSpotifySdk()
+
+   return (
+      <CommandGroup heading='Session'>
+         <CommandItem onSelect={logout}>
+            <ArrowLeftOnRectangleIcon className='mr-2 h-4 w-4' />
+            Logout
+         </CommandItem>
+         <CommandItem onSelect={execute(resetSdk)}>
+            <img className='mr-2 h-4 w-4' src={spotifyIcon} alt='Spotify Logo' />
+            Reset Player
+         </CommandItem>
+      </CommandGroup>
+   )
+}
+
 const CommandNavItem = ({ nav }: { nav: NavItem }) => {
    const action = nav.action()
    const wrapper = useExecuteAndClose()
 
    return (
-      <CommandItem onSelect={wrapper(() => action())} value={`${nav.name} Page Nav`}>
+      <CommandItem onSelect={wrapper(action)} value={`${nav.name} Page Nav`}>
          <nav.icon className='mr-2 h-4 w-4' />
          {nav.name}
       </CommandItem>
@@ -527,7 +551,7 @@ const SearchResultRow = ({ result }: { result: SearchResult }) => {
    const execute = useExecuteAndClose()
 
    return (
-      <CommandItem onSelect={execute(() => open())} value={`${result.name} ${getSearchValue(result)}`}>
+      <CommandItem onSelect={execute(open)} value={`${result.name} ${getSearchValue(result)}`}>
          <div className='flex items-center space-x-4'>
             <img className='h-12 w-12 object-cover object-center' src={tileImage} />
             <div className='space-y-2'>
@@ -553,7 +577,7 @@ const SearchResultOwnedPlaylist = ({ result }: { result: PlaylistDetailsFragment
    const displayName = userDisplayNameOrId(result.owner)
 
    return (
-      <CommandItem onSelect={execute(() => open())} value={`${result.name} ${displayName}`}>
+      <CommandItem onSelect={execute(open)} value={`${result.name} ${displayName}`}>
          <div className='flex items-center space-x-4'>
             <img className='h-12 w-12 object-cover object-center' src={image} />
             <div className='space-y-2'>

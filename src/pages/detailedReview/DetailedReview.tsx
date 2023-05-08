@@ -129,7 +129,7 @@ const useAddCommands = (review: ReviewDetailsFragment) => {
 
    // Help.
    const tour = useOpenReviewTour()
-   const openTour = executeWrapper(() => tour())
+   const openTour = executeWrapper(tour)
 
    // Edit.
    // Share.

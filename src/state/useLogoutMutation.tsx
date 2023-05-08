@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDisconnectPlayer } from '@/component/sdk/PlaybackSDK'
 import { AppConfig } from '@/util/AppConfig'
 
-export default function useLogoutMutation(options?: UseMutationOptions<unknown, unknown, undefined, unknown>) {
+export function useLogoutMutation(options?: UseMutationOptions<unknown, unknown, undefined, unknown>) {
    const nav = useNavigate()
    const queryClient = useQueryClient()
    const disconnectPlayer = useDisconnectPlayer()

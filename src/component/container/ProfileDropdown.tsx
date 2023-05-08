@@ -13,7 +13,7 @@ import {
    DropdownMenuTrigger,
 } from '@/lib/component/DropdownMenu'
 import { useCurrentUserDisplayName, useCurrentUserId, useCurrentUserImage } from '@/state/CurrentUser'
-import useLogoutMutation from '@/state/useLogoutMutation'
+import { useLogoutMutation } from '@/state/useLogoutMutation'
 
 type ProfileDropdownProps = {
    onModalOpen?: () => void
