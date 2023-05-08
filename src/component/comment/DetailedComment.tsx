@@ -284,7 +284,7 @@ const CommentMenu = ({ reviewId, comment }: { reviewId: string; comment: Detaile
 
    return (
       <DropdownMenu open={open} onOpenChange={open => setOpen(open)}>
-         <DropdownMenuTrigger>
+         <DropdownMenuTrigger asChild>
             <Button size='square' variant='svg' className='p-1'>
                <span className='sr-only'>Open comment menu</span>
                <EllipsisVerticalIcon className='h-5 w-5' aria-hidden='true' />

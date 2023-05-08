@@ -59,9 +59,7 @@ export default function ReviewCommentSection({ reviews }: { reviews: ReviewOverv
             ref={ref}
          >
             {rootComments.map((c: DetailedCommentFragment) => (
-               <>
-                  <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
-               </>
+               <DetailedComment key={c.id} review={reviewOverviews.get(c.reviewId)?.at(0)!} comment={c} />
             ))}
          </div>
          <DeleteCommentModal />
