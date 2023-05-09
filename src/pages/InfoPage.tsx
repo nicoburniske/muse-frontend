@@ -50,9 +50,9 @@ export function InfoPage() {
                <div className='mx-auto max-w-3xl text-base leading-7 text-foreground'>
                   <p className='text-base font-semibold leading-7 text-primary/40'>Introducing </p>
                   <h1 className='mt-2 text-3xl font-bold tracking-tight sm:text-4xl'>
-                     <span className='bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent'>
-                        Sonic Connections, Amplified
-                     </span>
+                     <div className='bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent'>
+                        Muse - Sonic Connections, Amplified
+                     </div>
                   </h1>
                   <p className='mt-6 text-xl leading-8'>
                      Welcome to Muse, your sonic playground designed for those who seek more than just listening to
@@ -66,8 +66,8 @@ export function InfoPage() {
                         At Muse, you don't just listen, you interact. You create. You share. Dive into the rhythm of
                         insightful reviews on albums and playlists, igniting vibrant conversations with other music
                         enthusiasts. Our unique feature allows you to infuse comments directly into the tracks,
-                        referencing specific points like dynamic Youtube comments, each change instantly rendered
-                        through GraphQL Subscription events, for real-time interaction.
+                        referencing specific points like dynamic Youtube comments, each change instantly rendered for
+                        real-time interaction.
                      </p>
                      <br />
                      <p>
@@ -156,12 +156,12 @@ const FAQs = [
       answer: 'Simply sign up for an account using your Spotify Premium credentials and start creating your reviews!',
    },
    {
-      question: 'What is a review?',
+      question: 'What is a Review?',
       answer: 'A review consists of comments, which can be replied to, re-ordered, and deleted.',
    },
    {
-      question: 'What are collaborators?',
-      answer: 'Collaborators are Muse users with access to your review. There are two levels: editors and viewers.',
+      question: 'What are Collaborators?',
+      answer: 'Collaborators are Muse users with access to your review. There are two levels: Editors and Viewers.',
    },
    {
       question: 'Who can make comments?',
@@ -178,9 +178,9 @@ const FAQs = [
    {
       question: 'Where can I find help or troubleshooting assistance?',
       answer: (
-         <p>
+         <a href={'https://github.com/nicoburniske/muse-frontend/issues'} rel='noreferrer' target='_blank'>
             <Button variant='link'> Submit a GitHub Issue </Button>for any issues or questions you might have.{' '}
-         </p>
+         </a>
       ),
    },
    {
@@ -189,7 +189,7 @@ const FAQs = [
          <div className='flex flex-col gap-4'>
             <div>
                <a
-                  href={'github.com/nicoburniske/muse'}
+                  href={'https://github.com/nicoburniske/muse'}
                   className='text-primary underline-offset-4 hover:underline'
                   rel='noreferrer'
                   target='_blank'
@@ -199,7 +199,7 @@ const FAQs = [
             </div>
             <div>
                <a
-                  href={'github.com/nicoburniske/muse-frontend'}
+                  href={'https://github.com/nicoburniske/muse-frontend'}
                   className='text-primary underline-offset-4 hover:underline'
                   rel='noreferrer'
                   target='_blank'
