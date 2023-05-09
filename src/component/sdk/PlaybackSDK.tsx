@@ -28,15 +28,15 @@ export function SpotifyPlaybackSdk({ errorHandler }: { errorHandler: SpotifyErro
    }, [isReady, initPlayer])
 
    // Disconnect on window close.
+   const reset = useResetSpotifySdk()
    useEffect(() => {
-      const cleanup = () => player?.disconnect()
-
-      window.addEventListener('beforeunload', cleanup)
+      window.addEventListener('beforeunload', reset)
 
       return () => {
-         window.removeEventListener('beforeunload', cleanup)
+         reset()
+         window.removeEventListener('beforeunload', reset)
       }
-   }, [player])
+   }, [reset])
 
    // Event handling.
    const setPlaybackState = useSetAtom(setPlaybackStateAtom)
@@ -219,11 +219,18 @@ export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom
 // Needs Reconnect.
 // When playback gets disconnected (due to transfer to another device), we get a single NULL playbackstate.
 export const needsReconnectAtom = atom<boolean>(get => {
+   const noPlayer = !get(isPlayerReadyAtom)
    const isInit = get(isPlaybackStateInitAtom)
    const latestValid = get(latestValidPlaybackStateMaybeAtom)
    const latest = get(latestPlaybackStateAtom)
 
-   return !isInit || !nonNullable(latestValid) || !nonNullable(latest) || latestValid.timestamp !== latest.timestamp
+   return (
+      noPlayer ||
+      !isInit ||
+      !nonNullable(latestValid) ||
+      !nonNullable(latest) ||
+      latestValid.timestamp !== latest.timestamp
+   )
 })
 needsReconnectAtom.debugLabel = 'needsReconnectAtom'
 export const useNeedsReconnect = () => useAtomValue(needsReconnectAtom)

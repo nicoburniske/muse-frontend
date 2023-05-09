@@ -2,6 +2,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { StylesObj, TourProvider } from '@reactour/tour'
 import { StrictMode, Suspense, useCallback, useEffect, useRef } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import toast from 'react-hot-toast'
 import { Outlet } from 'react-router-dom'
 
 import { CommandMenu } from '@/component/command/Command'
@@ -11,7 +12,7 @@ import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
 import { UserPreferencesModal } from '@/component/preferences/UserPreferencesForm'
 import { SubscribeReviews } from '@/component/reviewUpdates/SubscribeReviews'
 import { useSetAccessToken } from '@/component/sdk/ClientAtoms'
-import { useSetTokenFunction } from '@/component/sdk/PlaybackSDK'
+import { SpotifyPlaybackSdk, useSetTokenFunction } from '@/component/sdk/PlaybackSDK'
 import { SelectedReviewModal } from '@/component/SelectedReview'
 import { ShareReviewModal } from '@/component/shareReview/ShareReview'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
@@ -43,6 +44,27 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             {/* Effects lower in component tree to avoid re-render */}
             <SyncAccessToken />
             <SyncCurrentUser />
+            <SpotifyPlaybackSdk
+               errorHandler={{
+                  initializationError: e =>
+                     toast.error(`SDK initialization error: ${e.message}`, {
+                        duration: 1000,
+                        id: 'sdk-init-error',
+                     }),
+                  authenticationError: e =>
+                     toast.error(`SDK authentication error: ${e.message}`, {
+                        duration: 1000,
+                        id: 'sdk-auth-error',
+                     }),
+                  accountError: e =>
+                     toast.error(`SDK account error: ${e.message}`, {
+                        duration: 1000,
+                        id: 'sdk-account-error',
+                     }),
+                  playbackError: e =>
+                     toast.error(`Playback Error ${e.message}`, { duration: 1000, id: 'sdk-playback-error' }),
+               }}
+            />
             <div className='flex flex-1 flex-row overflow-hidden'>
                <SideNavBar />
                <ErrorBoundary

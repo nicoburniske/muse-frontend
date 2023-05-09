@@ -6,11 +6,9 @@ import { MuseToaster } from 'MuseToaster'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ReactDOM from 'react-dom/client'
-import toast from 'react-hot-toast'
 import { BrowserRouter } from 'react-router-dom'
 import { createClient, Provider, subscriptionExchange } from 'urql'
 
-import { SpotifyPlaybackSdk } from '@/component/sdk/PlaybackSDK'
 import { AppConfig } from '@/util/AppConfig'
 
 import MuseRoutes from './MuseRoutes'
@@ -45,27 +43,6 @@ const Main = () => {
             <Provider value={urqlClient}>
                <MuseQueryClientProvider useCache={true}>
                   <>
-                     <SpotifyPlaybackSdk
-                        errorHandler={{
-                           initializationError: e =>
-                              toast.error(`SDK initialization error: ${e.message}`, {
-                                 duration: 1000,
-                                 id: 'sdk-init-error',
-                              }),
-                           authenticationError: e =>
-                              toast.error(`SDK authentication error: ${e.message}`, {
-                                 duration: 1000,
-                                 id: 'sdk-auth-error',
-                              }),
-                           accountError: e =>
-                              toast.error(`SDK account error: ${e.message}`, {
-                                 duration: 1000,
-                                 id: 'sdk-account-error',
-                              }),
-                           playbackError: e =>
-                              toast.error(`Playback Error`, { duration: 1000, id: 'sdk-playback-error' }),
-                        }}
-                     />
                      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                      {/* <DebugAtomsReduxDevTools /> */}
                      <MuseRoutes />
