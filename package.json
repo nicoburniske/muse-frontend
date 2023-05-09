@@ -42,6 +42,7 @@
       "@tanstack/react-virtual": "^3.0.0-beta.41",
       "@types/react-window": "^1.8.5",
       "@types/spotify-web-playback-sdk": "^0.1.15",
+      "@urql/exchange-retry": "^1.1.1",
       "axios": "^1.2.6",
       "class-variance-authority": "^0.5.3",
       "clsx": "^1.2.1",

@@ -1,5 +1,6 @@
 import './index.css'
 
+import { retryExchange } from '@urql/exchange-retry'
 import { createClient as createWSClient } from 'graphql-ws'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { MuseToaster } from 'MuseToaster'
@@ -13,6 +14,7 @@ import { AppConfig } from '@/util/AppConfig'
 
 import MuseRoutes from './MuseRoutes'
 import { Theme, useThemeValue } from './state/UserPreferences'
+import { nonNullable } from './util/Utils'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -21,6 +23,16 @@ const wsClient = createWSClient({
 const urqlClient = createClient({
    url: AppConfig.httpGraphEndpoint,
    exchanges: [
+      // @ts-ignore
+      retryExchange({
+         initialDelayMs: 500,
+         maxDelayMs: 500,
+         randomDelay: false,
+         maxNumberAttempts: 5,
+         retryIf: err => {
+            return nonNullable(err && err.networkError)
+         },
+      }),
       // ...defaultExchanges,
       subscriptionExchange({
          forwardSubscription: operation => ({

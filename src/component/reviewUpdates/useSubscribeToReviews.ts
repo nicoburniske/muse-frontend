@@ -88,7 +88,7 @@ export const useSubscribeToReviews = (reviewIds: string[]) => {
          }
          return newEvent
       },
-      [queryClient]
+      [queryClient, currentUserId]
    )
 
    const [{ error }] = useReviewUpdatesSubscription(
@@ -98,8 +98,8 @@ export const useSubscribeToReviews = (reviewIds: string[]) => {
       handleReviewUpdate
    )
    useEffect(() => {
-      if (error) {
-         toast.error('Error subscribing to review updates', { duration: 2000, id: 'review-updates-error' })
+      if (error && error.graphQLErrors.length > 0) {
+         toast.error('Error subscribing to review updates', { duration: 1000, id: 'review-updates-error' })
       }
    }, [error])
 }
