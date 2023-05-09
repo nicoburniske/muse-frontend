@@ -52,21 +52,21 @@ export default function LandingPage() {
          </div>
          <header className='px-6 pt-6 lg:px-8'>
             <nav className='flex items-center justify-between' aria-label='Global'>
-               <div className='flex gap-2 lg:flex-1'>
+               <Link className='flex gap-2 lg:flex-1' to='/'>
                   <div className='-m-1.5 p-1.5'>
                      <span className='sr-only'>Muse</span>
                      <img className='h-8' src='/logo.png' alt='' />
                   </div>
                   <div className='flex lg:flex-1'>
-                     <a className='flex flex-row items-baseline' href='/'>
+                     <div className='flex flex-row items-baseline'>
                         <h1 className='relative flex flex-row items-baseline text-2xl font-bold'>
                            <span className='sr-only'>Muse</span>
                            <span className='tracking-tight hover:cursor-pointer'>Muse</span>
                            <sup className='absolute left-[calc(100%+.1rem)] top-0 text-xs font-bold'>[BETA]</sup>
                         </h1>
-                     </a>
+                     </div>
                   </div>
-               </div>
+               </Link>
                <div className='flex flex-1 justify-end'>
                   {isLoggedIn ? (
                      <Link to='/app'>
@@ -101,11 +101,11 @@ export default function LandingPage() {
                         <Button>Get Started</Button>
                      </a>
                   )}
-                  <a href='#'>
+                  <Link to='/info'>
                      <Button variant='outline' className='gap-1'>
                         Learn more <span aria-hidden='true'>→</span>
                      </Button>
-                  </a>
+                  </Link>
                </div>
                <div className='grid w-full place-items-center'>
                   <div className='mt-20 inline-flex items-center text-lg leading-8'>
@@ -161,7 +161,7 @@ export default function LandingPage() {
    )
 }
 
-const useCurrentUsername = () => {
+export const useCurrentUsername = () => {
    const { data } = useCurrentUserQuery(
       {},
       {

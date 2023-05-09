@@ -54,7 +54,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
             <CardDescription className='line-clamp-1'>{entityName}</CardDescription>
             <div className='flex w-full justify-between'>
                <Badge variant='outline'>{entityType}</Badge>
-               <TooltipProvider>
+               <TooltipProvider delayDuration={100}>
                   <Tooltip>
                      <TooltipTrigger>
                         <div

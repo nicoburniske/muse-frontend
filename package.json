@@ -52,7 +52,7 @@
       "graphql": "^16.6.0",
       "graphql-ws": "^5.11.2",
       "idb-keyval": "^6.2.0",
-      "jotai": "^2.0.0",
+      "jotai": "^2.1.0",
       "jotai-devtools": "^0.2.0",
       "jotai-molecules": "^1.1.0",
       "jotai-optics": "^0.3.0",

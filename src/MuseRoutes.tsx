@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import { NavPlayerPageOutlet } from '@/component/container/NavPlayerPage'
 import DetailedReviewPage from '@/pages/detailedReview/DetailedReviewPage'
+import { InfoPage } from '@/pages/InfoPage'
 import LandingPage from '@/pages/LandingPage'
 import { MyPlaylistsPage } from '@/pages/MyPlaylists'
 import ReviewsPage from '@/pages/myReviews/ReviewsPage'
@@ -24,6 +25,7 @@ export default function MuseRoutes() {
             <Route path='*' element={<NotFound label='Back' redirect='/app' />} />
          </Route>
          <Route path='/' element={<LandingPage />} />
+         <Route path='/info' element={<InfoPage />} />
          <Route path='*' element={<NotFound label='Home' redirect='/' />} />
       </Routes>
    )
