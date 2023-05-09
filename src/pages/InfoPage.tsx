@@ -81,7 +81,7 @@ export function InfoPage() {
                         that unites us all. Welcome to Muse, your new haven for amplifying sonic connections.
                      </p>
                      <br />
-                     <ul role='list' className='mt-8 max-w-xl space-y-8 text-gray-600'>
+                     <ul role='list' className='mt-8 max-w-xl space-y-8 text-foreground'>
                         <li className='flex gap-x-3'>
                            <CheckCircleIcon className='mt-1 h-5 w-5 flex-none text-primary' aria-hidden='true' />
                            <span>
