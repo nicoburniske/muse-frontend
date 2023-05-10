@@ -398,7 +398,7 @@ const PlaylistGroup = () => {
                  <CommandItem
                     key={p.id}
                     onSelect={executeAndClose(navToPlaylist(p.id))}
-                    value={`${p.name}-${userDisplayNameOrId(p.owner)}`}
+                    value={`${p.name}-${userDisplayNameOrId(p.owner)} ${p.id}`}
                  >
                     <div className='flex w-full items-center justify-between'>
                        <div className='flex items-center gap-4'>
@@ -573,7 +573,7 @@ const SearchResultRow = ({ result }: { result: SearchResult }) => {
    const execute = useExecuteAndClose()
 
    return (
-      <CommandItem onSelect={execute(open)} value={`${result.name} ${getSearchValue(result)}`}>
+      <CommandItem onSelect={execute(open)} value={`${result.name} ${getSearchValue(result)} ${result.id}`}>
          <div className='flex items-center space-x-4'>
             <img className='h-12 w-12 object-cover object-center' src={tileImage} />
             <div className='space-y-2'>
@@ -599,7 +599,7 @@ const SearchResultOwnedPlaylist = ({ result }: { result: PlaylistDetailsFragment
    const displayName = userDisplayNameOrId(result.owner)
 
    return (
-      <CommandItem onSelect={execute(open)} value={`${result.name} ${displayName}`}>
+      <CommandItem onSelect={execute(open)} value={`${result.name} ${displayName} ${result.id}`}>
          <div className='flex items-center space-x-4'>
             <img className='h-12 w-12 object-cover object-center' src={image} />
             <div className='space-y-2'>
