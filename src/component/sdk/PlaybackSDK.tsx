@@ -201,14 +201,16 @@ export const useDeviceId = () => useAtomValue(deviceIdAtom)
 /**
  * Playback State.
  */
-const isPlaybackStateInitAtom = atom(false)
 const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
 playbackStatesAtom.debugLabel = 'playbackStatesAtom'
 export const usePlaybackStates = () => useAtomValue(playbackStatesAtom)
-// First set will signal that player has been connected
+
 const setPlaybackStateAtom = atom(null, (_get, set, state: Spotify.PlaybackState | null) => {
-   set(isPlaybackStateInitAtom, true)
-   set(playbackStatesAtom, old => [state, ...old].slice(0, 5))
+   set(playbackStatesAtom, old => {
+      const newStates = [state, ...old.slice(0, 10)]
+      // Ensure no adjacent null values.
+      return newStates.filter((s, i) => newStates[i - 1] !== s)
+   })
 })
 
 // Latest Playback State.
@@ -220,17 +222,10 @@ export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom
 // When playback gets disconnected (due to transfer to another device), we get a single NULL playbackstate.
 export const needsReconnectAtom = atom<boolean>(get => {
    const noPlayer = !get(isPlayerReadyAtom)
-   const isInit = get(isPlaybackStateInitAtom)
    const latestValid = get(latestValidPlaybackStateMaybeAtom)
    const latest = get(latestPlaybackStateAtom)
 
-   return (
-      noPlayer ||
-      !isInit ||
-      !nonNullable(latestValid) ||
-      !nonNullable(latest) ||
-      latestValid.timestamp !== latest.timestamp
-   )
+   return noPlayer || !nonNullable(latestValid) || !nonNullable(latest) || latestValid.timestamp !== latest.timestamp
 })
 needsReconnectAtom.debugLabel = 'needsReconnectAtom'
 export const useNeedsReconnect = () => useAtomValue(needsReconnectAtom)
@@ -247,8 +242,8 @@ export const validPlaybackStateAtom = atomValueOrThrow(latestValidPlaybackStateM
 validPlaybackStateAtom.debugLabel = 'asyncPlaybackStateAtom'
 export const usePlaybackState = () => useAtomValue(validPlaybackStateAtom)
 
-const currentTrackAtom = atom<Promise<Spotify.Track>>(async get => {
-   const state = await get(validPlaybackStateAtom)
+const currentTrackAtom = atom<Spotify.Track>(get => {
+   const state = get(validPlaybackStateAtom)
    return state.track_window.current_track
 })
 export const useCurrentTrack = () => useAtomValue(currentTrackAtom)
