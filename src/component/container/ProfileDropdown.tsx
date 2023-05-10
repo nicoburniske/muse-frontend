@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { useNavigate } from 'react-router-dom'
 
 import { usePreferencesModal } from '@/component/preferences/UserPreferencesForm'
-import { UserAvatar } from '@/component/UserAvatar'
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import {
    DropdownMenu,
    DropdownMenuContent,

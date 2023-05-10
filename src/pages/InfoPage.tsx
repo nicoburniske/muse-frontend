@@ -8,6 +8,7 @@ import { Separator } from '@/lib/component/Seperator'
 import { AppConfig } from '@/util/AppConfig'
 
 import { useCurrentUsername } from './LandingPage'
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 
 export function InfoPage() {
    const isLoggedIn = useCurrentUsername() !== undefined
@@ -16,11 +17,8 @@ export function InfoPage() {
       <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto bg-background text-foreground overflow-x-hidden'>
          <header className='px-6 pt-6 lg:px-8'>
             <nav className='flex items-center justify-between' aria-label='Global'>
-               <Link className='flex gap-2 lg:flex-1' to='/'>
-                  <div className='-m-1.5 p-1.5'>
-                     <span className='sr-only'>Muse</span>
-                     <img className='h-8' src='/logo.png' alt='' />
-                  </div>
+               <Link className='flex items-center gap-2 lg:flex-1' to='/'>
+                  <MuseAvatar className='-ml-1.5' />
                   <div className='flex lg:flex-1'>
                      <div className='flex flex-row items-baseline'>
                         <h1 className='relative flex flex-row items-baseline text-2xl font-bold'>
@@ -65,15 +63,8 @@ export function InfoPage() {
                      <p>
                         At Muse, you don't just listen, you interact. You create. You share. Dive into the rhythm of
                         insightful reviews on albums and playlists, igniting vibrant conversations with other music
-                        enthusiasts. Our unique feature allows you to infuse comments directly into the tracks,
-                        referencing specific points like dynamic Youtube comments, each change instantly rendered for
-                        real-time interaction.
-                     </p>
-                     <br />
-                     <p>
-                        And with our event-driven architecture, your review updates are shared live, making new comments
-                        pop up instantly for all viewers. Experience the thrill of a live conversation centered around
-                        your favorite tunes.
+                        enthusiasts. You to infuse comments directly into the tracks, citing your favorite parts via
+                        interactive timestamps, each change instantly rendered for real-time interaction.
                      </p>
                      <br />
                      <p>
@@ -93,7 +84,7 @@ export function InfoPage() {
                         <li className='flex gap-x-3'>
                            <CheckCircleIcon className='mt-1 h-5 w-5 flex-none text-primary' aria-hidden='true' />
                            <span>
-                              <strong className='mr-2 font-semibold text-primary'>Event Driven.</strong> With our live
+                              <strong className='mr-2 font-semibold text-primary'>Event Driven.</strong> With live
                               review updates, witness the appearance of new comments in real time, fostering an engaging
                               and instantaneous dialogue.
                            </span>
@@ -141,6 +132,12 @@ const CollapsibleFaq = (props: { question: string; answer: ReactNode }) => {
    )
 }
 
+const ExternalLink = ({ href, children }: { href: string; children: ReactNode }) => (
+   <a href={href} rel='noreferrer' target='_blank' className='text-primary underline-offset-4 hover:underline'>
+      {children}
+   </a>
+)
+
 const FAQs = [
    {
       question: 'What is Muse?',
@@ -153,7 +150,12 @@ const FAQs = [
    },
    {
       question: 'How do I get started with Muse?',
-      answer: 'Simply sign up for an account using your Spotify Premium credentials and start creating your reviews!',
+      answer: (
+         <p>
+            Simply <ExternalLink href={AppConfig.loginEndpoint}>login with your Spotify account</ExternalLink> and
+            create your first review!
+         </p>
+      ),
    },
    {
       question: 'What is a Review?',
@@ -178,9 +180,12 @@ const FAQs = [
    {
       question: 'Where can I find help or troubleshooting assistance?',
       answer: (
-         <a href={'https://github.com/nicoburniske/muse-frontend/issues'} rel='noreferrer' target='_blank'>
-            <Button variant='link'> Submit a GitHub Issue </Button>for any issues or questions you might have.{' '}
-         </a>
+         <p>
+            <ExternalLink href='https://github.com/nicoburniske/muse-frontend/issues'>
+               Submit a GitHub Issue
+            </ExternalLink>{' '}
+            for any problems that come up!
+         </p>
       ),
    },
    {
@@ -188,24 +193,14 @@ const FAQs = [
       answer: (
          <div className='flex flex-col gap-4'>
             <div>
-               <a
-                  href={'https://github.com/nicoburniske/muse'}
-                  className='text-primary underline-offset-4 hover:underline'
-                  rel='noreferrer'
-                  target='_blank'
-               >
+               <ExternalLink href={'https://github.com/nicoburniske/muse'}>
                   Backend repo is available here.
-               </a>
+               </ExternalLink>
             </div>
             <div>
-               <a
-                  href={'https://github.com/nicoburniske/muse-frontend'}
-                  className='text-primary underline-offset-4 hover:underline'
-                  rel='noreferrer'
-                  target='_blank'
-               >
+               <ExternalLink href={'https://github.com/nicoburniske/muse-frontend'}>
                   Frontend repo is available here.
-               </a>
+               </ExternalLink>
             </div>
          </div>
       ),

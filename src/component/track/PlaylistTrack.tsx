@@ -9,7 +9,7 @@ import {
    usePlayMutation,
    useReorderPlaylistTracksMutation,
 } from '@/component/sdk/ClientHooks'
-import { UserAvatarTooltip } from '@/component/UserAvatar'
+import { UserAvatarTooltip } from '@/component/avatar/UserAvatar'
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'

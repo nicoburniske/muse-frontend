@@ -6,6 +6,7 @@ import { cn } from '@/util/Utils'
 
 import { NAV, NavItem } from './NavConstants'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
+import { MuseAvatar } from '../avatar/MuseAvatar'
 
 export const SideNavBar = () => {
    const nav = useNavigate()
@@ -16,7 +17,7 @@ export const SideNavBar = () => {
                <div className='flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-primary to-background'>
                   <div className='flex-1'>
                      <div className='flex items-center justify-center py-4' onClick={() => nav('/')}>
-                        <img className='h-8 w-auto' src={LogoImage} alt='Muse' />
+                        <MuseAvatar />
                      </div>
                      <NavBarLinks />
                   </div>

@@ -7,6 +7,7 @@ import { CurrentUserQuery, useCurrentUserQuery } from '@/graphql/generated/schem
 import { Button } from '@/lib/component/Button'
 import { AppConfig } from '@/util/AppConfig'
 import { cn } from '@/util/Utils'
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 
 export default function LandingPage() {
    const isLoggedIn = useCurrentUsername() !== undefined
@@ -52,11 +53,8 @@ export default function LandingPage() {
          </div>
          <header className='px-6 pt-6 lg:px-8'>
             <nav className='flex items-center justify-between' aria-label='Global'>
-               <Link className='flex gap-2 lg:flex-1' to='/'>
-                  <div className='-m-1.5 p-1.5'>
-                     <span className='sr-only'>Muse</span>
-                     <img className='h-8' src='/logo.png' alt='' />
-                  </div>
+               <Link className='flex items-center gap-2 lg:flex-1' to='/'>
+                  <MuseAvatar className='-ml-1.5' />
                   <div className='flex lg:flex-1'>
                      <div className='flex flex-row items-baseline'>
                         <h1 className='relative flex flex-row items-baseline text-2xl font-bold'>

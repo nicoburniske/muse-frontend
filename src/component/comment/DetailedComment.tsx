@@ -18,7 +18,7 @@ import { useOpenUpdateComment } from '@/component/commentForm/useOpenUpdateComme
 import { getLink, useSpotifyIcon } from '@/component/ListenOnSpotify'
 import { usePlayMutation } from '@/component/sdk/ClientHooks'
 import { ReviewOverview } from '@/component/trackTable/Helpers'
-import { UserAvatar } from '@/component/UserAvatar'
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import {
    DetailedCommentFragment,
    EntityType,

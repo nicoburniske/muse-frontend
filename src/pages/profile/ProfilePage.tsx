@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
-import { UserAvatar } from '@/component/UserAvatar'
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { Alert, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'

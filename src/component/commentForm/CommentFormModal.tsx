@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 
-import { UserAvatar } from '@/component/UserAvatar'
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { Dialog, DialogContent } from '@/lib/component/Dialog'
 import { useCurrentUserDisplayName, useCurrentUserImage } from '@/state/CurrentUser'
 
