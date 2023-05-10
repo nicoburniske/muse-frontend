@@ -3,12 +3,12 @@ import { ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Button } from '@/lib/component/Button'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/lib/component/Collapsible'
 import { Separator } from '@/lib/component/Seperator'
 import { AppConfig } from '@/util/AppConfig'
 
 import { useCurrentUsername } from './LandingPage'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/lib/component/Accordion'
 
 export function InfoPage() {
    const isLoggedIn = useCurrentUsername() !== undefined
@@ -96,39 +96,18 @@ export function InfoPage() {
                   <h2 className='text-2xl font-bold leading-10 tracking-tight text-foreground'>
                      Frequently asked questions
                   </h2>
-                  <dl className='mt-10 space-y-6 divide-y divide-foreground/10'>
-                     {FAQs.map(faq => (
-                        <CollapsibleFaq key={faq.question} {...faq} />
+                  <Accordion type='single' className='mt-10'>
+                     {FAQs.map((faq, i) => (
+                        <AccordionItem value={faq.question} key={i}>
+                           <AccordionTrigger>{faq.question}</AccordionTrigger>
+                           <AccordionContent> {faq.answer}</AccordionContent>
+                        </AccordionItem>
                      ))}
-                  </dl>
+                  </Accordion>
                </div>
             </div>
          </div>
       </div>
-   )
-}
-
-const CollapsibleFaq = (props: { question: string; answer: ReactNode }) => {
-   const [open, setIsOpen] = useState(false)
-
-   return (
-      <Collapsible open={open} onOpenChange={setIsOpen} className='w-full space-y-2'>
-         <CollapsibleTrigger asChild>
-            <div className='flex items-center justify-between space-x-4 px-4'>
-               <h4 className='text-lg font-semibold leading-7'>{props.question}</h4>
-               <Button variant='ghost' size='sm' className='w-9 p-0'>
-                  {open ? <MinusIcon className='h-4 w-4' /> : <PlusIcon className='h-4 w-4' />}
-                  <span className='sr-only'>Toggle</span>
-               </Button>
-            </div>
-         </CollapsibleTrigger>
-         <CollapsibleContent className='space-y-2'>
-            <div className='rounded-md border bg-popover px-4 py-3 font-mono text-sm text-popover-foreground'>
-               {' '}
-               {props.answer}
-            </div>
-         </CollapsibleContent>
-      </Collapsible>
    )
 }
 
