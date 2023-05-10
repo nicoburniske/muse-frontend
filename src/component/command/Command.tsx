@@ -156,6 +156,9 @@ export const CommandMenu = () => {
    useHotkeys(
       ['meta+k', 'ctrl+k'],
       useCallback(() => setOpen(true), [setOpen]),
+      {
+         preventDefault: true,
+      },
       [setOpen]
    )
 
