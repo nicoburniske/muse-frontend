@@ -1,4 +1,4 @@
-import { MutableRefObject, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import CommentMarkdown from '@/component/comment/CommentMarkdown'
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { Textarea } from '@/lib/component/TextArea'
 import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
 import { osAtom } from '@/state/Atoms'
-import { cn } from '@/util/Utils'
+import { cn, nonNullable } from '@/util/Utils'
 
 export interface CommentFormProps {
    initialValue?: string
@@ -19,7 +19,6 @@ export interface CommentFormProps {
 }
 
 export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFormProps) {
-   const commentInputRef = useRef() as MutableRefObject<HTMLTextAreaElement>
    const [comment, setComment] = useState(initialValue)
    const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -29,6 +28,7 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
       event.preventDefault()
       submit()
    }
+
    const submit = async () => {
       setIsSubmitting(true)
       try {
@@ -39,6 +39,12 @@ export function CommentForm({ onSubmit, initialValue = '', trackId }: CommentFor
          setIsSubmitting(false)
       }
    }
+
+   const commentInputRef = useRef() as MutableRefObject<HTMLTextAreaElement>
+
+   useEffect(() => {
+      commentInputRef.current.focus()
+   }, [])
 
    const applyToSelected = (apply: (substring: string) => string) => {
       const { selectionStart, selectionEnd, value } = commentInputRef.current

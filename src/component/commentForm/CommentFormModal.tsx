@@ -59,7 +59,11 @@ export const CommentFormModal = () => {
             }
          }}
       >
-         <DialogContent className='rounded-md p-2 sm:max-w-3xl md:p-6'>
+         <DialogContent
+            className='rounded-md p-2 sm:max-w-3xl md:p-6'
+            // This is needed to auto-focus on textarea
+            onOpenAutoFocus={e => e.preventDefault()}
+         >
             <div className='items-start justify-between'>
                <div className='hidden flex-shrink-0 sm:inline-block'>
                   <UserAvatar name={userDisplayName} image={userImage} className='h-10 w-10 lg:h-12 lg:w-12' />
