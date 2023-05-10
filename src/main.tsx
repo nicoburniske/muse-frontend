@@ -15,6 +15,7 @@ import { AppConfig } from '@/util/AppConfig'
 import MuseRoutes from './MuseRoutes'
 import { Theme, useThemeValue } from './state/UserPreferences'
 import { nonNullable } from './util/Utils'
+import { useEffect } from 'react'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
@@ -44,10 +45,28 @@ const urqlClient = createClient({
    ],
 })
 
+const setDocumentTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme)
+
 const Main = () => {
    const theme = useThemeValue()
-   const setDocumentTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme)
-   setDocumentTheme(theme)
+   useEffect(() => {
+      const css = document.createElement('style')
+      css.appendChild(
+         document.createTextNode(
+            `* {
+             -webkit-transition: none !important;
+             -moz-transition: none !important;
+             -o-transition: none !important;
+             -ms-transition: none !important;
+             transition: none !important;
+          }`
+         )
+      )
+      document.head.appendChild(css)
+      setDocumentTheme(theme)
+      const _ = window.getComputedStyle(css).opacity
+      document.head.removeChild(css)
+   }, [theme])
 
    return (
       <BrowserRouter>
