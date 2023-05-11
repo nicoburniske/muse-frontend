@@ -288,8 +288,8 @@ export const CommandMenu = () => {
                   </CommandGroup>
                )}
                {isCreateReview && <CreateReviewGroup />}
-               {(page === Pages.searchReviews || (search.length > 0 && !isCreateReview)) && <ReviewGroup />}
-               {(page === Pages.searchPlaylists || (search.length > 0 && !isCreateReview)) && <PlaylistGroup />}
+               {(page === Pages.searchReviews || (search.length > 0 && !page)) && <ReviewGroup />}
+               {(page === Pages.searchPlaylists || (search.length > 0 && !page)) && <PlaylistGroup />}
                <CommandSeparator />
             </CommandList>
          </CommandDialog>
@@ -592,12 +592,15 @@ const SearchResultRow = ({ result }: { result: SearchResult }) => {
 
 const SearchResultOwnedPlaylist = ({ result }: { result: PlaylistDetailsFragment }) => {
    const image = result.images.at(-1)
-   const { open } = useCreateReviewModal({
-      entityId: result.id,
-      entityImage: result.images.at(-2) ?? image ?? '',
-      entityName: result.name,
-      entityType: 'Playlist',
-   })
+   const { openCreateReview } = useCreateReviewModal()
+   const open = () => {
+      openCreateReview({
+         entityId: result.id,
+         entityImage: result.images.at(-2) ?? image ?? '',
+         entityName: result.name,
+         entityType: 'Playlist',
+      })
+   }
 
    const execute = useExecuteAndClose()
 
