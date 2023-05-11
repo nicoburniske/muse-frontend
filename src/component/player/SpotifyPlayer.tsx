@@ -486,7 +486,6 @@ const VolumeSlider = () => {
          setVolume(newVolume[0] / 100)
       }
    }
-   console.log('muted', volume, asInt)
 
    const isMuted = volume === 0
    const onClick = () => toggleMute(undefined)
