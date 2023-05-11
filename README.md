@@ -41,7 +41,7 @@ Muse was made to fill the gap between peoples thoughts, their friends, and the m
 <img width="872" alt="CommentExample" src="https://user-images.githubusercontent.com/46934294/236480882-2d492794-e55c-4365-9002-b60abb929346.png">
 
 -  Support markdown.
--  Support interactive timestamps 
-   - Clicking on timestamps will play the given track at the timestamp on your current Spotify Session
+-  Support interactive timestamps
+   -  Clicking on timestamps will play the given track at the timestamp on your current Spotify Session
 -  Comments support replies.
 -  Comments can be re-ordered.

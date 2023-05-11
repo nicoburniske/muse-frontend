@@ -13,12 +13,12 @@ import { useDrag, useDrop } from 'react-dnd'
 import { toast } from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { useOpenNewComment } from '@/component/commentForm/useOpenNewComment'
 import { useOpenUpdateComment } from '@/component/commentForm/useOpenUpdateComment'
 import { getLink, useSpotifyIcon } from '@/component/ListenOnSpotify'
 import { usePlayMutation } from '@/component/sdk/ClientHooks'
 import { ReviewOverview } from '@/component/trackTable/Helpers'
-import { UserAvatar } from '@/component/avatar/UserAvatar'
 import {
    DetailedCommentFragment,
    EntityType,

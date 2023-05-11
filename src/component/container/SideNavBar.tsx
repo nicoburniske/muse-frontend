@@ -1,12 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import LogoImage from '/logo.png'
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { cn } from '@/util/Utils'
 
 import { NAV, NavItem } from './NavConstants'
 import { ProfileDropdownSuspense } from './ProfileDropdown'
-import { MuseAvatar } from '../avatar/MuseAvatar'
 
 export const SideNavBar = () => {
    const nav = useNavigate()

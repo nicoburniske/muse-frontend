@@ -1,5 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/lib/component/Avatar'
 import { ComponentProps } from 'react'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/lib/component/Avatar'
 
 export const MuseAvatar = (props: ComponentProps<typeof Avatar>) => {
    return (

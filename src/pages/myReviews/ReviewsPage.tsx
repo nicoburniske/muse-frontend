@@ -8,6 +8,7 @@ import {
 import { atom, useAtom, useAtomValue } from 'jotai'
 import toast from 'react-hot-toast'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton, Pages, useOpenCommandPage } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { useNavAction } from '@/component/container/NavConstants'
@@ -41,7 +42,7 @@ export default function ReviewsPage() {
                <div className='align-center flex flex-1 justify-center px-4 py-2'>
                   <CommandButton />
                </div>
-               <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+               <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
             </div>
          </header>
 

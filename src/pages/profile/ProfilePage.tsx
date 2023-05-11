@@ -3,9 +3,10 @@ import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useParams } from 'react-router-dom'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
-import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { Alert, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'
@@ -68,8 +69,7 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
          <div className='muse-scrollbar flex flex-1 flex-col items-center overflow-y-auto px-2 md:pt-16'>
             <header className='my-2 flex w-full items-center justify-between md:hidden'>
                <MobileNavigation />
-
-               <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+               <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
             </header>
             <div className='mb-6 mt-16 flex w-full min-w-0 max-w-xl flex-col break-words rounded-lg bg-card text-card-foreground shadow-2xl'>
                <div className='px-6'>

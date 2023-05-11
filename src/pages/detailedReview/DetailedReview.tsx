@@ -15,6 +15,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Link } from 'react-router-dom'
 import Split from 'react-split'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/component/command/Command'
 import ReviewCommentSection from '@/component/comment/CommentSection'
 import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
@@ -310,7 +311,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
             <div className='align-center flex flex-1 justify-center px-4 py-2'>
                <CommandButton />
             </div>
-            <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+            <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
          </div>
       </>
    )

@@ -3,6 +3,7 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
@@ -55,7 +56,7 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                      <CommandButton />
                      {/* <SearchBar /> */}
                   </div>
-                  <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+                  <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' alt='Muse' />
                </div>
             </header>
 

@@ -2,13 +2,13 @@ import { CheckCircleIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outlin
 import { ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/lib/component/Accordion'
 import { Button } from '@/lib/component/Button'
 import { Separator } from '@/lib/component/Seperator'
 import { AppConfig } from '@/util/AppConfig'
 
 import { useCurrentUsername } from './LandingPage'
-import { MuseAvatar } from '@/component/avatar/MuseAvatar'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/lib/component/Accordion'
 
 export function InfoPage() {
    const isLoggedIn = useCurrentUsername() !== undefined

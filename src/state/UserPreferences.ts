@@ -1,4 +1,4 @@
-import { SetStateAction, WritableAtom, atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, SetStateAction, useAtom, useAtomValue, useSetAtom, WritableAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { focusAtom } from 'jotai-optics'
 

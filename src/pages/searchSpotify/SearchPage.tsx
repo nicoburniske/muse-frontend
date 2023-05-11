@@ -13,6 +13,7 @@ import {
    Track,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 
+import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { useAvailableGenreSeeds, useInfiniteSearchSpotify, usePlayMutation } from '@/component/sdk/ClientHooks'
@@ -49,7 +50,7 @@ const SearchPage = () => {
                <div className='w-full max-w-3xl justify-self-center'>
                   <SearchInputBar />
                </div>
-               <img className='mx-1 flex h-8 w-8 md:hidden' src={'/logo.png'} alt='Muse' />
+               <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
             </div>
             <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
                <SelectEntityTypes />

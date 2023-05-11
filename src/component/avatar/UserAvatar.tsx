@@ -42,7 +42,7 @@ export type UserAvatarProps = {
 export const UserAvatar = ({ name, image, className }: UserAvatarProps) => {
    return (
       <Avatar className={className}>
-         <AvatarImage src={image} alt='UserProfilePicture' />
+         <AvatarImage src={image} alt='UserProfilePicture' className='object-cover' />
          <AvatarFallback>{name.slice(0, 1)}</AvatarFallback>
       </Avatar>
    )

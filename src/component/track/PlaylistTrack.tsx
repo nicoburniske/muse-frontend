@@ -4,12 +4,12 @@ import { RefObject, useCallback, useEffect, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import toast from 'react-hot-toast'
 
+import { UserAvatarTooltip } from '@/component/avatar/UserAvatar'
 import {
    useAddTracksToPlaylistMutation,
    usePlayMutation,
    useReorderPlaylistTracksMutation,
 } from '@/component/sdk/ClientHooks'
-import { UserAvatarTooltip } from '@/component/avatar/UserAvatar'
 import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'

@@ -4,11 +4,11 @@ import { UseQueryOptions } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 import { Button } from '@/lib/component/Button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { useTrackLikeQuery } from '@/state/useTrackLikeQuery'
 import { cn } from '@/util/Utils'
 
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 
 interface LikeButtonProps {
    trackId: string

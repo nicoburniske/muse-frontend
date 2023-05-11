@@ -4,6 +4,7 @@ import { retryExchange } from '@urql/exchange-retry'
 import { createClient as createWSClient } from 'graphql-ws'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
 import { MuseToaster } from 'MuseToaster'
+import { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ReactDOM from 'react-dom/client'
@@ -15,7 +16,6 @@ import { AppConfig } from '@/util/AppConfig'
 import MuseRoutes from './MuseRoutes'
 import { Theme, useThemeValue } from './state/UserPreferences'
 import { nonNullable } from './util/Utils'
-import { useEffect } from 'react'
 
 const wsClient = createWSClient({
    url: AppConfig.websocketGraphEndpoint,
