@@ -49,7 +49,7 @@ export default function LikeButton({ trackId, className = '', svgStyle, options 
    const disabled = isLiked === undefined
 
    return (
-      <TooltipProvider delayDuration={200}>
+      <TooltipProvider>
          <Tooltip>
             <TooltipTrigger asChild>
                <Button

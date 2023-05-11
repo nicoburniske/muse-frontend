@@ -127,7 +127,7 @@ const NowPlayingMenu = () => {
    return (
       <DropdownMenu>
          <DropdownMenuTrigger>
-            <TooltipProvider delayDuration={200}>
+            <TooltipProvider>
                <Tooltip>
                   <TooltipTrigger asChild>
                      <div className='ml-2 p-1 hover:bg-accent hover:text-accent-foreground'>
@@ -165,7 +165,7 @@ const LikeNowPlaying = () => {
 
    if (nowPlaying) {
       return (
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <LikeButton
@@ -286,7 +286,7 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
@@ -303,7 +303,7 @@ const PlayerButtons = () => {
             </Tooltip>
          </TooltipProvider>
 
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
@@ -320,7 +320,7 @@ const PlayerButtons = () => {
             </Tooltip>
          </TooltipProvider>
 
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
@@ -338,7 +338,7 @@ const PlayerButtons = () => {
          </TooltipProvider>
 
          <PlayOrTransferButton />
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
@@ -354,7 +354,7 @@ const PlayerButtons = () => {
                <TooltipContent> Seek Forward </TooltipContent>
             </Tooltip>
          </TooltipProvider>
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
@@ -371,7 +371,7 @@ const PlayerButtons = () => {
             </Tooltip>
          </TooltipProvider>
 
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   {/* For conflicting data-state attributes between toggle and tooltip */}
@@ -390,7 +390,7 @@ const PlayerButtons = () => {
             </Tooltip>
          </TooltipProvider>
 
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <span>
@@ -457,7 +457,7 @@ const PlayOrTransferButton = () => {
    return needsReconnect ? (
       <TransferPlaybackButton />
    ) : (
-      <TooltipProvider delayDuration={200}>
+      <TooltipProvider>
          <Tooltip>
             <TooltipTrigger asChild>
                <Button
@@ -492,7 +492,7 @@ const VolumeSlider = () => {
    const onClick = () => toggleMute(undefined)
    return (
       <div className='flex w-full grow flex-row items-center'>
-         <TooltipProvider delayDuration={200}>
+         <TooltipProvider>
             <Tooltip>
                <TooltipTrigger asChild>
                   <Button
