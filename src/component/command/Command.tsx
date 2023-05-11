@@ -288,8 +288,8 @@ export const CommandMenu = () => {
                   </CommandGroup>
                )}
                {isCreateReview && <CreateReviewGroup />}
-               {(page === Pages.searchReviews || search.length > 0) && <ReviewGroup />}
-               {(page === Pages.searchPlaylists || search.length > 0) && <PlaylistGroup />}
+               {(page === Pages.searchReviews || (search.length > 0 && !isCreateReview)) && <ReviewGroup />}
+               {(page === Pages.searchPlaylists || (search.length > 0 && !isCreateReview)) && <PlaylistGroup />}
                <CommandSeparator />
             </CommandList>
          </CommandDialog>
