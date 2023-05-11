@@ -118,7 +118,7 @@ const NowPlayingItem = () => {
    )
 }
 const NowPlayingMenu = () => {
-   const { id: trackId } = useCurrentTrack()
+   const { id: trackId, name } = useCurrentTrack()
 
    const spotifyLink = getLink(trackId ?? undefined, 'Track')
    const spotifyIcon = useSpotifyIcon()
@@ -127,9 +127,16 @@ const NowPlayingMenu = () => {
    return (
       <DropdownMenu>
          <DropdownMenuTrigger>
-            <div className='ml-2 p-1 hover:bg-accent hover:text-accent-foreground'>
-               <EllipsisVerticalIcon className='h-6 w-6' />
-            </div>
+            <TooltipProvider delayDuration={200}>
+               <Tooltip>
+                  <TooltipTrigger asChild>
+                     <div className='ml-2 p-1 hover:bg-accent hover:text-accent-foreground'>
+                        <EllipsisVerticalIcon className='h-6 w-6' />
+                     </div>
+                  </TooltipTrigger>
+                  <TooltipContent> More Details for {name}</TooltipContent>
+               </Tooltip>
+            </TooltipProvider>
          </DropdownMenuTrigger>
          <DropdownMenuContent className='text-base'>
             <DropdownMenuItem>
@@ -158,12 +165,19 @@ const LikeNowPlaying = () => {
 
    if (nowPlaying) {
       return (
-         <LikeButton
-            trackId={getNowPlayingId()!}
-            svgStyle={svgStyle}
-            options={{ refetchInterval: 10 * 1000 }}
-            className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
-         />
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <LikeButton
+                     trackId={getNowPlayingId()!}
+                     svgStyle={svgStyle}
+                     options={{ refetchInterval: 10 * 1000 }}
+                     className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
+                  />
+               </TooltipTrigger>
+               <TooltipContent> Save Track </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
       )
    } else {
       return (
@@ -272,68 +286,127 @@ const PlayerButtons = () => {
    return (
       <>
          <LikeNowPlaying />
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn('muse-finder', commonBtnClass)}
-            onClick={selectNowPlaying}
-            disabled={!nowPlayingEnabled}
-         >
-            <MagnifyingGlassIcon className={iconClass} />
-         </Button>
-         <Button
-            variant='svg'
-            size='empty'
-            onClick={previousTrack}
-            disabled={prevTrackDisabled}
-            className={cn(commonBtnClass)}
-         >
-            <BackwardIcon className={iconClass} />
-         </Button>
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
-            onClick={seekBackward}
-            disabled={seekDisabled}
-         >
-            <ChevronLeftIcon className={iconClass} />
-         </Button>
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     className={cn('muse-finder', commonBtnClass)}
+                     onClick={selectNowPlaying}
+                     disabled={!nowPlayingEnabled}
+                  >
+                     <MagnifyingGlassIcon className={iconClass} />
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent>Find Track </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     onClick={previousTrack}
+                     disabled={prevTrackDisabled}
+                     className={cn(commonBtnClass)}
+                  >
+                     <BackwardIcon className={iconClass} />
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent> Previous Track</TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
+                     onClick={seekBackward}
+                     disabled={seekDisabled}
+                  >
+                     <ChevronLeftIcon className={iconClass} />
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent> Seek Backward </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
          <PlayOrTransferButton />
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
-            onClick={seekForward}
-            disabled={seekDisabled}
-         >
-            <ChevronRightIcon className={iconClass} />
-         </Button>
-         <Button
-            variant='svg'
-            size='empty'
-            className={cn(commonBtnClass)}
-            onClick={nextTrack}
-            disabled={nextTrackDisabled}
-         >
-            <ForwardIcon className={iconClass} />
-         </Button>
-         <Toggle
-            className={cn('hidden sm:inline-flex', commonBtnClass)}
-            onPressedChange={toggleShuffle}
-            pressed={isShuffled}
-            disabled={toggleShuffleDisabled}
-         >
-            <ArrowsUpDownIcon className={iconClass} />
-         </Toggle>
-         <Toggle
-            className={cn('hidden sm:inline-flex', commonBtnClass)}
-            onPressedChange={cycleRepeatMode}
-            pressed={repeatMode !== 0}
-            disabled={repeatModeDisabled}
-         >
-            <ArrowPathRoundedSquareIcon className={iconClass} />
-         </Toggle>
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     className={cn(commonBtnClass, 'hidden sm:inline-flex ')}
+                     onClick={seekForward}
+                     disabled={seekDisabled}
+                  >
+                     <ChevronRightIcon className={iconClass} />
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent> Seek Forward </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     className={cn(commonBtnClass)}
+                     onClick={nextTrack}
+                     disabled={nextTrackDisabled}
+                  >
+                     <ForwardIcon className={iconClass} />
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent> Next Track</TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  {/* For conflicting data-state attributes between toggle and tooltip */}
+                  <span>
+                     <Toggle
+                        className={cn('hidden sm:inline-flex', commonBtnClass)}
+                        onPressedChange={toggleShuffle}
+                        pressed={isShuffled}
+                        disabled={toggleShuffleDisabled}
+                     >
+                        <ArrowsUpDownIcon className={iconClass} />
+                     </Toggle>
+                  </span>
+               </TooltipTrigger>
+               <TooltipContent> {isShuffled ? 'Disable Shuffle' : 'Enable Shuffle'} </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <span>
+                     <Toggle
+                        className={cn('hidden sm:inline-flex', commonBtnClass)}
+                        onPressedChange={cycleRepeatMode}
+                        pressed={repeatMode !== 0}
+                        disabled={repeatModeDisabled}
+                     >
+                        <ArrowPathRoundedSquareIcon className={iconClass} />
+                     </Toggle>
+                  </span>
+               </TooltipTrigger>
+               <TooltipContent> {repeatMode !== 0 ? 'Disable Repeat' : 'Enable Repeat'} </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
       </>
    )
 }
@@ -356,7 +429,7 @@ const TransferPlaybackButton = () => {
    const disabled = !isReady || isLoading
 
    return (
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider delayDuration={100}>
          <Tooltip>
             <TooltipTrigger asChild>
                <Button
@@ -384,15 +457,22 @@ const PlayOrTransferButton = () => {
    return needsReconnect ? (
       <TransferPlaybackButton />
    ) : (
-      <Button
-         variant='svg'
-         size='empty'
-         className={cn('muse-play-button', commonBtnClass)}
-         onClick={togglePlay}
-         disabled={togglePlayDisabled}
-      >
-         {isPlaying ? <PauseIcon className={iconClass} /> : <PlayIcon className={iconClass} />}
-      </Button>
+      <TooltipProvider delayDuration={200}>
+         <Tooltip>
+            <TooltipTrigger asChild>
+               <Button
+                  variant='svg'
+                  size='empty'
+                  className={cn('muse-play-button', commonBtnClass)}
+                  onClick={togglePlay}
+                  disabled={togglePlayDisabled}
+               >
+                  {isPlaying ? <PauseIcon className={iconClass} /> : <PlayIcon className={iconClass} />}
+               </Button>
+            </TooltipTrigger>
+            <TooltipContent> {isPlaying ? 'Pause' : 'Play'} </TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
    )
 }
 
@@ -406,23 +486,34 @@ const VolumeSlider = () => {
          setVolume(newVolume[0] / 100)
       }
    }
+   console.log('muted', volume, asInt)
 
    const isMuted = volume === 0
    const onClick = () => toggleMute(undefined)
    return (
       <div className='flex w-full grow flex-row items-center'>
-         <Button
-            variant='svg'
-            size='empty'
-            onClick={onClick}
-            className={cn(commonBtnClass, 'mr-1')}
-            disabled={disabled}
-         >
-            {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
-         </Button>
+         <TooltipProvider delayDuration={200}>
+            <Tooltip>
+               <TooltipTrigger asChild>
+                  <Button
+                     variant='svg'
+                     size='empty'
+                     onClick={onClick}
+                     className={cn(commonBtnClass, 'mr-1')}
+                     disabled={disabled}
+                  >
+                     {isMuted ? <SpeakerXMarkIcon className='h-6 w-6' /> : <SpeakerWaveIcon className='h-6 w-6' />}
+                  </Button>
+               </TooltipTrigger>
+               <TooltipContent> {isMuted ? 'Unmute' : 'Mute'} </TooltipContent>
+            </Tooltip>
+         </TooltipProvider>
+
          <LibSlider
             disabled={disabled}
             defaultValue={[asInt]}
+            value={[asInt]}
+            min={0}
             max={100}
             step={1}
             onValueChange={e => convertAndSetVolume(e)}

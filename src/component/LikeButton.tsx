@@ -8,6 +8,7 @@ import { useTrackLikeQuery } from '@/state/useTrackLikeQuery'
 import { cn } from '@/util/Utils'
 
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 
 interface LikeButtonProps {
    trackId: string
@@ -48,12 +49,25 @@ export default function LikeButton({ trackId, className = '', svgStyle, options 
    const disabled = isLiked === undefined
 
    return (
-      <Button variant='svg' size='empty' className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
-         {isLiked ? (
-            <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
-         ) : (
-            <HeartIcon className={cn('h-6 w-6', svgClassName)} />
-         )}
-      </Button>
+      <TooltipProvider delayDuration={200}>
+         <Tooltip>
+            <TooltipTrigger asChild>
+               <Button
+                  variant='svg'
+                  size='empty'
+                  className={cn(className)}
+                  disabled={disabled}
+                  onClick={e => handleClick(e)}
+               >
+                  {isLiked ? (
+                     <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
+                  ) : (
+                     <HeartIcon className={cn('h-6 w-6', svgClassName)} />
+                  )}
+               </Button>
+            </TooltipTrigger>
+            <TooltipContent> {isLiked ? 'Unsave track' : 'Save Track'}</TooltipContent>
+         </Tooltip>
+      </TooltipProvider>
    )
 }
