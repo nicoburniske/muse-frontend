@@ -393,12 +393,14 @@ const SearchResultTile = ({ searchRow }: { searchRow: SearchRow }) => {
    const bigImage = findImage(searchRow, 0)
    const type = searchRow.type
 
-   const { open } = useCreateReviewModal({
-      entityId: searchRow.id,
-      entityImage: bigImage,
-      entityName: searchRow.name,
-      entityType: capitalizeFirst(type) as EntityType,
-   })
+   const { openCreateReview } = useCreateReviewModal()
+   const open = () =>
+      openCreateReview({
+         entityId: searchRow.id,
+         entityImage: bigImage,
+         entityName: searchRow.name,
+         entityType: capitalizeFirst(type) as EntityType,
+      })
 
    const isPlaying = useDerivedAtomValue(get => get(nowPlayingAtom) === searchRow.id, [searchRow.id])
    const setIsPlaying = useSetAtom(nowPlayingAtom)

@@ -240,12 +240,14 @@ export const SelectedPlaylist = () => {
 const textColorSecondary = 'text-secondary-content/50'
 
 const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragment }) => {
-   const { open } = useCreateReviewModal({
-      entityId: playlist.id,
-      entityImage: playlist.images.at(0) ?? '',
-      entityName: playlist.name,
-      entityType: 'Playlist',
-   })
+   const { openCreateReview } = useCreateReviewModal()
+   const open = () =>
+      openCreateReview({
+         entityId: playlist.id,
+         entityImage: playlist.images.at(0) ?? '',
+         entityName: playlist.name,
+         entityType: 'Playlist',
+      })
 
    const info = Object.fromEntries(
       Object.entries({

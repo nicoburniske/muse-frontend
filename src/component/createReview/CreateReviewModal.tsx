@@ -11,6 +11,8 @@ import {
    useCreateReviewMutation,
    useProfileAndReviewsQuery,
 } from '@/graphql/generated/schema'
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
 import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
 import { Dialog, DialogContent } from '@/lib/component/Dialog'
@@ -25,33 +27,33 @@ export type CreateReviewProps = {
    entityImage: string
 }
 
-const createReviewAtom = atom<CreateReviewProps | undefined>(undefined)
-const createReviewModalOpenAtom = atom(false)
-const openModalAtom = atom(null, (_get, set, create: CreateReviewProps) => {
-   set(createReviewModalOpenAtom, true)
-   set(createReviewAtom, create)
+const { setOpen, setClose, valueAtom, openAtom } = makeModalAtoms<CreateReviewProps | null, CreateReviewProps>(null)
+
+const createReviewAtom = atomValueOrThrow(valueAtom)
+
+export const useCreateReviewModal = () => ({
+   openCreateReview: useSetAtom(setOpen),
+   closeCreateReview: useSetAtom(setClose),
 })
-const closeModalAtom = atom(null, (_get, set) => {
-   set(createReviewModalOpenAtom, false)
-   setTimeout(() => set(createReviewAtom, undefined), 500)
-})
-export const useCreateReviewModal = (create: CreateReviewProps) => {
-   const setOpen = useSetAtom(openModalAtom)
-   return {
-      open: () => setOpen(create),
-      close: useSetAtom(closeModalAtom),
-   }
-}
 
 export const CreateReviewModal = () => {
-   const isModalOpen = useAtomValue(createReviewModalOpenAtom)
-   const close = useSetAtom(closeModalAtom)
+   const open = useAtomValue(openAtom)
+   if (open) {
+      return <CreateReview />
+   }
+   return null
+}
+
+const CreateReview = () => {
+   const close = useSetAtom(setClose)
+   const open = useAtomValue(openAtom)
 
    const nav = useNavigate()
    const queryClient = useQueryClient()
    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
 
-   const { entityId, entityType, entityName, entityImage } = useAtomValue(createReviewAtom) ?? {}
+   const { entityId, entityType, entityName, entityImage } = useAtomValue(createReviewAtom)
+   console.log('entityid', entityId, entityType, entityImage)
 
    const { isLoading, mutate } = useCreateReviewMutation({
       onError: () => toast.error(`Failed to create ${entityType} review.`),
@@ -77,17 +79,21 @@ export const CreateReviewModal = () => {
 
    return (
       <Dialog
-         open={isModalOpen}
+         open={open}
          onOpenChange={open => {
             if (!open) close()
          }}
       >
-         <DialogContent className='flex flex-col justify-evenly rounded-md sm:max-w-3xl sm:flex-row'>
-            <img src={entityImage} alt='ReviewEntityImage' className='m-auto h-64 w-64 object-cover lg:h-96 lg:w-96' />
-            <div className='flex flex-col justify-between gap-2'>
+         <DialogContent className='flex flex-col justify-evenly rounded-md sm:max-w-3xl sm:flex-row sm:justify-between'>
+            <img
+               src={entityImage}
+               alt='ReviewEntityImage'
+               className='m-auto h-64 w-64 object-cover sm:m-0 lg:h-96 lg:w-96'
+            />
+            <div className='flex w-full min-w-0 flex-col justify-between gap-2'>
                <div className='flex w-full gap-2'>
                   <h2 className='truncate text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
-                  <Badge className='ml-2'>{entityType} </Badge>
+                  <Badge>{entityType} </Badge>
                </div>
 
                <div className='flex gap-2 self-center'>
@@ -109,7 +115,7 @@ export const CreateReviewModal = () => {
                   <Label htmlFor='review-public'>Public</Label>
                   <Switch id='review-public' checked={isPublic} onCheckedChange={setIsPublic} />
                </div>
-               <div className='card-actions justify-end'>
+               <div className='justify-end'>
                   <div className='mt-5 flex w-full flex-row items-center justify-around'>
                      <Button type='button' disabled={isLoading} variant='destructive' onClick={() => close()}>
                         Cancel

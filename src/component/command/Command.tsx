@@ -566,12 +566,14 @@ const SearchResultRow = ({ result }: { result: SearchResult }) => {
    const bigImage = findImage(result, 0)
    const type = result.type
 
-   const { open } = useCreateReviewModal({
-      entityId: result.id,
-      entityImage: bigImage,
-      entityName: result.name,
-      entityType: capitalizeFirst(type) as EntityType,
-   })
+   const { openCreateReview } = useCreateReviewModal()
+   const open = () =>
+      openCreateReview({
+         entityId: result.id,
+         entityImage: bigImage,
+         entityName: result.name,
+         entityType: capitalizeFirst(type) as EntityType,
+      })
 
    const execute = useExecuteAndClose()
 
