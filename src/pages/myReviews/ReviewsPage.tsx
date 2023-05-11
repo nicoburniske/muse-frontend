@@ -14,6 +14,7 @@ import { MobileNavigation } from '@/component/container/MobileMenu'
 import { useNavAction } from '@/component/container/NavConstants'
 import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { MuseTransition } from '@/lib/component/MuseTransition'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { BrowseCard } from '@/pages/myReviews/BrowseCard'
@@ -75,9 +76,16 @@ export default function ReviewsPage() {
                            <div className='flex items-center'>
                               <SortTabs className='-mb-px flex flex-1 space-x-6 xl:space-x-8' />
 
-                              <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
-                                 <QuestionMarkCircleIcon className='h-6 w-6' />
-                              </button>
+                              <TooltipProvider delayDuration={200}>
+                                 <Tooltip>
+                                    <TooltipTrigger asChild>
+                                       <button className='mr-3 hidden text-primary md:inline' onClick={openTour}>
+                                          <QuestionMarkCircleIcon className='h-6 w-6' />
+                                       </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent> Open page tour </TooltipContent>
+                                 </Tooltip>
+                              </TooltipProvider>
                               {/* <IconToggle
                                  toggleAtom={viewToggleAtom}
                                  iconLeft={<Bars4Icon className='h-5 w-5' aria-hidden='true' />}

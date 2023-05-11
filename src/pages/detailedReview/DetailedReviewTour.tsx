@@ -1,8 +1,15 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { useOpenTour } from '@/lib/hook/useOpenTour'
+import { nonNullable } from '@/util/Utils'
 
-export const useOpenReviewTour = () => useOpenTour(detailedReviewSteps, 0)
+export const useOpenReviewTour = () => {
+   const open = useOpenTour()
+   return useCallback(() => {
+      const validSteps = detailedReviewSteps.filter(step => nonNullable(document.body.querySelector(step.selector)))
+      open(validSteps)
+   }, [open])
+}
 
 const localStorageKey = 'MuseNeedToGiveDetailedReviewTour'
 export const useOpenReviewTourFirstTime = () => {
@@ -12,7 +19,7 @@ export const useOpenReviewTourFirstTime = () => {
          setTimeout(() => {
             openTour()
             localStorage.setItem(localStorageKey, '')
-         }, 500)
+         }, 1000)
       }
    }, [])
 }

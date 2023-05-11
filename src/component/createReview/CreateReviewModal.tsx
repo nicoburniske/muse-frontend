@@ -53,7 +53,6 @@ const CreateReview = () => {
    const resetReviewOverviews = () => queryClient.invalidateQueries(useProfileAndReviewsQuery.getKey())
 
    const { entityId, entityType, entityName, entityImage } = useAtomValue(createReviewAtom)
-   console.log('entityid', entityId, entityType, entityImage)
 
    const { isLoading, mutate } = useCreateReviewMutation({
       onError: () => toast.error(`Failed to create ${entityType} review.`),

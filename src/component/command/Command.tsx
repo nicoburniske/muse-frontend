@@ -132,6 +132,7 @@ export const CommandButton = () => {
       <Button
          variant='outline'
          className={cn(
+            'muse-cmd',
             'relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-52 lg:w-96'
          )}
          onClick={() => setOpen(true)}
