@@ -115,6 +115,9 @@ export const GroupedTrackTable = () => {
       []
    )
 
+   // Ensure that expanded group change causes re-render.
+   useDerivedAtomValue(get => get(expandedGroupsAtom).join(','), [])
+
    useScrollToSelected(rowVirtualizer)
 
    const indexToStyle = useCallback(
