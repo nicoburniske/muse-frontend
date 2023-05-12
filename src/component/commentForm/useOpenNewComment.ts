@@ -11,44 +11,39 @@ import { Prettify } from '@/util/Types'
 
 import { useCommentModal } from './CommentFormModal'
 
-type OpenNewComment = {
-   title: string
-   trackId: string
-   errorToastMessage?: string
-   invalidate?: boolean
-} & Omit<CreateCommentInput, 'entities' | 'comment'>
+type OpenNewComment = Prettify<
+   {
+      title: string
+      trackId: string
+   } & Omit<CreateCommentInput, 'entities' | 'comment'>
+>
 
 export type OpenNewCommentParams = Prettify<OpenNewComment>
 
-export const useOpenNewComment = (options: OpenNewCommentParams) => {
-   const { title, reviewId, parentCommentId, trackId, errorToastMessage, invalidate = false } = options
+const errorToast = () => toast.error('Failed to create comment')
 
+export const useOpenNewComment = () => {
    const { openCommentModal, closeCommentModal } = useCommentModal()
-   const { mutateAsync: createComment, isLoading: isLoadingComment } = useCreateCommentMutation({
-      onSuccess: () => closeCommentModal(),
-      onError: () =>
-         useCallback(() => toast.error(errorToastMessage ?? 'Failed to create comment'), [errorToastMessage]),
+   const { mutateAsync: createComment } = useCreateCommentMutation({
+      onSuccess: closeCommentModal,
+      onError: errorToast,
    })
-   const queryClient = useQueryClient()
-   const onSubmit = async (comment: string) => {
-      if (!isLoadingComment) {
-         await createComment({
-            input: {
-               comment,
-               entities: [{ entityId: trackId, entityType: 'Track' }],
-               reviewId,
-               parentCommentId,
-            },
-         })
-         // Review comment subscription should take care of this.
-         if (invalidate) {
-            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
-         }
-      }
-   }
 
-   return () => {
-      const values = { title, onCancel: () => closeCommentModal(), onSubmit, trackId }
-      openCommentModal(values)
-   }
+   return useCallback(
+      (options: OpenNewCommentParams) => {
+         const { title, reviewId, parentCommentId, trackId } = options
+         const onSubmit = async (comment: string) => {
+            await createComment({
+               input: {
+                  comment,
+                  entities: [{ entityId: trackId, entityType: 'Track' }],
+                  reviewId,
+                  parentCommentId,
+               },
+            })
+         }
+         openCommentModal({ title, trackId, onSubmit })
+      },
+      [openCommentModal, createComment]
+   )
 }

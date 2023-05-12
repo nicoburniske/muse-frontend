@@ -11,7 +11,6 @@ export const TrackTable = ({ tracks }: { tracks: TrackRow[] }) => {
    const parentRef = useRef<HTMLDivElement>(null)
 
    const scrollToFn = useSmoothScroll(parentRef)
-   const rangeExtractor = useKeepMountedRangeExtractorSorted()
 
    const rowVirtualizer = useVirtualizer({
       overscan: 20,
@@ -19,7 +18,6 @@ export const TrackTable = ({ tracks }: { tracks: TrackRow[] }) => {
       estimateSize: () => 60,
       getScrollElement: () => parentRef.current,
       scrollToFn,
-      rangeExtractor,
    })
 
    return (

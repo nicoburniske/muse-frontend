@@ -17,7 +17,49 @@ interface LikeButtonProps {
    options?: UseQueryOptions<boolean, unknown, boolean, string[]>
 }
 
-export default function LikeButton({ trackId, className = '', svgStyle, options }: LikeButtonProps) {
+export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
+   const {
+      query: { data: isLiked },
+      updateLike,
+   } = useTrackLikeQuery(trackId, options)
+
+   const { mutate: likeTrack } = useSaveTracksMutation({
+      onError: () => toast.error('Failed to add track to Liked Songs.'),
+      onSuccess: () => {
+         toast.success('Added to Liked Songs.')
+         updateLike(true)
+      },
+   })
+
+   const { mutate: unlikeTrack } = useRemoveSavedTracksMutation({
+      onError: () => toast.error('Failed to remove track from Liked Songs.'),
+      onSuccess: () => {
+         toast.success('Removed from Liked Songs.')
+         updateLike(false)
+      },
+   })
+
+   const input: [string] = [trackId]
+   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      e.stopPropagation()
+      isLiked ? unlikeTrack(input) : likeTrack(input)
+   }
+
+   const svgClassName = svgStyle(isLiked)
+   const disabled = isLiked === undefined
+
+   return (
+      <Button variant='svg' size='empty' className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
+         {isLiked ? (
+            <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
+         ) : (
+            <HeartIcon className={cn('h-6 w-6', svgClassName)} />
+         )}
+      </Button>
+   )
+}
+
+export const LikeButtonTooltip = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
    const {
       query: { data: isLiked },
       updateLike,

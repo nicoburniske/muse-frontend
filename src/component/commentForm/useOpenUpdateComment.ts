@@ -11,57 +11,38 @@ import { Prettify } from '@/util/Types'
 
 import { useCommentModal } from './CommentFormModal'
 
-type UpdateComment = {
-   title?: string
-   errorToastMessage?: string
-   invalidate?: boolean
-   trackId: string
-   comment: string
-} & Omit<UpdateCommentInput, 'comment'>
+type UpdateComment = Prettify<
+   {
+      trackId: string
+   } & UpdateCommentInput
+>
 
 export type UpdateCommentParams = Prettify<UpdateComment>
 
-export const useOpenUpdateComment = (options: UpdateCommentParams) => {
-   const {
-      commentId,
-      reviewId,
-      trackId,
-      comment,
-      title = 'Edit Comment',
-      errorToastMessage = 'Failed to update comment.',
-      invalidate = false,
-   } = options
+const errorToast = () => toast.error('Failed to update comment')
 
-   const queryClient = useQueryClient()
+export const useOpenUpdateComment = (options: UpdateCommentParams) => {
+   const { commentId, reviewId, trackId, comment } = options
+
    const { openCommentModal, closeCommentModal } = useCommentModal()
 
-   const { mutate, isLoading } = useUpdateCommentMutation({
-      onSuccess: () => {
-         closeCommentModal()
-      },
-      onError: () => useCallback(() => toast.error(errorToastMessage), [errorToastMessage]),
-      onSettled: () => {
-         // Review comment subscription should take care of this.
-         if (invalidate) {
-            queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
-         }
-      },
+   const { mutate } = useUpdateCommentMutation({
+      onSuccess: closeCommentModal,
+      onError: errorToast,
    })
 
    const onSubmit = async (editedComment: string) => {
-      if (!isLoading) {
-         mutate({
-            input: {
-               comment: editedComment,
-               reviewId,
-               commentId,
-            },
-         })
-      }
+      mutate({
+         input: {
+            comment: editedComment,
+            reviewId,
+            commentId,
+         },
+      })
    }
 
    return () => {
-      const values = { title, onCancel: () => closeCommentModal(), onSubmit, trackId, initialValue: comment }
+      const values = { title: 'Edit Comment', onSubmit, trackId, initialValue: comment }
       openCommentModal(values)
    }
 }

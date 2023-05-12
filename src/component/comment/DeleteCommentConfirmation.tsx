@@ -1,11 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithReset, RESET } from 'jotai/utils'
-import { useCallback } from 'react'
+import { RESET, atomWithReset, useResetAtom } from 'jotai/utils'
 import { toast } from 'react-hot-toast'
 
 import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from '@/graphql/generated/schema'
-import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
 import {
    AlertDialog,
    AlertDialogAction,
@@ -23,44 +21,37 @@ type DeleteModalValues = {
    invalidate?: boolean
 }
 
-const maybeModalValuesAtom = atomWithReset<DeleteModalValues | null>(null)
-const deleteModalValues = atomValueOrThrow(maybeModalValuesAtom)
-const openAtom = atom(
-   get => get(maybeModalValuesAtom) !== null,
-   (_, set, open: boolean) => {
-      if (!open) {
-         set(maybeModalValuesAtom, RESET)
-      }
-   }
-)
+const deleteModalOpenAtom = atom(false)
+const deleteModalValues = atomWithReset<DeleteModalValues>({
+   reviewId: '',
+   commentId: -1,
+})
 
-export const useOpenDeleteConfirmation = () => {
-   const setModalValues = useSetAtom(maybeModalValuesAtom)
-   return useCallback((values: DeleteModalValues) => setModalValues(values), [setModalValues])
-}
+const setModalValuesAtom = atom(null, (_get, set, values: DeleteModalValues) => {
+   set(deleteModalOpenAtom, true)
+   set(deleteModalValues, values)
+})
+
+const closeModalAtom = atom(null, (_get, set) => {
+   set(deleteModalOpenAtom, false)
+   set(deleteModalValues, RESET)
+})
+
+export const useOpenDeleteConfirmation = () => useSetAtom(setModalValuesAtom)
 
 export const DeleteCommentModal = () => {
-   const open = useAtomValue(openAtom)
-   if (open) {
-      return <DeleteComment />
-   } else {
-      return null
-   }
-}
-
-export const DeleteComment = () => {
-   const [open, setOpen] = useAtom(openAtom)
+   const [open, setOpen] = useAtom(deleteModalOpenAtom)
    const { reviewId, commentId, invalidate = false } = useAtomValue(deleteModalValues)
+   const close = useSetAtom(closeModalAtom)
 
    const queryClient = useQueryClient()
 
    const { mutateAsync: deleteCommentMutation, isLoading } = useDeleteCommentMutation({
       onSuccess: () => {
-         setOpen(false)
          if (invalidate) {
             queryClient.invalidateQueries({ queryKey: useDetailedReviewCommentsQuery.getKey({ reviewId }) })
          }
-         toast.success('Deleted comment.')
+         close()
       },
       onError: () => toast.error('Failed to delete comment'),
    })

@@ -1,5 +1,5 @@
 import { FireIcon } from '@heroicons/react/20/solid'
-import LikeButton from 'component/LikeButton'
+import { LikeButton } from 'component/LikeButton'
 import { RefObject, useCallback, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 
