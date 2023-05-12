@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { CurrentUserQuery, useCurrentUserQuery } from '@/graphql/generated/schema'
 import atomValueOrSuspend from '@/lib/atom/atomValueOrSuspend'
 
-type CurrentUser = CurrentUserQuery['user']
+type CurrentUser = CurrentUserQuery['me']
 const maybeCurrentUserAtom = atom<CurrentUser | undefined>(undefined)
 const currentUserAtom = atomValueOrSuspend(atom(get => get(maybeCurrentUserAtom)))
 const currentUserIdAtom = atom(get => get(currentUserAtom).then(u => u.id))
@@ -21,6 +21,7 @@ const currentUserImage = atom(async get => {
 export const useCurrentUserId = () => useAtomValue(currentUserIdAtom)
 export const useCurrentUserDisplayName = () => useAtomValue(currentDisplayName)
 export const useCurrentUserImage = () => useAtomValue(currentUserImage)
+export const useCurrentUserCountry = () => useAtomValue(atom(get => get(maybeCurrentUserAtom)?.spotifyProfile?.country))
 
 export const SyncCurrentUser = () => {
    useAtom(loadable(currentUserAtom))
@@ -35,7 +36,7 @@ export const SyncCurrentUser = () => {
    const setCurrentUser = useSetAtom(maybeCurrentUserAtom)
 
    useEffect(() => {
-      setCurrentUser(data?.user)
+      setCurrentUser(data?.me)
    }, [setCurrentUser, data])
 
    return null

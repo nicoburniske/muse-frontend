@@ -5,7 +5,7 @@ const config: CodegenConfig = {
    schema: {
       'http://localhost:8883/api/graphql': {
          headers: {
-            Authorization: 'e5117659-4b24-4d0a-8dde-3a66efe4410b',
+            Authorization: 'Bearer 2eb18d24-7d6b-49df-82f3-6aaf78a54ad8',
          },
       },
    },

@@ -1,6 +1,5 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query'
-
-import { fetcher } from '@/graphql/fetcher'
+import { fetcher } from 'graphql/fetcher'
 export type Maybe<T> = T | undefined
 export type InputMaybe<T> = T | undefined
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
@@ -45,6 +44,7 @@ export type AlbumType = 'Album' | 'Compilation' | 'Single'
 export type Artist = ReviewEntity & {
    __typename?: 'Artist'
    albums?: Maybe<Array<Album>>
+   externalUrls?: Maybe<Array<KvStringString>>
    genres?: Maybe<Array<Scalars['String']>>
    href: Scalars['String']
    id: Scalars['String']
@@ -125,7 +125,9 @@ export type Collaborator = {
 
 export type Comment = {
    __typename?: 'Comment'
+   allChildComments?: Maybe<Array<Comment>>
    childCommentIds: Array<Scalars['Long']>
+   childComments?: Maybe<Array<Comment>>
    comment?: Maybe<Scalars['String']>
    commentIndex: Scalars['Int']
    commenter: User
@@ -133,6 +135,7 @@ export type Comment = {
    deleted: Scalars['Boolean']
    entities?: Maybe<Array<ReviewEntity>>
    id: Scalars['Long']
+   parentComment?: Maybe<Comment>
    parentCommentId?: Maybe<Scalars['Long']>
    reviewId: Scalars['ID']
    updatedAt: Scalars['Instant']
@@ -191,11 +194,6 @@ export type ExternalIds = {
    ean?: Maybe<Scalars['String']>
    isrc?: Maybe<Scalars['String']>
    upc?: Maybe<Scalars['String']>
-}
-
-export type GetPlaylistTracksInput = {
-   numTracks: Scalars['Int']
-   playlistId: Scalars['String']
 }
 
 export type InitialLinkInput = {
@@ -283,47 +281,17 @@ export type MutationsUpdateReviewLinkArgs = {
    input: UpdateReviewLinkInput
 }
 
-export type NewCommentIndex = {
-   __typename?: 'NewCommentIndex'
-   commentId: Scalars['Long']
-   commentIndex: Scalars['Int']
+export type PageInfo = {
+   __typename?: 'PageInfo'
+   endCursor?: Maybe<Scalars['String']>
+   hasNextPage: Scalars['Boolean']
+   hasPreviousPage: Scalars['Boolean']
+   startCursor?: Maybe<Scalars['String']>
 }
 
 export type PaginationInput = {
    first: Scalars['Int']
    offset?: Scalars['Int']
-}
-
-export type PaginationResultAlbum = {
-   __typename?: 'PaginationResultAlbum'
-   items: Array<Album>
-   itemsLeft: Scalars['Int']
-   limit: Scalars['Int']
-   nextOffset?: Maybe<Scalars['Int']>
-}
-
-export type PaginationResultArtist = {
-   __typename?: 'PaginationResultArtist'
-   items: Array<Artist>
-   itemsLeft: Scalars['Int']
-   limit: Scalars['Int']
-   nextOffset?: Maybe<Scalars['Int']>
-}
-
-export type PaginationResultPlaylist = {
-   __typename?: 'PaginationResultPlaylist'
-   items: Array<Playlist>
-   itemsLeft: Scalars['Int']
-   limit: Scalars['Int']
-   nextOffset?: Maybe<Scalars['Int']>
-}
-
-export type PaginationResultTrack = {
-   __typename?: 'PaginationResultTrack'
-   items: Array<Track>
-   itemsLeft: Scalars['Int']
-   limit: Scalars['Int']
-   nextOffset?: Maybe<Scalars['Int']>
 }
 
 export type PlaybackContext = {
@@ -363,7 +331,7 @@ export type Playlist = ReviewEntity & {
    __typename?: 'Playlist'
    collaborative: Scalars['Boolean']
    description?: Maybe<Scalars['String']>
-   externalUrls: Array<KvStringString>
+   externalUrls?: Maybe<Array<KvStringString>>
    href: Scalars['String']
    id: Scalars['String']
    images: Array<Scalars['String']>
@@ -386,17 +354,58 @@ export type PlaylistTrack = {
    track: Track
 }
 
+export type PrivateSpotifyProfile = {
+   __typename?: 'PrivateSpotifyProfile'
+   country?: Maybe<Scalars['String']>
+   displayName?: Maybe<Scalars['String']>
+   email?: Maybe<Scalars['String']>
+   externalUrls: Array<KvStringString>
+   href: Scalars['String']
+   id: Scalars['String']
+   images: Array<Scalars['String']>
+   numFollowers: Scalars['Int']
+   product?: Maybe<Scalars['String']>
+   uri: Scalars['String']
+}
+
+export type PrivateUser = {
+   __typename?: 'PrivateUser'
+   id: Scalars['String']
+   playlists?: Maybe<Array<Playlist>>
+   reviews?: Maybe<Array<Review>>
+   spotifyProfile?: Maybe<PrivateSpotifyProfile>
+}
+
+export type PrivateUserPlaylistsArgs = {
+   pagination?: InputMaybe<PaginationInput>
+}
+
 export type Queries = {
    __typename?: 'Queries'
+   comment?: Maybe<Comment>
+   comments?: Maybe<Array<Comment>>
+   feed?: Maybe<ReviewConnection>
    getAlbum?: Maybe<Album>
    getPlaylist?: Maybe<Playlist>
    getTrack?: Maybe<Track>
+   me: PrivateUser
    review?: Maybe<Review>
    reviews?: Maybe<Array<Review>>
-   search?: Maybe<SearchResult>
    searchUser?: Maybe<Array<User>>
    user: User
-   userMaybe?: Maybe<User>
+}
+
+export type QueriesCommentArgs = {
+   id: Scalars['Long']
+}
+
+export type QueriesCommentsArgs = {
+   commentIds: Array<Scalars['Long']>
+}
+
+export type QueriesFeedArgs = {
+   after?: InputMaybe<Scalars['String']>
+   first?: InputMaybe<Scalars['Int']>
 }
 
 export type QueriesGetAlbumArgs = {
@@ -419,21 +428,11 @@ export type QueriesReviewsArgs = {
    reviewIds: Array<Scalars['ID']>
 }
 
-export type QueriesSearchArgs = {
-   pagination?: InputMaybe<PaginationInput>
-   query: Scalars['String']
-   types: Array<EntityType>
-}
-
 export type QueriesSearchUserArgs = {
    displayName: Scalars['String']
 }
 
 export type QueriesUserArgs = {
-   id?: InputMaybe<Scalars['String']>
-}
-
-export type QueriesUserMaybeArgs = {
    id?: InputMaybe<Scalars['String']>
 }
 
@@ -457,7 +456,20 @@ export type Review = {
    reviewName: Scalars['String']
 }
 
+export type ReviewConnection = {
+   __typename?: 'ReviewConnection'
+   edges: Array<ReviewEdge>
+   pageInfo: PageInfo
+}
+
+export type ReviewEdge = {
+   __typename?: 'ReviewEdge'
+   cursor: Scalars['String']
+   node: Review
+}
+
 export type ReviewEntity = {
+   externalUrls?: Maybe<Array<KvStringString>>
    href: Scalars['String']
    id: Scalars['String']
    name: Scalars['String']
@@ -469,15 +481,7 @@ export type ReviewEntityInput = {
    entityType: EntityType
 }
 
-export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment | UpdatedCommentIndex
-
-export type SearchResult = {
-   __typename?: 'SearchResult'
-   albums?: Maybe<PaginationResultAlbum>
-   artists?: Maybe<PaginationResultArtist>
-   playlists?: Maybe<PaginationResultPlaylist>
-   tracks?: Maybe<PaginationResultTrack>
-}
+export type ReviewUpdate = CreatedComment | DeletedComment | UpdatedComment
 
 export type ShareReviewInput = {
    /** If not specified user will have access revoked. */
@@ -501,16 +505,11 @@ export type Subscriptions = {
    __typename?: 'Subscriptions'
    availableDevices?: Maybe<Array<PlaybackDevice>>
    nowPlaying?: Maybe<PlaybackState>
-   playlistTracks?: Maybe<PlaylistTrack>
    reviewUpdates?: Maybe<ReviewUpdate>
 }
 
 export type SubscriptionsNowPlayingArgs = {
    tickInterval: Scalars['Int']
-}
-
-export type SubscriptionsPlaylistTracksArgs = {
-   input: GetPlaylistTracksInput
 }
 
 export type SubscriptionsReviewUpdatesArgs = {
@@ -582,12 +581,6 @@ export type UpdateReviewLinkInput = {
 export type UpdatedComment = {
    __typename?: 'UpdatedComment'
    comment: Comment
-}
-
-export type UpdatedCommentIndex = {
-   __typename?: 'UpdatedCommentIndex'
-   reviewId: Scalars['ID']
-   updatedIndices: Array<NewCommentIndex>
 }
 
 export type User = {
@@ -1094,11 +1087,16 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>
 
 export type CurrentUserQuery = {
    __typename?: 'Queries'
-   user: {
-      __typename?: 'User'
+   me: {
+      __typename?: 'PrivateUser'
       id: string
       spotifyProfile?:
-         | { __typename?: 'SpotifyProfile'; displayName?: string | undefined; images: Array<string> }
+         | {
+              __typename?: 'PrivateSpotifyProfile'
+              displayName?: string | undefined
+              images: Array<string>
+              country?: string | undefined
+           }
          | undefined
    }
 }
@@ -1595,97 +1593,6 @@ export type ProfileAndReviewsQuery = {
    }
 }
 
-export type SearchSpotifyQueryVariables = Exact<{
-   query: Scalars['String']
-   types: Array<EntityType> | EntityType
-   pagination?: InputMaybe<PaginationInput>
-}>
-
-export type SearchSpotifyQuery = {
-   __typename?: 'Queries'
-   search?:
-      | {
-           __typename?: 'SearchResult'
-           playlists?:
-              | {
-                   __typename?: 'PaginationResultPlaylist'
-                   limit: number
-                   nextOffset?: number | undefined
-                   itemsLeft: number
-                   items: Array<{
-                      __typename: 'Playlist'
-                      id: string
-                      name: string
-                      images: Array<string>
-                      owner: {
-                         __typename?: 'User'
-                         id: string
-                         spotifyProfile?:
-                            | { __typename?: 'SpotifyProfile'; displayName?: string | undefined; images: Array<string> }
-                            | undefined
-                      }
-                   }>
-                }
-              | undefined
-           albums?:
-              | {
-                   __typename?: 'PaginationResultAlbum'
-                   limit: number
-                   nextOffset?: number | undefined
-                   itemsLeft: number
-                   items: Array<{
-                      __typename: 'Album'
-                      id: string
-                      name: string
-                      images: Array<string>
-                      popularity?: number | undefined
-                      artists?: Array<{ __typename?: 'Artist'; name: string }> | undefined
-                   }>
-                }
-              | undefined
-           artists?:
-              | {
-                   __typename?: 'PaginationResultArtist'
-                   limit: number
-                   nextOffset?: number | undefined
-                   itemsLeft: number
-                   items: Array<{ __typename: 'Artist'; id: string; name: string; images?: Array<string> | undefined }>
-                }
-              | undefined
-        }
-      | undefined
-}
-
-export type SearchAlbumFragment = {
-   __typename: 'Album'
-   id: string
-   name: string
-   images: Array<string>
-   popularity?: number | undefined
-   artists?: Array<{ __typename?: 'Artist'; name: string }> | undefined
-}
-
-export type SearchPlaylistFragment = {
-   __typename: 'Playlist'
-   id: string
-   name: string
-   images: Array<string>
-   owner: {
-      __typename?: 'User'
-      id: string
-      spotifyProfile?:
-         | { __typename?: 'SpotifyProfile'; displayName?: string | undefined; images: Array<string> }
-         | undefined
-   }
-}
-
-export type SearchArtistFragment = {
-   __typename: 'Artist'
-   id: string
-   name: string
-   images?: Array<string> | undefined
-}
-
 export type SearchUsersQueryVariables = Exact<{
    search: Scalars['String']
 }>
@@ -1695,7 +1602,9 @@ export type SearchUsersQuery = {
    searchUser?:
       | Array<{
            __typename?: 'User'
-           spotifyProfile?: { __typename?: 'SpotifyProfile'; id: string; displayName?: string | undefined } | undefined
+           spotifyProfile?:
+              | { __typename?: 'SpotifyProfile'; id: string; displayName?: string | undefined; images: Array<string> }
+              | undefined
         }>
       | undefined
 }
@@ -1835,7 +1744,6 @@ export type ReviewUpdatesSubscription = {
                  | undefined
            }
         }
-      | { __typename: 'UpdatedCommentIndex' }
       | undefined
 }
 
@@ -2036,37 +1944,6 @@ export const ReviewDetailsFragmentDoc = `
   collaborators {
     ...Collaborator
   }
-}
-    `
-export const SearchAlbumFragmentDoc = `
-    fragment SearchAlbum on Album {
-  __typename
-  id
-  name
-  images
-  popularity
-  artists {
-    name
-  }
-}
-    `
-export const SearchPlaylistFragmentDoc = `
-    fragment SearchPlaylist on Playlist {
-  __typename
-  id
-  name
-  images
-  owner {
-    ...UserWithSpotifyOverview
-  }
-}
-    `
-export const SearchArtistFragmentDoc = `
-    fragment SearchArtist on Artist {
-  __typename
-  id
-  name
-  images
 }
     `
 export const CreateCommentDocument = `
@@ -2271,11 +2148,16 @@ useUpdateReviewLinkMutation.fetcher = (
 ) => fetcher<UpdateReviewLinkMutation, UpdateReviewLinkMutationVariables>(UpdateReviewLinkDocument, variables, options)
 export const CurrentUserDocument = `
     query CurrentUser {
-  user {
-    ...UserWithSpotifyOverview
+  me {
+    id
+    spotifyProfile {
+      displayName
+      images
+      country
+    }
   }
 }
-    ${UserWithSpotifyOverviewFragmentDoc}`
+    `
 export const useCurrentUserQuery = <TData = CurrentUserQuery, TError = unknown>(
    variables?: CurrentUserQueryVariables,
    options?: UseQueryOptions<CurrentUserQuery, TError, TData>
@@ -2453,58 +2335,13 @@ useProfileAndReviewsQuery.getKey = (variables?: ProfileAndReviewsQueryVariables)
    variables === undefined ? ['ProfileAndReviews'] : ['ProfileAndReviews', variables]
 useProfileAndReviewsQuery.fetcher = (variables?: ProfileAndReviewsQueryVariables, options?: RequestInit['headers']) =>
    fetcher<ProfileAndReviewsQuery, ProfileAndReviewsQueryVariables>(ProfileAndReviewsDocument, variables, options)
-export const SearchSpotifyDocument = `
-    query SearchSpotify($query: String!, $types: [EntityType!]!, $pagination: PaginationInput) {
-  search(query: $query, types: $types, pagination: $pagination) {
-    playlists {
-      limit
-      nextOffset
-      itemsLeft
-      items {
-        ...SearchPlaylist
-      }
-    }
-    albums {
-      limit
-      nextOffset
-      itemsLeft
-      items {
-        ...SearchAlbum
-      }
-    }
-    artists {
-      limit
-      nextOffset
-      itemsLeft
-      items {
-        ...SearchArtist
-      }
-    }
-  }
-}
-    ${SearchPlaylistFragmentDoc}
-${UserWithSpotifyOverviewFragmentDoc}
-${SearchAlbumFragmentDoc}
-${SearchArtistFragmentDoc}`
-export const useSearchSpotifyQuery = <TData = SearchSpotifyQuery, TError = unknown>(
-   variables: SearchSpotifyQueryVariables,
-   options?: UseQueryOptions<SearchSpotifyQuery, TError, TData>
-) =>
-   useQuery<SearchSpotifyQuery, TError, TData>(
-      ['SearchSpotify', variables],
-      fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables),
-      options
-   )
-
-useSearchSpotifyQuery.getKey = (variables: SearchSpotifyQueryVariables) => ['SearchSpotify', variables]
-useSearchSpotifyQuery.fetcher = (variables: SearchSpotifyQueryVariables, options?: RequestInit['headers']) =>
-   fetcher<SearchSpotifyQuery, SearchSpotifyQueryVariables>(SearchSpotifyDocument, variables, options)
 export const SearchUsersDocument = `
     query SearchUsers($search: String!) {
   searchUser(displayName: $search) {
     spotifyProfile {
       id
       displayName
+      images
     }
   }
 }

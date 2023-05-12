@@ -40,7 +40,7 @@ import { Toggle } from '@/lib/component/Toggle'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { useTransientAtom } from '@/lib/hook/useTransientAtom'
 import { useCurrentReview } from '@/state/CurrentReviewAtom'
-import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from '@/state/NowPlayingAtom'
+import { isPlayingAtom, nowPlayingEnabledAtom, nowPlayingTrackAtom } from '@/state/NowPlayingAtom'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { cn, msToTime } from '@/util/Utils'
 
@@ -155,29 +155,22 @@ const NowPlayingMenu = () => {
    )
 }
 
-const commonBtnClass = 'h-10 px-3'
+const commonBtnClass = 'h-10 px-3 '
 
 const svgStyle = (isLiked: boolean | undefined) => cn(isLiked ? 'fill-primary text-primary' : '', iconClass)
 
 const LikeNowPlaying = () => {
    const nowPlaying = useAtomValue(isPlayingAtom)
-   const [getNowPlayingId] = useTransientAtom(nowPlayingTrackIdAtom)
+   const [getNowPlaying] = useTransientAtom(nowPlayingTrackAtom)
 
    if (nowPlaying) {
       return (
-         <TooltipProvider>
-            <Tooltip>
-               <TooltipTrigger asChild>
-                  <LikeButton
-                     trackId={getNowPlayingId()!}
-                     svgStyle={svgStyle}
-                     options={{ refetchInterval: 10 * 1000 }}
-                     className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
-                  />
-               </TooltipTrigger>
-               <TooltipContent> Save Track </TooltipContent>
-            </Tooltip>
-         </TooltipProvider>
+         <LikeButton
+            trackId={getNowPlaying()?.trackId!}
+            svgStyle={svgStyle}
+            options={{ refetchInterval: 10 * 1000 }}
+            className={cn(commonBtnClass, 'transition-all duration-500 hover:scale-125')}
+         />
       )
    } else {
       return (
@@ -381,6 +374,7 @@ const PlayerButtons = () => {
                         onPressedChange={toggleShuffle}
                         pressed={isShuffled}
                         disabled={toggleShuffleDisabled}
+                        variant='svg'
                      >
                         <ArrowsUpDownIcon className={iconClass} />
                      </Toggle>
@@ -399,6 +393,7 @@ const PlayerButtons = () => {
                         onPressedChange={cycleRepeatMode}
                         pressed={repeatMode !== 0}
                         disabled={repeatModeDisabled}
+                        variant='svg'
                      >
                         <ArrowPathRoundedSquareIcon className={iconClass} />
                      </Toggle>

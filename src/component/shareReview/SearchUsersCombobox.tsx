@@ -1,7 +1,8 @@
 import { Combobox } from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
+import { ArrowPathIcon, CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 
+import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { useSearchUsersQuery } from '@/graphql/generated/schema'
 import useDebounce from '@/lib/hook/useDebounce'
 import { useCurrentUserId } from '@/state/CurrentUser'
@@ -16,7 +17,7 @@ export const SearchUsersComboBox = ({ onSelect }: { onSelect: (userId: string) =
       }
       setSelectedPerson(person)
    }
-   const users = useSearchUsersToShare(query)
+   const { users, isLoading } = useSearchUsersToShare(query)
 
    return (
       <Combobox as='div' value={selectedPerson} onChange={setBoth} className='w-full text-foreground'>
@@ -34,31 +35,34 @@ export const SearchUsersComboBox = ({ onSelect }: { onSelect: (userId: string) =
                }}
             />
             <Combobox.Button className='absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none'>
-               <ChevronUpDownIcon className='h-5 w-5 fill-current' aria-hidden='true' />
+               {isLoading ? (
+                  <ArrowPathIcon className={cn('h-4 w-4 animate-spin')} aria-hidden='true' />
+               ) : (
+                  <ChevronUpDownIcon className='h-4 w-4 opacity-50' aria-hidden='true' />
+               )}
             </Combobox.Button>
 
             {users.length > 0 && (
-               <Combobox.Options className='bg-base-300 ring-base-300 absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-opacity-5 focus:outline-none sm:text-sm'>
+               <Combobox.Options className='absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover py-1 text-base text-popover-foreground shadow-lg sm:text-sm'>
                   {users.map(person => (
-                     <Combobox.Option
-                        key={person.id}
-                        value={person}
-                        className={() => cn('relative cursor-default select-none py-2 pl-3 pr-9', 'bg-background')}
-                     >
+                     <Combobox.Option key={person.id} value={person} className={() => cn('cursor-default select-none')}>
                         {({ active, selected }) => (
-                           <>
-                              <div className='flex'>
-                                 <span className={cn('truncate', active ? 'text-foreground' : 'text-foreground/50')}>
-                                    {person.displayName ?? person.id}
-                                 </span>
-                                 <span
-                                    className={cn('ml-2 truncate', active ? 'text-foreground' : 'text-foreground/50')}
-                                 >
-                                    @{person.id}
-                                 </span>
+                           <div
+                              className={cn(
+                                 'relative mx-1 flex w-[98%] items-center justify-between rounded-md p-1',
+                                 active ? 'bg-accent text-accent-foreground' : ''
+                              )}
+                           >
+                              <div className='mr-5 flex items-center gap-4 '>
+                                 <UserAvatar
+                                    name={person.displayName ?? person.id}
+                                    image={person.images.at(-1)}
+                                    className='h-10 w-10'
+                                 />
+                                 <span className={cn('truncate')}>{person.displayName ?? person.id}</span>
                               </div>
 
-                              {selected && (
+                              {selected ? (
                                  <span
                                     className={cn(
                                        'absolute inset-y-0 right-0 flex items-center pr-4',
@@ -67,8 +71,10 @@ export const SearchUsersComboBox = ({ onSelect }: { onSelect: (userId: string) =
                                  >
                                     <CheckIcon className='h-5 w-5' aria-hidden='true' />
                                  </span>
+                              ) : (
+                                 <div />
                               )}
-                           </>
+                           </div>
                         )}
                      </Combobox.Option>
                   ))}
@@ -83,22 +89,25 @@ type UserIdName = {
    id: string
    displayName?: string
 }
-const useSearchUsersToShare = (search: string): UserIdName[] => {
+const useSearchUsersToShare = (search: string) => {
    const debouncedSearch = useDebounce(search, 500)
    const currentUserId = useCurrentUserId()
+   const enabled = debouncedSearch.length > 2
 
-   const { data: users } = useSearchUsersQuery(
+   const { data: users, isLoading } = useSearchUsersQuery(
       { search: debouncedSearch },
       {
-         enabled: debouncedSearch.length > 2,
-         staleTime: 1 * 60 * 1000,
+         enabled,
+         staleTime: 10000,
       }
    )
 
-   return (
-      users?.searchUser
-         ?.map(u => u.spotifyProfile)
-         .filter(nonNullable)
-         ?.filter(u => u.id !== currentUserId) ?? []
-   )
+   return {
+      users:
+         users?.searchUser
+            ?.map(u => u.spotifyProfile)
+            .filter(nonNullable)
+            ?.filter(u => u.id !== currentUserId) ?? [],
+      isLoading: isLoading && enabled,
+   }
 }
