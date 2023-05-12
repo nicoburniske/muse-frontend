@@ -16,7 +16,7 @@ import {
    SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
 import * as Slider from '@radix-ui/react-slider'
-import { LikeButton } from 'component/LikeButton'
+import { LikeButtonTooltip } from 'component/LikeButton'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'
@@ -165,7 +165,7 @@ const LikeNowPlaying = () => {
 
    if (nowPlaying) {
       return (
-         <LikeButton
+         <LikeButtonTooltip
             trackId={getNowPlaying()?.trackId!}
             svgStyle={svgStyle}
             options={{ refetchInterval: 10 * 1000 }}
