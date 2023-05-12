@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import LikeButton from 'component/LikeButton'
+import { LikeButton } from 'component/LikeButton'
 import { RefObject, useCallback, useEffect, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import toast from 'react-hot-toast'
@@ -26,6 +26,8 @@ export interface PlaylistTrackProps {
    reviewId: string
 }
 
+const selectOwner = (data: GetPlaylistQuery) => data.getPlaylist?.owner.id
+
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ index, playlistTrack, reviewId }: PlaylistTrackProps) {
    const {
@@ -37,7 +39,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    const { data: playlistOwner } = useGetPlaylistQuery(
       { id: playlistId },
       {
-         select: useCallback((data: GetPlaylistQuery) => data.getPlaylist?.owner.id, []),
+         select: selectOwner,
       }
    )
 

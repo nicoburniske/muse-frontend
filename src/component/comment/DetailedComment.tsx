@@ -66,12 +66,14 @@ export default function DetailedComment({ review, comment: detailedComment }: De
          setTimeout(() => setSelectedTrack({ trackId: entityId!, reviewId }), 1)
       }
    }
-   const replyComment = useOpenNewComment({
-      reviewId,
-      trackId: detailedComment?.entities?.at(0)?.id!,
-      parentCommentId: detailedComment.id,
-      title: 'Reply',
-   })
+   const reply = useOpenNewComment()
+   const replyComment = () =>
+      reply({
+         reviewId,
+         trackId: detailedComment?.entities?.at(0)?.id!,
+         parentCommentId: detailedComment.id,
+         title: 'Reply',
+      })
 
    const [isExpanded, setIsExpanded] = useState(false)
 

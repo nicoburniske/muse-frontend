@@ -5,47 +5,38 @@ import { Dialog, DialogContent } from '@/lib/component/Dialog'
 import { useCurrentUserDisplayName, useCurrentUserImage } from '@/state/CurrentUser'
 
 import { CommentForm } from './CommentForm'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
 
 interface CommentModalData {
-   trackId: string
    title: string
+   trackId: string
    initialValue?: string
 
    onSubmit: (comment: string) => Promise<void>
-   onCancel: () => void
 }
 
-const defaultModalValue = {
-   trackId: '',
-   title: '',
-   onSubmit: async () => {},
-   onCancel: () => {},
-} as const
+const { setOpen, setClose, valueAtom, openAtom } = makeModalAtoms<CommentModalData | null, CommentModalData>(null)
+const commentModalValues = atomValueOrThrow(valueAtom)
 
-const commentModalValues = atom<CommentModalData>(defaultModalValue)
-const isOpenModalAtom = atom(false)
-
-const openModalAtom = atom(null, (_get, set, value: CommentModalData) => {
-   set(commentModalValues, value)
-   set(isOpenModalAtom, true)
-})
-const closeModalAtom = atom(null, (_get, set) => {
-   set(isOpenModalAtom, false)
-   setTimeout(() => set(commentModalValues, defaultModalValue), 500)
+export const useCommentModal = () => ({
+   openCommentModal: useSetAtom(setOpen),
+   closeCommentModal: useSetAtom(setClose),
 })
 
-export const useCommentModal = () => {
-   const openCommentModal = useSetAtom(openModalAtom)
-   const closeCommentModal = useSetAtom(closeModalAtom)
-   return {
-      openCommentModal,
-      closeCommentModal,
+export const CommentFormModal = () => {
+   const open = useAtomValue(openAtom)
+   if (open) {
+      return <CommentFormModalContent />
+   } else {
+      return null
    }
 }
 
-export const CommentFormModal = () => {
-   const { onSubmit, onCancel, trackId, initialValue } = useAtomValue(commentModalValues)
-   const open = useAtomValue(isOpenModalAtom)
+const CommentFormModalContent = () => {
+   const { trackId, initialValue, onSubmit } = useAtomValue(commentModalValues)
+   const open = useAtomValue(openAtom)
+   const close = useSetAtom(setClose)
 
    const userImage = useCurrentUserImage()
    const userDisplayName = useCurrentUserDisplayName()
@@ -55,7 +46,7 @@ export const CommentFormModal = () => {
          open={open}
          onOpenChange={open => {
             if (!open) {
-               onCancel()
+               close()
             }
          }}
       >

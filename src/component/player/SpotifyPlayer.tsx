@@ -16,7 +16,7 @@ import {
    SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
 import * as Slider from '@radix-ui/react-slider'
-import LikeButton from 'component/LikeButton'
+import { LikeButton } from 'component/LikeButton'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'

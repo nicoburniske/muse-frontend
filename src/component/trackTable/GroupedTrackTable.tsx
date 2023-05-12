@@ -1,4 +1,4 @@
-import { Range, useVirtualizer, VirtualItem } from '@tanstack/react-virtual'
+import { defaultRangeExtractor, Range, useVirtualizer, VirtualItem } from '@tanstack/react-virtual'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { CSSProperties, useCallback, useEffect, useRef } from 'react'
 
@@ -70,18 +70,6 @@ export const GroupedTrackTable = () => {
    const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
    const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
 
-   // Keep all previously rendered tracks mounted for performance.
-   const [mountedRef, keepMounted] = useKeepMountedRangeExtractor()
-
-   // Reset mounted indices to avoid expensive mount.
-   const expandedGroups = useDerivedAtomValue(get => get(expandedGroupsAtom).join(','), [])
-   useEffect(() => {
-      mountedRef.current = new Set()
-      return () => {
-         mountedRef.current = new Set()
-      }
-   }, [expandedGroups])
-
    //Incorporate sticky headers into the range extractor.
    //There can be no headers so we account for undefined.
    const rangeExtractor = useCallback(
@@ -89,11 +77,11 @@ export const GroupedTrackTable = () => {
          const newActiveSticky = getHeaderIndices().find(index => range.startIndex >= index)
          activeStickyIndexRef.current = newActiveSticky
          if (newActiveSticky !== undefined) {
-            const next = new Set([newActiveSticky, ...keepMounted(range)])
+            const next = new Set([newActiveSticky, ...defaultRangeExtractor(range)])
             const sorted = [...next].sort((a, b) => a - b)
             return sorted
          } else {
-            return [...new Set([...keepMounted(range)])]
+            return defaultRangeExtractor(range)
          }
       },
       [getHeaderIndices]
@@ -102,7 +90,7 @@ export const GroupedTrackTable = () => {
    const scrollToFn = useSmoothScroll(parentRef)
    const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
    const rowVirtualizer = useVirtualizer({
-      overscan: 20,
+      overscan: 40,
       count: getIndexToSize().length,
       estimateSize: index => getIndexToSize()[index],
       getScrollElement: () => parentRef.current,
