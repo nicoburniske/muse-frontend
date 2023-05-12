@@ -56,7 +56,7 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                      <CommandButton />
                      {/* <SearchBar /> */}
                   </div>
-                  <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' alt='Muse' />
+                  <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
                </div>
             </header>
 

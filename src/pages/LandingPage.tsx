@@ -165,7 +165,7 @@ export const useCurrentUsername = () => {
       {
          staleTime: 60 * 1000,
          cacheTime: 60 * 1000,
-         select: useCallback((data: CurrentUserQuery) => data?.user?.spotifyProfile?.displayName ?? data?.user?.id, []),
+         select: useCallback((data: CurrentUserQuery) => data?.me?.spotifyProfile?.displayName ?? data?.me?.id, []),
       }
    )
    return data
