@@ -165,12 +165,12 @@ export const useResetSpotifySdk = () => {
    const setDeviceId = useSetAtom(maybeDeviceIdAtom)
    const setPlaybackState = useSetAtom(setPlaybackStateAtom)
    return useCallback(() => {
-      disconnect()
-      setPlaybackState(null)
       setReady(false)
+      disconnect()
       setPlayer(null)
       setDeviceId(null)
-   }, [setReady, disconnect, setPlayer, setDeviceId])
+      setPlaybackState(null)
+   }, [setReady, disconnect, setPlayer, setDeviceId, setPlaybackState])
 }
 
 type GetTokenObject = {
@@ -201,11 +201,13 @@ export const useDeviceId = () => useAtomValue(deviceIdAtom)
 /**
  * Playback State.
  */
+const isActiveAtom = atom(false)
 const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
 playbackStatesAtom.debugLabel = 'playbackStatesAtom'
 export const usePlaybackStates = () => useAtomValue(playbackStatesAtom)
-
 const setPlaybackStateAtom = atom(null, (_get, set, state: Spotify.PlaybackState | null) => {
+   // If we get a null playback state that means we are no longer the active device.
+   set(isActiveAtom, state !== null)
    set(playbackStatesAtom, old => {
       const newStates = [state, ...old.slice(0, 10)]
       // Ensure no adjacent null values.
@@ -214,18 +216,16 @@ const setPlaybackStateAtom = atom(null, (_get, set, state: Spotify.PlaybackState
 })
 
 // Latest Playback State.
-const latestPlaybackStateAtom = atom<Spotify.PlaybackState | null>(get => get(playbackStatesAtom)[0] ?? null)
+const latestPlaybackStateAtom = atom<Spotify.PlaybackState | null>(get => get(playbackStatesAtom).at(0) ?? null)
 latestPlaybackStateAtom.debugLabel = 'latestPlaybackStateAtom'
 export const useLatestPlaybackState = () => useAtomValue(latestPlaybackStateAtom)
 
 // Needs Reconnect.
-// When playback gets disconnected (due to transfer to another device), we get a single NULL playbackstate.
 export const needsReconnectAtom = atom<boolean>(get => {
-   const noPlayer = !get(isPlayerReadyAtom)
-   const latestValid = get(latestValidPlaybackStateMaybeAtom)
-   const latest = get(latestPlaybackStateAtom)
+   const isPlayerReady = get(isPlayerReadyAtom)
+   const isActive = get(isActiveAtom)
 
-   return noPlayer || !nonNullable(latestValid) || !nonNullable(latest) || latestValid.timestamp !== latest.timestamp
+   return !isActive || !isPlayerReady
 })
 needsReconnectAtom.debugLabel = 'needsReconnectAtom'
 export const useNeedsReconnect = () => useAtomValue(needsReconnectAtom)
