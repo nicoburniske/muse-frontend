@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { RESET, atomWithReset, useResetAtom } from 'jotai/utils'
+import { atomWithReset, RESET } from 'jotai/utils'
 import { toast } from 'react-hot-toast'
 
 import { useDeleteCommentMutation, useDetailedReviewCommentsQuery } from '@/graphql/generated/schema'

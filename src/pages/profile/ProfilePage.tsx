@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { Alert, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'
@@ -111,15 +111,17 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
                         className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
                      >
                         {reviews.map(review => (
-                           <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review.id)} />
+                           <BrowseCard
+                              key={review.id}
+                              review={review}
+                              onClick={() => setSelectedReview(review.id, review.creator.id)}
+                           />
                         ))}
                      </ul>
                   </MuseTransition>
                </section>
             </main>
          </div>
-
-         <SelectedReviewModal userId={userId} />
       </>
    )
 }

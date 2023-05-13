@@ -152,8 +152,6 @@ export const CommandMenu = () => {
    const setPages = useSetAtom(pagesAtom)
    const page = useAtomValue(currentPageAtom)
 
-   const executeAndClose = useExecuteAndClose()
-
    useHotkeys(
       ['meta+k', 'ctrl+k'],
       useCallback(() => setOpen(true), [setOpen]),

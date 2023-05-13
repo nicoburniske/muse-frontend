@@ -12,7 +12,7 @@ import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton, Pages, useOpenCommandPage } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { useNavAction } from '@/component/container/NavConstants'
-import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { MuseTransition } from '@/lib/component/MuseTransition'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
@@ -117,7 +117,6 @@ export default function ReviewsPage() {
                </main>
             )}
          </div>
-         <SelectedReviewModal />
       </div>
    )
 }

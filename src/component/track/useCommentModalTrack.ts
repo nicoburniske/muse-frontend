@@ -1,4 +1,4 @@
-import { useOpenNewComment } from '../commentForm/useOpenNewComment'
+import { useOpenNewComment } from '@/component/commentForm/useOpenNewComment'
 
 export const useCommentModalTrack = (reviewId: string, trackId: string, invalidate = false) => {
    const open = useOpenNewComment()

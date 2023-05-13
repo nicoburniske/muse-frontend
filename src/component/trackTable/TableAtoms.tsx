@@ -4,7 +4,7 @@
 
 import { atom } from 'jotai'
 
-import { EitherTrack } from '@/component/track/EitherTrack'
+import { EitherTrackMemo } from '@/component/track/EitherTrack'
 import { DetailedTrackFragment } from '@/graphql/generated/schema'
 import { searchLoweredAtom } from '@/state/Atoms'
 import { nonNullable } from '@/util/Utils'
@@ -111,7 +111,7 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
       const { reviewId } = overview
       const children = tracks.map((t, i) => {
          return {
-            element: <EitherTrack track={t} index={i} reviewId={overview.reviewId} />,
+            element: <EitherTrackMemo track={t} index={i} reviewId={overview.reviewId} />,
             size: 60,
          }
       })

@@ -1,6 +1,6 @@
 import { ArrowUpOnSquareIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useDeleteReview } from '@/component/deleteReview/DeleteReviewModal'
@@ -25,11 +25,23 @@ import { cn, findFirstImage, nonNullable } from '@/util/Utils'
 import { useShareReview } from './shareReview/ShareReview'
 
 const { setOpen, setClose, valueAtom: reviewIdAtom, openAtom } = makeModalAtoms<string | null, string>(null)
+const userIdAtom = atom<string | null>(null)
 
-export const useSelectReview = () => ({
-   setSelectedReview: useSetAtom(setOpen),
-   closeSelectedReview: useSetAtom(setClose),
-})
+export const useSelectReview = () => {
+   const open = useSetAtom(setOpen)
+   const setUserId = useSetAtom(userIdAtom)
+
+   return {
+      setSelectedReview: useCallback(
+         (reviewId: string, userId?: string) => {
+            open(reviewId)
+            setUserId(userId ?? null)
+         },
+         [open, setUserId]
+      ),
+      closeSelectedReview: useSetAtom(setClose),
+   }
+}
 
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = (userId?: string) => {
@@ -38,12 +50,13 @@ const useSelectedReview = (userId?: string) => {
    return data
 }
 
-export const SelectedReviewModal = ({ userId }: { userId?: string }) => {
+export const SelectedReviewModal = () => {
    const { closeSelectedReview } = useSelectReview()
    // Close review details after going to new page.
    useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
    const [open, setOpen] = useAtom(openAtom)
-   const review = useSelectedReview(userId)
+   const maybeUserId = useAtomValue(userIdAtom)
+   const review = useSelectedReview(maybeUserId ?? undefined)
 
    return review ? (
       <Sheet open={open} onOpenChange={setOpen}>

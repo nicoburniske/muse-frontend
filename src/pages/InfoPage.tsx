@@ -1,5 +1,5 @@
-import { CheckCircleIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
-import { ReactNode, useState } from 'react'
+import { CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'

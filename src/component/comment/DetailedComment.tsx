@@ -31,7 +31,7 @@ import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useIsCurrentUserCollaborator } from '@/state/useDetailedReviewCacheQuery'
-import { cn, findFirstImage } from '@/util/Utils'
+import { cn, findFirstImage, userDisplayNameOrId } from '@/util/Utils'
 
 import CommentMarkdown from './CommentMarkdown'
 import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
@@ -46,7 +46,7 @@ export default function DetailedComment({ review, comment: detailedComment }: De
 
    const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1) ?? ''
    const comment = detailedComment.deleted ? '** deleted **' : detailedComment?.comment ?? ''
-   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? ''
+   const commenterName = userDisplayNameOrId(detailedComment.commenter)
    const commenterId = detailedComment.commenter?.id ?? ''
    const createdAt = (() => {
       const date = new Date(detailedComment?.updatedAt)

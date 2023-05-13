@@ -178,7 +178,7 @@ const useAddCommands = (review: ReviewDetailsFragment) => {
 
    // Select review.
    const { setSelectedReview } = useSelectReview()
-   const openInfo = executeWrapper(() => setSelectedReview(reviewId))
+   const openInfo = executeWrapper(() => setSelectedReview(reviewId, review.creator.id))
 
    const quickActions = {
       header: 'Quick Actions',

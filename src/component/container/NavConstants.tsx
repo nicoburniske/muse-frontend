@@ -1,6 +1,7 @@
 import {
    ChatBubbleBottomCenterTextIcon,
    CogIcon,
+   HomeIcon,
    MagnifyingGlassIcon,
    MusicalNoteIcon,
    UserIcon,
@@ -26,6 +27,12 @@ export const useNavAction = (path: string) => {
 }
 
 export const NAV: readonly NavItem[] = [
+   {
+      name: 'Home',
+      href: '/app/home',
+      icon: HomeIcon,
+      action: () => useNavAction('/app/home'),
+   },
    {
       name: 'Reviews',
       href: '/app/reviews',

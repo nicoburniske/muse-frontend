@@ -77,9 +77,18 @@ export const GroupedTrackTable = () => {
          const newActiveSticky = getHeaderIndices().find(index => range.startIndex >= index)
          activeStickyIndexRef.current = newActiveSticky
          if (newActiveSticky !== undefined) {
-            const next = new Set([newActiveSticky, ...defaultRangeExtractor(range)])
-            const sorted = [...next].sort((a, b) => a - b)
-            return sorted
+            const result = defaultRangeExtractor(range)
+            // Binary search to insert the new active sticky.
+            let low = 0,
+               high = result.length
+
+            while (low < high) {
+               const mid = (low + high) >>> 1
+               if (result[mid] < newActiveSticky) low = mid + 1
+               else high = mid
+            }
+            result[low] = newActiveSticky
+            return result
          } else {
             return defaultRangeExtractor(range)
          }
@@ -90,7 +99,7 @@ export const GroupedTrackTable = () => {
    const scrollToFn = useSmoothScroll(parentRef)
    const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
    const rowVirtualizer = useVirtualizer({
-      overscan: 40,
+      overscan: 20,
       count: getIndexToSize().length,
       estimateSize: index => getIndexToSize()[index],
       getScrollElement: () => parentRef.current,

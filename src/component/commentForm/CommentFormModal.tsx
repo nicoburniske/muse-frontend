@@ -1,12 +1,12 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 
 import { UserAvatar } from '@/component/avatar/UserAvatar'
+import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
+import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
 import { Dialog, DialogContent } from '@/lib/component/Dialog'
 import { useCurrentUserDisplayName, useCurrentUserImage } from '@/state/CurrentUser'
 
 import { CommentForm } from './CommentForm'
-import { makeModalAtoms } from '@/lib/atom/makeModalAtoms'
-import atomValueOrThrow from '@/lib/atom/atomValueOrThrow'
 
 interface CommentModalData {
    title: string

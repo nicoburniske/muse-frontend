@@ -8,9 +8,8 @@ import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { getTrack } from './Helpers'
 import { expandedGroupsAtom, groupWithTracksAtom } from './TableAtoms'
 
-const easeInOutQuint = (t: number) => {
-   return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
-}
+const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t)
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1)
 
 export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
    const scrollingRef = useRef<number>()
@@ -24,7 +23,7 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
             if (scrollingRef.current !== startTime) return
             const now = Date.now()
             const elapsed = now - startTime
-            const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
+            const progress = easeInOutQuad(Math.min(elapsed / duration, 1))
             const interpolated = start + (offset - start) * progress
 
             if (elapsed < duration) {
