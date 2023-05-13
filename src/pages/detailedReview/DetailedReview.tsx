@@ -245,6 +245,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
 
    const { openShareReview } = useShareReview()
    const { openEditReview } = useEditReview()
+   const { setSelectedReview } = useSelectReview()
+
+   const setSelected = () => setSelectedReview(reviewId, creatorId)
 
    return (
       <>
@@ -296,9 +299,9 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                      </>
                   ) : (
-                     <Button variant='outline'>
-                        Info
+                     <Button variant='outline' onClick={setSelected}>
                         <InformationCircleIcon className='ml-2 h-4 w-4' />
+                        Info
                      </Button>
                   )}
                </div>
