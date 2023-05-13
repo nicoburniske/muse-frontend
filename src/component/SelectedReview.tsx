@@ -1,9 +1,9 @@
-import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
+import { ArrowUpOnSquareIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
+import { useDeleteReview } from '@/component/deleteReview/DeleteReviewModal'
 import { useEditReview } from '@/component/editReview/EditReview'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'
@@ -80,6 +80,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
    const { openShareReview } = useShareReview()
    const { openEditReview } = useEditReview()
+   const openDeleteReview = useDeleteReview()
 
    return (
       <SheetContent position='right' size='content' className='overflow-y-auto'>
@@ -152,7 +153,10 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
          {isEditable && (
             <div className='m-1 flex flex-col'>
-               <DeleteReviewModal reviewId={review.id} />
+               <Button variant='destructive' onClick={() => openDeleteReview(review.id)}>
+                  <TrashIcon className='mr-3 h-5 w-5' aria-hidden='true' />
+                  <span>Delete Review</span>
+               </Button>
             </div>
          )}
       </SheetContent>
