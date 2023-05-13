@@ -205,9 +205,17 @@ const isActiveAtom = atom(false)
 const playbackStatesAtom = atomWithStorage<(Spotify.PlaybackState | null)[]>('PlaybackStates', [])
 playbackStatesAtom.debugLabel = 'playbackStatesAtom'
 export const usePlaybackStates = () => useAtomValue(playbackStatesAtom)
-const setPlaybackStateAtom = atom(null, (_get, set, state: Spotify.PlaybackState | null) => {
-   // If we get a null playback state that means we are no longer the active device.
-   set(isActiveAtom, state !== null)
+const setPlaybackStateAtom = atom(null, async (get, set, state: Spotify.PlaybackState | null) => {
+   try {
+      // If we get a null playback state that means we are no longer the active device.
+      // nested track can be null instead of entire playback state.
+      const currentState = await get(playerAtom).getCurrentState()
+      const validTrack = currentState?.track_window.current_track !== null
+      set(isActiveAtom, currentState !== null && validTrack)
+   } catch (e) {
+      set(isActiveAtom, false)
+   }
+
    set(playbackStatesAtom, old => {
       const newStates = [state, ...old.slice(0, 10)]
       // Ensure no adjacent null values.
