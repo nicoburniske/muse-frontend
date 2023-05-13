@@ -100,20 +100,18 @@ const FeedResults = () => {
                         ref={rowVirtualizer.measureElement}
                         className='grid w-full place-items-center'
                      >
-                        {
-                           //  isLoaderRow ? (
-                           //     hasNextPage ? (
-                           //        <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
-                           //           {Array(numCols)
-                           //              .fill(0)
-                           //              .map((_, i) => (
-                           //                 <Skeleton key={i} className='h-48 w-3/4 rounded p-4' />
-                           //              ))}
-                           //        </div>
-                           //     ) : null
-                           //  ) :
+                        {isLoaderRow ? null : (
+                           //  hasNextPage ? (
+                           //     <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
+                           //        {Array(numCols)
+                           //           .fill(0)
+                           //           .map((_, i) => (
+                           //              <Skeleton key={i} className='h-48 w-3/4 rounded p-4' />
+                           //           ))}
+                           //     </div>
+                           //  )
                            <FeedCard key={virtualRow.key} review={review} />
-                        }
+                        )}
                      </div>
                   )
                })}
