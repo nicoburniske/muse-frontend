@@ -261,7 +261,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
    const image = playlist.images.at(0)
 
    return (
-      <SheetContent position='right' size='content'>
+      <SheetContent position='right' size='content' className='overflow-y-auto'>
          <SheetHeader>
             <SheetTitle>
                <span className='sr-only'>Details for {playlist.name} </span>
