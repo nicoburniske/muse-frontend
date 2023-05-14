@@ -5,8 +5,8 @@ import {
    InformationCircleIcon,
 } from '@heroicons/react/24/outline'
 import { QueryFunction, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { useEffect, useRef, useState } from 'react'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -37,13 +37,7 @@ export const HomePage = () => {
             </div>
          </header>
 
-         <div className='mx-auto w-full max-w-7xl'>
-            <div className='flex px-4 pt-8 sm:px-6 lg:px-8'>
-               <h1 className='flex-1 text-2xl font-bold text-foreground'>Home</h1>
-            </div>
-         </div>
-
-         <main className='mx-auto min-h-0 w-full max-w-7xl' aria-labelledby='feed-gallery'>
+         <main className='min-h-0 ' aria-labelledby='feed-gallery'>
             <FeedResults />
          </main>
       </div>
@@ -57,11 +51,17 @@ const FeedResults = () => {
    const feedItems = query.data?.pages.flatMap(page => page.feed?.edges.map(edge => edge.node) ?? []) ?? []
 
    const parentRef = useRef<HTMLDivElement>(null)
-   const rowVirtualizer = useVirtualizer({
+   const parentOffsetRef = useRef(0)
+
+   useLayoutEffect(() => {
+      parentOffsetRef.current = parentRef.current?.offsetTop ?? 0
+   }, [])
+
+   const rowVirtualizer = useWindowVirtualizer({
       count: hasNextPage ? feedItems.length + 1 : feedItems.length,
-      getScrollElement: () => parentRef.current,
       estimateSize: () => 300,
       overscan: 20,
+      scrollMargin: parentOffsetRef.current,
    })
 
    useEffect(() => {
@@ -83,38 +83,55 @@ const FeedResults = () => {
    } else {
       return (
          <div ref={parentRef} className='muse-scrollbar h-full w-full overflow-y-auto overflow-x-hidden'>
+            <div className='mx-auto w-full max-w-7xl'>
+               <div className='flex px-4 pt-8 sm:px-6 lg:px-8'>
+                  <h1 className='flex-1 text-2xl font-bold text-foreground'>Home</h1>
+               </div>
+            </div>
             <div
                className='relative w-full'
                style={{
                   height: `${rowVirtualizer.getTotalSize()}px`,
                }}
             >
-               {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                  const isLoaderRow = virtualRow.index > feedItems.length - 1
-                  const review = feedItems[virtualRow.index]
+               <div
+                  style={{
+                     position: 'absolute',
+                     top: 0,
+                     left: 0,
+                     width: '100%',
+                     transform: `translateY(${
+                        rowVirtualizer.getVirtualItems()[0].start - rowVirtualizer.options.scrollMargin
+                     }px)`,
+                  }}
+               >
+                  {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                     const isLoaderRow = virtualRow.index > feedItems.length - 1
+                     const review = feedItems[virtualRow.index]
 
-                  return (
-                     <div
-                        key={virtualRow.key}
-                        data-index={virtualRow.index}
-                        ref={rowVirtualizer.measureElement}
-                        className='grid w-full place-items-center'
-                     >
-                        {isLoaderRow ? null : (
-                           //  hasNextPage ? (
-                           //     <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
-                           //        {Array(numCols)
-                           //           .fill(0)
-                           //           .map((_, i) => (
-                           //              <Skeleton key={i} className='h-48 w-3/4 rounded p-4' />
-                           //           ))}
-                           //     </div>
-                           //  )
-                           <FeedCard key={virtualRow.key} review={review} />
-                        )}
-                     </div>
-                  )
-               })}
+                     return (
+                        <div
+                           key={virtualRow.key}
+                           data-index={virtualRow.index}
+                           ref={rowVirtualizer.measureElement}
+                           className='grid w-full place-items-center'
+                        >
+                           {isLoaderRow ? null : (
+                              //  hasNextPage ? (
+                              //     <div className={cn('grid place-items-center gap-x-4', colsStyle)}>
+                              //        {Array(numCols)
+                              //           .fill(0)
+                              //           .map((_, i) => (
+                              //              <Skeleton key={i} className='h-48 w-3/4 rounded p-4' />
+                              //           ))}
+                              //     </div>
+                              //  )
+                              <FeedCard key={virtualRow.key} review={review} />
+                           )}
+                        </div>
+                     )
+                  })}
+               </div>
             </div>
          </div>
       )
