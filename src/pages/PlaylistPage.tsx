@@ -32,6 +32,7 @@ export const PlaylistPage = () => {
                   </div>
                </Hero>
             }
+            onError={(error, info) => console.error(error, info)}
          >
             <div className='flex grow bg-background'>
                <Suspense fallback={<HeroLoading />}>
