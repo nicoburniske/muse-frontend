@@ -4,7 +4,6 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { TrackTable } from '@/component/trackTable/TrackTable'
 import { useGetPlaylistQuery } from '@/graphql/generated/schema'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
@@ -93,7 +92,6 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
             </main>
          </div>
 
-         <CreateReviewModal />
          <SelectedPlaylist />
       </>
    )

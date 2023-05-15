@@ -23,6 +23,7 @@ import useAccessTokenQuery from '@/state/useAccessTokenQuery'
 import { useThemeValue } from '@/state/UserPreferences'
 
 import { SideNavBar } from './SideNavBar'
+import { CreateReviewModal } from '../createReview/CreateReviewModal'
 
 export const NavPlayerPageOutlet = () => {
    return (
@@ -90,7 +91,7 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             <div className='muse-player hidden w-full sm:inline'>
                <SpotifyPlayerWrapper />
             </div>
-            {/* TODO: inject user id? */}
+            <CreateReviewModal />
             <SelectedReviewModal />
             <ShareReviewModal />
             <EditReviewModal />

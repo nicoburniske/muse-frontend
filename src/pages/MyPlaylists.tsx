@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import {
    MyPlaylistsQuery,
@@ -91,7 +91,6 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
             </div>
          </div>
          <SelectedPlaylist />
-         <CreateReviewModal />
       </>
    )
 }

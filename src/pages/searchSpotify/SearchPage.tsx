@@ -15,7 +15,7 @@ import {
 
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { useAvailableGenreSeeds, useInfiniteSearchSpotify, usePlayMutation } from '@/component/sdk/ClientHooks'
 import { EntityType } from '@/graphql/generated/schema'
 import atomWithDebounce from '@/lib/atom/atomWithDebounce'
@@ -43,31 +43,27 @@ import { chunkArrayInGroups, cn, EntityTypeValues, nonNullable, uniqueByProperty
 
 const SearchPage = () => {
    return (
-      <>
-         <div className='flex grow flex-col'>
-            <div className='relative flex w-full items-center justify-between p-1 md:justify-center'>
-               <MobileNavigation />
-               <div className='w-full max-w-3xl justify-self-center'>
-                  <SearchInputBar />
-               </div>
-               <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
+      <div className='flex grow flex-col'>
+         <div className='relative flex w-full items-center justify-between p-1 md:justify-center'>
+            <MobileNavigation />
+            <div className='w-full max-w-3xl justify-self-center'>
+               <SearchInputBar />
             </div>
-            <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
-               <SelectEntityTypes />
-               <SelectGenreSeeds />
-               <SelectHipsterFilter />
-               <SelectNewFilter />
-            </div>
-            <Separator />
-
-            {/* Again no idea why I need min-h */}
-            <div className='min-h-0 w-full grow rounded-md p-3 shadow-2xl'>
-               <ScrollSearchResults />
-            </div>
+            <MuseAvatar className='mx-1 flex h-8 w-8 md:hidden' />
          </div>
+         <div className='flex max-w-full flex-wrap items-center justify-evenly gap-1 p-1'>
+            <SelectEntityTypes />
+            <SelectGenreSeeds />
+            <SelectHipsterFilter />
+            <SelectNewFilter />
+         </div>
+         <Separator />
 
-         <CreateReviewModal />
-      </>
+         {/* Again no idea why I need min-h */}
+         <div className='min-h-0 w-full grow rounded-md p-3 shadow-2xl'>
+            <ScrollSearchResults />
+         </div>
+      </div>
    )
 }
 export default SearchPage
