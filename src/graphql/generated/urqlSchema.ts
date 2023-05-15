@@ -385,7 +385,7 @@ export type Queries = {
    __typename?: 'Queries'
    comment?: Maybe<Comment>
    comments?: Maybe<Array<Comment>>
-   feed?: Maybe<ReviewConnection>
+   feed: ReviewConnection
    getAlbum?: Maybe<Album>
    getPlaylist?: Maybe<Playlist>
    getTrack?: Maybe<Track>
@@ -750,7 +750,7 @@ export type DetailedPlaylistFragment = {
               album?: { __typename?: 'Album'; images: Array<string>; id: string; name: string } | undefined
               artists: Array<{ __typename?: 'Artist'; name: string; id: string }>
            }
-           playlist: { __typename?: 'Playlist'; id: string }
+           playlist: { __typename?: 'Playlist'; id: string; owner: { __typename?: 'User'; id: string } }
         }>
       | undefined
    owner: {
@@ -803,7 +803,7 @@ export type DetailedPlaylistTrackFragment = {
       album?: { __typename?: 'Album'; images: Array<string>; id: string; name: string } | undefined
       artists: Array<{ __typename?: 'Artist'; name: string; id: string }>
    }
-   playlist: { __typename?: 'Playlist'; id: string }
+   playlist: { __typename?: 'Playlist'; id: string; owner: { __typename?: 'User'; id: string } }
 }
 
 export type DetailedTrackFragment = {
@@ -1288,6 +1288,9 @@ export const DetailedPlaylistTrackFragmentDoc = gql`
       }
       playlist {
          id
+         owner {
+            id
+         }
       }
    }
    ${UserWithSpotifyOverviewFragmentDoc}

@@ -10,7 +10,7 @@ import {
    usePlayMutation,
    useReorderPlaylistTracksMutation,
 } from '@/component/sdk/ClientHooks'
-import { DetailedPlaylistTrackFragment, GetPlaylistQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
+import { DetailedPlaylistTrackFragment, useGetPlaylistQuery } from '@/graphql/generated/schema'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { cn, msToTimeStr } from '@/util/Utils'
@@ -26,22 +26,15 @@ export interface PlaylistTrackProps {
    reviewId: string
 }
 
-const selectOwner = (data: GetPlaylistQuery) => data.getPlaylist?.owner.id
-
 // TODO: Consider making image optional for conciseness.
 export default function PlaylistTrack({ index, playlistTrack, reviewId }: PlaylistTrackProps) {
    const {
       addedAt,
       addedBy,
       track,
-      playlist: { id: playlistId },
+      playlist: { id: playlistId, owner },
    } = playlistTrack
-   const { data: playlistOwner } = useGetPlaylistQuery(
-      { id: playlistId },
-      {
-         select: selectOwner,
-      }
-   )
+   const playlistOwnerId = owner?.id
 
    const artistNames = track.artists
       ?.slice(0, 3)
@@ -97,7 +90,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
    const [{ canDrop, isAbove }, drop] = useDrop(
       () => ({
          accept: 'Track',
-         canDrop: (item: TrackDndEvent) => currentUserId === playlistOwner && item.trackId !== trackId,
+         canDrop: (item: TrackDndEvent) => currentUserId === playlistOwnerId && item.trackId !== trackId,
          drop: (item: TrackDndEvent) => {
             const lastIsAbove = lastIsAboveRef.current
             const insertIndex = lastIsAbove ? index : index + 1
@@ -122,7 +115,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             }
          },
       }),
-      [reorder, addTracksToPlaylist, currentUserId, playlistOwner]
+      [reorder, addTracksToPlaylist, currentUserId, playlistOwnerId, index]
    )
 
    // isAbove will be undefined after drag is released!
@@ -145,7 +138,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
             isDragging: !!monitor.isDragging(),
          }),
       }),
-      [trackId]
+      [trackId, playlistId, index]
    )
 
    const svgStyle = useCallback((isLiked: boolean | undefined) => useLikeSvgStyle(trackId)(isLiked), [trackId])
@@ -162,7 +155,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
       <div
          className={cn(
             'muse-track group',
-            'm-0 select-none rounded-md p-0',
+            'm-0 select-none p-0',
             styles,
             isDragging ? 'opacity-50' : '',
             isAbove === undefined || !canDrop
@@ -210,7 +203,7 @@ export default function PlaylistTrack({ index, playlistTrack, reviewId }: Playli
                <CommentAndOptions
                   trackId={track.id}
                   reviewId={reviewId}
-                  playlistId={playlistOwner ?? playlistId}
+                  playlistId={playlistId}
                   onMenuClick={onMenuClick}
                />
             </div>

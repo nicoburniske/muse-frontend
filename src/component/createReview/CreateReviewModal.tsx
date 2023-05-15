@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'

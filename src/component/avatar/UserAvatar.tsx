@@ -1,6 +1,7 @@
 import { UserWithSpotifyOverviewFragment } from '@/graphql/generated/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/lib/component/Avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
+import { userDisplayNameOrId } from '@/util/Utils'
 
 const size = 'w-6 h-6 md:w-8 md:h-8'
 
@@ -12,11 +13,7 @@ type UserAvatarTooltipProps = {
 export function UserAvatarTooltip({ dateAdded, user }: UserAvatarTooltipProps) {
    const images = user?.spotifyProfile?.images
    const image = images?.at(1) ?? images?.at(0)
-
-   const displayName = user.spotifyProfile?.displayName
-   const userId = user.id
-
-   const name = displayName ?? userId
+   const name = userDisplayNameOrId(user)
 
    return (
       <TooltipProvider delayDuration={300}>

@@ -4,6 +4,7 @@ import {
    QueryClientProvider,
    QueryClientProviderProps,
    ShouldDehydrateQueryFunction,
+   useQueryClient,
 } from '@tanstack/react-query'
 import {
    PersistQueryClientOptions,
@@ -12,6 +13,8 @@ import {
 } from '@tanstack/react-query-persist-client'
 import { PersistedClient, Persister } from '@tanstack/react-query-persist-client'
 import { del, get, set } from 'idb-keyval'
+import { useHydrateAtoms } from 'jotai/utils'
+import { queryClientAtom } from 'jotai-tanstack-query'
 import { useEffect, useRef, useState } from 'react'
 
 import useAccessTokenQuery from '@/state/useAccessTokenQuery'
@@ -50,11 +53,19 @@ export default function MuseQueryClientProvider({
          client={queryClient}
          persistOptions={{ buster: 'MuseCache', persister, dehydrateOptions: { shouldDehydrateQuery } }}
       >
-         {children}
+         <HydrateAtoms>{children}</HydrateAtoms>
       </PersistQueryClientProvider>
    ) : (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+         <HydrateAtoms>{children}</HydrateAtoms>
+      </QueryClientProvider>
    )
+}
+
+const HydrateAtoms = ({ children }: { children: React.ReactNode }) => {
+   const queryClient = useQueryClient()
+   useHydrateAtoms([[queryClientAtom, queryClient]])
+   return <> {children} </>
 }
 
 function arrayEquals(a: any, b: any) {

@@ -2,21 +2,29 @@ import { ChatBubbleLeftIcon, EllipsisVerticalIcon } from '@heroicons/react/24/ou
 import { RefObject, useRef } from 'react'
 
 import { Button } from '@/lib/component/Button'
-import { useIsCurrentUserCollaborator } from '@/state/useDetailedReviewCacheQuery'
+import { useCurrentUserId } from '@/state/CurrentUser'
+import { useReviewOverviewAtom } from '@/state/useReviewOverviewAtom'
 
 import { useSetTrackContextMenu } from './TrackContextMenu'
 import { useCommentModalTrack } from './useCommentModalTrack'
 
 type CommentAndOptionsProps = {
-   onMenuClick: (ref: RefObject<Element>) => void
    trackId: string
    reviewId: string
    playlistId?: string
+   onMenuClick: (ref: RefObject<Element>) => void
 }
 
 export const CommentAndOptions = ({ trackId, reviewId, playlistId, onMenuClick }: CommentAndOptionsProps) => {
    const showCommentModal = useCommentModalTrack(reviewId, trackId)
-   const canComment = useIsCurrentUserCollaborator(reviewId)
+
+   const data = useReviewOverviewAtom(reviewId)
+   const userId = useCurrentUserId()
+
+   const canComment =
+      data?.review?.creator?.id === userId ||
+      data?.review?.collaborators?.filter(c => c.accessLevel === 'Collaborator').some(c => c.user.id === userId)
+
    const setContextMenu = useSetTrackContextMenu()
 
    const ref = useRef<SVGElement>(null)

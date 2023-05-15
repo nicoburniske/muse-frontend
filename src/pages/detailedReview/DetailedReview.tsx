@@ -300,7 +300,7 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                      </>
                   ) : (
                      <Button variant='outline' onClick={setSelected}>
-                        <InformationCircleIcon className='ml-2 h-4 w-4' />
+                        <InformationCircleIcon className='mr-2 h-4 w-4' />
                         Info
                      </Button>
                   )}

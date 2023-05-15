@@ -22,7 +22,7 @@ import {
    setResultsAtom,
    tracksAtom,
 } from './TableAtoms'
-import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
+import { useScrollToSelected, useSmoothScroll } from './TableHooks'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -77,18 +77,8 @@ export const GroupedTrackTable = () => {
          const newActiveSticky = getHeaderIndices().find(index => range.startIndex >= index)
          activeStickyIndexRef.current = newActiveSticky
          if (newActiveSticky !== undefined) {
-            const result = defaultRangeExtractor(range)
-            // Binary search to insert the new active sticky.
-            let low = 0,
-               high = result.length
-
-            while (low < high) {
-               const mid = (low + high) >>> 1
-               if (result[mid] < newActiveSticky) low = mid + 1
-               else high = mid
-            }
-            result[low] = newActiveSticky
-            return result
+            const next = new Set([newActiveSticky, ...defaultRangeExtractor(range)])
+            return [...next].sort((a, b) => a - b)
          } else {
             return defaultRangeExtractor(range)
          }
