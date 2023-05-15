@@ -6,12 +6,11 @@ import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/lib/component/Accordion'
 import { Button } from '@/lib/component/Button'
 import { Separator } from '@/lib/component/Seperator'
+import { useIsLoggedIn } from '@/state/useIsLoggedIn'
 import { AppConfig } from '@/util/AppConfig'
 
-import { useCurrentUsername } from './LandingPage'
-
 export function InfoPage() {
-   const isLoggedIn = useCurrentUsername() !== undefined
+   const isLoggedIn = useIsLoggedIn()
 
    return (
       <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto bg-background text-foreground overflow-x-hidden'>
