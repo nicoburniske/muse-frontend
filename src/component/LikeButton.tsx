@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 
 import { Button } from '@/lib/component/Button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
-import { useTrackLikeQuery } from '@/state/useTrackLikeQuery'
+import { useTrackLikeAtomQuery, useUpdateTrackLike } from '@/state/useTrackLikeQuery'
 import { cn } from '@/util/Utils'
 
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
@@ -18,10 +18,8 @@ interface LikeButtonProps {
 }
 
 export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
-   const {
-      query: { data: isLiked },
-      updateLike,
-   } = useTrackLikeQuery(trackId, options)
+   const isLiked = useTrackLikeAtomQuery(trackId)
+   const updateLike = useUpdateTrackLike(trackId)
 
    const { mutate: likeTrack } = useSaveTracksMutation({
       onError: () => toast.error('Failed to add track to Liked Songs.'),
@@ -60,10 +58,8 @@ export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeB
 }
 
 export const LikeButtonTooltip = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
-   const {
-      query: { data: isLiked },
-      updateLike,
-   } = useTrackLikeQuery(trackId, options)
+   const isLiked = useTrackLikeAtomQuery(trackId)
+   const updateLike = useUpdateTrackLike(trackId)
 
    const { mutate: likeTrack } = useSaveTracksMutation({
       onError: () => toast.error('Failed to add track to Liked Songs.'),
