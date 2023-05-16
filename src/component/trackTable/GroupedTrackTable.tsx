@@ -89,7 +89,7 @@ export const GroupedTrackTable = () => {
    const scrollToFn = useSmoothScroll(parentRef)
    const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
    const rowVirtualizer = useVirtualizer({
-      overscan: 20,
+      overscan: 40,
       count: getIndexToSize().length,
       estimateSize: index => getIndexToSize()[index],
       getScrollElement: () => parentRef.current,
