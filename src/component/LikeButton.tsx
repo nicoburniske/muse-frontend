@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 
 import { Button } from '@/lib/component/Button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
-import { useTrackLikeAtomQuery, useUpdateTrackLike } from '@/state/useTrackLikeQuery'
+import { useTrackLikeQuery, useUpdateTrackLike } from '@/state/useTrackLikeQuery'
 import { cn } from '@/util/Utils'
 
 import { useRemoveSavedTracksMutation, useSaveTracksMutation } from './sdk/ClientHooks'
@@ -18,7 +18,7 @@ interface LikeButtonProps {
 }
 
 export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
-   const isLiked = useTrackLikeAtomQuery(trackId)
+   const isLiked = useTrackLikeQuery(trackId).data
    const updateLike = useUpdateTrackLike(trackId)
 
    const { mutate: likeTrack } = useSaveTracksMutation({
@@ -58,7 +58,7 @@ export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeB
 }
 
 export const LikeButtonTooltip = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
-   const isLiked = useTrackLikeAtomQuery(trackId)
+   const isLiked = useTrackLikeQuery(trackId).data
    const updateLike = useUpdateTrackLike(trackId)
 
    const { mutate: likeTrack } = useSaveTracksMutation({

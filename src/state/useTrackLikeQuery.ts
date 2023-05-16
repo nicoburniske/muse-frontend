@@ -1,14 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import DataLoader from 'dataloader'
 import { atom, useAtomValue } from 'jotai'
-import { atomFamily, loadable } from 'jotai/utils'
-import { atomsWithQuery } from 'jotai-tanstack-query'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { SpotifyWebApi } from 'spotify-web-api-ts/types'
 
-import { unsafeSpotifyClientAtom } from '@/component/sdk/ClientAtoms'
+import { spotifyClientAtom } from '@/component/sdk/ClientAtoms'
 
-const DataLoaderAtom = atom(get => createDataLoader(get(unsafeSpotifyClientAtom)))
+const DataLoaderAtom = atom(get => get(spotifyClientAtom).then(createDataLoader))
 
 const createDataLoader = (spotifyClient: SpotifyWebApi) =>
    new DataLoader<string, boolean>(
@@ -18,7 +16,7 @@ const createDataLoader = (spotifyClient: SpotifyWebApi) =>
 
 export const usePrefetchLikes = (trackIds: string[]) => {
    const queryClient = useQueryClient()
-   const createQuery = useCreateLikeFetcher()
+   const createQuery = useCreateLikeQuery()
    const allIds = trackIds.join('-')
 
    useEffect(() => {
@@ -30,20 +28,8 @@ export const usePrefetchLikes = (trackIds: string[]) => {
    }, [allIds, queryClient, createQuery])
 }
 
-const likeQueryAtoms = atomFamily((trackId: string) => makeLikeQueryAtom(trackId)[0])
-
-const makeLikeQueryAtom = (trackId: string) =>
-   atomsWithQuery(get => {
-      const loader = get(DataLoaderAtom)
-      return {
-         queryKey: useTrackLikeQueryKey(trackId),
-         queryFn: () => loader.load(trackId),
-         staleTime: 30 * 1000,
-      }
-   })
-
 const useTrackLikeQueryKey = (trackId: string) => ['AreTracksSaved', trackId]
-const useCreateLikeFetcher = () => {
+const useCreateLikeQuery = () => {
    const dataLoader = useAtomValue(DataLoaderAtom)
    return useCallback(
       (trackId: string) => ({
@@ -54,16 +40,13 @@ const useCreateLikeFetcher = () => {
    )
 }
 
-export const useTrackLikeAtomQuery = (trackId: string) => {
-   const likeAtom = useMemo(() => atom(get => get(likeQueryAtoms(trackId))), [trackId])
-   const loaded = useAtomValue(loadable(likeAtom))
-   if (loaded.state === 'hasError') {
-      throw loaded.error
-   } else if (loaded.state === 'loading') {
-      return undefined
-   } else {
-      return loaded.data
-   }
+export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boolean, unknown, boolean, string[]>) => {
+   const query = useCreateLikeQuery()(trackId)
+
+   return useQuery({
+      ...query,
+      ...options,
+   })
 }
 
 export const useUpdateTrackLike = (trackId: string) => {
