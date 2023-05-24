@@ -218,19 +218,19 @@ const columns: ColumnDef<DetailedPlaylistTrackFragment>[] = [
          )
       },
    },
-   // {
-   //    id: 'Added At',
-   //    header: row => (
-   //       <TableHead id={row.header.id} className='hidden sm:table-cell'>
-   //          Added At
-   //       </TableHead>
-   //    ),
-   //    cell: ({ row, cell }) => (
-   //       <TableCell key={cell.id} className='hidden sm:table-cell'>
-   //          {dayjs().calendar(dayjs(row.original.addedAt))}
-   //       </TableCell>
-   //    ),
-   // },
+   {
+      id: 'Added At',
+      header: row => (
+         <TableHead id={row.header.id} className='hidden sm:table-cell'>
+            Added At
+         </TableHead>
+      ),
+      cell: ({ row, cell }) => (
+         <TableCell key={cell.id} className='hidden sm:table-cell'>
+            {new Date(row.original.addedAt).toLocaleDateString()}
+         </TableCell>
+      ),
+   },
    {
       id: 'Like Button',
       header: row => <TableHead id={row.header.id}></TableHead>,
