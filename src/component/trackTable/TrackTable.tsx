@@ -93,8 +93,8 @@ export const TrackTable = ({ tracks }: { tracks: DetailedPlaylistTrackFragment[]
 }
 
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline'
-import * as dayjs from 'dayjs'
-import calendar from 'dayjs/plugin/calendar'
+// import * as dayjs from 'dayjs'
+// import calendar from 'dayjs/plugin/calendar'
 import toast from 'react-hot-toast'
 
 import { LikeButton } from '@/component/LikeButton'
@@ -103,7 +103,7 @@ import { useSimulateRightClick } from '@/component/track/useSimulateRightClick'
 import { useLikeSvgStyle, useTrackColor } from '@/component/track/useSyncedStyles'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 
-dayjs.extend(calendar)
+// dayjs.extend(calendar)
 
 type TrackRowProps = {
    row: Row<DetailedPlaylistTrackFragment>
@@ -218,19 +218,19 @@ const columns: ColumnDef<DetailedPlaylistTrackFragment>[] = [
          )
       },
    },
-   {
-      id: 'Added At',
-      header: row => (
-         <TableHead id={row.header.id} className='hidden sm:table-cell'>
-            Added At
-         </TableHead>
-      ),
-      cell: ({ row, cell }) => (
-         <TableCell key={cell.id} className='hidden sm:table-cell'>
-            {dayjs().calendar(dayjs(row.original.addedAt))}
-         </TableCell>
-      ),
-   },
+   // {
+   //    id: 'Added At',
+   //    header: row => (
+   //       <TableHead id={row.header.id} className='hidden sm:table-cell'>
+   //          Added At
+   //       </TableHead>
+   //    ),
+   //    cell: ({ row, cell }) => (
+   //       <TableCell key={cell.id} className='hidden sm:table-cell'>
+   //          {dayjs().calendar(dayjs(row.original.addedAt))}
+   //       </TableCell>
+   //    ),
+   // },
    {
       id: 'Like Button',
       header: row => <TableHead id={row.header.id}></TableHead>,
