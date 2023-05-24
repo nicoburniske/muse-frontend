@@ -18,8 +18,7 @@ export const SubscribeReviews = () => {
 
    useSubscribeToReviews(reviewIdsMemo)
 
-   // We want to enable comment replies globally.
-   return <CommentFormModal />
+   return null
 }
 
 const selectReviewIds = (data: ProfileAndReviewsQuery) => data.user.reviews?.map(r => r.id) ?? []
