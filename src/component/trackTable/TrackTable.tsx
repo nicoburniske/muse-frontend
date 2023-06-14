@@ -104,7 +104,6 @@ import { useLikeSvgStyle, useTrackColor } from '@/component/track/useSyncedStyle
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 
 // dayjs.extend(calendar)
-
 type TrackRowProps = {
    row: Row<DetailedPlaylistTrackFragment>
    index: number
@@ -193,7 +192,7 @@ const columns: ColumnDef<DetailedPlaylistTrackFragment>[] = [
       header: row => <TableHead id={row.header.id}>Album</TableHead>,
       cell: ({ row, cell }) => (
          <TableCell key={cell.id} className='line-clamp-2 hidden w-40 sm:table-cell'>
-            {row.original.track.album?.name}
+            <div className='line-clamp-2'>{row.original.track.album?.name}</div>
          </TableCell>
       ),
    },

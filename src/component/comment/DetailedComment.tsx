@@ -37,13 +37,11 @@ import CommentMarkdown from './CommentMarkdown'
 import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
 
 export interface DetailedCommentProps {
-   review: ReviewOverview
+   reviewId: string
    comment: DetailedCommentFragment
 }
 
-export default function DetailedComment({ review, comment: detailedComment }: DetailedCommentProps) {
-   const reviewId = review.reviewId
-
+export default function DetailedComment({ reviewId, comment: detailedComment }: DetailedCommentProps) {
    const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1) ?? ''
    const comment = detailedComment.deleted ? '** deleted **' : detailedComment?.comment ?? ''
    const commenterName = userDisplayNameOrId(detailedComment.commenter)

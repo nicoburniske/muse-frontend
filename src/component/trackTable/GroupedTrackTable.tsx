@@ -93,7 +93,7 @@ export const GroupedTrackTable = () => {
       estimateSize: useCallback(index => indexToSize[index], [indexToSize]),
       getScrollElement: () => parentRef.current,
       scrollToFn,
-      rangeExtractor,
+      // rangeExtractor,
    })
    useScrollToSelected(rowVirtualizer)
 
@@ -120,7 +120,7 @@ export const GroupedTrackTable = () => {
    const indexToStyle = useCallback(
       (virtualRow: VirtualItem) => {
          return {
-            ...(isSticky(virtualRow.index) ? { zIndex: 1 } : {}),
+            ...(isSticky(virtualRow.index) ? { zIndex: 1 } : { height: `${virtualRow.size}px` }),
             ...(isActiveSticky(virtualRow.index)
                ? {
                     position: 'sticky',
@@ -132,7 +132,6 @@ export const GroupedTrackTable = () => {
             top: 0,
             left: 0,
             width: '100%',
-            ...(isSticky(virtualRow.index) ? {} : { height: `${virtualRow.size}px` }),
          }
       },
       [isSticky, isActiveSticky]

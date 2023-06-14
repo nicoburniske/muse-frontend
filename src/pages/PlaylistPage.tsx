@@ -88,7 +88,7 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
                   </Button>
                </div>
             </div>
-            <main className='mx-auto h-full min-h-0  w-full max-w-7xl '>
+            <main className='mx-auto h-full min-h-0 w-full max-w-7xl'>
                <TrackTable tracks={playlist.tracks!} />
             </main>
          </div>

@@ -8,7 +8,6 @@ import {
    ShareIcon,
    TrashIcon,
 } from '@heroicons/react/24/outline'
-import { useQueries, UseQueryResult } from '@tanstack/react-query'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -18,24 +17,15 @@ import Split from 'react-split'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton, useExecuteAndClose, useSetExtraCommandGroups } from '@/component/command/Command'
 import ReviewCommentSection from '@/component/comment/CommentSection'
-import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { useDeleteReview } from '@/component/deleteReview/DeleteReviewModal'
 import { useEditReview } from '@/component/editReview/EditReview'
-import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useSelectReview } from '@/component/SelectedReview'
 import { useShareReview } from '@/component/shareReview/ShareReview'
-import { GroupedTrackTableWrapper } from '@/component/trackTable/GroupedTrackTable'
-import { Group, ReviewOverview } from '@/component/trackTable/Helpers'
-import {
-   DetailedAlbumFragment,
-   DetailedPlaylistFragment,
-   EntityType,
-   GetAlbumQuery,
-   GetPlaylistQuery,
-   ReviewDetailsFragment,
-   useGetAlbumQuery,
-   useGetPlaylistQuery,
-} from '@/graphql/generated/schema'
+import { AlbumTrackTable } from '@/component/trackTable/AlbumTrackTable'
+import { ReviewOverview } from '@/component/trackTable/Helpers'
+import { PlaylistTrackTable } from '@/component/trackTable/PlaylistTrackTable'
+import { EntityType, ReviewDetailsFragment, useGetAlbumQuery, useGetPlaylistQuery } from '@/graphql/generated/schema'
 import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
 import { HeroLoading } from '@/lib/component/HeroLoading'
@@ -46,10 +36,9 @@ import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
-import { allEntities, findFirstImage, groupBy, nonNullable, userDisplayNameOrId } from '@/util/Utils'
+import { allEntities, findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
-import { LinkReviewButton } from './LinkReview'
 
 export interface DetailedReviewProps {
    reviewId: string
@@ -88,25 +77,9 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
            reviewId,
            entityId,
            entityType: review.entity.__typename as EntityType,
-           reviewName: review?.reviewName as string,
+           reviewName: review.reviewName as string,
         }
       : undefined
-
-   // Children!
-   const children =
-      review?.childReviews
-         ?.filter(nonNullable)
-         ?.filter(c => nonNullable(c.id))
-         ?.filter(c => nonNullable(c.entity?.id))
-         ?.filter(c => nonNullable(c.entity?.__typename))
-         .map(child => ({
-            reviewId: child.id,
-            entityId: child.entity?.id as string,
-            entityType: child.entity?.__typename as EntityType,
-            reviewName: child?.reviewName as string,
-         })) ?? []
-
-   const allReviews = [parent, ...children].filter(nonNullable)
 
    return (
       <div className='relative flex grow flex-col'>
@@ -114,7 +87,7 @@ const DetailedReviewContent = ({ reviewId, review }: DetailedReviewContentProps)
          <Separator />
          {/* For some reason I need a min-height? When doing flex-col in page. */}
          <div className='mx-1 min-h-0 grow'>
-            <DetailedReviewBody rootReview={reviewId} reviews={allReviews} />
+            <DetailedReviewBody review={parent!} />
          </div>
       </div>
    )
@@ -236,9 +209,6 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    // Root review doesn't need an entity.
    const reviewEntityImage = findFirstImage(allEntities(review))
 
-   const linkEnabled = review.entity?.__typename === 'Artist'
-   const childReviewIds = review?.childReviews?.map(child => child?.id).filter(nonNullable) ?? []
-
    const { openShareReview } = useShareReview()
    const { openEditReview } = useEditReview()
    const { setSelectedReview } = useSelectReview()
@@ -292,7 +262,6 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
                         <Button variant='outline' className='muse-share' onClick={() => openShareReview(reviewId)}>
                            Share
                         </Button>
-                        {linkEnabled && <LinkReviewButton reviewId={reviewId} alreadyLinkedIds={childReviewIds} />}
                      </>
                   ) : (
                      <Button variant='outline' onClick={setSelected}>
@@ -316,9 +285,8 @@ const ReviewHeader = ({ review }: { review: ReviewDetailsFragment }) => {
    )
 }
 
-interface DetailedReviewBodyProps {
-   rootReview: string
-   reviews: ReviewAndEntity[]
+type DetailedReviewBodyProps = {
+   review: ReviewAndEntity
 }
 
 export type ReviewAndEntity = ReviewOverview & {
@@ -326,10 +294,10 @@ export type ReviewAndEntity = ReviewOverview & {
    entityType: EntityType
 }
 
-const DetailedReviewBody = ({ rootReview, reviews }: DetailedReviewBodyProps) => {
+const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
    const [options, setOption] = useAtom(renderOptionAtom)
-   const trackSection = <TrackSectionTable rootReview={rootReview} all={reviews} />
-   const commentSection = <ReviewCommentSection reviews={reviews} />
+   const trackSection = <TrackSectionTable review={review} />
+   const commentSection = <ReviewCommentSection reviewId={review.reviewId} />
    const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
    // both cannot be selected on mobile.
@@ -363,55 +331,26 @@ const DetailedReviewBody = ({ rootReview, reviews }: DetailedReviewBodyProps) =>
    )
 }
 
-const TrackSectionTable = ({ all, rootReview }: { all: ReviewAndEntity[]; rootReview: string }) => {
-   const allIds = groupBy(
-      all,
-      r => r.entityType,
-      r => r.entityId
+const TrackSectionTable = ({ review: { reviewId, entityId, entityType } }: DetailedReviewBodyProps) => {
+   const { data: playlist, isLoading: isPlaylistLoading } = useGetPlaylistQuery(
+      { id: entityId },
+      { enabled: entityType === 'Playlist' }
    )
-   const playlistIds = allIds.get('Playlist') ?? []
-   const albumIds = allIds.get('Album') ?? []
-   const playlistResults = useQueries({
-      queries: playlistIds.map(id => ({
-         queryKey: useGetPlaylistQuery.getKey({ id }),
-         queryFn: useGetPlaylistQuery.fetcher({ id }),
-         staleTime: 1 * 60 * 1000,
-      })),
-   })
-
-   const albumResults = useQueries({
-      queries: albumIds.map(id => ({
-         queryKey: useGetAlbumQuery.getKey({ id }),
-         queryFn: useGetAlbumQuery.fetcher({ id }),
-         staleTime: 60 * 60 * 1000,
-      })),
-   })
-
-   // Ensure that indicies line up.
-   const matchedReviews = (() => {
-      const allReviews = all.filter(r => r.entityType === 'Album' || r.entityType === 'Playlist')
-      // get all reviews that are not nullable
-      const results: (DetailedAlbumFragment | DetailedPlaylistFragment)[] = [...albumResults, ...playlistResults]
-         .map(r => (r.data as GetAlbumQuery)?.getAlbum ?? (r.data as GetPlaylistQuery)?.getPlaylist)
-         .filter(nonNullable)
-      return allReviews.reduce((acc, { entityId, reviewName, reviewId }) => {
-         const data = results.find(r => r.id === entityId)
-         if (data) {
-            acc.push({ data, overview: { reviewName, reviewId } })
-         }
-         return acc
-      }, new Array<Group>())
-   })()
-
-   const isLoading = areAllLoadingNoData([...playlistResults, ...albumResults])
+   const { data: album, isLoading: isAlbumLoading } = useGetAlbumQuery(
+      { id: entityId },
+      { enabled: entityType === 'Album' }
+   )
+   const isLoading = entityType === 'Album' ? isAlbumLoading : isPlaylistLoading
 
    return (
       <div className='relative flex w-full'>
-         {isLoading ? <HeroLoading /> : <GroupedTrackTableWrapper results={matchedReviews} rootReview={rootReview} />}
+         {isLoading ? (
+            <HeroLoading />
+         ) : entityType === 'Playlist' ? (
+            <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
+         ) : (
+            <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
+         )}
       </div>
    )
-}
-
-const areAllLoadingNoData = (results: UseQueryResult<any, unknown>[]) => {
-   return results.some(r => r.isLoading) && results.every(r => r.data === undefined)
 }

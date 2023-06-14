@@ -47,7 +47,7 @@ export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeB
    const disabled = isLiked === undefined
 
    return (
-      <Button variant='svg' size='empty' className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
+      <Button variant='svg' size='square' className={cn(className)} disabled={disabled} onClick={e => handleClick(e)}>
          {isLiked ? (
             <HeartIconSolid className={cn('h-6 w-6', svgClassName)} />
          ) : (

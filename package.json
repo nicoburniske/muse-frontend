@@ -88,7 +88,6 @@
       "@graphql-codegen/typescript-react-query": "^4.0.3",
       "@graphql-codegen/typescript-urql": "^3.7.3",
       "@tailwindcss/aspect-ratio": "^0.4.2",
-      "@tailwindcss/line-clamp": "^0.4.2",
       "@tailwindcss/typography": "^0.5.7",
       "@types/react": "^18.0.0",
       "@types/react-dom": "^18.0.0",

@@ -37,12 +37,21 @@ export const useShareReview = () => {
 }
 export const ShareReviewModal = () => {
    const reviewId = useAtomValue(reviewIdAtom)
+   const [open, setOpen] = useAtom(openAtom)
+   const close = useSetAtom(setClose)
 
-   if (reviewId) {
-      return <ShareReview reviewId={reviewId} />
-   } else {
-      return null
-   }
+   return (
+      <Dialog
+         open={open}
+         onOpenChange={open => {
+            if (!open) {
+               close()
+            }
+         }}
+      >
+         {reviewId && <ShareReview reviewId={reviewId} />}
+      </Dialog>
+   )
 }
 
 function ShareReview({ reviewId }: { reviewId: string }) {
@@ -76,62 +85,58 @@ function ShareReview({ reviewId }: { reviewId: string }) {
    const { data: collaboratorData } = useCollaboratorsQuery(reviewId)
    const collaborators = collaboratorData ?? []
 
-   const [open, setOpen] = useAtom(openAtom)
-
    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-         <DialogContent>
-            <DialogHeader>
-               <DialogTitle>Share Review</DialogTitle>
-               <DialogDescription>Make changes to who can view and edit this review.</DialogDescription>
-            </DialogHeader>
-            <div className='flex flex-col items-center space-y-3'>
-               {collaborators?.length > 0 && (
-                  <>
-                     <div className='w-full'>
-                        <label className=''>
-                           <span className='block text-sm font-medium'> Collaborators </span>
-                        </label>
-                        <ul className='h-32 flex-nowrap space-y-2 overflow-y-scroll'>
-                           {collaborators.map(c => (
-                              <li key={c.user.id}>
-                                 <UserWithAccessLevel user={c} reviewId={reviewId} />
-                              </li>
-                           ))}
-                        </ul>
-                     </div>
-                     <Separator />
-                  </>
-               )}
-               <SearchUsersComboBox onSelect={(userId: string) => setUsername(userId)} />
-               <div className='w-full'>
-                  <label className=''>
-                     <span className='block text-sm font-medium'>Access Level</span>
-                  </label>
-                  <Select onValueChange={v => setAccessLevel(v as AccessLevel)} defaultValue={accessLevel}>
-                     <SelectTrigger>
-                        <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                        <SelectGroup>
-                           <SelectItem value='Collaborator'>
-                              <SelectItemText>Editor</SelectItemText>
-                           </SelectItem>
-                           <SelectItem value='Viewer'>
-                              <SelectItemText>Viewer</SelectItemText>
-                           </SelectItem>
-                        </SelectGroup>
-                     </SelectContent>
-                  </Select>
-               </div>
-               <DialogFooter className='w-full'>
-                  <Button className='space-x-2' onClick={onSubmit} disabled={disabled}>
-                     Confirm
-                  </Button>
-               </DialogFooter>
+      <DialogContent>
+         <DialogHeader>
+            <DialogTitle>Share Review</DialogTitle>
+            <DialogDescription>Make changes to who can view and edit this review.</DialogDescription>
+         </DialogHeader>
+         <div className='flex flex-col items-center space-y-3'>
+            {collaborators?.length > 0 && (
+               <>
+                  <div className='w-full'>
+                     <label className=''>
+                        <span className='block text-sm font-medium'> Collaborators </span>
+                     </label>
+                     <ul className='h-32 flex-nowrap space-y-2 overflow-y-scroll'>
+                        {collaborators.map(c => (
+                           <li key={c.user.id}>
+                              <UserWithAccessLevel user={c} reviewId={reviewId} />
+                           </li>
+                        ))}
+                     </ul>
+                  </div>
+                  <Separator />
+               </>
+            )}
+            <SearchUsersComboBox onSelect={(userId: string) => setUsername(userId)} />
+            <div className='w-full'>
+               <label className=''>
+                  <span className='block text-sm font-medium'>Access Level</span>
+               </label>
+               <Select onValueChange={v => setAccessLevel(v as AccessLevel)} defaultValue={accessLevel}>
+                  <SelectTrigger>
+                     <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                     <SelectGroup>
+                        <SelectItem value='Collaborator'>
+                           <SelectItemText>Editor</SelectItemText>
+                        </SelectItem>
+                        <SelectItem value='Viewer'>
+                           <SelectItemText>Viewer</SelectItemText>
+                        </SelectItem>
+                     </SelectGroup>
+                  </SelectContent>
+               </Select>
             </div>
-         </DialogContent>
-      </Dialog>
+            <DialogFooter className='w-full'>
+               <Button className='space-x-2' onClick={onSubmit} disabled={disabled}>
+                  Confirm
+               </Button>
+            </DialogFooter>
+         </div>
+      </DialogContent>
    )
 }
 

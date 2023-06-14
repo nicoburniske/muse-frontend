@@ -7,6 +7,8 @@ import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 
 import { getTrack } from './Helpers'
 import { expandedGroupsAtom, groupWithTracksAtom } from './TableAtoms'
+import { Column } from '@tanstack/react-table'
+import { ArrowDownIcon, ArrowsUpDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline'
 
 const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t)
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1)
@@ -23,7 +25,7 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
             if (scrollingRef.current !== startTime) return
             const now = Date.now()
             const elapsed = now - startTime
-            const progress = easeInOutQuad(Math.min(elapsed / duration, 1))
+            const progress = easeInOutCubic(Math.min(elapsed / duration, 1))
             const interpolated = start + (offset - start) * progress
 
             if (elapsed < duration) {
@@ -136,4 +138,28 @@ export const useScrollToSelected = (virtualizer: Virtualizer<any, any>) => {
          virtualizer.scrollToIndex(selectedIndex, { align: 'center' })
       }
    }, [selectedIndex])
+}
+
+export const useSortOnClick = (column: Column<any, any>) => {
+   const onClick = () => {
+      const sort = column.getIsSorted()
+      if (sort === 'asc') {
+         column.clearSorting()
+      } else if (sort === 'desc') {
+         column.toggleSorting(false)
+      } else {
+         column.toggleSorting(true)
+      }
+   }
+   const icon = (() => {
+      const sort = column.getIsSorted()
+      if (sort === 'asc') {
+         return <ArrowUpIcon className='ml-2 h-4 w-4' />
+      } else if (sort === 'desc') {
+         return <ArrowDownIcon className='ml-2 h-4 w-4' />
+      } else {
+         return <ArrowsUpDownIcon className='ml-2 h-4 w-4' />
+      }
+   })()
+   return { onClick, icon }
 }
