@@ -68,8 +68,8 @@ const SearchPage = () => {
 }
 export default SearchPage
 
-type NoTrack = Exclude<EntityType, 'Track'>
-const NoTrackValues = EntityTypeValues.filter(t => t !== 'Track') as NoTrack[]
+type NoTrack = Exclude<EntityType, 'Track' | 'Artist'>
+const NoTrackValues = EntityTypeValues.filter(t => t !== 'Track' && t !== 'Artist') as NoTrack[]
 const allTypes = new Set(NoTrackValues.flatMap(t => [t, t.toLocaleLowerCase()]).map(t => '/' + t))
 const asMap = new Map(
    NoTrackValues.flatMap(t => [

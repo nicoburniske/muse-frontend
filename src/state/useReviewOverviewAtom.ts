@@ -10,10 +10,9 @@ const reviewDetailsQueryAtoms = atomFamily((reviewId: string) => makeDetailedRev
 const makeDetailedReviewAtom = (reviewId: string) =>
    atomsWithQuery(() => {
       const input = { reviewId }
-      const func = () => useDetailedReviewQuery.fetcher(input)()
       return {
          queryKey: useDetailedReviewQuery.getKey(input),
-         queryFn: func,
+         queryFn: useDetailedReviewQuery.fetcher(input),
       }
    })
 
