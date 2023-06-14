@@ -36,7 +36,7 @@ import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
-import { allEntities, findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
+import { allEntities, cn, findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 
@@ -317,17 +317,14 @@ const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
    useHotkeys(['alt+k'], () => setOption('both'))
    useHotkeys(['alt+l'], () => setOption('comments'))
 
-   return (
-      <div className='h-full px-1'>
-         {options == 'both' ? (
-            <Split className='flex h-full space-x-1' sizes={[50, 50]} direction='horizontal'>
-               {trackSection}
-               {commentSection}
-            </Split>
-         ) : (
-            <div className='flex h-full w-full'>{options == 'tracks' ? trackSection : commentSection}</div>
-         )}
+   const commonClass = 'muse-scrollbar h-full overflow-y-auto'
+   return options == 'both' ? (
+      <div className='flex h-full gap-1'>
+         <div className={cn(commonClass, 'w-1/2')}>{trackSection}</div>
+         <div className={cn(commonClass, 'w-1/2')}>{commentSection}</div>
       </div>
+   ) : (
+      <div className={commonClass}>{options == 'tracks' ? trackSection : commentSection}</div>
    )
 }
 

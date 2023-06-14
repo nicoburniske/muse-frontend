@@ -27,7 +27,7 @@ export default function ReviewCommentSection({ reviewId }: { reviewId: string })
    return (
       <>
          <div
-            className='muse-comments muse-scrollbar my-1 mr-2 flex flex-1 flex-col space-y-1 overflow-y-auto'
+            className='muse-comments my-1 mr-2 flex flex-1 flex-col space-y-1'
             // to stop drag from dragging two elements.
             // https://github.com/react-dnd/react-dnd/issues/832
             style={{
