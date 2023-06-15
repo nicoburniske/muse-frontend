@@ -165,15 +165,14 @@ export default function DetailedComment({ reviewId, comment: detailedComment }: 
                      </div>
                      <div className='min-w-0 flex-1'>
                         <p className='space-x-1 text-sm font-medium text-foreground'>
-                           <a className=''>{commenterName}</a>
+                           <Link to={`/app/user/${commenterId}`} className='hover:underline'>
+                              {commenterName}
+                           </Link>
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
                            <a className='hidden text-xs text-muted-foreground md:inline'>
                               <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
                            </a>
-                        </p>
-                        <p className='text-xs text-muted-foreground'>
-                           <Link to={`/app/user/${commenterId}`} className='hover:underline'>
-                              @{commenterId}
-                           </Link>
                         </p>
                      </div>
                   </div>
