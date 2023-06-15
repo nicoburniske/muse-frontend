@@ -15,11 +15,10 @@ import { Button } from '@/lib/component/Button'
 import { TableCell, TableHead } from '@/lib/component/Table'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
-import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useReviewOverviewAtom } from '@/state/useReviewOverviewAtom'
 import { cn, userDisplayNameOrId } from '@/util/Utils'
 
-import { useSortOnClick } from './TableHooks'
+import { useScrollToSelectedSingle, useSortOnClick, useSyncNowPlaying } from './TableHooks'
 import { RenderRow, TrackTableAbstract } from './TrackTableAbstract'
 
 export type PlaylistTrackTableProps = {
@@ -29,12 +28,41 @@ export type PlaylistTrackTableProps = {
 
 export const PlaylistTrackTable = ({ reviewId, tracks }: PlaylistTrackTableProps) => {
    const columns = makeColumns(reviewId)
+   console.log('COLS', columns.length, commonColumns.length)
+
+   const getRowId = useCallback(
+      (track: DetailedPlaylistTrackFragment) => track.track.id + track.addedAt + track.addedBy.id,
+      []
+   )
+   const getTrackId = useCallback((track: DetailedPlaylistTrackFragment) => track.track.id, [])
+
+   const sync = useScrollToSelectedSingle(tracks, getTrackId, getRowId)
+
+   useSyncNowPlaying(tracks.map(t => t.track.id))
+
+   return (
+      <TrackTableAbstract columns={columns} data={tracks} getRowId={getRowId} renderRow={MemoTrackRow} sync={sync} />
+   )
+}
+
+export const PlaylistTrackTableViewOnly = ({ tracks }: { tracks: DetailedPlaylistTrackFragment[] }) => {
+   const getRowId = useCallback(
+      (track: DetailedPlaylistTrackFragment) => track.track.id + track.addedAt + track.addedBy.id,
+      []
+   )
+   const getTrackId = useCallback((track: DetailedPlaylistTrackFragment) => track.track.id, [])
+
+   const sync = useScrollToSelectedSingle(tracks, getTrackId, getRowId)
+
+   useSyncNowPlaying(tracks.map(t => t.track.id))
+
    return (
       <TrackTableAbstract
-         columns={columns}
+         columns={commonColumns}
          data={tracks}
-         getRowId={row => row.track.id + row.addedAt + row.addedBy.id}
+         getRowId={getRowId}
          renderRow={MemoTrackRow}
+         sync={sync}
       />
    )
 }
@@ -85,7 +113,7 @@ const TrackRow: RenderRow<DetailedPlaylistTrackFragment> = ({ row, virtual, meas
 }
 const MemoTrackRow = memo(TrackRow, (prev, next) => prev.row.id === next.row.id)
 
-const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>[] => [
+const commonColumns: ColumnDef<DetailedPlaylistTrackFragment>[] = [
    {
       id: 'Image',
       header: row => <TableHead id={row.header.id}></TableHead>,
@@ -131,12 +159,12 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
    {
       id: 'Album',
       header: row => (
-         <TableHead id={row.header.id} className='hidden lg:table-cell'>
+         <TableHead id={row.header.id} className='hidden xl:table-cell'>
             Album
          </TableHead>
       ),
       cell: ({ row, cell }) => (
-         <TableCell key={cell.id} className='line-clamp-2 hidden w-40 lg:table-cell'>
+         <TableCell key={cell.id} className='line-clamp-2 hidden w-40 xl:table-cell'>
             <div className='line-clamp-2'>{row.original.track.album?.name}</div>
          </TableCell>
       ),
@@ -144,7 +172,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
    {
       id: 'Added By',
       header: row => (
-         <TableHead id={row.header.id} className='hidden lg:table-cell'>
+         <TableHead id={row.header.id} className='hidden 2xl:table-cell'>
             Added By
          </TableHead>
       ),
@@ -156,7 +184,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
          const name = userDisplayNameOrId(user)
 
          return (
-            <TableCell key={cell.id} className='hidden truncate lg:table-cell'>
+            <TableCell key={cell.id} className='hidden truncate 2xl:table-cell'>
                <UserAvatar image={image} name={name} />
             </TableCell>
          )
@@ -167,7 +195,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
       header: ({ header, column }) => {
          const { onClick, icon } = useSortOnClick(column)
          return (
-            <TableHead id={header.id} className='hidden truncate lg:table-cell'>
+            <TableHead id={header.id} className='hidden truncate xl:table-cell'>
                <Button variant='ghost' onClick={onClick}>
                   Added At
                   {icon}
@@ -177,7 +205,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
       },
       accessorFn: row => new Date(row.addedAt).getTime(),
       cell: ({ row, cell }) => (
-         <TableCell key={cell.id} className='hidden lg:table-cell'>
+         <TableCell key={cell.id} className='hidden xl:table-cell'>
             {new Date(row.original.addedAt).toLocaleDateString()}
          </TableCell>
       ),
@@ -197,6 +225,14 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
       },
    },
    {
+      id: 'Options',
+      header: row => <TableHead id={row.header.id}></TableHead>,
+      cell: () => null,
+   },
+]
+
+const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>[] => {
+   const commentColumn: ColumnDef<DetailedPlaylistTrackFragment> = {
       id: 'Comment Button',
       header: row => <TableHead id={row.header.id}></TableHead>,
       cell: ({ row, cell }) => {
@@ -219,10 +255,9 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
             return null
          }
       },
-   },
-   {
-      id: 'Options',
-      header: row => <TableHead id={row.header.id}></TableHead>,
-      cell: () => null,
-   },
-]
+   }
+
+   const newColumns = [...commonColumns]
+   newColumns.splice(newColumns.length - 1, 0, commentColumn)
+   return newColumns
+}

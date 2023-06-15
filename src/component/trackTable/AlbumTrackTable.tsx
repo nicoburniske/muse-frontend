@@ -17,7 +17,7 @@ import { useCurrentUserId } from '@/state/CurrentUser'
 import { useReviewOverviewAtom } from '@/state/useReviewOverviewAtom'
 import { cn, msToTimeStr } from '@/util/Utils'
 
-import { useSortOnClick } from './TableHooks'
+import { useScrollToSelectedSingle, useSortOnClick, useSyncNowPlaying } from './TableHooks'
 import { RenderRow, TrackTableAbstract } from './TrackTableAbstract'
 
 export type AlbumTrackTableProps = {
@@ -27,7 +27,19 @@ export type AlbumTrackTableProps = {
 
 export const AlbumTrackTable = ({ reviewId, tracks }: AlbumTrackTableProps) => {
    const columns = makeColumns(reviewId)
-   return <TrackTableAbstract columns={columns} data={tracks} getRowId={row => row.id} renderRow={MemoTrackRow} />
+   const getTrackId = useCallback((track: DetailedTrackFragment) => track.id, [])
+   const sync = useScrollToSelectedSingle(tracks, getTrackId, getTrackId)
+   useSyncNowPlaying(tracks.map(t => t.id))
+
+   return (
+      <TrackTableAbstract
+         columns={columns}
+         data={tracks}
+         getRowId={row => row.id}
+         renderRow={MemoTrackRow}
+         sync={sync}
+      />
+   )
 }
 
 const TrackRow: RenderRow<DetailedTrackFragment> = ({ row, virtual, measureElement }) => {

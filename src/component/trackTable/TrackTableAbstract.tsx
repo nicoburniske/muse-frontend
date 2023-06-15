@@ -6,10 +6,10 @@ import {
    getSortedRowModel,
    Row,
    SortingState,
+   Table as TanTable,
    useReactTable,
 } from '@tanstack/react-table'
 import { useVirtualizer, VirtualItem, Virtualizer } from '@tanstack/react-virtual'
-import { Atom, useAtomValue } from 'jotai'
 import { useEffect, useRef, useState } from 'react'
 
 import { TrackContextMenuContent } from '@/component/track/TrackContextMenu'
@@ -22,8 +22,7 @@ export type TrackTableAbstractProps<T> = {
    getRowId: CoreOptions<T>['getRowId']
    renderRow: RenderRow<T>
 
-   // selected: Atom<S>
-   // indexData: (rowData: T) => S
+   sync: (virtualizer: Virtualizer<any, Element>, table: TanTable<T>) => void
 }
 
 export type RenderRow<T> = React.ComponentType<{
@@ -33,7 +32,7 @@ export type RenderRow<T> = React.ComponentType<{
 }>
 
 export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
-   const { columns, data: dataProp, getRowId } = props
+   const { columns, data: dataProp, getRowId, sync } = props
    const [data] = useState(() => dataProp)
    const [sorting, setSorting] = useState<SortingState>([])
 
@@ -44,7 +43,6 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
       count: data.length,
       estimateSize: () => 60,
       getScrollElement: () => parentRef.current,
-      // scrollToFn,
    })
 
    const table = useReactTable<T>({
@@ -59,15 +57,9 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
       },
    })
 
-   // const selectedValue = useAtomValue(selected)
-   // useEffect(() => {
-   //    if (selectedValue) {
-   //       const index = data.findIndex(row => indexData(row) === selectedValue)
-   //       if (index !== -1) {
-   //          rowVirtualizer.scrollToIndex(index)
-   //       }
-   //    }
-   // }, [selectedValue])
+   useEffect(() => {
+      sync(rowVirtualizer, table)
+   }, [sync, rowVirtualizer, table])
 
    const { rows } = table.getRowModel()
    const virtualRows = rowVirtualizer.getVirtualItems()
@@ -79,7 +71,7 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
    return (
       <ContextMenu>
          <ContextMenuTrigger asChild>
-            <div ref={parentRef} className='h-full w-full'>
+            <div ref={parentRef} className='muse-scrollbar h-full w-full overflow-y-auto'>
                <div
                   className='muse-tracks w-full'
                   style={{
@@ -110,7 +102,7 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
                            const row = rows[virtual.index]
                            return (
                               <props.renderRow
-                                 key={row.id}
+                                 key={row.id + virtual.index}
                                  row={row}
                                  virtual={virtual}
                                  measureElement={rowVirtualizer.measureElement}

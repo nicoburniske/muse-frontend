@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { TrackTable } from '@/component/trackTable/TrackTable'
+import { PlaylistTrackTableViewOnly } from '@/component/trackTable/PlaylistTrackTable'
 import { useGetPlaylistQuery } from '@/graphql/generated/schema'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import { Button } from '@/lib/component/Button'
@@ -89,7 +89,7 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
                </div>
             </div>
             <main className='mx-auto h-full min-h-0 w-full max-w-7xl'>
-               <TrackTable tracks={playlist.tracks!} />
+               <PlaylistTrackTableViewOnly tracks={playlist.tracks!} />
             </main>
          </div>
 

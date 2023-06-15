@@ -1,17 +1,19 @@
+import { ArrowDownIcon, ArrowsUpDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline'
+import { Column, Table } from '@tanstack/react-table'
 import { defaultRangeExtractor, elementScroll, Range, Virtualizer, VirtualizerOptions } from '@tanstack/virtual-core'
-import { atom, useSetAtom } from 'jotai'
+import { atom, useSetAtom, useStore } from 'jotai'
 import { MutableRefObject, RefObject, useCallback, useEffect, useRef } from 'react'
 
 import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
+import { nowPlayingEnabledAtom, nowPlayingTrackIdAtom } from '@/state/NowPlayingAtom'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 
 import { getTrack } from './Helpers'
 import { expandedGroupsAtom, groupWithTracksAtom } from './TableAtoms'
-import { Column } from '@tanstack/react-table'
-import { ArrowDownIcon, ArrowsUpDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline'
 
 const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t)
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1)
+const easeInOutQuint = (t: number) => (t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t)
 
 export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
    const scrollingRef = useRef<number>()
@@ -25,7 +27,7 @@ export const useSmoothScroll = (parentRef: RefObject<HTMLDivElement>) => {
             if (scrollingRef.current !== startTime) return
             const now = Date.now()
             const elapsed = now - startTime
-            const progress = easeInOutCubic(Math.min(elapsed / duration, 1))
+            const progress = easeInOutQuint(Math.min(elapsed / duration, 1))
             const interpolated = start + (offset - start) * progress
 
             if (elapsed < duration) {
@@ -162,4 +164,56 @@ export const useSortOnClick = (column: Column<any, any>) => {
       }
    })()
    return { onClick, icon }
+}
+
+// returns a function to set the refs for the virtualizer and table.
+export const useScrollToSelectedSingle = <T,>(
+   rows: T[],
+   getTrackId: (element: T) => string,
+   getRowId: (row: T) => string
+) => {
+   const virtualRef = useRef<Virtualizer<any, Element>>(null) as React.MutableRefObject<Virtualizer<any, Element>>
+   const tableRef = useRef<Table<T>>(null) as React.MutableRefObject<Table<T>>
+
+   const store = useStore()
+   useEffect(() => {
+      return store.sub(selectedTrackAtom, () => {
+         const selectedTrack = store.get(selectedTrackAtom)
+         const table = tableRef.current
+         const virtual = virtualRef.current
+         if (selectedTrack && virtual && table) {
+            const maybeTrack = rows.find(t => getTrackId(t) === selectedTrack.trackId)
+            if (maybeTrack) {
+               const row = table.getRow(getRowId(maybeTrack))
+               if (row) {
+                  virtualRef.current.scrollToIndex(row.index, { align: 'center' })
+               }
+            }
+         }
+      })
+   }, [store, virtualRef, tableRef])
+
+   const sync = useCallback(
+      (virtualizer: Virtualizer<any, Element>, table: Table<T>) => {
+         virtualRef.current = virtualizer
+         tableRef.current = table
+      },
+      [virtualRef, tableRef]
+   )
+
+   return sync
+}
+
+export const useSyncNowPlaying = (ids: string[]) => {
+   const store = useStore()
+   const setNowPlaying = useSetAtom(nowPlayingEnabledAtom)
+
+   useEffect(() => {
+      store.sub(nowPlayingTrackIdAtom, () => {
+         const nowPlayingTrackId = store.get(nowPlayingTrackIdAtom)
+         if (nowPlayingTrackId) {
+            setNowPlaying(ids.includes(nowPlayingTrackId))
+         }
+      })
+   }, [ids.join(',')])
 }

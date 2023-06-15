@@ -317,10 +317,11 @@ const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
    useHotkeys(['alt+k'], () => setOption('both'))
    useHotkeys(['alt+l'], () => setOption('comments'))
 
-   const commonClass = 'muse-scrollbar h-full overflow-y-auto'
+   const commonClass = 'h-full'
    return options == 'both' ? (
       <div className='flex h-full gap-1'>
          <div className={cn(commonClass, 'w-1/2')}>{trackSection}</div>
+         <Separator orientation='vertical' />
          <div className={cn(commonClass, 'w-1/2')}>{commentSection}</div>
       </div>
    ) : (
@@ -339,15 +340,13 @@ const TrackSectionTable = ({ review: { reviewId, entityId, entityType } }: Detai
    )
    const isLoading = entityType === 'Album' ? isAlbumLoading : isPlaylistLoading
 
-   return (
-      <div className='relative flex w-full'>
-         {isLoading ? (
-            <HeroLoading />
-         ) : entityType === 'Playlist' ? (
-            <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
-         ) : (
-            <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
-         )}
+   return isLoading ? (
+      <div className='relative flex h-full w-full'>
+         <HeroLoading />
       </div>
+   ) : entityType === 'Playlist' ? (
+      <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
+   ) : (
+      <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
    )
 }
