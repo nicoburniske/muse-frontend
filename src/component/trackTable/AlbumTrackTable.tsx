@@ -15,6 +15,7 @@ import { TableCell, TableHead } from '@/lib/component/Table'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { useReviewOverviewAtom } from '@/state/useReviewOverviewAtom'
+import { usePrefetchLikes } from '@/state/useTrackLikeQuery'
 import { cn, msToTimeStr } from '@/util/Utils'
 
 import { useScrollToSelectedSingle, useSortOnClick, useSyncNowPlaying } from './TableHooks'
@@ -29,7 +30,10 @@ export const AlbumTrackTable = ({ reviewId, tracks }: AlbumTrackTableProps) => {
    const columns = makeColumns(reviewId)
    const getTrackId = useCallback((track: DetailedTrackFragment) => track.id, [])
    const sync = useScrollToSelectedSingle(tracks, getTrackId, getTrackId)
-   useSyncNowPlaying(tracks.map(t => t.id))
+
+   const trackIds = tracks.map(t => t.id)
+   useSyncNowPlaying(trackIds)
+   usePrefetchLikes(trackIds)
 
    return (
       <TrackTableAbstract

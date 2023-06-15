@@ -16,6 +16,7 @@ import { TableCell, TableHead } from '@/lib/component/Table'
 import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { useReviewOverviewAtom } from '@/state/useReviewOverviewAtom'
+import { usePrefetchLikes } from '@/state/useTrackLikeQuery'
 import { cn, userDisplayNameOrId } from '@/util/Utils'
 
 import { useScrollToSelectedSingle, useSortOnClick, useSyncNowPlaying } from './TableHooks'
@@ -37,7 +38,9 @@ export const PlaylistTrackTable = ({ reviewId, tracks }: PlaylistTrackTableProps
 
    const sync = useScrollToSelectedSingle(tracks, getTrackId, getRowId)
 
-   useSyncNowPlaying(tracks.map(t => t.track.id))
+   const trackIds = tracks.map(t => t.track.id)
+   useSyncNowPlaying(trackIds)
+   usePrefetchLikes(trackIds)
 
    return (
       <TrackTableAbstract columns={columns} data={tracks} getRowId={getRowId} renderRow={MemoTrackRow} sync={sync} />
@@ -53,7 +56,9 @@ export const PlaylistTrackTableViewOnly = ({ tracks }: { tracks: DetailedPlaylis
 
    const sync = useScrollToSelectedSingle(tracks, getTrackId, getRowId)
 
-   useSyncNowPlaying(tracks.map(t => t.track.id))
+   const trackIds = tracks.map(t => t.track.id)
+   useSyncNowPlaying(trackIds)
+   usePrefetchLikes(trackIds)
 
    return (
       <TrackTableAbstract

@@ -209,7 +209,7 @@ export const useSyncNowPlaying = (ids: string[]) => {
    const setNowPlaying = useSetAtom(nowPlayingEnabledAtom)
 
    useEffect(() => {
-      store.sub(nowPlayingTrackIdAtom, () => {
+      return store.sub(nowPlayingTrackIdAtom, () => {
          const nowPlayingTrackId = store.get(nowPlayingTrackIdAtom)
          if (nowPlayingTrackId) {
             setNowPlaying(ids.includes(nowPlayingTrackId))
