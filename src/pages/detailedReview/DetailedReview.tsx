@@ -319,11 +319,10 @@ const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
 
    const commonClass = 'h-full'
    return options == 'both' ? (
-      <div className='flex h-full gap-1'>
-         <div className={cn(commonClass, 'w-1/2')}>{trackSection}</div>
-         <Separator orientation='vertical' />
-         <div className={cn(commonClass, 'w-1/2')}>{commentSection}</div>
-      </div>
+      <Split className='flex h-full gap-1' sizes={[50, 50]} direction='horizontal'>
+         {trackSection}
+         {commentSection}
+      </Split>
    ) : (
       <div className={commonClass}>{options == 'tracks' ? trackSection : commentSection}</div>
    )
