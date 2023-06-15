@@ -296,8 +296,6 @@ export type ReviewAndEntity = ReviewOverview & {
 
 const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
    const [options, setOption] = useAtom(renderOptionAtom)
-   const trackSection = <TrackSectionTable review={review} />
-   const commentSection = <ReviewCommentSection reviewId={review.reviewId} />
    const setSelectedTrack = useSetAtom(selectedTrackAtom)
 
    // both cannot be selected on mobile.
@@ -317,14 +315,16 @@ const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
    useHotkeys(['alt+k'], () => setOption('both'))
    useHotkeys(['alt+l'], () => setOption('comments'))
 
-   const commonClass = 'h-full'
+   const trackSection = <TrackSectionTable review={review} />
+   const commentSection = <ReviewCommentSection reviewId={review.reviewId} />
+
    return options == 'both' ? (
       <Split className='flex h-full gap-1' sizes={[50, 50]} direction='horizontal'>
          {trackSection}
          {commentSection}
       </Split>
    ) : (
-      <div className={commonClass}>{options == 'tracks' ? trackSection : commentSection}</div>
+      <div className={'h-full'}>{options == 'tracks' ? trackSection : commentSection}</div>
    )
 }
 
@@ -339,13 +339,18 @@ const TrackSectionTable = ({ review: { reviewId, entityId, entityType } }: Detai
    )
    const isLoading = entityType === 'Album' ? isAlbumLoading : isPlaylistLoading
 
-   return isLoading ? (
-      <div className='relative flex h-full w-full'>
-         <HeroLoading />
+   return (
+      // Need to wrap in a div so that Split.js can have reference to same dom node.
+      <div>
+         {isLoading ? (
+            <div className='relative h-full w-full'>
+               <HeroLoading />
+            </div>
+         ) : entityType === 'Playlist' ? (
+            <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
+         ) : (
+            <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
+         )}
       </div>
-   ) : entityType === 'Playlist' ? (
-      <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
-   ) : (
-      <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
    )
 }
