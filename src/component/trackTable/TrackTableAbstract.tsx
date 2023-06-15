@@ -71,7 +71,10 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
    return (
       <ContextMenu>
          <ContextMenuTrigger asChild>
-            <div ref={parentRef} className='muse-scrollbar h-full w-full overflow-y-auto'>
+            <div
+               ref={parentRef}
+               className='muse-scrollbar h-full w-full overflow-y-auto animate-in fade-in duration-300'
+            >
                <div
                   className='muse-tracks w-full'
                   style={{
