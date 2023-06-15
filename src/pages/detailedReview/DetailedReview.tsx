@@ -320,11 +320,14 @@ const DetailedReviewBody = ({ review }: DetailedReviewBodyProps) => {
 
    return options == 'both' ? (
       <Split className='flex h-full gap-1' sizes={[50, 50]} direction='horizontal'>
-         {trackSection}
+         {/* Need to wrap in a div so that Split.js can have reference to same dom node. */}
+         <div>{trackSection}</div>
          {commentSection}
       </Split>
+   ) : options == 'tracks' ? (
+      trackSection
    ) : (
-      <div className={'h-full'}>{options == 'tracks' ? trackSection : commentSection}</div>
+      commentSection
    )
 }
 
@@ -339,18 +342,13 @@ const TrackSectionTable = ({ review: { reviewId, entityId, entityType } }: Detai
    )
    const isLoading = entityType === 'Album' ? isAlbumLoading : isPlaylistLoading
 
-   return (
-      // Need to wrap in a div so that Split.js can have reference to same dom node.
-      <div>
-         {isLoading ? (
-            <div className='relative h-full w-full'>
-               <HeroLoading />
-            </div>
-         ) : entityType === 'Playlist' ? (
-            <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
-         ) : (
-            <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
-         )}
+   return isLoading ? (
+      <div className='relative h-full w-full'>
+         <HeroLoading />
       </div>
+   ) : entityType === 'Playlist' ? (
+      <PlaylistTrackTable tracks={playlist?.getPlaylist?.tracks ?? []} reviewId={reviewId} />
+   ) : (
+      <AlbumTrackTable tracks={album?.getAlbum?.tracks ?? []} reviewId={reviewId} />
    )
 }
