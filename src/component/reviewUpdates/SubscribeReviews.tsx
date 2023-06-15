@@ -1,4 +1,3 @@
-import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { useDeepCompareMemoize } from '@/lib/hook/useDeepCompareMemoize'
 import { useCurrentUserId } from '@/state/CurrentUser'

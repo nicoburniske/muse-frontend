@@ -36,7 +36,7 @@ import { useSetCurrentReview } from '@/state/CurrentReviewAtom'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useDetailedReviewCacheQuery } from '@/state/useDetailedReviewCacheQuery'
-import { allEntities, cn, findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
+import { allEntities, findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 import { useOpenReviewTour, useOpenReviewTourFirstTime } from './DetailedReviewTour'
 

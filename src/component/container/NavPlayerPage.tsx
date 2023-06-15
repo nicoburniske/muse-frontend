@@ -6,6 +6,8 @@ import toast from 'react-hot-toast'
 import { Outlet } from 'react-router-dom'
 
 import { CommandMenu } from '@/component/command/Command'
+import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
+import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
 import { EditReviewModal } from '@/component/editReview/EditReview'
 import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
@@ -23,8 +25,6 @@ import useAccessTokenQuery from '@/state/useAccessTokenQuery'
 import { useThemeValue } from '@/state/UserPreferences'
 
 import { SideNavBar } from './SideNavBar'
-import { CreateReviewModal } from '../createReview/CreateReviewModal'
-import { CommentFormModal } from '../commentForm/CommentFormModal'
 
 export const NavPlayerPageOutlet = () => {
    return (
