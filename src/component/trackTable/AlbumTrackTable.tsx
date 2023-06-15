@@ -171,7 +171,6 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedTrackFragment>[] => [
          )
       },
    },
-   // Add fake row so that the options button is aligned with the other rows.
    {
       id: 'Comment Button',
       header: row => <TableHead id={row.header.id}></TableHead>,
@@ -186,7 +185,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedTrackFragment>[] => [
          if (canComment) {
             return (
                <TableCell key={cell.id}>
-                  <Button variant='ghost' size='square' onClick={showCommentModal}>
+                  <Button variant='ghost' size='square' onClick={showCommentModal} className='transition-none'>
                      <ChatBubbleLeftIcon className='h-5 w-5' />
                   </Button>
                </TableCell>
@@ -196,6 +195,8 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedTrackFragment>[] => [
          }
       },
    },
+
+   // Add fake row so that the options button is aligned with the other rows.
    {
       id: 'Options',
       header: row => <TableHead id={row.header.id}></TableHead>,

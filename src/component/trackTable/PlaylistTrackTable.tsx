@@ -250,7 +250,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
          if (canComment) {
             return (
                <TableCell key={cell.id}>
-                  <Button variant='ghost' size='square' onClick={showCommentModal}>
+                  <Button variant='ghost' size='square' onClick={showCommentModal} className='transition-none'>
                      <ChatBubbleLeftIcon className='h-5 w-5' />
                   </Button>
                </TableCell>

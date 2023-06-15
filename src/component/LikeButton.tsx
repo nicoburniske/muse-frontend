@@ -58,7 +58,7 @@ export const LikeButton = ({ trackId, className = '', svgStyle, options }: LikeB
 }
 
 export const LikeButtonTooltip = ({ trackId, className = '', svgStyle, options }: LikeButtonProps) => {
-   const isLiked = useTrackLikeQuery(trackId).data
+   const isLiked = useTrackLikeQuery(trackId, options).data
    const updateLike = useUpdateTrackLike(trackId)
 
    const { mutate: likeTrack } = useSaveTracksMutation({
