@@ -91,11 +91,11 @@ const CreateReview = () => {
             />
             <div className='flex w-full min-w-0 flex-col justify-between gap-2'>
                <div className='flex w-full gap-2'>
-                  <h2 className='truncate text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
-                  <Badge>{entityType} </Badge>
+                  <h2 className='line-clamp-2 text-xl font-semibold leading-none tracking-tight'>{entityName}</h2>
                </div>
 
                <div className='flex gap-2 self-center'>
+                  <Badge>{entityType} </Badge>
                   <ListenOnSpotifyLogo entityId={entityId} entityType={entityType} />
                </div>
                <div>
