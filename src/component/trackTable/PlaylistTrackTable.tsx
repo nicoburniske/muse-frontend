@@ -28,7 +28,6 @@ export type PlaylistTrackTableProps = {
 
 export const PlaylistTrackTable = ({ reviewId, tracks }: PlaylistTrackTableProps) => {
    const columns = makeColumns(reviewId)
-   console.log('COLS', columns.length, commonColumns.length)
 
    const getRowId = useCallback(
       (track: DetailedPlaylistTrackFragment) => track.track.id + track.addedAt + track.addedBy.id,
