@@ -16,7 +16,6 @@ import {
 } from '@/graphql/generated/schema'
 import { Button } from '@/lib/component/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/lib/component/Card'
-import { MuseTransition } from '@/lib/component/MuseTransition'
 import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/lib/component/Sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
@@ -75,16 +74,14 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                         <h2 id='gallery-heading' className='sr-only'>
                            Recently viewed
                         </h2>
-                        <MuseTransition option={'Simple'} duration='duration-300'>
-                           <ul
-                              role='list'
-                              className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
-                           >
-                              {playlists.map(p => (
-                                 <BrowseCard key={p.id} playlist={p} />
-                              ))}
-                           </ul>
-                        </MuseTransition>
+                        <ul
+                           role='list'
+                           className='grid grid-cols-3 gap-x-2 gap-y-8 animate-in fade-in duration-300 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                        >
+                           {playlists.map(p => (
+                              <BrowseCard key={p.id} playlist={p} />
+                           ))}
+                        </ul>
                      </section>
                   </div>
                </main>
