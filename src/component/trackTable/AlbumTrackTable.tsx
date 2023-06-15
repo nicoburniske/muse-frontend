@@ -121,16 +121,24 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedTrackFragment>[] => [
    },
    {
       id: 'Duration',
-      header: row => <TableHead id={row.header.id}>Duration</TableHead>,
+      header: row => (
+         <TableHead id={row.header.id} className='hidden md:table-cell'>
+            Duration
+         </TableHead>
+      ),
       cell: ({ row, cell }) => {
          const track = row.original
          const { minutes, seconds } = msToTimeStr(track.durationMs)
-         return <TableCell key={cell.id}>{`${minutes}:${seconds}`}</TableCell>
+         return <TableCell key={cell.id} className='hidden md:table-cell'>{`${minutes}:${seconds}`}</TableCell>
       },
    },
    {
       id: 'Popularity',
-      header: row => <TableHead id={row.header.id}>Popularity</TableHead>,
+      header: row => (
+         <TableHead id={row.header.id} className='hidden md:table-cell'>
+            Popularity
+         </TableHead>
+      ),
       cell: ({ row, cell }) => {
          const popularity = row.original.popularity
          const color = (() => {
@@ -147,7 +155,7 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedTrackFragment>[] => [
             }
          })()
          return (
-            <TableCell key={cell.id}>
+            <TableCell key={cell.id} className='hidden md:table-cell'>
                <div className='flex flex-row items-center space-x-0.5'>
                   <div>{popularity}</div>
                   <FireIcon className={cn('h-6 w-6', color)} />
