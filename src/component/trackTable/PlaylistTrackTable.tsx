@@ -71,7 +71,7 @@ export const PlaylistTrackTableViewOnly = ({ tracks }: { tracks: DetailedPlaylis
    )
 }
 
-const TrackRow: RenderRow<DetailedPlaylistTrackFragment> = ({ row, virtual, measureElement }) => {
+const TrackRow: RenderRow<DetailedPlaylistTrackFragment> = ({ row, virtual }) => {
    const trackId = row.original.track.id
    const playlistId = row.original.playlist.id
    const styles = useTrackColor(trackId)
@@ -101,7 +101,6 @@ const TrackRow: RenderRow<DetailedPlaylistTrackFragment> = ({ row, virtual, meas
          data-index={virtual.index}
          ref={ref => {
             trackRef.current = ref
-            // measureElement(ref)
          }}
          className={cn('group max-w-full select-none border-b', styles)}
          onContextMenu={showContextMenu}

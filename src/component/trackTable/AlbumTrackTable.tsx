@@ -46,7 +46,7 @@ export const AlbumTrackTable = ({ reviewId, tracks }: AlbumTrackTableProps) => {
    )
 }
 
-const TrackRow: RenderRow<DetailedTrackFragment> = ({ row, virtual, measureElement }) => {
+const TrackRow: RenderRow<DetailedTrackFragment> = ({ row, virtual }) => {
    const trackId = row.original.id
    const albumId = row.original.album?.id ?? ''
    const styles = useTrackColor(trackId)
@@ -76,7 +76,6 @@ const TrackRow: RenderRow<DetailedTrackFragment> = ({ row, virtual, measureEleme
          data-index={virtual.index}
          ref={ref => {
             trackRef.current = ref
-            measureElement(ref)
          }}
          className={cn('group max-w-full select-none border-b', styles)}
          onContextMenu={showContextMenu}
