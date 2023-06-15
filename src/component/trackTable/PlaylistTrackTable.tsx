@@ -101,7 +101,7 @@ const TrackRow: RenderRow<DetailedPlaylistTrackFragment> = ({ row, virtual, meas
          data-index={virtual.index}
          ref={ref => {
             trackRef.current = ref
-            measureElement(ref)
+            // measureElement(ref)
          }}
          className={cn('group max-w-full select-none border-b', styles)}
          onContextMenu={showContextMenu}
