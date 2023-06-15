@@ -28,7 +28,6 @@ export type TrackTableAbstractProps<T> = {
 export type RenderRow<T> = React.ComponentType<{
    row: Row<T>
    virtual: VirtualItem
-   measureElement: Virtualizer<any, Element>['measureElement']
 }>
 
 export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
@@ -73,7 +72,7 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
          <ContextMenuTrigger asChild>
             <div
                ref={parentRef}
-               className='muse-scrollbar h-full w-full overflow-y-auto animate-in fade-in duration-300'
+               className='muse-scrollbar h-full w-full overflow-y-auto overscroll-none animate-in fade-in duration-300'
             >
                <div
                   className='muse-tracks w-full'
@@ -103,14 +102,7 @@ export const TrackTableAbstract = <T,>(props: TrackTableAbstractProps<T>) => {
                         )}
                         {virtualRows.map(virtual => {
                            const row = rows[virtual.index]
-                           return (
-                              <props.renderRow
-                                 key={row.id + virtual.index}
-                                 row={row}
-                                 virtual={virtual}
-                                 measureElement={rowVirtualizer.measureElement}
-                              />
-                           )
+                           return <props.renderRow key={row.id + virtual.index} row={row} virtual={virtual} />
                         })}
                         {paddingBottom > 0 && (
                            <tr>
