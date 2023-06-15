@@ -7,7 +7,7 @@ import { Badge } from '@/lib/component/Badge'
 import { Button } from '@/lib/component/Button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/lib/component/Card'
 import { Tooltip, TooltipContent, TooltipProvider } from '@/lib/component/Tooltip'
-import { findFirstImage, nonNullable } from '@/util/Utils'
+import { findFirstImage, nonNullable, userDisplayNameOrId } from '@/util/Utils'
 
 interface BrowseCardProps {
    review: ReviewDetailsFragment
@@ -23,7 +23,7 @@ export function BrowseCard({ review, onClick }: BrowseCardProps) {
    const nav = useNavigate()
    const linkToReviewPage = () => nav(`/app/reviews/${review.id}`)
    const linkToProfile = () => nav(`/app/user/${review.creator.id}`)
-   const creatorName = review?.creator?.spotifyProfile?.displayName ?? 'Unknown'
+   const creatorName = userDisplayNameOrId(review.creator)
 
    return (
       <Card

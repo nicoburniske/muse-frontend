@@ -1,12 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import {
-   UpdateCommentInput,
-   useDetailedReviewCommentsQuery,
-   useUpdateCommentMutation,
-} from '@/graphql/generated/schema'
+import { UpdateCommentInput, useUpdateCommentMutation } from '@/graphql/generated/schema'
 import { Prettify } from '@/util/Types'
 
 import { useCommentModal } from './CommentFormModal'

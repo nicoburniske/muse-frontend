@@ -5,7 +5,7 @@ import { cn } from '@/util/Utils'
 
 // Only change styling if derived values are different.
 
-const trackAnimation = ''
+const trackAnimation = 'transition-colors'
 export const useTrackColor = (trackId: string) =>
    useDerivedAtomValue(
       get => {
@@ -20,7 +20,7 @@ export const useTrackColor = (trackId: string) =>
             return cn(
                trackAnimation,
                'bg-background text-foreground',
-               'hover:bg-accent hover:text-accent-foreground',
+               'hover:bg-muted/50 hover:text-foreground',
                'active:text-accent-foreground active:bg-accent/90'
             )
          }

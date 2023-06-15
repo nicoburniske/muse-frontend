@@ -6,12 +6,11 @@ import { useParams } from 'react-router-dom'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { UserAvatar } from '@/component/avatar/UserAvatar'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
 import { Alert, AlertTitle } from '@/lib/component/Alert'
 import Hero from '@/lib/component/Hero'
 import { HeroLoading } from '@/lib/component/HeroLoading'
-import { MuseTransition } from '@/lib/component/MuseTransition'
 import { BrowseCard } from '@/pages/myReviews/BrowseCard'
 import { NotFound } from '@/pages/NotFound'
 
@@ -84,7 +83,6 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
                      <div className='mt-20 w-full px-4 text-center'>
                         <div className='text-center'>
                            <h3 className='mb-2 text-xl font-semibold leading-normal'>{displayName ?? userId}</h3>
-                           <div className='mb-2 mt-0 text-sm font-bold leading-normal'>@{userId}</div>
                         </div>
                         <div className='flex justify-center py-4 pt-8 lg:pt-4'>
                            <div className='mr-4 p-3 text-center'>
@@ -104,22 +102,22 @@ const UserProfileCard = ({ profile }: { profile: ProfileAndReviewsQuery }) => {
             </div>
 
             <main className='w-full '>
-               <section className='mx-auto mt-8 max-w-7xl' aria-labelledby='review-gallery'>
-                  <MuseTransition option={'Simple'} duration='duration-300'>
-                     <ul
-                        role='list'
-                        className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
-                     >
-                        {reviews.map(review => (
-                           <BrowseCard key={review.id} review={review} onClick={() => setSelectedReview(review.id)} />
-                        ))}
-                     </ul>
-                  </MuseTransition>
+               <section className='mx-auto mt-8 max-w-7xl ' aria-labelledby='review-gallery'>
+                  <ul
+                     role='list'
+                     className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                  >
+                     {reviews.map(review => (
+                        <BrowseCard
+                           key={review.id}
+                           review={review}
+                           onClick={() => setSelectedReview(review.id, review.creator.id)}
+                        />
+                     ))}
+                  </ul>
                </section>
             </main>
          </div>
-
-         <SelectedReviewModal userId={userId} />
       </>
    )
 }

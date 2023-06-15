@@ -1,36 +1,35 @@
 import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import DataLoader from 'dataloader'
 import { atom, useAtomValue } from 'jotai'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { SpotifyWebApi } from 'spotify-web-api-ts/types'
 
 import { spotifyClientAtom } from '@/component/sdk/ClientAtoms'
-
-const MAX_PER_QUERY = 50
 
 const DataLoaderAtom = atom(get => get(spotifyClientAtom).then(createDataLoader))
 
 const createDataLoader = (spotifyClient: SpotifyWebApi) =>
    new DataLoader<string, boolean>(
       async (trackIds: readonly string[]) => spotifyClient.library.areTracksSaved(trackIds as string[]),
-      { maxBatchSize: MAX_PER_QUERY, cache: false }
+      { maxBatchSize: 50, cache: false }
    )
 
 export const usePrefetchLikes = (trackIds: string[]) => {
    const queryClient = useQueryClient()
-   const createQuery = useCreateLikeFetcher()
+   const createQuery = useCreateLikeQuery()
+   const allIds = trackIds.join('-')
 
    useEffect(() => {
       const needToPrefetch = trackIds.filter(trackId => {
          const cacheEntry = queryClient.getQueryCache().find(useTrackLikeQueryKey(trackId))
          return cacheEntry === undefined
       })
-      needToPrefetch.forEach(trackId => queryClient.fetchQuery(createQuery(trackId)))
-   }, [trackIds, queryClient, createQuery])
+      needToPrefetch.forEach(trackId => queryClient.prefetchQuery(createQuery(trackId)))
+   }, [allIds, queryClient, createQuery])
 }
 
 const useTrackLikeQueryKey = (trackId: string) => ['AreTracksSaved', trackId]
-const useCreateLikeFetcher = () => {
+const useCreateLikeQuery = () => {
    const dataLoader = useAtomValue(DataLoaderAtom)
    return useCallback(
       (trackId: string) => ({
@@ -40,31 +39,21 @@ const useCreateLikeFetcher = () => {
       [dataLoader]
    )
 }
+
 export const useTrackLikeQuery = (trackId: string, options?: UseQueryOptions<boolean, unknown, boolean, string[]>) => {
+   const query = useCreateLikeQuery()(trackId)
+
+   return useQuery({
+      ...query,
+      ...options,
+   })
+}
+
+export const useUpdateTrackLike = (trackId: string) => {
    const queryClient = useQueryClient()
-   const query = useCreateLikeFetcher()
-
-   const queryKey = useMemo(() => useTrackLikeQueryKey(trackId), [trackId])
-
-   const invalidate = useCallback(() => {
-      queryClient.invalidateQueries(queryKey)
-   }, [queryClient, queryKey])
-
-   const updateLike = useCallback(
-      (like: boolean) => {
-         invalidate()
-         queryClient.setQueryData(queryKey, like)
-      },
-      [invalidate, queryClient, queryKey]
-   )
-
-   return {
-      query: useQuery({
-         ...query(trackId),
-         ...options,
-      }),
-      invalidate,
-      updateLike,
+   const invalidate = () => queryClient.invalidateQueries(useTrackLikeQueryKey(trackId))
+   return (like: boolean) => {
+      invalidate()
+      queryClient.setQueryData(useTrackLikeQueryKey(trackId), like)
    }
 }
-useTrackLikeQuery.getKey = useTrackLikeQueryKey

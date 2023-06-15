@@ -4,7 +4,7 @@
 
 import { atom } from 'jotai'
 
-import { EitherTrack } from '@/component/track/EitherTrack'
+import { EitherTrackMemo } from '@/component/track/EitherTrack'
 import { DetailedTrackFragment } from '@/graphql/generated/schema'
 import { searchLoweredAtom } from '@/state/Atoms'
 import { nonNullable } from '@/util/Utils'
@@ -111,7 +111,7 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
       const { reviewId } = overview
       const children = tracks.map((t, i) => {
          return {
-            element: <EitherTrack track={t} index={i} reviewId={overview.reviewId} />,
+            element: <EitherTrackMemo track={t} index={i} reviewId={overview.reviewId} />,
             size: 60,
          }
       })
@@ -120,41 +120,30 @@ const renderedGroupsAtom = atom<GroupRendered[]>(get => {
 })
 renderedGroupsAtom.debugLabel = 'renderedGroupsAtom'
 
-export const indexToJsxAtom = atom<React.ReactNode[]>(get => {
-   const expandedGroups = get(expandedGroupsAtom)
-   const showHeader = get(showHeadersAtom)
-   return get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
-      if (expandedGroups.includes(reviewId)) {
-         const childElements = children.map(c => c.element)
-         if (showHeader) {
-            return [header.element, ...childElements]
+function mapGroups<T>(func: (elem: SizedElement) => T) {
+   return atom<T[]>(get => {
+      const expandedGroups = get(expandedGroupsAtom)
+      const showHeader = get(showHeadersAtom)
+      return get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
+         if (expandedGroups.includes(reviewId)) {
+            const childElements = children.map(func)
+            if (showHeader) {
+               return [func(header), ...childElements]
+            } else {
+               return childElements
+            }
          } else {
-            return childElements
+            return showHeader ? [func(header)] : []
          }
-      } else {
-         return showHeader ? [header.element] : []
-      }
+      })
    })
-})
+}
+
+export const indexToJsxAtom = mapGroups(get => get.element)
 
 // Used for Table virtualizer size estimation.
 // Headers have different sizes than tracks.
-export const indexToSizeAtom = atom<number[]>(get => {
-   const expandedGroups = get(expandedGroupsAtom)
-   const showHeader = get(showHeadersAtom)
-   return get(renderedGroupsAtom).flatMap(({ reviewId, header, children }) => {
-      if (expandedGroups.includes(reviewId)) {
-         const childElements = children.map(c => c.size)
-         if (showHeader) {
-            return [header.size, ...childElements]
-         } else {
-            return childElements
-         }
-      } else {
-         return showHeader ? [header.size] : []
-      }
-   })
-})
+export const indexToSizeAtom = mapGroups(get => get.size)
 
 // Used for sticky headers.
 // It's not my fault for loops are fast in javascript.

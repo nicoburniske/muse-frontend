@@ -1,5 +1,5 @@
 import { defaultRangeExtractor, Range, useVirtualizer, VirtualItem } from '@tanstack/react-virtual'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { CSSProperties, useCallback, useEffect, useRef } from 'react'
 
 import { TrackContextMenuContent } from '@/component/track/TrackContextMenu'
@@ -22,7 +22,7 @@ import {
    setResultsAtom,
    tracksAtom,
 } from './TableAtoms'
-import { useKeepMountedRangeExtractor, useScrollToSelected, useSmoothScroll } from './TableHooks'
+import { useScrollToSelected, useSmoothScroll } from './TableHooks'
 
 interface GroupedTrackTableProps {
    rootReview: string
@@ -64,39 +64,38 @@ export const GroupedTrackTableWrapper = ({ rootReview, results }: GroupedTrackTa
 export const GroupedTrackTable = () => {
    const parentRef = useRef<HTMLDivElement>(null)
 
-   const [getHeaderIndices] = useTransientAtom(headerIndicesAtom)
-
+   const headerIndices = useAtomValue(headerIndicesAtom)
    const activeStickyIndexRef = useRef<number>()
-   const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [])
-   const isSticky = useCallback((index: number) => getHeaderIndices().includes(index), [getHeaderIndices])
+   const isActiveSticky = useCallback((index: number) => activeStickyIndexRef.current === index, [activeStickyIndexRef])
+   const isSticky = useCallback((index: number) => headerIndices.includes(index), [headerIndices])
 
    //Incorporate sticky headers into the range extractor.
    //There can be no headers so we account for undefined.
    const rangeExtractor = useCallback(
       (range: Range) => {
-         const newActiveSticky = getHeaderIndices().find(index => range.startIndex >= index)
+         const newActiveSticky = headerIndices.find(index => range.startIndex >= index)
          activeStickyIndexRef.current = newActiveSticky
          if (newActiveSticky !== undefined) {
             const next = new Set([newActiveSticky, ...defaultRangeExtractor(range)])
-            const sorted = [...next].sort((a, b) => a - b)
-            return sorted
+            return [...next].sort((a, b) => a - b)
          } else {
             return defaultRangeExtractor(range)
          }
       },
-      [getHeaderIndices]
+      [headerIndices]
    )
 
    const scrollToFn = useSmoothScroll(parentRef)
-   const [getIndexToSize] = useTransientAtom(indexToSizeAtom)
+   const indexToSize = useAtomValue(indexToSizeAtom)
    const rowVirtualizer = useVirtualizer({
-      overscan: 40,
-      count: getIndexToSize().length,
-      estimateSize: index => getIndexToSize()[index],
+      overscan: 20,
+      count: indexToSize.length,
+      estimateSize: useCallback(index => indexToSize[index], [indexToSize]),
       getScrollElement: () => parentRef.current,
       scrollToFn,
-      rangeExtractor,
+      // rangeExtractor,
    })
+   useScrollToSelected(rowVirtualizer)
 
    // Ensure new sizes are measured on re-order.
    // Derived atom ensures that values must be different for re-render.
@@ -118,12 +117,10 @@ export const GroupedTrackTable = () => {
    // Ensure that expanded group change causes re-render.
    useDerivedAtomValue(get => get(expandedGroupsAtom).join(','), [])
 
-   useScrollToSelected(rowVirtualizer)
-
    const indexToStyle = useCallback(
       (virtualRow: VirtualItem) => {
          return {
-            ...(isSticky(virtualRow.index) ? { zIndex: 1 } : {}),
+            ...(isSticky(virtualRow.index) ? { zIndex: 1 } : { height: `${virtualRow.size}px` }),
             ...(isActiveSticky(virtualRow.index)
                ? {
                     position: 'sticky',
@@ -135,14 +132,12 @@ export const GroupedTrackTable = () => {
             top: 0,
             left: 0,
             width: '100%',
-            ...(isSticky(virtualRow.index) ? {} : { height: `${virtualRow.size}px` }),
          }
       },
       [isSticky, isActiveSticky]
    )
 
-   const [getRows] = useTransientAtom(indexToJsxAtom)
-   const rows = getRows()
+   const rows = useAtomValue(indexToJsxAtom)
    return (
       <ContextMenu>
          <ContextMenuTrigger asChild>

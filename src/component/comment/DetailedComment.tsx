@@ -31,22 +31,20 @@ import useDoubleClick from '@/lib/hook/useDoubleClick'
 import { useCurrentUserId } from '@/state/CurrentUser'
 import { selectedTrackAtom } from '@/state/SelectedTrackAtom'
 import { useIsCurrentUserCollaborator } from '@/state/useDetailedReviewCacheQuery'
-import { cn, findFirstImage } from '@/util/Utils'
+import { cn, findFirstImage, userDisplayNameOrId } from '@/util/Utils'
 
 import CommentMarkdown from './CommentMarkdown'
 import { useOpenDeleteConfirmation } from './DeleteCommentConfirmation'
 
 export interface DetailedCommentProps {
-   review: ReviewOverview
+   reviewId: string
    comment: DetailedCommentFragment
 }
 
-export default function DetailedComment({ review, comment: detailedComment }: DetailedCommentProps) {
-   const reviewId = review.reviewId
-
+export default function DetailedComment({ reviewId, comment: detailedComment }: DetailedCommentProps) {
    const avatar = detailedComment?.commenter?.spotifyProfile?.images?.at(-1) ?? ''
    const comment = detailedComment.deleted ? '** deleted **' : detailedComment?.comment ?? ''
-   const commenterName = detailedComment.commenter?.spotifyProfile?.displayName ?? ''
+   const commenterName = userDisplayNameOrId(detailedComment.commenter)
    const commenterId = detailedComment.commenter?.id ?? ''
    const createdAt = (() => {
       const date = new Date(detailedComment?.updatedAt)
@@ -167,15 +165,14 @@ export default function DetailedComment({ review, comment: detailedComment }: De
                      </div>
                      <div className='min-w-0 flex-1'>
                         <p className='space-x-1 text-sm font-medium text-foreground'>
-                           <a className=''>{commenterName}</a>
+                           <Link to={`/app/user/${commenterId}`} className='hover:underline'>
+                              {commenterName}
+                           </Link>
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
                            <a className='hidden text-xs text-muted-foreground md:inline'>
                               <time dateTime={detailedComment?.updatedAt}>{createdAt}</time>
                            </a>
-                        </p>
-                        <p className='text-xs text-muted-foreground'>
-                           <Link to={`/app/user/${commenterId}`} className='hover:underline'>
-                              @{commenterId}
-                           </Link>
                         </p>
                      </div>
                   </div>

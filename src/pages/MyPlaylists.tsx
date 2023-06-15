@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import {
    MyPlaylistsQuery,
@@ -16,7 +16,6 @@ import {
 } from '@/graphql/generated/schema'
 import { Button } from '@/lib/component/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/lib/component/Card'
-import { MuseTransition } from '@/lib/component/MuseTransition'
 import { SearchInputKbdSuggestion } from '@/lib/component/SearchInputKbdSuggestion'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/lib/component/Sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
@@ -75,23 +74,20 @@ const MyPlaylists = ({ playlists }: { playlists: PlaylistDetailsFragment[] }) =>
                         <h2 id='gallery-heading' className='sr-only'>
                            Recently viewed
                         </h2>
-                        <MuseTransition option={'Simple'} duration='duration-300'>
-                           <ul
-                              role='list'
-                              className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
-                           >
-                              {playlists.map(p => (
-                                 <BrowseCard key={p.id} playlist={p} />
-                              ))}
-                           </ul>
-                        </MuseTransition>
+                        <ul
+                           role='list'
+                           className='grid grid-cols-3 gap-x-2 gap-y-8 animate-in fade-in duration-300 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                        >
+                           {playlists.map(p => (
+                              <BrowseCard key={p.id} playlist={p} />
+                           ))}
+                        </ul>
                      </section>
                   </div>
                </main>
             </div>
          </div>
          <SelectedPlaylist />
-         <CreateReviewModal />
       </>
    )
 }
@@ -261,7 +257,7 @@ const SelectedPlaylistContent = ({ playlist }: { playlist: PlaylistDetailsFragme
    const image = playlist.images.at(0)
 
    return (
-      <SheetContent position='right' size='content'>
+      <SheetContent position='right' size='content' className='overflow-y-auto'>
          <SheetHeader>
             <SheetTitle>
                <span className='sr-only'>Details for {playlist.name} </span>

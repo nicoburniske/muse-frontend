@@ -4,8 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Link, useParams } from 'react-router-dom'
 
 import { MobileNavigation } from '@/component/container/MobileMenu'
-import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
-import { TrackTable } from '@/component/trackTable/TrackTable'
+import { PlaylistTrackTableViewOnly } from '@/component/trackTable/PlaylistTrackTable'
 import { useGetPlaylistQuery } from '@/graphql/generated/schema'
 import { Alert, AlertDescription, AlertTitle } from '@/lib/component/Alert'
 import { Button } from '@/lib/component/Button'
@@ -33,6 +32,7 @@ export const PlaylistPage = () => {
                   </div>
                </Hero>
             }
+            onError={(error, info) => console.error(error, info)}
          >
             <div className='flex grow bg-background'>
                <Suspense fallback={<HeroLoading />}>
@@ -88,12 +88,11 @@ const PlaylistPageContent = ({ playlistId }: { playlistId: string }) => {
                   </Button>
                </div>
             </div>
-            <main className='mx-auto min-h-0 w-full max-w-7xl border'>
-               <TrackTable tracks={playlist.tracks!} />
+            <main className='mx-auto h-full min-h-0 w-full max-w-7xl'>
+               <PlaylistTrackTableViewOnly tracks={playlist.tracks!} />
             </main>
          </div>
 
-         <CreateReviewModal />
          <SelectedPlaylist />
       </>
    )

@@ -1,9 +1,9 @@
-import { ArrowUpOnSquareIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { ArrowUpOnSquareIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
+import { useDeleteReview } from '@/component/deleteReview/DeleteReviewModal'
 import { useEditReview } from '@/component/editReview/EditReview'
 import { ListenOnSpotifyLogoTooltip } from '@/component/ListenOnSpotify'
 import { UserWithAccessLevel } from '@/component/shareReview/UserWithAccessLevel'
@@ -25,11 +25,23 @@ import { cn, findFirstImage, nonNullable } from '@/util/Utils'
 import { useShareReview } from './shareReview/ShareReview'
 
 const { setOpen, setClose, valueAtom: reviewIdAtom, openAtom } = makeModalAtoms<string | null, string>(null)
+const userIdAtom = atom<string | null>(null)
 
-export const useSelectReview = () => ({
-   setSelectedReview: useSetAtom(setOpen),
-   closeSelectedReview: useSetAtom(setClose),
-})
+export const useSelectReview = () => {
+   const open = useSetAtom(setOpen)
+   const setUserId = useSetAtom(userIdAtom)
+
+   return {
+      setSelectedReview: useCallback(
+         (reviewId: string, userId?: string) => {
+            open(reviewId)
+            setUserId(userId ?? null)
+         },
+         [open, setUserId]
+      ),
+      closeSelectedReview: useSetAtom(setClose),
+   }
+}
 
 // We need to subscribe to the review overview in react query cache.
 const useSelectedReview = (userId?: string) => {
@@ -38,12 +50,13 @@ const useSelectedReview = (userId?: string) => {
    return data
 }
 
-export const SelectedReviewModal = ({ userId }: { userId?: string }) => {
+export const SelectedReviewModal = () => {
    const { closeSelectedReview } = useSelectReview()
    // Close review details after going to new page.
    useEffect(() => () => closeSelectedReview(), [closeSelectedReview])
    const [open, setOpen] = useAtom(openAtom)
-   const review = useSelectedReview(userId)
+   const maybeUserId = useAtomValue(userIdAtom)
+   const review = useSelectedReview(maybeUserId ?? undefined)
 
    return review ? (
       <Sheet open={open} onOpenChange={setOpen}>
@@ -80,6 +93,7 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
    const { openShareReview } = useShareReview()
    const { openEditReview } = useEditReview()
+   const openDeleteReview = useDeleteReview()
 
    return (
       <SheetContent position='right' size='content' className='overflow-y-auto'>
@@ -152,7 +166,10 @@ const SidebarContent = ({ review }: { review: ReviewDetailsFragment }) => {
 
          {isEditable && (
             <div className='m-1 flex flex-col'>
-               <DeleteReviewModal reviewId={review.id} />
+               <Button variant='destructive' onClick={() => openDeleteReview(review.id)}>
+                  <TrashIcon className='mr-3 h-5 w-5' aria-hidden='true' />
+                  <span>Delete Review</span>
+               </Button>
             </div>
          )}
       </SheetContent>

@@ -1,0 +1,15 @@
+query getFeed($first: Int, $after: String) {
+   feed(first: $first, after: $after) {
+      pageInfo {
+         hasNextPage
+         startCursor
+         endCursor
+      }
+      edges {
+         cursor
+         node {
+            ...ReviewDetails
+         }
+      }
+   }
+}

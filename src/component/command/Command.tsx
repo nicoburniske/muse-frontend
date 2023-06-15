@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { Artist, SearchType, SimplifiedAlbum, SimplifiedPlaylist } from 'spotify-web-api-ts/types/types/SpotifyObjects'
 
 import { NAV, NavItem } from '@/component/container/NavConstants'
-import { CreateReviewModal, useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
+import { useCreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { useSpotifyIcon } from '@/component/ListenOnSpotify'
 import { useSearchSpotify } from '@/component/sdk/ClientHooks'
 import { useResetSpotifySdk } from '@/component/sdk/PlaybackSDK'
@@ -151,8 +151,6 @@ export const CommandMenu = () => {
    const [search, setSearch] = useCurrentSearch()
    const setPages = useSetAtom(pagesAtom)
    const page = useAtomValue(currentPageAtom)
-
-   const executeAndClose = useExecuteAndClose()
 
    useHotkeys(
       ['meta+k', 'ctrl+k'],
@@ -294,7 +292,6 @@ export const CommandMenu = () => {
                <CommandSeparator />
             </CommandList>
          </CommandDialog>
-         <CreateReviewModal />
       </>
    )
 }

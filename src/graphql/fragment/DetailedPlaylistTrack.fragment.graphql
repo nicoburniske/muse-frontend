@@ -8,5 +8,8 @@ fragment DetailedPlaylistTrack on PlaylistTrack {
    }
    playlist {
       id
+      owner {
+         id
+      }
    }
 }

@@ -6,6 +6,8 @@ import toast from 'react-hot-toast'
 import { Outlet } from 'react-router-dom'
 
 import { CommandMenu } from '@/component/command/Command'
+import { CommentFormModal } from '@/component/commentForm/CommentFormModal'
+import { CreateReviewModal } from '@/component/createReview/CreateReviewModal'
 import { DeleteReviewModal } from '@/component/deleteReview/DeleteReviewModal'
 import { EditReviewModal } from '@/component/editReview/EditReview'
 import { SpotifyPlayerWrapper } from '@/component/player/SpotifyPlayerWrapper'
@@ -90,7 +92,8 @@ const NavPlayerPage = ({ children }: { children: React.ReactNode }) => {
             <div className='muse-player hidden w-full sm:inline'>
                <SpotifyPlayerWrapper />
             </div>
-            {/* TODO: inject user id? */}
+            <CommentFormModal />
+            <CreateReviewModal />
             <SelectedReviewModal />
             <ShareReviewModal />
             <EditReviewModal />

@@ -34,7 +34,6 @@ import { usePlayerActions } from '@/component/sdk/usePlayerActions'
 import { usePlayerState } from '@/component/sdk/usePlayerState'
 import { Button } from '@/lib/component/Button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/lib/component/DropdownMenu'
-import { MuseTransition } from '@/lib/component/MuseTransition'
 import { Slider as LibSlider } from '@/lib/component/Slider'
 import { Toggle } from '@/lib/component/Toggle'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
@@ -49,11 +48,7 @@ import { useTransferPlayback } from './TransferPlayback'
 export function SpotifyPlayerFallback() {
    const exists = useExistsPlaybackState()
    if (exists) {
-      return (
-         <MuseTransition option={'BottomFlyIn'}>
-            <SpotifyPlayer />
-         </MuseTransition>
-      )
+      return <SpotifyPlayer />
    } else {
       return (
          <div className='grid w-full place-items-center rounded border border-accent bg-card text-card-foreground'>
@@ -67,7 +62,7 @@ export function SpotifyPlayerFallback() {
 
 export function SpotifyPlayer() {
    return (
-      <div className='grid h-20 w-full grid-cols-3 justify-between border-t bg-card text-card-foreground md:grid-cols-5'>
+      <div className='grid h-20 w-full grid-cols-3 justify-between border-t bg-card text-card-foreground animate-in slide-in-from-bottom md:grid-cols-5'>
          <NowPlayingItem />
          <div className='col-span-2 flex w-full min-w-0 max-w-md grow flex-col items-end justify-center justify-self-center md:col-span-3 lg:max-w-3xl'>
             <div className='flex w-full flex-row items-center justify-evenly'>

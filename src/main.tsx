@@ -1,5 +1,6 @@
 import './index.css'
 
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { retryExchange } from '@urql/exchange-retry'
 import { createClient as createWSClient } from 'graphql-ws'
 import MuseQueryClientProvider from 'MuseQueryClientProvider'
@@ -74,8 +75,6 @@ const Main = () => {
             <Provider value={urqlClient}>
                <MuseQueryClientProvider useCache={true}>
                   <>
-                     {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-                     {/* <DebugAtomsReduxDevTools /> */}
                      <MuseRoutes />
                      <MuseToaster />
                   </>

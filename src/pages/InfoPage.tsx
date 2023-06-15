@@ -1,17 +1,16 @@
-import { CheckCircleIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
-import { ReactNode, useState } from 'react'
+import { CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/lib/component/Accordion'
 import { Button } from '@/lib/component/Button'
 import { Separator } from '@/lib/component/Seperator'
+import { useIsLoggedIn } from '@/state/useIsLoggedIn'
 import { AppConfig } from '@/util/AppConfig'
 
-import { useCurrentUsername } from './LandingPage'
-
 export function InfoPage() {
-   const isLoggedIn = useCurrentUsername() !== undefined
+   const isLoggedIn = useIsLoggedIn()
 
    return (
       <div className='relative isolate flex h-screen w-full flex-col overflow-y-auto bg-background text-foreground overflow-x-hidden'>

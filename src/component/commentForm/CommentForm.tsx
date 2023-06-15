@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { Textarea } from '@/lib/component/TextArea'
 import { useDerivedAtomValue } from '@/lib/hook/useDerivedAtomValue'
 import { osAtom } from '@/state/Atoms'
-import { cn, nonNullable } from '@/util/Utils'
+import { cn } from '@/util/Utils'
 
 export interface CommentFormProps {
    initialValue?: string

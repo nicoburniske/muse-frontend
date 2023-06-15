@@ -11,11 +11,14 @@ import { PlaylistPage } from '@/pages/PlaylistPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import SearchPage from '@/pages/searchSpotify/SearchPage'
 
+import { HomePage } from './pages/HomePage'
+
 export default function MuseRoutes() {
    return (
       <Routes>
          <Route path='/app' element={<NavPlayerPageOutlet />}>
-            <Route index element={<ReviewsPage />} />
+            <Route index element={<HomePage />} />
+            <Route path='home' element={<HomePage />} />
             <Route path='search' element={<SearchPage />} />
             <Route path='reviews' element={<ReviewsPage />} />
             <Route path='playlists' element={<MyPlaylistsPage />} />

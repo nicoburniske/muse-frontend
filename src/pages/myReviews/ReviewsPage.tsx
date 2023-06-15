@@ -12,9 +12,8 @@ import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { CommandButton, Pages, useOpenCommandPage } from '@/component/command/Command'
 import { MobileNavigation } from '@/component/container/MobileMenu'
 import { useNavAction } from '@/component/container/NavConstants'
-import { SelectedReviewModal, useSelectReview } from '@/component/SelectedReview'
+import { useSelectReview } from '@/component/SelectedReview'
 import { ProfileAndReviewsQuery, ReviewDetailsFragment, useProfileAndReviewsQuery } from '@/graphql/generated/schema'
-import { MuseTransition } from '@/lib/component/MuseTransition'
 import { Tabs, TabsList, TabsTrigger } from '@/lib/component/Tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/component/Tooltip'
 import { BrowseCard } from '@/pages/myReviews/BrowseCard'
@@ -98,26 +97,23 @@ export default function ReviewsPage() {
 
                      {/* Gallery */}
                      <section className='mt-8 pb-16' aria-labelledby='review-gallery'>
-                        <MuseTransition option={'Simple'} duration='duration-300'>
-                           <ul
-                              role='list'
-                              className='grid grid-cols-3 gap-x-2 gap-y-8 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
-                           >
-                              {reviews.map(review => (
-                                 <BrowseCard
-                                    key={review.id}
-                                    review={review}
-                                    onClick={() => setSelectedReview(review.id)}
-                                 />
-                              ))}
-                           </ul>
-                        </MuseTransition>
+                        <ul
+                           role='list'
+                           className='grid grid-cols-3 gap-x-2 gap-y-8 animate-in fade-in duration-300 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8'
+                        >
+                           {reviews.map(review => (
+                              <BrowseCard
+                                 key={review.id}
+                                 review={review}
+                                 onClick={() => setSelectedReview(review.id)}
+                              />
+                           ))}
+                        </ul>
                      </section>
                   </div>
                </main>
             )}
          </div>
-         <SelectedReviewModal />
       </div>
    )
 }

@@ -1,16 +1,15 @@
-import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 
 import { MuseAvatar } from '@/component/avatar/MuseAvatar'
 import { Icon } from '@/component/container/NavConstants'
 import { useSpotifyLogo } from '@/component/ListenOnSpotify'
-import { CurrentUserQuery, useCurrentUserQuery } from '@/graphql/generated/schema'
 import { Button } from '@/lib/component/Button'
+import { useIsLoggedIn } from '@/state/useIsLoggedIn'
 import { AppConfig } from '@/util/AppConfig'
 import { cn } from '@/util/Utils'
 
 export default function LandingPage() {
-   const isLoggedIn = useCurrentUsername() !== undefined
+   const isLoggedIn = useIsLoggedIn()
    const spotifyLogo = useSpotifyLogo()
 
    return (
@@ -157,18 +156,6 @@ export default function LandingPage() {
          </footer>
       </div>
    )
-}
-
-export const useCurrentUsername = () => {
-   const { data } = useCurrentUserQuery(
-      {},
-      {
-         staleTime: 60 * 1000,
-         cacheTime: 60 * 1000,
-         select: useCallback((data: CurrentUserQuery) => data?.me?.spotifyProfile?.displayName ?? data?.me?.id, []),
-      }
-   )
-   return data
 }
 
 const Footerlinks: readonly FooterLink[] = [
