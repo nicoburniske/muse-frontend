@@ -240,13 +240,15 @@ const makeColumns = (reviewId: string): ColumnDef<DetailedPlaylistTrackFragment>
       id: 'Comment Button',
       header: row => <TableHead id={row.header.id}></TableHead>,
       cell: ({ row, cell }) => {
-         const showCommentModal = useCommentModalTrack(reviewId, row.original.track.id)
          const data = useReviewOverviewAtom(reviewId)
          const userId = useCurrentUserId()
 
          const canComment =
             data?.review?.creator?.id === userId ||
             data?.review?.collaborators?.filter(c => c.accessLevel === 'Collaborator').some(c => c.user.id === userId)
+
+         const showCommentModal = useCommentModalTrack(reviewId, row.original.track.id)
+
          if (canComment) {
             return (
                <TableCell key={cell.id}>
