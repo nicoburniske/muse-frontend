@@ -229,7 +229,7 @@ export default function DetailedComment({ reviewId, comment: detailedComment }: 
          {childComments.length > 0 && isExpanded ? (
             <div className='ml-2 mt-1 space-y-1 lg:ml-4'>
                {childComments.map(child => (
-                  <DetailedComment key={child.id} review={review} comment={child} />
+                  <DetailedComment key={child.id} reviewId={reviewId} comment={child} />
                ))}
             </div>
          ) : null}
